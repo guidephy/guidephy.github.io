@@ -31,7 +31,7 @@ readSheetData({
   sheetUrl : myData.sheetUrl,
   sheetName : myData.sheetName
 }, function(googleSheetReadData){
-  document.getElementById('answer2').value = googleSheetReadData;
+  document.getElementById('answer1').innerHTML = googleSheetReadData;
 });
    
 
@@ -56,7 +56,7 @@ readSheetData({
       </div>
       <div data-role="content">
         <input type="button" value="答案1" onClick="hi();">
-        <div><span id="demo-area-01-show">123</span></div>
+        <div><span id="answer1">123</span></div>
 
         <input id="answer2" type="button" >
         <input type="button" value="答案3" onClick="ho();">
