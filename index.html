@@ -7,7 +7,7 @@
     <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
     <script src=jquery-2.2.4.min.js></script>
     <script src=jquery.mobile-1.4.5.min.js></script>
-    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src=jquery-1.9.1.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
   
@@ -46,25 +46,35 @@
     }
     document.getElementById('question').innerHTML = "誰提出三大運動定律？";
     document.getElementById('answer1').value = "牛頓";
-    document.getElementById('answer1').value = "愛因斯坦";
+    document.getElementById('answer2').value = "愛因斯坦";
     document.getElementById('answer3').value = "焦耳";
-    document.getElementById('answer4').value = "虎克";
+    document.getElementById('show').value = "虎克";
    
     
     </script>
   
-    <script type="text/javascript">
-        function Sendanswer(){
-            $.get("https://script.google.com/macros/s/AKfycbwyyRA5aSmVwb3Ibwoydp0zCoSqFBN2T3V11vgNfyAX381eJXqB/exec", {
-                        "number": document.getElementById("numberInput").value,
-                        "name": document.getElementById("nameInput").value,
-                        "score": document.getElementById("scoreInput").value
-                    },
-                    function (data) {
-                        document.write("--------------------------");
-                        document.write("Result = "+data);
-                        document.write("--------------------------");
-                    });
-        }
-    </script>
+    <script>
+  
+   
+    
+  var parameter = {};
+
+  answer1.on('click',function() {
+    parameter = {
+      url: 'https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0',
+      name: '題目',
+      startRow: 1,
+      startColumn:2
+    };
+	  $.get(appUrl, parameter, function(data) {
+	  	if(!data){
+	    	show.text('無資料');
+	  	}else{
+	    	show.text(data);
+	  	}
+	  });
+  });
+  </script>
+                                                   
+                                                   
 </html>
