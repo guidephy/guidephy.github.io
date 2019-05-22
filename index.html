@@ -21,9 +21,9 @@
       </div>
       <div data-role="content">
         <input id="answer1" type="button" value="答案1" onClick="answer1();">
-        <input id="answer2" type="button" onClick="answer2();">
+        <input id="answer2" type="button" value="答案2" onClick="answer2();">
         <input id="answer3" type="button" value="答案3" onClick="answer3();">
-        <input id="answer4" type="button" value="答案"  onClick="ho();">
+        <input id="answer4" type="button" value="答案4" onClick="ho();">
       </div> 
       <div data-role="footer" data-position="fixed" data-theme="b">
       <h4>&copy;Guidephy</h4>
@@ -42,35 +42,26 @@
     }
      function answer3()
     {
-        
-        document.getElementById('question').innerHTML = "誰提出三大運動定律？";
+    }
+    document.getElementById('question').innerHTML = "誰提出三大運動定律？";
     document.getElementById('answer1').innerHTML = "牛頓";
-    document.getElementById('answer2').value = "愛因斯坦";
+   
     document.getElementById('answer3').value = "焦耳";
     document.getElementById('answer4').value = "虎克";
-    }
-     
-     
-  
-     
-    function ho()
-    {
-            var myData;
-    myData= {};
-myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0';
-myData.sheetName = '題目';
-readSheetData({
-  row : 1,
-  col : 2,
-  sheetUrl : myData.sheetUrl,
-  sheetName : myData.sheetName
-}, function(googleSheetReadData){
-  document.getElementById('answer2').value = googleSheetReadData;
-});
-    }
     
-
    
-
+    var myData;
+    myData= {};
+    myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0';
+    myData.sheetName = '題目';
+    readSheetData({
+     row : 1,
+     col : 2,
+    sheetUrl : myData.sheetUrl,
+    sheetName : myData.sheetName
+    }, function(googleSheetReadData){
+    document.getElementById('answer2').value = googleSheetReadData;
+     });
+    
     </script>
 </html>
