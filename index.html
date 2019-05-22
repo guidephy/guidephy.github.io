@@ -27,7 +27,9 @@
         <input id="answer4" type="button" value="答案4" onClick="ho();">
 	<button id="sendBtn">查詢</button><br/>
       </div> 
-      <div><p id="show">查詢</p></div>							    
+			    
+      <div><button id="sendBtn">查詢</button><br/>
+           <p id="show">查詢</p></div>							    
       <div data-role="footer" data-position="fixed" data-theme="b">
       <h4>&copy;Guidephy</h4>
     </div>
@@ -57,11 +59,13 @@
   
     <script>
   
-   
+   var sendBtn = $('#sendBtn'),
+    var show = $('#show');
     
   var parameter = {};
 
   sendBtn.on('click',function() {
+						
     parameter = {
       url: 'https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0',
       name: '題目',
