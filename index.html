@@ -10,18 +10,11 @@
         alert("文本");
     }
     
+    
+    
     function ho()
     {
-        alert("文本2");  
-    }
-    
-    function he()
-    {
-        document.getElementById("answer2").value="abc"; 
-    }
-    
-document.getElementById("myButton1").value="New Button Text";
-    var myData;
+            var myData;
     myData= {};
 myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0';
 myData.sheetName = '題目';
@@ -33,6 +26,9 @@ readSheetData({
 }, function(googleSheetReadData){
   document.getElementById('answer1').innerHTML = googleSheetReadData;
 });
+    }
+    
+
    
 
     </script>
@@ -60,7 +56,7 @@ readSheetData({
 
         <input id="answer2" type="button" >
         <input type="button" value="答案3" onClick="ho();">
-        <input id="myButton1" type="button" value="" >
+        <input id="myButton1" type="button" value="答案4" >
       </div> 
       <div data-role="footer" data-position="fixed" data-theme="b">
       <h4>&copy;Guidephy</h4>
