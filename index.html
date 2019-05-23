@@ -7,7 +7,7 @@
     <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
     <script src=jquery-2.2.4.min.js></script>
     <script src=jquery.mobile-1.4.5.min.js></script>
-    <script src=jquery-1.9.1.js"></script>
+	  
     <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
   
@@ -29,12 +29,13 @@
       </div> 
 			    
       <div><button id="sendBtn">查詢</button><br/>
-           <p id="show">查詢</p></div>							    
+      <p id="show">查詢</p></div>							    
       <div data-role="footer" data-position="fixed" data-theme="b">
       <h4>&copy;Guidephy</h4>
-    </div>
-    </div>  
+      </div>
+     </div>  
   </body>
+	
    <script language="JavaScript">
 
     function answer1()
@@ -57,30 +58,6 @@
     
     </script>
   
-    <script>
-  
-   var sendBtn = $('#sendBtn'),
-    var show = $('#show');
-    
-  var parameter = {};
-
-  sendBtn.on('click',function() {
-						
-    parameter = {
-      url: 'https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0',
-      name: '題目',
-      startRow: 1,
-      startColumn:2
-    };
-	  $.get(appUrl, parameter, function(data) {
-	  	if(!data){
-	    	show.text('無資料');
-	  	}else{
-	    	show.text(data);
-	  	}
-	  });
-  });
-  </script>
                                                    
                                                    
 </html>
