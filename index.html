@@ -108,8 +108,9 @@
       if(!data){
         show.text('無資料');
       }else{
-        show.text(data);
-	answer1.text(data[1]);
+	var content=JSON.parse(data);
+        show.text(content[0]);
+	answer1.text(content[1]);
       }
       });
 	     
