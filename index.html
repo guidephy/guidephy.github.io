@@ -73,6 +73,30 @@
         alert("答錯");
     }
     
+   
+ 
+    
+     sendBtn = $('#sendBtn'),
+     show = $('#show');
+     var parameter = {};
+
+     sendBtn.on('click',function() {
+     parameter = {
+      url: "https://docs.google.com/spreadsheets/d/1ychXdZ6rqRXdh8sdSSjWwcE5BJjZjOdDAlkkK1L3dOk/edit#gid=0",
+      name: 'abc',
+      startRow: 5,
+      startColumn: 2
+      };
+      $.get("https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0", parameter, function(data) {
+      if(!data){
+        show.text('無資料');
+      }else{
+        show.text(data);
+      }
+      });
+     });
+ 
+	   
     document.getElementById('question').innerHTML = "誰提出三大運動定律？";
     document.getElementById('answer1').value = "牛頓";
     document.getElementById('answer2').value = "愛因斯坦";
