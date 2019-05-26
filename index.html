@@ -75,7 +75,7 @@
     }
 	   
     
-    document.getElementById('answer1').value = "";
+    document.getElementById('answer1').value = "牛頓";
     document.getElementById('answer2').value = "愛因斯坦";
     document.getElementById('answer3').value = "焦耳";
     document.getElementById('answer4').value = "虎克";
@@ -88,10 +88,10 @@
       
       sendBtn = $('#sendBtn');
       show = $('#question');
-      answer1 =$('#answer1');
+      
      var parameter = {};
 	 
-     var parameter1={};
+   
 
      sendBtn.on('click',function() {
      var x=Math.floor(Math.random() * 83)+2;	
@@ -101,12 +101,7 @@
       startRow: x,
       startColumn: 2
       };
-      parameter1 = {
-      url: "https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0",
-      name: '題目',
-      startRow: x,
-      startColumn: 3
-      };
+      
      
       $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
@@ -116,13 +111,7 @@
       }
       });
 	     
-      $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter1, function(data) {
-      if(!data){
-        answer1.value('無資料');
-      }else{
-        answer1.value(data);
-      }
-      });
+      
 	     
      });
  </script>
