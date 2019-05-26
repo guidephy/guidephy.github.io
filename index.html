@@ -110,8 +110,8 @@
   
      });
 	 answer1.on('click',function() {
-		 if(answer1.text==correctAnswer.text){
-			 alert(answer1.text);
+		 if(document.getElementById("answer1").text==document.getElementById("correctAnswer").text){
+			 alert("答對了");
 		}else{
 			alert("答錯了");
 		};
