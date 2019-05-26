@@ -31,11 +31,10 @@
      
      <div data-role="controlgroup" data-type="vertical">
      
-   
-     <button id="answer1"></button>
-     <input id="answer2" type="button" value="" onclick="wrong()">
-     <input id="answer3" type="button" value="" onclick="wrong()">
-     <input id="answer4" type="button" value="" onclick="wrong()">
+	     <button id="answer1"></button>
+	     <button id="answer2"></button>
+	     <button id="answer3"></button>
+	     <button id="answer4"></button>
 	     
      </div>
      </div>
@@ -75,9 +74,9 @@
 	   
     
    // document.getElementById('answer1').value = "牛頓";
-    document.getElementById('answer2').value = "愛因斯坦";
-    document.getElementById('answer3').value = "焦耳";
-    document.getElementById('answer4').value = "虎克";
+    //document.getElementById('answer2').value = "愛因斯坦";
+    //document.getElementById('answer3').value = "焦耳";
+    //document.getElementById('answer4').value = "虎克";
    
 
     
@@ -87,7 +86,11 @@
       
       sendBtn = $('#sendBtn');
       show = $('#question');
-      answer1=$('#answer1');
+         answer1=$('#answer1');
+	 answer2=$('#answer2');
+	 answer3=$('#answer3');
+	 answer4=$('#answer4');
+	 
       
       
      var parameter = {};
@@ -108,9 +111,12 @@
       if(!data){
         show.text('無資料');
       }else{
-	//var content=data.split(",");
-        show.text(data);
-	//answer1.text(content[0]);
+	var content=data.split(",");
+        show.text(content[4]);
+	answer1.text(content[0]);
+	answer2.text(content[1]);
+	answer3.text(content[2]);
+	answer4.text(content[3]);
       }
       });
 	     
