@@ -117,7 +117,7 @@
 	 
 	 function check(id) { 
             if(id.innerHTML==document.getElementById("correctAnswer").innerHTML){
-			 alert("答對了，再來一題");
+			 
 		    var x=Math.floor(Math.random() * 83)+2;	
      parameter = {
       startRow: x,
@@ -138,10 +138,11 @@
 	chooseAnswer.text("請選擇答案");	       
 	sendBtn.text("下一題");
 	correctAnswer.text(content[5]);
-	
+	alert("答對了，再來一題");
       }
 	      
       });
+		    
 		}else{
 			alert("答錯了");
 		};
