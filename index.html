@@ -23,7 +23,7 @@
       <div data-role="content">
 
       <div data-role="content">
-      <h4>題目</h4>	      
+      <h4 id="show"></h4>	      
       <h4 id="question"></h4>
       </div>
      
@@ -41,7 +41,7 @@
      </div>
 			    
      <button id="sendBtn">查詢</button><br/>
-  <h2 id="show">123</h2>
+  
 	
        </div>
 	    
@@ -80,7 +80,7 @@
  
     
      sendBtn = $('#sendBtn'),
-     show = $('#question');
+     show = $('#show');
   var parameter = {};
 
   sendBtn.on('click',function() {
