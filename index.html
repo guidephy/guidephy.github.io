@@ -61,6 +61,8 @@
   </body>
 	
    <script language="JavaScript">
+	   
+    var x=10;	   
 
     function correct()
     {
@@ -77,10 +79,7 @@
     document.getElementById('answer3').value = "焦耳";
     document.getElementById('answer4').value = "虎克";
    
-    
-    </script>
-	
-  <script  language="JavaScript">
+   
  
     
      sendBtn = $('#sendBtn'),
@@ -91,7 +90,7 @@
     parameter = {
       url: "https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0",
       name: "題目",
-      startRow: Math.floor(Math.random()*83)+2;,
+      startRow: x,
       startColumn: 2
     };
     $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
