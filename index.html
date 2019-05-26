@@ -85,7 +85,7 @@
       startRow: x,
       startColumn: 2
       };
-      document.getElementById("answer").style.visibility='visible';
+      
      
       $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
@@ -102,6 +102,7 @@
 	sendBtn.text("下一題");
 	
       }
+	      document.getElementById("answer").style.visibility='visible';
       });
 	     
       
