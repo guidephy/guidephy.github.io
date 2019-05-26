@@ -42,7 +42,7 @@
      </div>
 			    
      <button id="sendBtn">查詢</button>
-     <h2 id="show">123</h2>
+     <h2 id="show">下一題</h2>
    
   
 	
@@ -76,7 +76,23 @@
    
  
     
-     sendBtn = $('#sendBtn'),
+    
+ 
+	   
+    document.getElementById('question').innerHTML = "誰提出三大運動定律？";
+    document.getElementById('answer1').value = "牛頓";
+    document.getElementById('answer2').value = "愛因斯坦";
+    document.getElementById('answer3').value = "焦耳";
+    document.getElementById('answer4').value = "虎克";
+   
+   
+ 
+    
+    
+  </script>
+	
+ <script>	
+	 sendBtn = $('#sendBtn'),
      show = $('#show');
      var parameter = {};
 
@@ -95,20 +111,7 @@
       }
       });
      });
- 
-	   
-    document.getElementById('question').innerHTML = "誰提出三大運動定律？";
-    document.getElementById('answer1').value = "牛頓";
-    document.getElementById('answer2').value = "愛因斯坦";
-    document.getElementById('answer3').value = "焦耳";
-    document.getElementById('answer4').value = "虎克";
-   
-   
- 
-    
-    
-  </script>
-
+ </script>
                                                    
                                                    
 </html>
