@@ -22,12 +22,12 @@
 	    
       <div data-role="content">
 
-      <div  id="questionData" style='display:none; data-role="content">
+      <div data-role="content">
 	      
-      <h4>題目</h4>	      
+      <h4 id="questionTitle"></h4>	      
       <h4 id="question"></h4>
      
-     <h4>請選擇答案</h4>
+     <h4 id="chooseAnswer"></h4>
      
      <div  data-role="controlgroup" data-type="vertical">
      
@@ -60,36 +60,18 @@
 	    
   </body>
 	
-   <script language="JavaScript">
-	  	   
 
-    function correct()
-    {
-        alert("答對");
-    }
-     function wrong()
-    {
-        alert("答錯");
-    }
-	   
-    
-   // document.getElementById('answer1').value = "牛頓";
-    //document.getElementById('answer2').value = "愛因斯坦";
-    //document.getElementById('answer3').value = "焦耳";
-    //document.getElementById('answer4').value = "虎克";
-   
-
-    
-  </script>
 	
  <script>	
       
       sendBtn = $('#sendBtn');
       show = $('#question');
+	 questionTitle=	$('#questionTitle');	  
          answer1=$('#answer1');
 	 answer2=$('#answer2');
 	 answer3=$('#answer3');
 	 answer4=$('#answer4');
+         chooseAnswer=$('#chooseAnswer');
 	 
       
       
@@ -115,6 +97,8 @@
 	answer2.text(content[1]);
 	answer3.text(content[2]);
 	answer4.text(content[3]);
+	questionTitle.text("題目");
+	chooseAnswer.text("請選擇答案");	       
 	sendBtn.text("下一題");
       }
       });
