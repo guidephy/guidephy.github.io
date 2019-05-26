@@ -83,12 +83,13 @@
   </script>
 	
  <script>	
-     var x=Math.floor(Math.random() * 83)+2;	 
+      
       sendBtn = $('#sendBtn');
       show = $('#show');
      var parameter = {};
 
      sendBtn.on('click',function() {
+     var x=Math.floor(Math.random() * 83)+2;	
      parameter = {
       url: "https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0",
       name: '題目',
