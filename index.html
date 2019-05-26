@@ -87,6 +87,7 @@
       sendBtn = $('#sendBtn');
       show = $('#question');
       
+      
      var parameter = {};
 	 
    
@@ -106,6 +107,7 @@
         show.text('無資料');
       }else{
         show.text(data);
+	document.getElementById('answer1').value = data;
       }
       });
 	     
