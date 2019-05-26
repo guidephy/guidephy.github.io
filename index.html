@@ -82,14 +82,26 @@
    
 
      sendBtn.on('click',function() {
-     var x=Math.floor(Math.random() * 83)+2;	
+     
+      document.getElementById("answer").style.visibility='visible';
+      document.getElementById("sendBtn").style.visibility='hidden';
+	     
+     
+      
+  
+     });
+	 
+	 
+	 function check(id) { 
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML){
+			 alert("答對了，再來一題");
+		    var x=Math.floor(Math.random() * 83)+2;	
      parameter = {
       startRow: x,
       startColumn: 2
       };
-      
-     
-      $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
+		    
+		    $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
         show.text('無資料');
       }else{
@@ -105,15 +117,8 @@
 	correctAnswer.text(content[5]);
 	
       }
-	      document.getElementById("answer").style.visibility='visible';
+	      
       });
-  
-     });
-	 
-	 
-	 function check(id) { 
-            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML){
-			 alert("答對了");
 		}else{
 			alert("答錯了");
 		};
