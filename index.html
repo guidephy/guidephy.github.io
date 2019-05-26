@@ -80,15 +80,15 @@
  
     
      sendBtn = $('#sendBtn'),
-     show = $('#show');
+     show = $('#question');
   var parameter = {};
 
   sendBtn.on('click',function() {
     parameter = {
-      url: "https://docs.google.com/spreadsheets/d/1ychXdZ6rqRXdh8sdSSjWwcE5BJjZjOdDAlkkK1L3dOk/edit#gid=0",
+      url: "https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0",
       name: 'abc',
       startRow: 2,
-      startColumn: 1
+      startColumn: Math.floor(Math.random()*84)+1;
     };
     $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
