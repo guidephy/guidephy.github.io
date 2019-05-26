@@ -41,8 +41,8 @@
      </div>
      </div>
 			    
-     <button id="sendBtn">查詢</button>
-     <h2 id="show">下一題</h2>
+     <button id="sendBtn">下一題</button>
+     <h2 id="show"></h2>
    
   
 	
@@ -83,6 +83,7 @@
   </script>
 	
  <script>	
+     var x=Math.floor(Math.random() * 83)+2;	 
       sendBtn = $('#sendBtn');
       show = $('#show');
      var parameter = {};
@@ -91,7 +92,7 @@
      parameter = {
       url: "https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0",
       name: '題目',
-      startRow: Math.floor(Math.random()*83)+2;,
+      startRow: x,
       startColumn: 2
       };
       $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
