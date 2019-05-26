@@ -23,8 +23,9 @@
       <div data-role="content">
 
       <div data-role="content">
-      <h4 id="show"></h4>	      
-      <h4 id="question"></h4>
+	      
+      <h4>題目</h4>	      
+      <h4 id="show"></h4>
       </div>
      
      <div data-role="content">
@@ -88,7 +89,7 @@
       url: "https://docs.google.com/spreadsheets/d/1qGiYPT785kBcpGI41Fdd3KJ4mEogwu1v1BV3Zbmtd-o/edit#gid=0",
       name: '題目',
       startRow: 2,
-      startColumn: Math.floor(Math.random()*84)+1;
+      startColumn: 5;
     };
     $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
