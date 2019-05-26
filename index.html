@@ -7,6 +7,7 @@
     <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
     <script src=jquery-2.2.4.min.js></script>
     <script src=jquery.mobile-1.4.5.min.js></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
 	  
     <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
@@ -48,7 +49,10 @@
       </div>
 	    
      </div> 
-	
+	    
+  <button id="sendBtn">查詢</button><br/>
+  <h2 id="show">123</h2>
+	    
   </body>
 	
    <script language="JavaScript">
@@ -70,7 +74,30 @@
    
     
     </script>
-  
+  <script>
+ 
+    
+     sendBtn = $('#sendBtn'),
+     show = $('#show');
+  var parameter = {};
+
+  sendBtn.on('click',function() {
+    parameter = {
+      url: "https://docs.google.com/spreadsheets/d/1ychXdZ6rqRXdh8sdSSjWwcE5BJjZjOdDAlkkK1L3dOk/edit#gid=0",
+      name: 'abc',
+      startRow: 2,
+      startColumn: 1
+    };
+    $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
+      if(!data){
+        show.text('無資料');
+      }else{
+        show.text(data);
+      }
+    });
+  });
+  </script>
+
                                                    
                                                    
 </html>
