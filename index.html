@@ -42,7 +42,8 @@
      <div  data-role="content">		    
      <button id="sendBtn">開始測驗</button>
      </div>
-     
+     <p id="correctAnswer" style='visibility:hidden'><p>
+	      
    
   
 	
@@ -72,6 +73,7 @@
 	 answer3=$('#answer3');
 	 answer4=$('#answer4');
          chooseAnswer=$('#chooseAnswer');
+	 correctAnswer=$('#correctAnswer');
 	 
       
       
@@ -100,15 +102,21 @@
 	questionTitle.text("題目");
 	chooseAnswer.text("請選擇答案");	       
 	sendBtn.text("下一題");
+	correctAnswer.text(content[5]);
 	
       }
 	      document.getElementById("answer").style.visibility='visible';
       });
-	     
-      
-	     
+  
      });
-	 
+	 answer1.on('click',function() {
+		 if(answer1.text==correctAnswer.text){
+			 alert("答對了");
+		}else{
+			alert("答錯了");
+		};
+ 
+	 });
     
  </script>
                                                    
