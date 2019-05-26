@@ -31,10 +31,10 @@
      
      <div  id="answer" data-role="controlgroup" data-type="vertical"  style='visibility:hidden'>
      
-	     <button id="answer1"></button>
-	     <button id="answer2"></button>
-	     <button id="answer3"></button>
-	     <button id="answer4"></button>
+	     <button id="answer1" onclick="check(this)"></button>
+	     <button id="answer2" onclick="check(this)"></button>
+	     <button id="answer3" onclick="check(this)"></button>
+	     <button id="answer4" onclick="check(this)"></button>
 	     
      </div>
      </div>
@@ -109,14 +109,15 @@
       });
   
      });
-	 answer1.on('click',function() {
-		 if(document.getElementById("answer1").innerHTML==document.getElementById("correctAnswer").innerHTML){
+	 
+	 
+	 function check(id) { 
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML){
 			 alert("答對了");
 		}else{
 			alert("答錯了");
 		};
- 
-	 });
+        }
     
  </script>
                                                    
