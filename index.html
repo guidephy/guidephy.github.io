@@ -27,8 +27,9 @@
       <h4 id="questionTitle"></h4>        
       <h4 id="question"></h4>
      
-     <h4 id="chooseAnswer" ></h4>
+     <h4 id="chooseAnswer"></h4>
       <h3 id="spendtime" style="text-align:center;" style='visibility:hidden'><h3>
+     
      <div  id="answer" data-role="controlgroup" data-type="vertical"  style='visibility:hidden'>
      
        <button id="answer1" onclick="check(this)"></button>
@@ -39,8 +40,7 @@
      </div>
      </div>
 
-     <div  data-role="content">  
-    
+     <div  data-role="content">       
      <button id="sendBtn">開始測驗</button>
      <p id="timer" style='visibility:hidden'><p>
      </div>
@@ -67,7 +67,6 @@
   
  <script> 
      var t;
-     var myVar
 
 
       
@@ -87,18 +86,11 @@
    
    
      sendBtn.on('click',function() {
-       t=0;
-       
-       var myVar=setInterval(function(){myTimer()},1000);
-       function myTimer()
-      {
-         t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
-      }
-       
-       document.getElementById("spendtime").style.visibility='hidden';
+      t=0;
+
+      document.getElementById("spendtime").style.visibility='hidden';
         document.getElementById("spendtime").innerHTML="";
-     
+
        chooseAnswer.text("");  
      var x=Math.floor(Math.random() * 83)+2;  
      parameter = {
@@ -125,13 +117,25 @@
       }
     document.getElementById("question").style.visibility='visible';
     document.getElementById("answer").style.visibility='visible';    
-      });    
+      });
 
-      
+        document.getElementById("timer").style.visibility='visible'; 
 
+      var myVar=setInterval(function(){myTimer()},1000);
+
+
+ 
+      function myTimer()
+      {
+    
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
       
       document.getElementById("sendBtn").style.visibility='hidden';
- 
+       
+     
+      
   
      });
    
@@ -164,14 +168,13 @@
         
     }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
       var gametime=t;
-     
+      document.getElementById("timer").style.visibility='hidden'; 
       document.getElementById("answer").style.visibility='hidden'; 
       document.getElementById("question").style.visibility='hidden';
      
       questionTitle.text("");
-      document.getElementById("spendtime").style.visibility='visible';
+       document.getElementById("spendtime").style.visibility='visible';
       document.getElementById("spendtime").innerHTML="完成測驗，共花了"+gametime+"秒";
-     
       chooseAnswer.text(""); 
       document.getElementById("sendBtn").style.visibility='visible';
     }else{
@@ -179,7 +182,8 @@
     };
         }
          
-   
+    
+ 
     
  </script>
                                                    
