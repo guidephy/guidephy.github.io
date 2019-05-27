@@ -118,7 +118,7 @@
     document.getElementById("answer").style.visibility='visible';    
       });
 
-          t=0;
+         
 
       var myVar=setInterval(function(){myTimer()},1000);
 
@@ -169,7 +169,7 @@
       questionTitle.text("");
       document.getElementById("spendtime").style.visibility='visible';
       document.getElementById("spendtime").innerHTML="完成測驗，共花了"+gametime+"秒";
-      
+      clearInterval(myVar);
       chooseAnswer.text(""); 
       document.getElementById("sendBtn").style.visibility='visible';
     }else{
