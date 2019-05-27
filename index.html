@@ -43,14 +43,9 @@
      <button id="sendBtn">開始測驗</button>
      </div>
      <p id="correctAnswer" style='visibility:hidden'><p>
-	      
-   
-  
 	
        </div>
-	    
-	    
-	    
+  
       <div data-role="footer" data-position="fixed" data-theme="b">
       <h4>&copy;Guidephy</h4>
       </div>
@@ -88,7 +83,7 @@
       startColumn: 2
       };
 		    
-		    $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
+    $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
         show.text('無資料');
       }else{
@@ -100,7 +95,6 @@
 	answer4.text(content[3]);
 	questionTitle.text("題目");
 	chooseAnswer.text("請選擇答案");	       
-	sendBtn.text("下一題");
 	correctAnswer.text(content[5]);
 	
 	}
@@ -135,9 +129,6 @@
 	answer2.text(content[1]);
 	answer3.text(content[2]);
 	answer4.text(content[3]);
-	questionTitle.text("題目");
-	chooseAnswer.text("請選擇答案");	       
-	sendBtn.text("下一題");
 	correctAnswer.text(content[5]);
 	
       }
