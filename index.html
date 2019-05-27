@@ -88,6 +88,14 @@
    
      sendBtn.on('click',function() {
        t=0;
+       
+       var myVar=setInterval(function(){myTimer()},1000);
+       function myTimer()
+      {
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
+       
        document.getElementById("spendtime").style.visibility='hidden';
         document.getElementById("spendtime").innerHTML="";
      
@@ -117,20 +125,13 @@
       }
     document.getElementById("question").style.visibility='visible';
     document.getElementById("answer").style.visibility='visible';    
-      });
+      });    
 
-         
-
-      var myVar=setInterval(function(){myTimer()},1000);
-
-
-       
       
+
       
       document.getElementById("sendBtn").style.visibility='hidden';
-       
-     
-      
+ 
   
      });
    
@@ -170,7 +171,7 @@
       questionTitle.text("");
       document.getElementById("spendtime").style.visibility='visible';
       document.getElementById("spendtime").innerHTML="完成測驗，共花了"+gametime+"秒";
-      clearInterval(myVar);
+     
       chooseAnswer.text(""); 
       document.getElementById("sendBtn").style.visibility='visible';
     }else{
@@ -178,13 +179,7 @@
     };
         }
          
-    function myTimer()
-      {
-    
-         t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
-      }
- 
+   
     
  </script>
                                                    
