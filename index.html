@@ -17,126 +17,125 @@
     <div data-role="page">
       
       <div data-role="header" data-position="fixed">
-      <h1>物理測驗</h1>
+        <h1>物理測驗</h1>
       </div>
       
       <div data-role="content">
 
-      <div data-role="content">
+        <div data-role="content">
         
-      <h4 id="questionTitle"></h4>        
-      <h4 id="question"></h4>
+          <h4 id="questionTitle"></h4>        
+          <h4 id="question"></h4>
+          <h4 id="chooseAnswer"></h4>
+          <h3 id="spendtime" style="text-align:center;" style='visibility:hidden'><h3>
      
-     <h4 id="chooseAnswer"></h4>
-      <h3 id="spendtime" style="text-align:center;" style='visibility:hidden'><h3>
+        <div  id="answer" data-role="controlgroup" data-type="vertical"  style='visibility:hidden'>
      
-     <div  id="answer" data-role="controlgroup" data-type="vertical"  style='visibility:hidden'>
-     
-       <button id="answer1" onclick="check(this)"></button>
-       <button id="answer2" onclick="check(this)"></button>
-       <button id="answer3" onclick="check(this)"></button>
-       <button id="answer4" onclick="check(this)"></button>
-       
-     </div>
-     </div>
+          <button id="answer1" onclick="check(this)"></button>
+          <button id="answer2" onclick="check(this)"></button>
+          <button id="answer3" onclick="check(this)"></button>
+          <button id="answer4" onclick="check(this)"></button>
 
-     <div  data-role="content">
-       
-      <div id="forusername" data-role="fieldcontain">
-
-     
-        <label  for="username">輸入姓名:</label>
-        <input type="text"  style="text-align:center;" id="username">
-
-      </div>
-
-
-     <button id="sendBtn">開始測驗</button>
-     <p id="timer" style='visibility:hidden'><p>
-     </div>
-     <p id="correctAnswer" style='visibility:hidden'><p>
-        
-   
-  
-  
-       </div>
+        </div>
+        <div>
+        <div  data-role="content">      
+        <div id="forusername" data-role="fieldcontain">     
+          <label  for="username">輸入姓名:</label>
+          <input type="text"  style="text-align:center;" id="username">
+        </div>
+          <button id="sendBtn">開始測驗</button>
+          <p id="timer" style='visibility:hidden'><p>
+        </div>
+          <p id="correctAnswer" style='visibility:hidden'><p>
+        </div>
+ 
+        <div data-role="footer" data-position="fixed" data-theme="b">
+          <h4>&copy;Guidephy</h4>
+        </div>
       
-      
-      
-      <div data-role="footer" data-position="fixed" data-theme="b">
-      <h4>&copy;Guidephy</h4>
-      </div>
-      
-     </div> 
-      
-  
-      
-  </body>
+        </div>     
+     </body>
   
 
   
  <script> 
      var t;
+     var x=[];
       
       sendBtn = $('#sendBtn');
       show = $('#question');
-   questionTitle= $('#questionTitle');    
-         answer1=$('#answer1');
-   answer2=$('#answer2');
-   answer3=$('#answer3');
-   answer4=$('#answer4');
-         chooseAnswer=$('#chooseAnswer');
-   correctAnswer=$('#correctAnswer');
+      questionTitle= $('#questionTitle');    
+      answer1=$('#answer1');
+      answer2=$('#answer2');
+      answer3=$('#answer3');
+      answer4=$('#answer4');
+      chooseAnswer=$('#chooseAnswer');
+      correctAnswer=$('#correctAnswer');
    
       
      var times;
      var parameter = {};
    
-   var myVar=setInterval(function(){myTimer()},1000);
+     var myVar=setInterval(function(){myTimer()},1000);
      sendBtn.on('click',function() {
       if (document.getElementById("username").value==""){
          alert("請輪入姓名"); 
-
       }else{
         document.getElementById("username").style.visibility='hidden';
         document.getElementById("forusername").style.visibility='hidden';
-      t=0;
-      document.getElementById("spendtime").style.visibility='hidden';
+        t=0;
+        document.getElementById("spendtime").style.visibility='hidden';
         document.getElementById("spendtime").innerHTML="";
-       chooseAnswer.text("");  
-     var x=Math.floor(Math.random() * 83)+2;  
-     parameter = {
-      startRow: x,
-      startColumn: 2
-      };
-      times=1;
+        chooseAnswer.text("");  
+
+        
+
+        var index = 1;
+        while (index < 11) {
+                       var flag = true;
+                       var num = Math.floor(Math.random() * 83)+2;
+                       for (var i in x) {
+                       if (x[i] == num) {
+                       flag = false;
+                       }
+                       }
+                       if (flag == true) {
+                       x[index] = num;
+                       index++;
+                       }
+                    }
+
+        times=1;
+        parameter = {
+            startRow: x[times],
+            startColumn: 2
+                    };
+        
         
         $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
-      if(!data){
-        show.text('無資料');
-      }else{
-  var content=data.split(",");
-        show.text(content[4]);
-  answer1.text(content[0]);
-  answer2.text(content[1]);
-  answer3.text(content[2]);
-  answer4.text(content[3]);
-  questionTitle.text("題目"+times);
-  chooseAnswer.text("請選擇答案");        
-  sendBtn.text("再玩一次");  
-  correctAnswer.text(content[5]);
-  
+          if(!data){
+            show.text('無資料');
+          }else{
+             var content=data.split(",");
+             show.text(content[4]);
+             answer1.text(content[0]);
+             answer2.text(content[1]);
+             answer3.text(content[2]);
+             answer4.text(content[3]);
+             questionTitle.text("題目"+times);
+             chooseAnswer.text("請選擇答案");        
+             sendBtn.text("再玩一次");  
+             correctAnswer.text(content[5]);
       }
-    document.getElementById("question").style.visibility='visible';
-    document.getElementById("answer").style.visibility='visible';    
+            document.getElementById("question").style.visibility='visible';
+            document.getElementById("answer").style.visibility='visible';    
       });
          
         clearInterval(myVar);
-      myVar=setInterval(function(){myTimer()},1000);
+        myVar=setInterval(function(){myTimer()},1000);
  
       function myTimer()
       {
-    
          t=t+1;
         document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
       }
@@ -144,65 +143,55 @@
       document.getElementById("sendBtn").style.visibility='hidden';
        
      }
-      
-  
      });
    
    function check(id) { 
-            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<3){
-       times=times+1;
-        var x=Math.floor(Math.random() * 83)+2; 
-     parameter = {
-      startRow: x,
-      startColumn: 2
-      };
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<10){
+              times=times+1;
+              
+              parameter = {
+              startRow: x[times],
+              startColumn: 2
+             };
       
-      document.getElementById("answer").style.visibility='hidden'; 
-      document.getElementById("question").style.visibility='hidden';
-      alert("答對了，再來一題");  
-      questionTitle.text("題目"+times);
-        $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
-  var content=data.split(",");
-        show.text(content[4]);
-  answer1.text(content[0]);
-  answer2.text(content[1]);
-  answer3.text(content[2]);
-  answer4.text(content[3]);
+          document.getElementById("answer").style.visibility='hidden'; 
+          document.getElementById("question").style.visibility='hidden';
+           alert("答對了，再來一題");  
+          questionTitle.text("題目"+times);
+          $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
+          var content=data.split(",");
+          show.text(content[4]);
+          answer1.text(content[0]);
+          answer2.text(content[1]);
+          answer3.text(content[2]);
+          answer4.text(content[3]);
  
-  correctAnswer.text(content[5]);
+          correctAnswer.text(content[5]);
   
-      document.getElementById("answer").style.visibility='visible'; 
-      document.getElementById("question").style.visibility='visible';  
-      });
+          document.getElementById("answer").style.visibility='visible'; 
+          document.getElementById("question").style.visibility='visible';  
+          });
         
-    }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
-      var gametime=t;
+         }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
+          var gametime=t;
      
-      document.getElementById("answer").style.visibility='hidden'; 
-      document.getElementById("question").style.visibility='hidden';
+          document.getElementById("answer").style.visibility='hidden'; 
+          document.getElementById("question").style.visibility='hidden';
      
-      questionTitle.text("");
-      show.text("");
-      answer1.text("");
-      answer2.text("");
-      answer3.text("");
-      answer4.text("");
-       document.getElementById("spendtime").style.visibility='visible';
-      document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"<br>恭喜你完成測驗，<br>此次測驗共花了"+gametime+"秒";
-      chooseAnswer.text(""); 
-      document.getElementById("sendBtn").style.visibility='visible';
+          questionTitle.text("");
+          show.text("");
+          answer1.text("");
+          answer2.text("");
+          answer3.text("");
+          answer4.text("");
+          document.getElementById("spendtime").style.visibility='visible';
+          document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"<br>恭喜你完成測驗，<br>此次測驗共花了"+gametime+"秒";
+          chooseAnswer.text(""); 
+          document.getElementById("sendBtn").style.visibility='visible';
     }else{
       alert("答錯了");
     };
         }
-         
-    
- 
-    
  </script>
-                                                   
-                                                   
-
-                                                   
-                                                   
+                                                                                                   
 </html>
