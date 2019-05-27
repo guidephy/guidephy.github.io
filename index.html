@@ -67,6 +67,7 @@
   
  <script> 
      var t;
+     var myVar
 
 
       
@@ -117,18 +118,13 @@
     document.getElementById("answer").style.visibility='visible';    
       });
 
- 
+          t=0;
 
       var myVar=setInterval(function(){myTimer()},1000);
 
 
-       t=0;
-      function myTimer()
-      {
-    
-         t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
-      }
+       
+      
       
       document.getElementById("sendBtn").style.visibility='hidden';
        
@@ -181,7 +177,12 @@
     };
         }
          
+    function myTimer()
+      {
     
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
  
     
  </script>
