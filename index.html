@@ -80,7 +80,6 @@
      var parameter = {};
    
    
-
      sendBtn.on('click',function() {
      var x=Math.floor(Math.random() * 83)+2;  
      parameter = {
@@ -100,11 +99,13 @@
   answer3.text(content[2]);
   answer4.text(content[3]);
   questionTitle.text("題目");
+
   chooseAnswer.text("請選擇答案");        
-  sendBtn.text("下一題");
+  sendBtn.text("再玩一次");  
   correctAnswer.text(content[5]);
   
       }
+    document.getElementById("question").style.visibility='visible';
     document.getElementById("answer").style.visibility='visible';    
       });
       
@@ -114,10 +115,10 @@
       
   
      });
-   
+
    
    function check(id) { 
-            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML){
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<3){
        times=times+1;
         var x=Math.floor(Math.random() * 83)+2; 
      parameter = {
@@ -129,9 +130,7 @@
       document.getElementById("question").style.visibility='hidden';
       alert("答對了，再來一題");  
         $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
-
   var content=data.split(",");
-
         show.text(times+"、"+content[4]);
   answer1.text(content[0]);
   answer2.text(content[1]);
@@ -144,6 +143,15 @@
       document.getElementById("question").style.visibility='visible';  
       });
         
+    }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
+      document.getElementById("answer").style.visibility='hidden'; 
+      document.getElementById("question").style.visibility='hidden';
+     
+      questionTitle.text("");
+      chooseAnswer.text("完成測驗，共花了  秒"); 
+      document.getElementById("sendBtn").style.visibility='visible';
+
+
     }else{
       alert("答錯了");
     };
