@@ -8,141 +8,147 @@
     <script src=jquery-2.2.4.min.js></script>
     <script src=jquery.mobile-1.4.5.min.js></script>
     <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
-	  
+    
     <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
   
     <body>  
 
     <div data-role="page">
-	    
+      
       <div data-role="header" data-position="fixed">
       <h1>物理測驗</h1>
       </div>
-	    
+      
       <div data-role="content">
 
       <div data-role="content">
-	      
-      <h4 id="questionTitle"></h4>	      
+        
+      <h4 id="questionTitle"></h4>        
       <h4 id="question"></h4>
      
      <h4 id="chooseAnswer"></h4>
      
      <div  id="answer" data-role="controlgroup" data-type="vertical"  style='visibility:hidden'>
      
-	     <button id="answer1" onclick="check(this)"></button>
-	     <button id="answer2" onclick="check(this)"></button>
-	     <button id="answer3" onclick="check(this)"></button>
-	     <button id="answer4" onclick="check(this)"></button>
-	     
+       <button id="answer1" onclick="check(this)"></button>
+       <button id="answer2" onclick="check(this)"></button>
+       <button id="answer3" onclick="check(this)"></button>
+       <button id="answer4" onclick="check(this)"></button>
+       
      </div>
      </div>
 
-     <div  data-role="content">		    
+     <div  data-role="content">       
      <button id="sendBtn">開始測驗</button>
      </div>
      <p id="correctAnswer" style='visibility:hidden'><p>
-	
-       </div>
+        
+   
   
+  
+       </div>
+      
+      
+      
       <div data-role="footer" data-position="fixed" data-theme="b">
       <h4>&copy;Guidephy</h4>
       </div>
-	    
+      
      </div> 
-	    
+      
   
-	    
+      
   </body>
-	
+  
 
-	
- <script>	
+  
+ <script> 
       
       sendBtn = $('#sendBtn');
       show = $('#question');
-	 questionTitle=	$('#questionTitle');	  
+   questionTitle= $('#questionTitle');    
          answer1=$('#answer1');
-	 answer2=$('#answer2');
-	 answer3=$('#answer3');
-	 answer4=$('#answer4');
+   answer2=$('#answer2');
+   answer3=$('#answer3');
+   answer4=$('#answer4');
          chooseAnswer=$('#chooseAnswer');
-	 correctAnswer=$('#correctAnswer');
-	 
+   correctAnswer=$('#correctAnswer');
+   
       
      
      var parameter = {};
-
+   
    
 
      sendBtn.on('click',function() {
-     var x=Math.floor(Math.random() * 83)+2;	
+     var x=Math.floor(Math.random() * 83)+2;  
      parameter = {
       startRow: x,
       startColumn: 2
       };
-		    
-    $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
+        
+        $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
         show.text('無資料');
       }else{
-	var content=data.split(",");
+  var content=data.split(",");
         show.text(content[4]);
-	answer1.text(content[0]);
-	answer2.text(content[1]);
-	answer3.text(content[2]);
-	answer4.text(content[3]);
-	questionTitle.text("題目");
-	chooseAnswer.text("請選擇答案");	       
-	correctAnswer.text(content[5]);
-	
-	}
+  answer1.text(content[0]);
+  answer2.text(content[1]);
+  answer3.text(content[2]);
+  answer4.text(content[3]);
+  questionTitle.text("題目");
+  chooseAnswer.text("請選擇答案");        
+  sendBtn.text("下一題");
+  correctAnswer.text(content[5]);
+  
       }
-	  document.getElementById("answer").style.visibility='visible';    
+    document.getElementById("answer").style.visibility='visible';    
       });
       
       document.getElementById("sendBtn").style.visibility='hidden';
-	     
+       
      
       
   
      });
-	 
-	 
-	 function check(id) { 
+   
+   
+   function check(id) { 
             if(id.innerHTML==document.getElementById("correctAnswer").innerHTML){
-			 
-		    var x=Math.floor(Math.random() * 83)+2;	
+       
+        var x=Math.floor(Math.random() * 83)+2; 
      parameter = {
       startRow: x,
       startColumn: 2
       };
-		    
-		    $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
+        
+        $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
         show.text('無資料');
       }else{
-	var content=data.split(",");
+  var content=data.split(",");
         show.text(content[4]);
-	answer1.text(content[0]);
-	answer2.text(content[1]);
-	answer3.text(content[2]);
-	answer4.text(content[3]);
-	correctAnswer.text(content[5]);
-	
+  answer1.text(content[0]);
+  answer2.text(content[1]);
+  answer3.text(content[2]);
+  answer4.text(content[3]);
+  questionTitle.text("題目");
+  chooseAnswer.text("請選擇答案");        
+  sendBtn.text("下一題");
+  correctAnswer.text(content[5]);
+  alert("答對了，再來一題");
       }
-			    alert("答對了，再來一題");
-	      
+        
       });
-		    
-		}else{
-			alert("答錯了");
-		};
+        
+    }else{
+      alert("答錯了");
+    };
         }
     
  </script>
                                                    
                                                    
 </html>
-
