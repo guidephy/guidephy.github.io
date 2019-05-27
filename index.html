@@ -78,10 +78,11 @@
       
      
      var parameter = {};
-   
+     var times;
    
 
      sendBtn.on('click',function() {
+       times=1;
      var x=Math.floor(Math.random() * 83)+2;  
      parameter = {
       startRow: x,
@@ -93,7 +94,7 @@
         show.text('無資料');
       }else{
   var content=data.split(",");
-        show.text(content[4]);
+        show.text(times+content[4]);
   answer1.text(content[0]);
   answer2.text(content[1]);
   answer3.text(content[2]);
@@ -117,7 +118,7 @@
    
    function check(id) { 
             if(id.innerHTML==document.getElementById("correctAnswer").innerHTML){
-       
+       times=times+1;
         var x=Math.floor(Math.random() * 83)+2; 
      parameter = {
       startRow: x,
@@ -131,7 +132,7 @@
 
   var content=data.split(",");
 
-        show.text(content[4]);
+        show.text(times+content[4]);
   answer1.text(content[0]);
   answer2.text(content[1]);
   answer3.text(content[2]);
