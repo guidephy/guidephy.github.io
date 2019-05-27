@@ -41,6 +41,7 @@
 
      <div  data-role="content">       
      <button id="sendBtn">開始測驗</button>
+     <p id="timer"><p>
      </div>
      <p id="correctAnswer" style='visibility:hidden'><p>
         
@@ -64,6 +65,9 @@
 
   
  <script> 
+     var t;
+
+
       
       sendBtn = $('#sendBtn');
       show = $('#question');
@@ -81,6 +85,7 @@
    
    
      sendBtn.on('click',function() {
+      t=0;
        chooseAnswer.text("");  
      var x=Math.floor(Math.random() * 83)+2;  
      parameter = {
@@ -100,7 +105,6 @@
   answer3.text(content[2]);
   answer4.text(content[3]);
   questionTitle.text("題目"+times);
-
   chooseAnswer.text("請選擇答案");        
   sendBtn.text("再玩一次");  
   correctAnswer.text(content[5]);
@@ -109,6 +113,19 @@
     document.getElementById("question").style.visibility='visible';
     document.getElementById("answer").style.visibility='visible';    
       });
+
+        document.getElementById("timer").style.visibility='visible'; 
+
+      var myVar=setInterval(function(){myTimer()},1000);
+
+
+ 
+      function myTimer()
+      {
+    
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
       
       document.getElementById("sendBtn").style.visibility='hidden';
        
@@ -116,7 +133,6 @@
       
   
      });
-
    
    function check(id) { 
             if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<3){
@@ -146,21 +162,27 @@
       });
         
     }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
+      var gametime=t;
+      document.getElementById("timer").style.visibility='hidden'; 
       document.getElementById("answer").style.visibility='hidden'; 
       document.getElementById("question").style.visibility='hidden';
      
       questionTitle.text("");
-      chooseAnswer.text("完成測驗，共花了  秒"); 
+      
+      chooseAnswer.text("完成測驗，共花了"+gametime+"秒"); 
       document.getElementById("sendBtn").style.visibility='visible';
-
-
     }else{
       alert("答錯了");
     };
         }
-
-   
+         
+    
+ 
+    
  </script>
+                                                   
+                                                   
+
                                                    
                                                    
 </html>
