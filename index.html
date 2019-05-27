@@ -84,7 +84,7 @@
      var times;
      var parameter = {};
    
-   
+   var myVar=setInterval(function(){myTimer()},1000);
      sendBtn.on('click',function() {
       t=0;
 
@@ -119,9 +119,10 @@
     document.getElementById("answer").style.visibility='visible';    
       });
 
-        
+        document.getElementById("timer").style.visibility='visible'; 
+        clearInterval(myVar);
 
-      var myVar=setInterval(function(){myTimer()},1000);
+      myVar=setInterval(function(){myTimer()},1000);
 
 
  
