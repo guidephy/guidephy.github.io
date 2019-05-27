@@ -39,7 +39,8 @@
      </div>
      </div>
 
-     <div  data-role="content">       
+     <div  data-role="content">  
+     <h5 id="spendtime" style="text-align:center;" style='visibility:hidden'><h5>
      <button id="sendBtn">開始測驗</button>
      <p id="timer" style='visibility:hidden'><p>
      </div>
@@ -85,6 +86,7 @@
    
    
      sendBtn.on('click',function() {
+       document.getElementById("spendtime").style.visibility='hidden';
       t=0;
        chooseAnswer.text("");  
      var x=Math.floor(Math.random() * 83)+2;  
@@ -168,8 +170,10 @@
       document.getElementById("question").style.visibility='hidden';
      
       questionTitle.text("");
+      document.getElementById("spendtime").style.visibility='visible';
+      document.getElementById("spendtime").innerHTML="完成測驗，共花了"+gametime+"秒";
       
-      chooseAnswer.text("完成測驗，共花了"+gametime+"秒"); 
+      chooseAnswer.text(""); 
       document.getElementById("sendBtn").style.visibility='visible';
     }else{
       alert("答錯了");
