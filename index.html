@@ -41,7 +41,7 @@
 
      <div  data-role="content">       
      <button id="sendBtn">開始測驗</button>
-     <p id="timer"><p>
+     <p id="timer" style='visibility:hidden'><p>
      </div>
      <p id="correctAnswer" style='visibility:hidden'><p>
         
@@ -114,7 +114,7 @@
     document.getElementById("answer").style.visibility='visible';    
       });
 
-        document.getElementById("timer").style.visibility='visible'; 
+ 
 
       var myVar=setInterval(function(){myTimer()},1000);
 
@@ -163,7 +163,7 @@
         
     }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
       var gametime=t;
-      document.getElementById("timer").style.visibility='hidden'; 
+     
       document.getElementById("answer").style.visibility='hidden'; 
       document.getElementById("question").style.visibility='hidden';
      
