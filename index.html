@@ -40,7 +40,15 @@
      </div>
      </div>
 
-     <div  data-role="content">       
+     <div  data-role="content">
+
+      <div data-role="fieldcontain">
+        <label id="forusername" for="username">輸入姓名:</label>
+        <input type="text"  style="text-align:center;" id="username">
+
+      </div>
+
+
      <button id="sendBtn">開始測驗</button>
      <p id="timer" style='visibility:hidden'><p>
      </div>
@@ -67,8 +75,6 @@
   
  <script> 
      var t;
-
-
       
       sendBtn = $('#sendBtn');
       show = $('#question');
@@ -86,11 +92,15 @@
    
    var myVar=setInterval(function(){myTimer()},1000);
      sendBtn.on('click',function() {
-      t=0;
+      if (document.getElementById("username").value==""){
+         alert("請輪入姓名"); 
 
+      }else{
+        document.getElementById("username").style.visibility='hidden';
+        document.getElementById("forusername").style.visibility='hidden';
+      t=0;
       document.getElementById("spendtime").style.visibility='hidden';
         document.getElementById("spendtime").innerHTML="";
-
        chooseAnswer.text("");  
      var x=Math.floor(Math.random() * 83)+2;  
      parameter = {
@@ -118,13 +128,9 @@
     document.getElementById("question").style.visibility='visible';
     document.getElementById("answer").style.visibility='visible';    
       });
-
          
         clearInterval(myVar);
-
       myVar=setInterval(function(){myTimer()},1000);
-
-
  
       function myTimer()
       {
@@ -135,13 +141,13 @@
       
       document.getElementById("sendBtn").style.visibility='hidden';
        
-     
+     }
       
   
      });
    
    function check(id) { 
-            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<10){
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<3){
        times=times+1;
         var x=Math.floor(Math.random() * 83)+2; 
      parameter = {
@@ -167,7 +173,7 @@
       document.getElementById("question").style.visibility='visible';  
       });
         
-    }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
+    }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
       var gametime=t;
      
       document.getElementById("answer").style.visibility='hidden'; 
@@ -175,7 +181,7 @@
      
       questionTitle.text("");
        document.getElementById("spendtime").style.visibility='visible';
-      document.getElementById("spendtime").innerHTML="完成測驗，共花了"+gametime+"秒";
+      document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"，恭喜你完成測驗，此次測驗共花了"+gametime+"秒";
       chooseAnswer.text(""); 
       document.getElementById("sendBtn").style.visibility='visible';
     }else{
