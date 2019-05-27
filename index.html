@@ -76,25 +76,25 @@
    correctAnswer=$('#correctAnswer');
    
       
-     
-     var parameter = {};
      var times;
+     var parameter = {};
+   
    
 
      sendBtn.on('click',function() {
-       times=1;
      var x=Math.floor(Math.random() * 83)+2;  
      parameter = {
       startRow: x,
       startColumn: 2
       };
+      times=1;
         
         $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
       if(!data){
         show.text('無資料');
       }else{
   var content=data.split(",");
-        show.text(times+content[4]);
+        show.text(times+"、"+content[4]);
   answer1.text(content[0]);
   answer2.text(content[1]);
   answer3.text(content[2]);
@@ -132,7 +132,7 @@
 
   var content=data.split(",");
 
-        show.text(times+content[4]);
+        show.text(times+"、"+content[4]);
   answer1.text(content[0]);
   answer2.text(content[1]);
   answer3.text(content[2]);
