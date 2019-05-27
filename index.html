@@ -62,6 +62,7 @@
      var t;
      var x=[];
      var wrong;
+     var questionNumber;
       
       sendBtn = $('#sendBtn');
       show = $('#question');
@@ -83,6 +84,7 @@
          alert("請輪入姓名"); 
       }else{
         wrong=0;
+        questionNumber=10;
         document.getElementById("username").style.visibility='hidden';
         document.getElementById("forusername").style.visibility='hidden';
         t=0;
@@ -176,7 +178,7 @@
         
          }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
           var gametime=t;
-          var correctRatio=100*(10-wrong)/10;
+          var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
      
           document.getElementById("answer").style.visibility='hidden'; 
@@ -193,6 +195,7 @@
           chooseAnswer.text(""); 
           document.getElementById("sendBtn").style.visibility='visible';
     }else{
+      questionNumber=questionNumber+1;
       wrong=wrong+1;
       alert("答錯了");
     };
