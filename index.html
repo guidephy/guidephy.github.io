@@ -61,6 +61,7 @@
  <script> 
      var t;
      var x=[];
+     var wrong;
       
       sendBtn = $('#sendBtn');
       show = $('#question');
@@ -81,6 +82,7 @@
       if (document.getElementById("username").value==""){
          alert("請輪入姓名"); 
       }else{
+        wrong=0;
         document.getElementById("username").style.visibility='hidden';
         document.getElementById("forusername").style.visibility='hidden';
         t=0;
@@ -174,6 +176,8 @@
         
          }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
           var gametime=t;
+          var correctRatio=100*(10-wrong)/10;
+          correctRatio = correctRatio.toFixed(2);
      
           document.getElementById("answer").style.visibility='hidden'; 
           document.getElementById("question").style.visibility='hidden';
@@ -185,10 +189,11 @@
           answer3.text("");
           answer4.text("");
           document.getElementById("spendtime").style.visibility='visible';
-          document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"<br>恭喜你完成測驗，<br>此次測驗共花了"+gametime+"秒";
+          document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"<br>恭喜你完成測驗，<br>此次測驗共花了"+gametime+"秒，<br>答對率="+correctRatio+"%";
           chooseAnswer.text(""); 
           document.getElementById("sendBtn").style.visibility='visible';
     }else{
+      wrong=wrong+1;
       alert("答錯了");
     };
         }
