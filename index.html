@@ -35,7 +35,7 @@
           <button id="answer2" onclick="check(this)"></button>
           <button id="answer3" onclick="check(this)"></button>
           <button id="answer4" onclick="check(this)"></button>
-          <p id="timer" style="text-align:center;" style='visibility:hidden'><p>
+          <p id="timer" style="text-align:center;" style='visibility:hidden'>遊戲時間:<p>
 
         </div>
         
@@ -286,13 +286,13 @@
           document.getElementById("timer").style.visibility='hidden'; 
           
      
-          questionTitle.text(null);
-          show.text(null);
-          answer1.text(null);
-          answer2.text(null);
-          answer3.text(null);
-          answer4.text(null);
-          correctAnswer.text(null);
+          questionTitle.text(undefined);
+          show.text(undefined);
+          answer1.text(undefined);
+          answer2.text(undefined);
+          answer3.text(undefined);
+          answer4.text(undefined);
+          correctAnswer.text(undefined);
           document.getElementById("timer").innerHTML=undefined;
           document.getElementById("answer").style.visibility='hidden'; 
           document.getElementById("question").style.visibility='hidden';
