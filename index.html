@@ -209,9 +209,10 @@
          t=t+1;
         document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
       }
+        document.getElementById("timer").style.visibility='visible'; 
         document.getElementById("question").style.visibility='visible';
         document.getElementById("answer").style.visibility='visible'; 
-         document.getElementById("timer").style.visibility='visible'; 
+         
        
      }
 
@@ -289,6 +290,7 @@
           answer2.text("");
           answer3.text("");
           answer4.text("");
+          document.getElementById("timer").innerHTML="";
 
           document.getElementById("spendtime").style.visibility='visible';
             $.get("https://script.google.com/macros/s/AKfycbwDmtyIaKjs5UvMjC0ybhXC7PCLGpuSgyQsmUacQWW5hu6O5Bzt/exec", {
