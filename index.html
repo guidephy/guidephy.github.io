@@ -35,10 +35,9 @@
           <button id="answer2" onclick="check(this)"></button>
           <button id="answer3" onclick="check(this)"></button>
           <button id="answer4" onclick="check(this)"></button>
-          <p id="timer" style="text-align:center;" style='visibility:hidden'>遊戲時間:<p>
 
         </div>
-        
+        <div>
         <div  data-role="content">      
         <div id="forusername" data-role="fieldcontain">     
           <label  for="username">輸入姓名:</label>
@@ -46,10 +45,10 @@
         </div>
           <button id="sendBtn">開始測驗</button>
           <button id="rankBtn" style='visibility:hidden' onclick="rank()">看排名</button>
-          
+          <p id="timer" style='visibility:hidden'><p>
         </div>
           <p id="correctAnswer" style='visibility:hidden'><p>
-        
+        </div>
  
         <div data-role="footer" data-position="fixed" data-theme="b">
           <h4>&copy;Guidephy</h4>
@@ -140,14 +139,6 @@
         document.getElementById("spendtime").innerHTML="";
         chooseAnswer.text("");  
         
-        clearInterval(myVar);
-             myVar=setInterval(function(){myTimer()},1000);
- 
-      function myTimer()
-      {
-         t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
-      }
         
         times=1;
 
@@ -187,14 +178,13 @@
                        index1++;
                        }
                     }
-             
+
 
 
              document.getElementById("sendBtn").style.visibility='hidden';
              document.getElementById("rankBtn").style.visibility='hidden';
              show.text(questioncontent[x[times]]);
-        
-             
+            
      
              y[0]=x[times];
              y=y.sort(function() {return Math.random() - 0.5});
@@ -210,12 +200,16 @@
              sendBtn.text("再玩一次");  
              correctAnswer.text(answercontent[x[times]]);
 
-              
-        document.getElementById("timer").style.visibility='visible'; 
+              clearInterval(myVar);
+        myVar=setInterval(function(){myTimer()},1000);
+ 
+      function myTimer()
+      {
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
         document.getElementById("question").style.visibility='visible';
-        document.getElementById("chooseAnswer").style.visibility='visible';
         document.getElementById("answer").style.visibility='visible'; 
-         
        
      }
 
@@ -282,28 +276,16 @@
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
           var gamedata=new Date();
-           
-          document.getElementById("timer").style.visibility='hidden'; 
-          
-     
-          questionTitle.text(undefined);
-          show.text(undefined);
-          /*
-          answer1.text(undefined);
-          answer2.text(undefined);
-          answer3.text(undefined);
-          answer4.text(undefined);
-          correctAnswer.text(undefined);
-          */
-          document.getElementById("answer1").innerHTML:= "";
-          document.getElementById("answer2").innerHTML:= "";
-          document.getElementById("answer3").innerHTML:= "";
-          document.getElementById("answer4").innerHTML:= "";
-          document.getElementById("correctAnswer").innerHTML:= "";
-          document.getElementById("timer").innerHTML:= "";
+
           document.getElementById("answer").style.visibility='hidden'; 
           document.getElementById("question").style.visibility='hidden';
-          document.getElementById("chooseAnswer").style.visibility='hidden'; 
+     
+          questionTitle.text("");
+          show.text("");
+          answer1.text("");
+          answer2.text("");
+          answer3.text("");
+          answer4.text("");
 
           document.getElementById("spendtime").style.visibility='visible';
             $.get("https://script.google.com/macros/s/AKfycbwDmtyIaKjs5UvMjC0ybhXC7PCLGpuSgyQsmUacQWW5hu6O5Bzt/exec", {
@@ -315,6 +297,9 @@
                     function (data) {
                        
                     });
+                    
+        
+
           document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"<br>恭喜你完成測驗，<br>此次測驗共花了"+gametime+"秒，<br>答對率="+correctRatio+"%";
           chooseAnswer.text(""); 
           document.getElementById("sendBtn").style.visibility='visible';
