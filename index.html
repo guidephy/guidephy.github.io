@@ -44,6 +44,7 @@
           <input type="text"  style="text-align:center;" id="username">
         </div>
           <button id="sendBtn">開始測驗</button>
+          <button id="rankBtn" style='visibility:hidden' onclick="rank()">看排名</button>
           <p id="timer" style='visibility:hidden'><p>
         </div>
           <p id="correctAnswer" style='visibility:hidden'><p>
@@ -62,6 +63,7 @@
      var t;
      var x=[];
      var y=[];
+      
       
      var wrong;
      var questionNumber;
@@ -101,6 +103,24 @@
 
    
      var myVar=setInterval(function(){myTimer()},1000);
+
+    
+   
+
+      function rank(){
+
+        var rankdata=[];
+
+        
+        $.get("https://script.google.com/macros/s/AKfycbwgVZ6sftnho_eTei7TpjPmdIp_5wWjzdE8hZv6512Qm89EvOWm/exec", parameter, function(data) {
+        
+               rankdata=data.split(",");
+               alert("第一名:"+rankdata[0]+"，花了"+rankdata[3]+"秒\n第二名:"+rankdata[1]+"，花了"+rankdata[4]+"秒\n第三名:"+rankdata[4]+"，花了"+rankdata[5]+"秒");
+
+      });
+         
+    }
+
 
      sendBtn.on('click',function() {
       if (document.getElementById("username").value==""){
@@ -162,6 +182,7 @@
 
 
              document.getElementById("sendBtn").style.visibility='hidden';
+             document.getElementById("rankBtn").style.visibility='hidden';
              show.text(questioncontent[x[times]]);
             
      
@@ -200,7 +221,7 @@
        
    
    function check(id) { 
-            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<10){
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<3){
               times=times+1;
               
               parameter = {
@@ -250,7 +271,7 @@
           document.getElementById("question").style.visibility='visible';  
           
         
-         }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
+         }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
           var gametime=t;
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
@@ -282,6 +303,7 @@
           document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"<br>恭喜你完成測驗，<br>此次測驗共花了"+gametime+"秒，<br>答對率="+correctRatio+"%";
           chooseAnswer.text(""); 
           document.getElementById("sendBtn").style.visibility='visible';
+          document.getElementById("rankBtn").style.visibility='visible';
     }else{
       questionNumber=questionNumber+1;
       wrong=wrong+1;
