@@ -45,11 +45,13 @@
           <button id="sendBtn">開始測驗</button>
           <button id="rankBtn" style='visibility:hidden' onclick="rank()">看排名</button>
           
-          <p id="timer" style='visibility:hidden'><p>
+          
         </div>
           <p id="correctAnswer" style='visibility:hidden'><p>
         </div>
- 
+             <div data-role="footer" data-position="fixed" >
+        <p id="timer" style='visibility:hidden'><p>
+               </div>
         <div data-role="footer" data-position="fixed" data-theme="b">
           <h4>&copy;Guidephy</h4>
         </div>
@@ -211,6 +213,7 @@
       }
         document.getElementById("question").style.visibility='visible';
         document.getElementById("answer").style.visibility='visible'; 
+        document.getElementById("timer").style.visibility='visible'; 
        
      }
 
