@@ -61,8 +61,12 @@
  <script> 
      var t;
      var x=[];
+     var y=[];
+      
      var wrong;
      var questionNumber;
+     var questioncontent;
+     var answercontent;
       
       sendBtn = $('#sendBtn');
       show = $('#question');
@@ -73,16 +77,37 @@
       answer4=$('#answer4');
       chooseAnswer=$('#chooseAnswer');
       correctAnswer=$('#correctAnswer');
+
+
    
       
      var times;
      var parameter = {};
+
+     parameter = {
+            startRow: x,
+            startColumn: 2
+                    };
+        $.get("https://script.google.com/macros/s/AKfycbzUbcZB6H3X_ZiiYxFHH8dBMNHkrMm3Zm2jZ-7tw-qGgZ3gu6g/exec", parameter, function(data) {
+        
+              questioncontent=data.split(",");
+
+              $.get("https://script.google.com/macros/s/AKfycbw4O63qhdjUXWsRxY9xrRYc_jIqOLiPjdMD7leVbt4Usrnfb2sg/exec", parameter, function(data) {
+     
+             answercontent=data.split(","); 
+             });       
+
+      });
+
    
      var myVar=setInterval(function(){myTimer()},1000);
+
      sendBtn.on('click',function() {
       if (document.getElementById("username").value==""){
          alert("請輪入姓名"); 
       }else{
+        
+
         wrong=0;
         questionNumber=10;
         document.getElementById("username").style.visibility='hidden';
@@ -91,11 +116,16 @@
         document.getElementById("spendtime").style.visibility='hidden';
         document.getElementById("spendtime").innerHTML="";
         chooseAnswer.text("");  
-
         
+        
+        times=1;
 
         var index = 1;
+
+
         while (index < 11) {
+
+
                        var flag = true;
                        var num = Math.floor(Math.random() * 83)+2;
                        for (var i in x) {
@@ -109,33 +139,45 @@
                        }
                     }
 
-        times=1;
-        parameter = {
-            startRow: x[times],
-            startColumn: 2
-                    };
-        
-        
-        $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
-          if(!data){
-            show.text('無資料');
-          }else{
-             var content=data.split(",");
-             show.text(content[4]);
-             answer1.text(content[0]);
-             answer2.text(content[1]);
-             answer3.text(content[2]);
-             answer4.text(content[3]);
+        var index1=0;
+
+        while (index1 < 4) {
+
+
+                       var flag = true;
+                       var num = Math.floor(Math.random() * 83)+2;
+                       for (var i in y) {
+                       if (y[i] == num||num==x[times]) {
+                       flag = false;
+                       }
+                       }
+                       if (flag == true) {
+                       y[index1] = num;
+                       index1++;
+                       }
+                    }
+
+
+
+             document.getElementById("sendBtn").style.visibility='hidden';
+             show.text(questioncontent[x[times]]);
+            
+     
+             y[0]=x[times];
+             y=y.sort(function() {return Math.random() - 0.5});
+
+             answer1.text(answercontent[y[0]]);
+             answer2.text(answercontent[y[1]]);
+             answer3.text(answercontent[y[2]]);
+             answer4.text(answercontent[y[3]]);
+
+     
              questionTitle.text("題目"+times);
              chooseAnswer.text("請選擇答案");        
              sendBtn.text("再玩一次");  
-             correctAnswer.text(content[5]);
-      }
-            document.getElementById("question").style.visibility='visible';
-            document.getElementById("answer").style.visibility='visible';    
-      });
-         
-        clearInterval(myVar);
+             correctAnswer.text(answercontent[x[times]]);
+
+              clearInterval(myVar);
         myVar=setInterval(function(){myTimer()},1000);
  
       function myTimer()
@@ -143,18 +185,24 @@
          t=t+1;
         document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
       }
-      
-      document.getElementById("sendBtn").style.visibility='hidden';
+        document.getElementById("question").style.visibility='visible';
+        document.getElementById("answer").style.visibility='visible'; 
        
      }
+
      });
+         
+        
+          
+         
+       
    
    function check(id) { 
             if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<10){
               times=times+1;
               
               parameter = {
-              startRow: x[times],
+              startRow: x,
               startColumn: 2
              };
       
@@ -162,19 +210,43 @@
           document.getElementById("question").style.visibility='hidden';
            alert("答對了，再來一題");  
           questionTitle.text("題目"+times);
-          $.get("https://script.google.com/macros/s/AKfycbyR7UthpPVF9nYWh2z4KP-aeut4dUCocxi8H6yMG2xC0tGMemU/exec", parameter, function(data) {
-          var content=data.split(",");
-          show.text(content[4]);
-          answer1.text(content[0]);
-          answer2.text(content[1]);
-          answer3.text(content[2]);
-          answer4.text(content[3]);
- 
-          correctAnswer.text(content[5]);
+           show.text(questioncontent[x[times]]);
+            
+
+            var index1=0;
+
+        while (index1 < 4) {
+
+
+                       var flag = true;
+                       var num = Math.floor(Math.random() * 83)+2;
+                       for (var i in y) {
+                       if (y[i] == num||num==x[times]) {
+                       flag = false;
+                       }
+                       }
+                       if (flag == true) {
+                       y[index1] = num;
+                       index1++;
+                       }
+                    }
+             y[0]=x[times];
+             y=y.sort(function() {return Math.random() - 0.5});
+             answer1.text(answercontent[y[0]]);
+             answer2.text(answercontent[y[1]]);
+             answer3.text(answercontent[y[2]]);
+             answer4.text(answercontent[y[3]]);
+
+
+             questionTitle.text("題目"+times);
+             chooseAnswer.text("請選擇答案");        
+             
+             correctAnswer.text(answercontent[x[times]]);
+          
   
           document.getElementById("answer").style.visibility='visible'; 
           document.getElementById("question").style.visibility='visible';  
-          });
+          
         
          }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
           var gametime=t;
