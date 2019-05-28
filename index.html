@@ -35,7 +35,7 @@
           <button id="answer2" onclick="check(this)"></button>
           <button id="answer3" onclick="check(this)"></button>
           <button id="answer4" onclick="check(this)"></button>
-
+           <p id="timer" style='visibility:hidden'>遊戲時間: 秒<p>
         </div>
         <div>
         <div  data-role="content">
@@ -49,9 +49,7 @@
         </div>
           <p id="correctAnswer" style='visibility:hidden'><p>
         </div>
-             <div data-role="footer" data-position="fixed" >
-        <p id="timer" style='visibility:hidden'><p>
-               </div>
+             
         <div data-role="footer" data-position="fixed" data-theme="b">
           <h4>&copy;Guidephy</h4>
         </div>
@@ -283,6 +281,7 @@
 
           document.getElementById("answer").style.visibility='hidden'; 
           document.getElementById("question").style.visibility='hidden';
+           document.getElementById("timer").style.visibility='hidden';
      
           questionTitle.text("");
           show.text("");
