@@ -125,6 +125,15 @@
      sendBtn.on('click',function() {
       if (document.getElementById("username").value==""){
          alert("請輪入姓名"); 
+      }else if(document.getElementById("username").value=="看排名"){
+        var rankdata=[];
+
+        $.get("https://script.google.com/macros/s/AKfycbwgVZ6sftnho_eTei7TpjPmdIp_5wWjzdE8hZv6512Qm89EvOWm/exec", parameter, function(data) {
+        
+               rankdata=data.split(",");
+               alert("第一名:"+rankdata[0]+"，花了"+rankdata[3]+"秒\n第二名:"+rankdata[1]+"，花了"+rankdata[4]+"秒\n第三名:"+rankdata[2]+"，花了"+rankdata[5]+"秒");
+      });
+        
       }else if(answercontent==null){
          alert("題目下載中，請再試一次"); 
       }else{
