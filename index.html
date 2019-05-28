@@ -200,7 +200,7 @@
        
    
    function check(id) { 
-            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<10){
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<3){
               times=times+1;
               
               parameter = {
@@ -250,11 +250,12 @@
           document.getElementById("question").style.visibility='visible';  
           
         
-         }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
+         }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
           var gametime=t;
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
-     
+          var gamedata=new Date();
+
           document.getElementById("answer").style.visibility='hidden'; 
           document.getElementById("question").style.visibility='hidden';
      
@@ -264,7 +265,20 @@
           answer2.text("");
           answer3.text("");
           answer4.text("");
+
           document.getElementById("spendtime").style.visibility='visible';
+            $.get("https://script.google.com/macros/s/AKfycbwDmtyIaKjs5UvMjC0ybhXC7PCLGpuSgyQsmUacQWW5hu6O5Bzt/exec", {
+                        "name": document.getElementById("username").value,
+                        "gamedata":gamedata.getFullYear()+ "/" + (gamedata.getMonth()+1) + "/" + gamedata.getDate()+" "+gamedata.getHours()+":"+gamedata.getMinutes()  ,
+                        "gametime":gametime,
+                        "correctRatio":correctRatio
+                    },
+                    function (data) {
+                       
+                    });
+                    
+        
+
           document.getElementById("spendtime").innerHTML=document.getElementById("username").value+"<br>恭喜你完成測驗，<br>此次測驗共花了"+gametime+"秒，<br>答對率="+correctRatio+"%";
           chooseAnswer.text(""); 
           document.getElementById("sendBtn").style.visibility='visible';
