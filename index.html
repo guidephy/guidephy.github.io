@@ -284,9 +284,7 @@
           var gamedata=new Date();
            
           document.getElementById("timer").style.visibility='hidden'; 
-          document.getElementById("answer").style.visibility='hidden'; 
-          document.getElementById("question").style.visibility='hidden';
-          document.getElementById("chooseAnswer").style.visibility='hidden'; 
+          
      
           questionTitle.text("");
           show.text("");
@@ -296,6 +294,9 @@
           answer4.text("");
           correctAnswer.text("");
           document.getElementById("timer").innerHTML="";
+          document.getElementById("answer").style.visibility='hidden'; 
+          document.getElementById("question").style.visibility='hidden';
+          document.getElementById("chooseAnswer").style.visibility='hidden'; 
 
           document.getElementById("spendtime").style.visibility='visible';
             $.get("https://script.google.com/macros/s/AKfycbwDmtyIaKjs5UvMjC0ybhXC7PCLGpuSgyQsmUacQWW5hu6O5Bzt/exec", {
