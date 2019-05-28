@@ -221,7 +221,7 @@
        
    
    function check(id) { 
-            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<3){
+            if(id.innerHTML==document.getElementById("correctAnswer").innerHTML&&times<10){
               times=times+1;
               
               parameter = {
@@ -271,7 +271,7 @@
           document.getElementById("question").style.visibility='visible';  
           
         
-         }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==3){
+         }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
           var gametime=t;
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
