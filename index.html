@@ -38,8 +38,10 @@
 
         </div>
         <div>
-        <div  data-role="content">      
+        <div  data-role="content">
+          <div style="text-align:center;" id="forusername">
          <input type="text"  style="text-align:center;" id="username" placeholder="請輸入名字">
+            </div>
           <button id="sendBtn">開始測驗</button>
           <button id="rankBtn" style='visibility:hidden' onclick="rank()">看排名</button>
           
@@ -131,6 +133,7 @@
         wrong=0;
         questionNumber=10;
         document.getElementById("username").style.visibility='hidden';
+         document.getElementById("forusername").style.visibility='hidden';
         
         t=0;
         document.getElementById("spendtime").style.visibility='hidden';
