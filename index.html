@@ -140,6 +140,14 @@
         document.getElementById("spendtime").innerHTML="";
         chooseAnswer.text("");  
         
+        clearInterval(myVar);
+             myVar=setInterval(function(){myTimer()},1000);
+ 
+      function myTimer()
+      {
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
         
         times=1;
 
@@ -186,14 +194,7 @@
              document.getElementById("rankBtn").style.visibility='hidden';
              show.text(questioncontent[x[times]]);
         
-             clearInterval(myVar);
-             myVar=setInterval(function(){myTimer()},1000);
- 
-      function myTimer()
-      {
-         t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
-      }
+             
      
              y[0]=x[times];
              y=y.sort(function() {return Math.random() - 0.5});
