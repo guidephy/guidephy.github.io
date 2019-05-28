@@ -35,7 +35,7 @@
           <button id="answer2" onclick="check(this)"></button>
           <button id="answer3" onclick="check(this)"></button>
           <button id="answer4" onclick="check(this)"></button>
-           <p id="timer" style='visibility:hidden'>遊戲時間: 秒<p>
+           <p style='visibility:hidden'>遊戲時間: 秒<p>
         </div>
         <div>
         <div  data-role="content">
@@ -128,7 +128,14 @@
       }else if(answercontent==null){
          alert("題目下載中，請再試一次"); 
       }else{
-        
+        clearInterval(myVar);
+        myVar=setInterval(function(){myTimer()},1000);
+ 
+      function myTimer()
+      {
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
 
         wrong=0;
         questionNumber=10;
@@ -201,17 +208,9 @@
              sendBtn.text("再玩一次");  
              correctAnswer.text(answercontent[x[times]]);
 
-              clearInterval(myVar);
-        myVar=setInterval(function(){myTimer()},1000);
- 
-      function myTimer()
-      {
-         t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
-      }
+              
         document.getElementById("question").style.visibility='visible';
         document.getElementById("answer").style.visibility='visible'; 
-        document.getElementById("timer").style.visibility='visible'; 
        
      }
 
@@ -281,7 +280,6 @@
 
           document.getElementById("answer").style.visibility='hidden'; 
           document.getElementById("question").style.visibility='hidden';
-           document.getElementById("timer").style.visibility='hidden';
      
           questionTitle.text("");
           show.text("");
