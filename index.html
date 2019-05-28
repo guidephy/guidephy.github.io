@@ -179,13 +179,21 @@
                        index1++;
                        }
                     }
-
+             
 
 
              document.getElementById("sendBtn").style.visibility='hidden';
              document.getElementById("rankBtn").style.visibility='hidden';
              show.text(questioncontent[x[times]]);
-            
+        
+             clearInterval(myVar);
+             myVar=setInterval(function(){myTimer()},1000);
+ 
+      function myTimer()
+      {
+         t=t+1;
+        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+      }
      
              y[0]=x[times];
              y=y.sort(function() {return Math.random() - 0.5});
@@ -201,14 +209,7 @@
              sendBtn.text("再玩一次");  
              correctAnswer.text(answercontent[x[times]]);
 
-              clearInterval(myVar);
-        myVar=setInterval(function(){myTimer()},1000);
- 
-      function myTimer()
-      {
-         t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
-      }
+              
         document.getElementById("timer").style.visibility='visible'; 
         document.getElementById("question").style.visibility='visible';
         document.getElementById("answer").style.visibility='visible'; 
