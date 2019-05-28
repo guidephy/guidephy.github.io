@@ -115,7 +115,7 @@
         $.get("https://script.google.com/macros/s/AKfycbwgVZ6sftnho_eTei7TpjPmdIp_5wWjzdE8hZv6512Qm89EvOWm/exec", parameter, function(data) {
         
                rankdata=data.split(",");
-               alert("第一名:"+rankdata[0]+"，花了"+rankdata[3]+"秒\n第二名:"+rankdata[1]+"，花了"+rankdata[4]+"秒\n第三名:"+rankdata[4]+"，花了"+rankdata[5]+"秒");
+               alert("第一名:"+rankdata[0]+"，花了"+rankdata[3]+"秒\n第二名:"+rankdata[1]+"，花了"+rankdata[4]+"秒\n第三名:"+rankdata[2]+"，花了"+rankdata[5]+"秒");
 
       });
          
@@ -210,6 +210,7 @@
       }
         document.getElementById("question").style.visibility='visible';
         document.getElementById("answer").style.visibility='visible'; 
+         document.getElementById("timer").style.visibility='visible'; 
        
      }
 
@@ -276,7 +277,8 @@
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
           var gamedata=new Date();
-
+           
+          document.getElementById("timer").style.visibility='hidden'; 
           document.getElementById("answer").style.visibility='hidden'; 
           document.getElementById("question").style.visibility='hidden';
      
