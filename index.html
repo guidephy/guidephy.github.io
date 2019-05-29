@@ -290,7 +290,7 @@
           
         
          }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
-          var gametime=t;
+          var gametime=t+5*wrong;
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
           var gamedata=new Date();
@@ -325,7 +325,7 @@
     }else{
       questionNumber=questionNumber+1;
       wrong=wrong+1;
-      alert("答錯了");
+      alert("答錯了，遊戲時間+5秒");
     };
         }
  </script>
