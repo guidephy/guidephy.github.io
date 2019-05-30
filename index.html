@@ -150,7 +150,8 @@
       function myTimer()
       {
          t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t/100+"秒";
+        
+        document.getElementById("timer").innerHTML="遊戲時間:"+Math.floor(t/100)+"秒";
       }
 
         wrong=0;
