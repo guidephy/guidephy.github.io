@@ -102,7 +102,7 @@
       });
 
    
-     var myVar=setInterval(function(){myTimer()},1000);
+     var myVar=setInterval(function(){myTimer()},10);
 
     
    
@@ -145,12 +145,12 @@
          alert("題目下載中，請再試一次"); 
       }else{
         clearInterval(myVar);
-        myVar=setInterval(function(){myTimer()},1000);
+        myVar=setInterval(function(){myTimer()},10);
  
       function myTimer()
       {
          t=t+1;
-        document.getElementById("timer").innerHTML="遊戲時間:"+t+"秒";
+        document.getElementById("timer").innerHTML="遊戲時間:"+t/100+"秒";
       }
 
         wrong=0;
@@ -289,7 +289,7 @@
           
         
          }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
-          var gametime=t;
+          var gametime=t/100;
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
           var gamedata=new Date();
@@ -323,7 +323,7 @@
           document.getElementById("rankBtn").style.visibility='visible';
     }else{
       questionNumber=questionNumber+1;
-      t=t+5;
+      t=t+500;
       wrong=wrong+1;
       alert("答錯了，遊戲時間+5秒");
     };
