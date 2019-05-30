@@ -131,7 +131,7 @@
         $.get("https://script.google.com/macros/s/AKfycbwgVZ6sftnho_eTei7TpjPmdIp_5wWjzdE8hZv6512Qm89EvOWm/exec", parameter, function(data) {
         
                rankdata=data.split(",");
-               alert("共被玩了:"+rankdata[20]+"次，平均遊戲時間:"+rankdata[21]+"秒\n第一名:"+rankdata[0]+"，花了"+rankdata[10]+"秒\n第二名:"+rankdata[1]+"，花了"+rankdata[11]+"秒\n第三名:"+rankdata[2]+"，花了"+rankdata[12]+"秒\n第四名:"+rankdata[3]+"，花了"+rankdata[13]+"秒\n第五名:"+rankdata[4]+"，花了"+rankdata[14]+"秒\n第六名:"+rankdata[5]+"，花了"+rankdata[15]+"秒\n第七名:"+rankdata[6]+"，花了"+rankdata[16]+"秒\n第八名:"+rankdata[7]+"，花了"+rankdata[17]+"秒\n第九名:"+rankdata[8]+"，花了"+rankdata[18]+"秒\n第十名:"+rankdata[9]+"，花了"+rankdata[19]+"秒");
+               alert("共玩了:"+rankdata[20]+"次，平均時間:"+rankdata[21]+"秒\n第一名:"+rankdata[0]+"，花了"+rankdata[10]+"秒\n第二名:"+rankdata[1]+"，花了"+rankdata[11]+"秒\n第三名:"+rankdata[2]+"，花了"+rankdata[12]+"秒\n第四名:"+rankdata[3]+"，花了"+rankdata[13]+"秒\n第五名:"+rankdata[4]+"，花了"+rankdata[14]+"秒\n第六名:"+rankdata[5]+"，花了"+rankdata[15]+"秒\n第七名:"+rankdata[6]+"，花了"+rankdata[16]+"秒\n第八名:"+rankdata[7]+"，花了"+rankdata[17]+"秒\n第九名:"+rankdata[8]+"，花了"+rankdata[18]+"秒\n第十名:"+rankdata[9]+"，花了"+rankdata[19]+"秒");
         });
       }else if(document.getElementById("username").value=="更新成績"){
        $.get("https://script.google.com/a/gish.tyc.edu.tw/macros/s/AKfycbzqJGez7RsHyOGkSpcc7hDx4LQYiBt4q-gvAEiG/exec", {
