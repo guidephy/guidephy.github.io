@@ -64,6 +64,7 @@
      var x=[];
      var y=[];
      var q=[];
+     var starttime;
       
       
      var wrong;
@@ -145,14 +146,15 @@
       }else if(answercontent==null){
          alert("題目下載中，請再試一次"); 
       }else{
+        starttime = new Date();
         clearInterval(myVar);
         myVar=setInterval(function(){myTimer()},10);
  
       function myTimer()
       {
-         t=t+1;
+         
         
-        document.getElementById("timer").innerHTML="遊戲時間:"+Math.floor(t/100)+"秒";
+        document.getElementById("timer").innerHTML="遊戲時間:"+Math.floor((new Date-starttime)/1000)+"秒";
       }
 
         wrong=0;
