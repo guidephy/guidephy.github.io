@@ -297,6 +297,7 @@
          }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
           q[times]=x[times];
           var gametime=(new Date-starttime)/1000+wrong*5;
+          gametime=gametime.toFixed(2);
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
           var gamedata=new Date();
