@@ -293,6 +293,7 @@
           
         
          }else if(id.innerHTML==document.getElementById("correctAnswer").innerHTML && times==10){
+          q[times]=x[times];
           var gametime=t/100;
           var correctRatio=100*(questionNumber-wrong)/questionNumber;
           correctRatio = correctRatio.toFixed(2);
