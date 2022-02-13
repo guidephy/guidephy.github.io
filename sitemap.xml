@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">     
 <url>
   <loc>https://guidephy.github.io/</loc>
   <lastmod>2022-02-13</lastmod>
-
 </url>
 <url>
   <loc>https://guidephy.github.io/program.html</loc>
   <lastmod>2022-02-13</lastmod>
-
 </url>
 <url>
   <loc>https://guidephy.github.io/test.html</loc>
@@ -23,12 +20,4 @@
   <loc>https://guidephy.github.io/VPython_lesson0.html</loc>
   <lastmod>2022-02-13</lastmod>
 </url>
-
-<url>
-  <loc>https://guidephy.github.io/physexam.html</loc>
-  <lastmod>2022-02-13</lastmod>
-</url>
-
-
-
 </urlset>
