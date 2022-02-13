@@ -33,5 +33,16 @@
   <priority>0.80</priority>
 </url>
 
+<url>
+  <loc>https://guidephy.github.io/EnergyTransition</loc>
+  <lastmod>2022-02-13T15:28:24+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+      
+<url>
+  <loc>https://guidephy.github.io/vrguanyin</loc>
+  <lastmod>2022-02-13T15:28:24+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
 
 </urlset>
