@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>Guidephy學習教室-VPython的第一堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io/notes/"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <li><a href="physcis.html">物理學習</a></li>
+          <li><a href="program.html">程式語言</a></li>
+          <li><a href="test.html">線上題庫</a></li>
+          <li><a href="contact.html">CONTACT</a></li>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">Vpython</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">VPython的第一堂課:初探VPython</h2>
+        
+        <p class="post-date">2/14 <span>2022</span></p>
+        <p class="post-cat">類別：程式教學</p>
+      </header>
+
+
+      ✻此單元詳細物件參數，可參考網址：(<a href="https://www.glowscript.org/docs/VPythonDocs/index.html" target="_blank">https://www.glowscript.org/docs/VPythonDocs/index.html</a>)<br><br>
+      ✻使用 GlowScript進行繪圖時，請記得先於第一行打上： <font color="red">GlowScript 3.0 VPython</font><br><br>
+
+      <h3>建立物件練習</h3> <br>
+      1. 球體(<font color="red">sphere</font>)<br> 
+      ● 建立物件：<br> 
+      ball=<font color="red">sphere</font>(pos=vector(1,2,1),radius=0.3,color=color.red)<br><br> 
+
+      2. 立方體(<font color="red">box</font>)<br> 
+      ● 建立物件：<br> 
+      cuboid=<font color="red">box</font>(pos=vector(-2,0,0),length=0.3,width=0.2,height=1 ,color=color.white)<br> <br>  
+
+      3. 箭頭(<font color="red">arrow</font>)<br> 
+      ● 建立物件：<br> 
+      pointer_a=<font color="red">arrow</font>(pos=vector(0,2,1), axis=vector(5,0,0), shaftwidth=1)<br> <br> 
+
+
+      4. 柱狀體(<font color="red">cylinder</font>) <br> 
+      ●建立物件：<br> 
+      rod = <font color="red">cylinder</font>(pos=vector(0,2,1),axis=vector(5,0,0), radius=1) <br> <br> 
+
+
+      5. 螺旋(<font color="red">helix</font>)<br>  
+      ●建立物件：<br> 
+      spring = <font color="red">helix</font>(pos=vector(0,2,1), axis=vector(5,0,0), radius=0.5)<br> <br>  
+
+      <h3>課堂任務1:畫出下方的圖</h3>  
+      ✻背景改為白色:加上此程式碼  scene.background=vec(1,1,1)
+      <img src="images/VPython/VPython-1-1.png"  alt="homework1">
+
+     
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+    <!-- ↓ 增加這個部分 ↓ -->
+    
+    <!-- ↑ 到這裡為止↑ -->
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+
+</body>
+</html>
+
+
