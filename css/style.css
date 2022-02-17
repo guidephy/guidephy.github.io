@@ -87,7 +87,7 @@ iframe {
   /*第三層以後的選單出現位置與第二層不同*/
   z-index: 999;
   top: 10px;
-  left: 20%;
+  left: 70%;
 }
 
 .main-nav ul {
