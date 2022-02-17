@@ -71,17 +71,6 @@ function send() {
 
         document.getElementById("question").style.visibility='visible'; 
         document.getElementById("answer").style.visibility='visible'; 
-        document.getElementById("paper").style.visibility='visible'; 
-
-         var screenW = document.documentElement.clientWidth*0.5;     //屏幕寬度
-         var screenH = document.documentElement.clientHeight; 
-
-
-
-         var canvas = document.getElementById("myCanvas"); 
-
-         canvas.width = screenW ;
-         canvas.height = screenH;
 
 
         
@@ -216,7 +205,6 @@ function send() {
     document.getElementById("answer").style.display='none';
     document.getElementById("score").style.visibility='visible'; 
     document.getElementById("testtable").style.visibility='visible';
-    document.getElementById("paper").remove();
 
    
 
@@ -226,7 +214,6 @@ function send() {
 
     
     alert("完成測驗");
-    document.getElementById("paper").remove();
 
      var gametime=new Date();
 
