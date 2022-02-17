@@ -28,19 +28,76 @@ iframe {
 
 .main-nav {
     display: flex;
+
     font-size: 1.25rem;
-    text-transform: uppercase;
+    
     margin-top: 34px;
-    list-style: none;
+  
 }
+
+
+
+.main-nav li:hover>ul {
+  /* 滑鼠滑入展開次選單*/
+  display: block;
+}
+
 .main-nav li {
     margin-left: 25px;
+    position: relative;
+    white-space: nowrap;
+ 
 }
+
+.main-nav>li:last-child {
+  border-right: none;
+}
+
+.main-nav>li {
+   float: left;
+}
+
 .main-nav a {
     color: #432;
+    display: block;
+     text-decoration: none;
 }
 .main-nav a:hover {
     color: #0bd;
+}
+
+.main-nav li:hover>a {
+    color: #0bd;
+}
+
+
+.main-nav ul{
+  position: absolute;
+  z-index: 99;
+  left: -1px;
+  top: 100%;
+  min-width: 180px;
+}
+
+.main-nav ul li:last-child {
+  border-bottom: none;
+}
+
+.main-nav  ul ul {
+  /*第三層以後的選單出現位置與第二層不同*/
+  z-index: 999;
+  top: 10px;
+  left: 20%;
+}
+
+.main-nav ul {
+  /*隱藏次選單*/
+  display: none;
+}
+
+.main-nav li:hover>ul {
+  /* 滑鼠滑入展開次選單*/
+  display: block;
 }
 
 .page-header {
@@ -286,4 +343,13 @@ aside p {
         margin-left: 80px;
     }
 
+}
+
+
+
+ul {
+  /* 取消ul預設的內縮及樣式 */
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
