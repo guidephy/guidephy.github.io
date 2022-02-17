@@ -1,9 +1,52 @@
 <!DOCTYPE html>
-<html lang="zh-tw">
-
+<html lang="zh-Hant-TW">
 <head>
+  <meta charset="utf-8">
+   <title>Guidephy學習教室</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+      <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
+    <script src=jquery-2.2.4.min.js></script>
+    <script src=jquery.mobile-1.4.5.min.js></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>  
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+
+
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <li><a href="physcis.html">物理學習</a></li>
+          <li><a href="program.html">程式語言</a></li>
+          <li><a href="test.html">線上題庫</a></li>
+          <li><a href="contact.html">CONTACT</a></li>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+
+  <div class="wrapper">
+      <h2 class="page-title">高中物理題目練習</h2>
+  </div>
+
+  <div class="news-contents wrapper">
+    <article>
+
+
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>  
 
 <script>
 function mouseDown(e){
@@ -92,20 +135,12 @@ window.addEventListener('load',function(){
 });
 
 </script>
-
-
-
-</head>
-
-<body >
-
-<div style="text-align:center;">
-<h2>高中物理題目練習</h2>
-</div>
+   
+ 
 <h3 id="score" style="text-align:center;visibility:hidden"></h3>
 <div style="text-align:center;" id="forusername">
   <p></p>
-  <input type="text" style="text-align:center;" id="username" placeholder="請輸入名字"><br>
+  <input type="text" style="text-align:center;" id="username" placeholder="請輸入名字"><br><br>
 
   <select name="select" id="selectTest" >
     <option>請選擇練習單元</option>
@@ -148,7 +183,7 @@ window.addEventListener('load',function(){
     <button onclick="clearPad();">清空計算區</button><br>
    
   
-    <canvas id="myCanvas" width="300" height="600" style="position:relative;border:#000 1px solid;"></canvas>
+    <canvas id="myCanvas" width="200" height="600" style="position:relative;border:#000 1px solid;"></canvas>
 
 </div>
 
@@ -235,14 +270,40 @@ window.addEventListener('load',function(){
 </table>
 </div>
 
+    </article>
+    
+    
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+    <!-- ↓ 增加這個部分 ↓ -->
+    
+    <!-- ↑ 到這裡為止↑ -->
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
 
 
 
-
-
-<script >
-
-
+      <script>
 var correctAnswer;
 var usernamevalue;
 var times;
@@ -318,8 +379,10 @@ function send() {
         document.getElementById("answer").style.visibility='visible'; 
         document.getElementById("paper").style.visibility='visible'; 
 
-         var screenW = document.documentElement.clientWidth*0.9;     //屏幕寬度
+         var screenW = document.documentElement.clientWidth*0.5;     //屏幕寬度
          var screenH = document.documentElement.clientHeight; 
+
+
 
          var canvas = document.getElementById("myCanvas"); 
 
@@ -525,8 +588,10 @@ function send() {
     }
  }
 
-</script>
 
-</body >
 
+      </script>
+ 
+
+ </body>
 </html>
