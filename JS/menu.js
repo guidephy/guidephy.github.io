@@ -1,11 +1,5 @@
-
-
 function myFunction1() {
-  if (document.getElementById("myDropdown1").style.visibility=='hidden') {
-    document.getElementById("myDropdown1").style.visibility='visible';
-  }else{
-    document.getElementById("myDropdown1").style.visibility='hidden';
-  }
+    document.getElementById("myDropdown1").classList.toggle("show");
 }
 
 function myFunction2() {
