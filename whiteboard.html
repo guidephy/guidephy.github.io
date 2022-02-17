@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <title>guidephy小白板</title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>  
+</head>
+
+<body>
+<script>
+function mouseDown(e){
+    this.draw=true;
+    this.ctx = this.getContext("2d");
+    this.ctx.strokeStyle='#000000';
+    this.ctx.lineWidth=2;
+
+    var o=this;
+    this.offsetX=this.offsetLeft;
+    this.offsetY=this.offsetTop;
+
+    while(o.offsetParent){
+        o=o.offsetParent;
+        this.offsetX+=o.offsetLeft;
+        this.offsetY+=o.offsetTop;
+    }
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(e.pageX-this.offsetX,e.pageY-this.offsetY);
+}
+
+function mouseMove(e){
+    if (this.draw){
+        this.ctx.lineTo(e.pageX-this.offsetX,e.pageY-this.offsetY);
+        this.ctx.stroke();
+    }
+}
+
+function mouseUp(e){
+    this.draw=false;
+}
+
+function touchStart(e){
+    this.draw=true;
+    this.ctx=this.getContext("2d");
+    this.touch=e.targetTouches[0];
+    this.ctx.strokeStyle='#000000';
+    this.ctx.lineWidth=2;
+
+    var o=this;
+    this.offsetX=this.offsetLeft;
+    this.offsetY=this.offsetTop;
+
+    while(o.offsetParent){
+        o=o.offsetParent;
+        this.offsetX+=o.offsetLeft;
+        this.offsetY+=o.offsetTop;
+    }
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.touch.pageX-this.offsetX,this.touch.pageY-this.offsetY);
+    e.preventDefault();
+}
+
+function touchMove(e){
+    this.touch=e.targetTouches[0];
+    if (this.draw){
+        this.ctx.lineTo(this.touch.pageX-this.offsetX,this.touch.pageY-this.offsetY);
+        this.ctx.stroke();
+    }
+    e.preventDefault();
+}
+
+function touchEnd(e){
+    this.draw=false;
+    e.preventDefault();
+}
+
+function clearPad(){
+    var canvas=document.querySelector('#myCanvas');
+    var ctx=canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+window.addEventListener('load',function(){
+    var canvas=document.querySelector('#myCanvas');
+
+    canvas.addEventListener('mousedown',mouseDown);
+    canvas.addEventListener('mousemove',mouseMove);
+    canvas.addEventListener('mouseup',mouseUp);
+
+    canvas.addEventListener('touchstart',touchStart);
+    canvas.addEventListener('touchmove',touchMove);
+    canvas.addEventListener('touchend',touchEnd);
+});
+
+</script>
+<div style="text-align:center;" >
+<p>計算區</p>
+    <button onclick="clearPad();">清空計算區</button><br><br>
+   
+  
+    <canvas id="myCanvas" width="200" height="600" style="position:relative;border:#000 1px solid;"></canvas>
+</div>
+
+    <script>
+
+
+         var screenW = document.documentElement.clientWidth*0.9;     //屏幕寬度
+         var screenH = document.documentElement.clientHeight; 
+
+
+
+         var canvas = document.getElementById("myCanvas"); 
+
+         canvas.width = screenW ;
+   </script>
+</body>
