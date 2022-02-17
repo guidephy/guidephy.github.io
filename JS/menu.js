@@ -1,11 +1,5 @@
-
-
 function myFunction1() {
-  if (document.getElementById("myDropdown1").style.visibility=='hidden') {
-    document.getElementById("myDropdown1").style.visibility='visible';
-  }else{
-    document.getElementById("myDropdown1").style.visibility='hidden';
-  }
+    document.getElementById("myDropdown1").classList.toggle("show");
 }
 
 function myFunction2() {
@@ -29,7 +23,7 @@ window.onclick = function(e) {
     for (var d = 0; d < dropdowns.length; d++) {
       var openDropdown = dropdowns[d];
       if (openDropdown.classList.contains('show')) {
-        //openDropdown.classList.remove('show');
+        openDropdown.classList.remove('show');
       }
     }
   }
