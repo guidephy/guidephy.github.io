@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>VPython的第二堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+         <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">Vpython</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">VPython的第二堂課:Python程式語言(一)</h2>
+        
+        <p class="post-date">2/21 <span>2022</span></p>
+        <p class="post-cat">類別：程式教學</p>
+      </header>
+
+      <h3>一、print()</h3>
+      <p>    我們常用程式進行計算或抓資料，為了知道我們計算結果或程式有無執行成功，我們會需要將「數值」顯示出來，以便知道程式的運作情形，此時可以利用print()達到我們要的結果。</p><br>
+
+      <h3><b>程式練習</b></h3><br>
+
+      <p>1.印出10<br>
+        <font color="red">print</font>(10)
+      </p>
+
+      <p>2.利用變數印出10<br>
+        
+         i=10<br>
+         sum=55<br>
+         <font color="red">print</font>('i=',10,'sum=',55)<br>
+      </p>
+
+       <h3>課堂任務2:印出1~100</h3>  
+       <img src="images/VPython/VPython-2-1.png"  alt="homework2"><br>
+
+       <h3>二、while()迴圈</h3>
+       <p>撰寫程式時，常常會處理重複性的工作，為了讓撰寫程式工作減化，可以用到程式中的「迴圈」工具，幫助執行重複性工作。常用到的迴圈有while()迴圈、for()迴圈。
+       </p>
+
+       <p>此單元要介紹while 迴圈，它是根據指定的條件來判斷是否執行迴圈，如下圖所示。
+       </p>
+      <img src="images/VPython/VPython-2-2.png"  alt="while()"><br>
+
+      <h3><b>程式練習</b></h3><br>
+
+      <p>1.印出1~100<br>
+           i=1<br>
+           <font color="red">while</font> (i <= 100):<br> 
+            &emsp;print (i)<br> 
+            &emsp;i = i + 1<br>
+      </p>
+
+      <p>2.印出1加100的和<br>
+           i=1<br>
+          sum = 0 <br>
+          <font color="red">while</font> (i <= 100):<br> 
+          &emsp;sum = sum + i <br>
+          &emsp;i = i + 1 <br>
+          print(sum)
+
+      </p>
+
+       <h3>課堂任務3:印出九九乘法表</h3>  
+       <img src="images/VPython/VPython-2-3.png"  alt="homework3"><br>
+
+    <h3>三、利用While()畫出等速度運動</h3>
+    <p>物理和Python的結合</p>
+    <p>►物理思考:<br>
+    關於等速度運動:</p>
+
+
+    <p>►程式思考:<br>
+    程式應建立一物體，並定義此物體的大小、顏色、初位置與速度<br>
+    並讓物體位置隨時間增加一固定的位移，進而達到等速度移動的效果</p>
+
+    <h3><b>程式練習</b></h3><br>
+    <p>1.等速度運動<br>
+      <font color="#D18800">#關於球</font><br>
+      size=0.5<br> 
+      ball=sphere(pos=vector(0,0,0),radius=size ,color=color.magenta ,v=vector(1,0,0))<br><br>
+      <font color="#D18800">#關於時間</font><br>
+      t=0<br>
+      <font color="red">dt=0.001</font><br><br>
+      <font color="#D18800">#關於運動情形</font><br>
+      while (t<=10): <br>
+      &emsp;<font color="red">rate(1000)</font><br> 
+      &emsp;ball.pos=ball.pos+ball.v*dt<br> 
+      &emsp;t=t+dt<br> 
+      &emsp;#print(t,ball.pos)</p>
+
+    <p>2.場景調整<br>
+
+     於<font color="red">GlowScript 3.0 VPython</font>後加入下列程式<br>
+     <font color="#D18800">#關於背景(場景)</font><br>
+     scene=<font color="red">display</font>(width=1200,height=800,x=0,y=0,center=vector(0,0,0),background=vector(0.9,0.9,0.9))
+     </p>
+
+
+    <p>3.放置座標軸<br>
+    <font color="#D18800">#關於座標軸</font><br>
+    pointer_a=arrow(pos=vector(0,0,0),axis=vector(20,0,0),color=color.blue,shaftwidth=0.1)</p>
+
+   
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+   
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+</body>
+</html>
+
+
