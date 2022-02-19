@@ -93,9 +93,11 @@ function send() {
 
   if(Battery.detectedVal==null){
   	Battery.detectedVal="未連接裝置";
+  	  	document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
+  }else{
+		document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   }
 
-  document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   if (Switch.detectedVal < 0.8) {
     Switch.on();
     recycle = recycle + 1;
