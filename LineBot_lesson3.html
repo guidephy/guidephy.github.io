@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>LineBot第三節課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+   <script src="JS/menu.js"></script>
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+         <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">LineBot</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">LineBot第三節課</h2>
+        
+        <p class="post-date">2/23 <span>2022</span></p>
+        <p class="post-cat">類別：程式教學</p>
+      </header>
+
+      <h3>圖文選單的建立</h3>
+     
+      <p>我們再次回到Line官方帳號管理平台設定LineBot，連結如下:<br><a href="https://tw.linebiz.com/login" target="_blank">https://tw.linebiz.com/login<a></p>
+
+
+      <p>登入帳號後，從帳號一覽選擇第一節建立之LineBot進行設定</p>
+
+      <p>我們這節課要建立LineBot的圖文選單，供使用者能快速選擇想使用的功能或觀看資訊</br>
+         如下圖所示，若有圖文選單，使用者可直接於選單中快速選取其所需服務。</p>
+      <img src="images/LineBot/LineBot-3-1.png">
+
+      <p>我們可在主頁下的左邊欄位內，找到聊天相關中的圖文選單<br>
+         選擇圖文選單進入後，點擊右上角的「建立」即可以設定一組屬於自己的的圖文選單</p>
+
+
+      <img src="images/LineBot/LineBot-3-2.png">
+      <h3>圖文選單的詳細建立步驟如下:</h3><br>
+
+      <p>1.進入圖文選單設定後，我們需給它一個標題，此標題也是方便未來管理，使用者不會看到。</p>
+      <p>2.接著我們要設定此圖文選單的使用期間，可先設定為一週，未來都可再更動。</p>
+      <p>3.選單列顯示文字是使用者會看到的選單名稱，可先使用預設的選單，也可選擇自訂文字，讓使用者容易理解選單的目的。</p>
+      <p>4.預設顯示方式為顯示，如此使用者一進到LineBot就能看到圖文選單。</p>
+      <img src="images/LineBot/LineBot-3-3.png">
+
+      <p>5.圖文選單有不同的版型，可至內容設定下，點擊選擇版型進行選擇。</p>
+      
+      <img src="images/LineBot/LineBot-3-4.png">
+      <p>6.此節課我們先選擇簡單的三欄版型，如下圖所示。</p>
+      <img src="images/LineBot/LineBot-3-5.png">
+
+      <p>7.設定好版形後，右側即會出現對應數量的動作要進行設定，因我們上一步是選擇三欄的版形，因此有A、B、C三個動作需設定，我們以A的動作示範教學。先點擊A右側類型旁的選擇。</p>
+      <img src="images/LineBot/LineBot-3-6.png">
+      <p>8.選單類型有連結、優惠券、文字、集點卡及不設定的選擇，我們選擇最常用的連結。</p>
+      <img src="images/LineBot/LineBot-3-7.png">
+      <p>9.於連結下方欄，填入欲連結的網頁，此練習我們以"https://www.google.com.tw/"為例</p>
+      <p>10.並於動作標籤欄填入此連結的簡單說明，如網站名稱「google」。</p>
+
+      <img src="images/LineBot/LineBot-3-8.png">
+      <p>11.B和C的動作也如步驟8~10操作。</p>
+      <img src="images/LineBot/LineBot-3-9.png">
+      <p>12.完成上述設定後，會發現無法儲存，因左側內容設定下的版型需有圖片作為背景。<br>
+      我們選擇建立圖片進行個別動作的圖樣設定</p>
+      <img src="images/LineBot/LineBot-3-10.png">
+      <p>13.先點擊最左邊欄位(動作A)進行圖樣設定，之後可依序點擊中間欄及右邊欄進行個別設定。</p>
+      <img src="images/LineBot/LineBot-3-11.png">
+      <p>14.虛線內的白色區域即為欄位的空白畫布，我們要利用已有的圖片或文字進行排版以美化圖文選單。若電腦沒有可運用的背景圖片，我們可以先選擇以輸入文字的方式完成圖樣的設定。</p>
+      <p>15.輸入選單欲顯示的文字，如「google」。</p>
+      <p>16.可透過對齊選項，讓文字在選單中的適當位置。</p>
+      <img src="images/LineBot/LineBot-3-12.png">
+      <p>17.中間欄(動作B)及右邊欄(動作C)如步驟14~16進行操作。</p>
+      <p>18.三個欄位的圖樣皆設定好後，即可按右上角的套用完成設定。</p>
+      <img src="images/LineBot/LineBot-3-13.png">
+      <p>19.完成步驟1~18後，則已完成圖文選單設定，再次確認沒問題後，即可按儲存，完成圖文選單。</p>
+      <img src="images/LineBot/LineBot-3-14.png">
+      <p>此時，用手機的Line進到此LineBot的聊天室，將會在最下方看到剛設定的圖文選單，可點擊各欄位，檢查是否如設定時動作。</p>
+      <img src="images/LineBot/LineBot-3-15.png">
+
+      <h3>課程作業1-利用LineBot製作你的備審資料聊天機器人</h3>
+      <p>需具備功能:</p>
+      <p>1.LineBot的Logo放置個人的照片。(10%)</p>
+      <p>2.加入時的歡迎訊息。(25%)</p>
+      <p>3.有簡單的自動回應功能。(25%)</p>
+      <p>4.有圖文選單可供使用者操作。(40%)<br>
+        *圖文選單需有六個欄位，可從「自我介紹」、「個人資料表」、「在校成績」、「學習歷程」、「「讀書計畫」、「多元表現」、「社會服務」、「競賽成果」、「報考動機」九項中或其它與備審資料相關項目，選六項放入欄位。<br>
+        *圖文選單各項欄位需設計，不能只有如教學中的文字，必須有各自對應的圖片，美觀將列入40%中的評分。<br>
+        *圖文選單的連結可先暫時連結到「google」，只以外觀進行評分。<br></p>
+
+
+
+
+      <p>備註:<br>
+        圖文選單中各項欄位的圖樣，可至Canva製作屬於自己個人特色的圖片，Canva連結如下:<br><a href="https://www.canva.com/zh_tw/" target="_blank">https://www.canva.com/zh_tw/<a></p>
+
+      <p>關於Canva的操作說明，除上課說明外，可參考下面papaya電腦教室製作影片。</p>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/_hzxC5FvqdA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+        
+    
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+
+</body>
+</html>
+
+
