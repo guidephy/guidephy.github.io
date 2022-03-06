@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>VPython的第三堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+         <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">Vpython</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">VPython的第三堂課:繪製數據圖表</h2>
+        
+        <p class="post-date">3/7 <span>2022</span></p>
+        <p class="post-cat">類別：程式教學</p>
+      </header>
+
+      <h3>一、繪製數據圖表</h3>
+
+      <p>1.散布圖 <font color="red">gdots()</font>: 可於座標上放置數據點</p>
+      <p>(1)一個數據點:<br>
+        f1 = <font color="red">gdots</font>(color=color.red,data=(2,4),radius=5)</p>
+
+      <p>(2)多個數據點:<br>
+        f1 = gdots(color=color.red,<font color="red">data=[(2,4),(5,9),(8,6)]</font>,radius=5)</p>
+
+      <p>(3)再新增數據點<font color="red">plot()</font>:<br>
+        f1 = gdots(color=color.red,data=[(2,4),(5,9),(8,6)],radius=5)<br>
+        f1.<font color="red">plot</font>(12,11)</p><br>
+        <img src="images/VPython/VPython-3-1.png"  alt=""><br>
+
+      <p>2.折線圖gcurve():將數據點彼此以直線連接起來的統計圖表，若橫軸為時間，可觀察一段時間內的變化及趨勢</p>
+      <p>(1)繪製一折線圖:<br>
+
+       f2 =<font color="red">gcurve</font>(color=color.green,data=[(3,5),(6,10),(9,7)])</p>
+
+      <p>(2)顯示資料點:<br>
+        f2 =gcurve(color=color.green,data=[(3,5),(6,10),(9,7)],<font color="red">markers=True</font>, <font color="red">marker_color=color.orange</font>,<font color="red">radius=5</font>)</p>
+      <p>(3)新增數據點<font color="red">plot()</font>:<br>
+        f2 =gcurve(color=color.green,data=[(3,5),(6,10),(9,7)],markers=True, marker_color=color.orange,radius=5)<br>
+        f2.<font color="red">plot</font>(13,12)</p><br>
+        <img src="images/VPython/VPython-3-2.png"  alt=""><br>
+
+      <p>3.長條圖</p>
+      <p>(1)直條圖<font color="red">gvbars()</font>:<br>
+        f3 =<font color="red">gvbars</font>(color=color.yellow,data=[(2,4),(5,9),(8,6), delta=1)</p>
+        <img src="images/VPython/VPython-3-3.png"  alt=""><br>
+
+      <p>(2)橫條圖<font color="red">ghbars()</font>:<br>
+        f4 =<font color="red">ghbars</font>(color=color.blue,data=[(2,4),(5,9),(8,6)], delta=1)</p>
+        <img src="images/VPython/VPython-3-4.png"  alt=""><br>
+
+      <h3>二、繪製物體運動的函數圖</h3>
+      <p>1.x-t圖</p>
+      <p>GlowScript 3.2 VPython<br>
+      #關於球<br>
+      size=0.5 <br>
+      ball=sphere(pos=vector(0,0,0),radius=size ,color=color.magenta ,v=vector(1,0,0)) <br><br>
+      #關於座標軸<br>
+      pointer_a=arrow(pos=vector(0,0,0), axis=vector(20,0,0), color=color.blue ,shaftwidth=0.1)<br><br>
+
+      #關於時間<br>
+      t=0<br>
+      dt=0.01 <br><br>
+
+      #增加函數圖<br>
+      <font color="red">xt =gcurve(color=color.green)</font><br><br>
+
+
+      #關於運動情形<br>
+      while (t<=10): <br>
+      &emsp;rate(100) <br>
+      &emsp;ball.pos=ball.pos+ball.v*dt <br>
+      &emsp;t=t+dt <br>
+      &emsp;print(t,ball.pos)<br>
+      &emsp;<font color="red">xt.plot(t,ball.pos.x)</font></p>
+      <br>
+      <p>為了清楚這張圖要表示的意義，需要增加圖表名稱，以及橫軸、縱軸座標的物理量。<br>
+        因此需使用<font color="red">graph()</font>來達到此目的，做法如下:</p>
+
+      <p>於xt =gcurve(color=color.green)的上方新增:<br>
+         timeGraphs=<font color="red">graph</font>(title='Time graphs', xtitle='time(s)', ytitle='value')</p>
+
+      <p>說明:graph()中，<font color="red">title</font>='圖表名稱'。<font color="red">xtitle</font>='橫軸名稱' 。<font color="red">ytitle</font>='縱軸名稱'</p>
+      
+
+      <p>另外，有時候函數圖中會有多個曲線資料，可為曲線標記名稱方便理解。<br>
+       做法如下:<p>
+
+      <p>將原本xt =gcurve(color=color.green,)內加入<font color="red">label='  '</font><br>
+        改寫成xt =gcurve(color=color.green,<font color="red">label='x-t graph'</font>)</p>
+
+      <div style="text-align:center;">
+      <img src="images/VPython/VPython-3-5.png"  alt=""><br>
+      <a href="https://www.glowscript.org/#/user/ttnpgjqua26/folder/MyPrograms/program/lesson3" target="_blank">點擊觀看完整程式碼</a>
+      </div>
+      
+      <br>
+
+      
+      <h3>課程任務5:於函數圖中，增加此運動的v-t圖<br>
+          為了和x-t圖作區別，v-t的曲線的顏色請用紅色，如下圖</h3>
+      <img src="images/VPython/VPython-3-6.png"  alt="home6"><br>
+
+
+
+      <h3>課程任務6:畫出sin&theta;和cos&theta;的函數圖形</h3>
+      <img src="images/VPython/VPython-3-7.png"  alt="home7">
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="exp.html">科學實驗</a></li>
+         <li><a href="#">讀書心得</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+   
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+</body>
+</html>
+
+
