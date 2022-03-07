@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>橋樑設計</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">科學實驗</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">橋樑設計</h2>
+        
+        <p class="post-date">3/8 <span>2022</span></p>
+        <p class="post-cat">類別：科學實驗</p>
+      </header>
+
+      
+
+      <p>為了解結構力學，我們可以試著搭一座橋，透過橋樑結構的設計，透過力學的分析，讓橋能穩固並能有較大的載重量，但自己用腦袋空想或畫設計圖，甚至自己去畫橋樑結構上的力圖來分析橋樑承載重量，都是很困難的工作。</p>
+      <p>幸好，有一套橋樑設計軟體可以幫我們在設計橋樑時，能輕易畫出橋樑結構，並利用模擬動畫分析此橋的耐重，大大減輕我們的工作量。</p>
+
+      <p>此軟體的名稱為The Bridge Designer(2016)，此單元要分享如何下載此軟體，並作簡單的操作教學。</p>
+
+     
+      <h3>Step1、先至The Bridge Designer的網站下載軟體</h3>
+      <p>網站連結:<a href=" https://bridgedesigner.org/download/">The Bridge Designer官方網站</a></p>
+      <p>依自己電腦的作業系統下載安裝軟體，如果是windows作業系統，請選擇For windows computers- <font color="blue">Setbdv16j.exe</font>，如下圖所示</p>
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-1.png"  alt="">
+      <p>下載後，點擊安裝軟體，並依指示流程完成安裝</p><br>
+
+      <h3>Step2、建立一個新的設計</h3>
+      <p>0.點擊桌面軟體的圖示開啟軟體，並選擇<font color="red">Create a New Bridege Designer</font>，再按右下角<font color="red">OK</font>鍵開始設計。</p>
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-2.png"  alt="">
+
+      <p>1.Read the Design Requirement，簡易說明設計要求，可直接按右下角<font color="red">Next</font>至下一步。</p>
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-3.png"  alt="">
+
+       <p>2.Enter Local Contest Information，選擇<font color="red">No</font>，並按右下角<font color="red">Next</font>至下一步。</p>
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-4.png"  alt="">
+
+      <p>3.Select the Deck Elevation and Suppport Configuration:<br>
+        (1)Deck Elevation(橋的高度)選擇: <font color="red">0 meters</font>。<br>
+        (2)Support Configuration(支撐類別)選擇:<font color="red">Standard abutments</font>、<font color="red">No Pier(One Span)</font>、<font color="red">No Cable Anchorages</font>。<br>
+        (3)按右下角<font color="red">Next</font>至下一步。</p>
+
+      <p>補充:此節只先以基本的操作教學，未來可增加橋的高度以增加設計難度，或更改支撐類別來設計不同種類的橋樑。</p>
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-5.png"  alt="">
+
+       <p>4.Select the Deck Material and Truck Loarding:<br>
+        (1)Deck Material(橋的材料)選擇:<font color="red">Medium-Strength Concrete</font>(中等強度混凝土)。<br>
+        (2)Loading(負載車重)選擇:<font color="red">Standard 225 KN Truck</font>。<br>
+        (3)按右下角<font color="red">Next</font>至下一步。</p>
+
+
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-6.png"  alt="">
+      <p>5.Select a Standard Truss Template(選擇桁架橋的模板):<br>
+        (1)Select a Template選擇: none<br>
+        (2)按右下角<font color="red">Next</font>至下一步。</p>
+
+         <p>補充:選none可從無到有設計出橋樑，未來也可選擇下面不同的初始模板開始進行橋的設計。</p>
+
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-7.png"  alt="">
+
+      <p>6.Fill in the Title Block:<br>
+        (1)於Designed By:下面的空格，填上你的<font color="red">班級座號姓名</font>，例如「10410曾柏諺」。<br>
+        (2)按右下角<font color="red">Next</font>至下一步。</p>
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-8.png"  alt="">
+
+      <p>7.Design the Steel Truss:<br>
+        按右下角<font color="red">Finish</font>開始橋樑的設計。</p>
+
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-9.png"  alt="">
+
+      <h3>Step3、設計界面說明</h3>
+      <p>1.界面下方是<font color="red">橋樑設計區</font>。</p>
+      <p>2.我們要用Tools上的工具繪製橋樑，Tools裡有四個工具，分別為<font color="red">連接點</font>、<font color="red">連接線</font>、<font color="red">選擇物件以</font>及<font color="red">橡皮擦</font>。<br>
+        要利用新增連接點和連接線，在橋樑設計區繪製橋樑的的結構。<br>
+        也可選擇物件，調整連接點和連接線的位置，或是用橡皮擦移除點或線。</p>
+
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-10.png"  alt="">
+
+      <p>3.繪製好橋樑後，可點繫上方藍色按鈕的<font color="red">橋樑測試</font>。若繪製過程所有連接點都有以連接線連接上，且結構都為<font color="red">三角形</font>，則會進入模擬動畫，可看卡車是否能順利通過你設計的橋。</p>
+      <p>4.在動畫執行時，若要再重新調整橋的結構，只要按上方<font color="red">橋樑設計</font>的按鈕，即會回到設計的界面。</p>
+      <p>5.上方會顯示此橋建造的<font color="red">成本</font>，可試著以最低的成本讓卡車能通過橋樑。</p>
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-11.png"  alt="">
+
+      <h3>Step4、繳交作業</h3>
+      <p>1.完成橋樑設計後，點擊上方的File，並點擊下方的<font color="red">Print</font>。</p>
+      <p>2.列印服務中的名稱，選擇<font color="red">Adobe PDF</font>。</p>
+      <p>3.最後按右下方的<font color="red">列印</font>，即會輸出一份此設計成果的PDF檔，將之命名為你的「班級座號姓名」，上傳至Classroom，即完成作業</p>
+
+      <img src="images/Exp/BridgeDesigner/BridgeDesigner-12.png"  alt="">
+
+ 
+
+    
+
+     
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+    <!-- ↓ 增加這個部分 ↓ -->
+    
+    <!-- ↑ 到這裡為止↑ -->
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+    
+
+</body>
+</html>
