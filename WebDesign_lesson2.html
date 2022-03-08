@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>網頁設計的第二堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">程式設計</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">網頁設計第一堂課:HTML(二)</h2>
+        
+        <p class="post-date">3/9 <span>2022</span></p>
+        <p class="post-cat">類別：程式設計</p>
+      </header>
+
+      
+      <h3>HTML常用元素標籤</h3>
+      <br>
+      <p>一、文字</p>
+      <p>(1)<font color="red">&lt;h1&gt;&lt;/h1&gt;</font> ~ <font color="red">&lt;h6&gt;&lt;/h6&gt;</font>:<br>
+      文章標題是使用&lt;h1&gt;~&lt;h6&gt;標籤表示，「h」後面的數字愈大，顯示出來的標題就愈小，因此&lt;h1&gt;是最大的標題，&lt;h6&gt;是最小的。</p>
+
+      <p>(2)<font color="red">&lt;p&gt;……&lt;/p&gt;</font>:<br>
+      此標籤是用來顯示文章段落，通常寫文章時，會用&lt;p&gt;標籤包夾，包夾的內容就會變成段落，瀏覽器也會自動在段落後面換行，並讓段落間產生些許間隔，看起來像有分段的感覺，增加美觀及閱讀的便利性。</p>
+      <p style="text-align:center;">HTML&darr;</p>
+      <div style="background-color:#CAFFFF">
+       <p>&lt;h1&gt;觀音高中&lt;/h1&gt;<br>
+       &lt;p&gt;學校位於桃園市觀音區，是非常漂亮的一所學校。&lt;/p&gt;</p>
+      </div>
+      <p style="text-align:center;">網頁呈現&darr;</p>
+      <div style="background-color:#FFFFCE">
+       <h1>觀音高中</h1>
+       <p>學校位於桃園市觀音區，是非常漂亮的一所學校。</p>
+      </div>
+      <br>
+      <p>二、圖片<font color="red">&lt;img&gt;</font></p>
+      <p>圖片是讓網頁變的易讀和讓網頁看起來更豐富的元素。</p>
+      <p>要在網頁上顯示圖片，需使用&lt;img&gt;的標籤，此標籤比較特別，使用時不需用到結束標籤&lt;/img&gt;。</p>
+      <p>使用&lt;img&gt;顯示圖片時，需要放置兩個屬性在內，src屬性及alt屬性。src是要填上圖片的儲存路徑或網址，alt屬性是要填在圖片無法順利載入時，會取代影像顯示的文字，參考如下:</p>
+
+      <p style="text-align:center;">HTML&darr;</p>
+      <div style="background-color:#CAFFFF">
+       <p>&lt;img src="https://guidephy.github.io/test.png" alt="圖片1"&gt;<br>
+          &lt;img src="https://guidephy.github.io/text.png" alt="圖片2"&gt;</p>
+      </div>
+      <p style="text-align:center;">網頁呈現&darr;</p>
+      <div style="background-color:#FFFFCE">
+       <img src="https://guidephy.github.io/test.png" alt="圖片1"><br>
+       <img src="https://guidephy.github.io/text.png" alt="圖片2">
+      </div>
+      <br>
+      <p>三、超連結<font color="red">&lt;a&gt;……&lt;/a&gt;</font></p>
+      <p>連結是網頁常使用到的元素，可以讓使用在只要點擊文字或影像，就能跳至其它的網頁，擴大網站的範圍。</p>
+      <p>要在使用上&lt;a&gt;建立超連結，需要放置一個href的屬性，href的屬性要填入欲連結的網址，並於&lt;a&gt;和&lt;/a&gt;之間輸入超連結欲顯示的文字。若希望使用者點擊後是另開視窗開啟網頁，可再加上&lt;a&gt;內再增加target="_blank"的屬性，參考如下:</p>
+
+      <p style="text-align:center;">HTML&darr;</p>
+      <div style="background-color:#CAFFFF">
+      <p>&lt;a href="https://guidephy.github.io/" &gt;前往guidephy首頁&lt;/a&gt;</p>
+       &lt;a href="https://www.google.com.tw/?hl=zh_TW" target="_blank"&gt;前往google首頁&lt;/a&gt;</p>
+      </div>
+      <p style="text-align:center;">網頁呈現&darr;</p>
+      <div style="background-color:#FFFFCE">
+       <a href="https://guidephy.github.io/">前往guidephy首頁</a><br>
+       <a href="https://www.google.com.tw/?hl=zh_TW" target="_blank">前往google首頁</a>
+      </div>
+
+      <br>
+
+      <p>四、表格<font color="red">&lt;table&gt;</font>、<font color="red">&lt;tr&gt;</font>、<font color="red">&lt;th&gt;</font>、<font color="red">&lt;td&gt;</font></p>
+      <p>表格是能讓我們把複雜的資料或數據作整理成行與列排列的工具，使人能方便閱讀並理解。</p>
+      <p>表格中包行許多格子，需要組合多個標籤才能製作出表格，因此較為困難，如下圖。</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-2-1.png"  alt=""><br>
+      </div>
+
+
+
+      <p style="text-align:center;">HTML&darr;</p>
+      <div style="background-color:#CAFFFF">
+
+      <p>&lt;table border="1" style="width:100%"&gt;<br>
+      &lt;tr&gt;<br>
+      &lt;th&gt;班級&lt;/th&gt;<br>
+      &lt;th&gt;物理成績&lt;/th&gt;<br>
+      &lt;th&gt;數學成績&lt;/th&gt;<br>
+      &lt;/tr&gt;<br>
+      &lt;tr&gt;<br>
+      &lt;td&gt;201&lt;/td&gt;<br>
+      &lt;td&gt;80&lt;/td&gt;<br>
+      &lt;td&gt;50&lt;/td&gt;<br>
+      &lt;/tr&gt;<br>
+      &lt;tr&gt;<br>
+      &lt;td&gt;203&lt;/td&gt;<br>
+      &lt;td&gt;70&lt;/td&gt;<br>
+      &lt;td&gt;90&lt;/td&gt;<br>
+      &lt;/tr&gt;<br>
+      &lt;/table&gt;</p>
+      
+
+      </div>
+
+      <p style="text-align:center;">網頁呈現&darr;</p>
+      <div style="background-color:#FFFFCE">
+      <table border="1" style="width:100%">
+      <tr>
+      <th>班級</th>
+      <th>物理成績</th>
+      <th>數學成績</th>
+      </tr>
+      <tr>
+      <td>201</td>
+      <td>80</td>
+      <td>50</td>
+      </tr>
+      <tr>
+      <td>203</td>
+      <td>70</td>
+      <td>90</td>
+      </tr>
+      </table>
+      </div>
+
+      <br>
+
+      <p>合併儲存格: colspan=" "</p>
+
+
+
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+    <!-- ↓ 增加這個部分 ↓ -->
+    
+    <!-- ↑ 到這裡為止↑ -->
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+    
+
+</body>
+</html>
