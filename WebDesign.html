@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>網頁設計的第一堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">程式設計</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">網頁設計的第一堂課:網頁的基本架構</h2>
+        
+        <p class="post-date">3/9 <span>2022</span></p>
+        <p class="post-cat">類別：程式設計</p>
+      </header>
+
+      
+
+      <p>我們一般在網頁上看到的內容與影像，其實都是使用「HTML」撰寫出來的。</p>
+
+      <p>HTML是「Hyper Text Markup Language」的縮寫，是用來編寫網頁原始碥的語言，撰寫好的HTML經過瀏覽器(例如Chrome、IE、Edge...等)的解譯，才能讓我們看到文字、圖片、影像...等內容，因此網頁設計的第一步，就是學習用HTML。</p>
+
+      <p>HTML的寫法是以「<」和「>」包夾字串，這種格式稱為「標籤」，「標籤」有各式各樣的種類，我們會在下面的課程介紹。
+
+      <p>此教學網站的參考資料主要引用<a href="https://www.w3schools.com/" target="_blank">W3Schools</a>的線上教學資源以及旗標出版社「零基礎也能看得懂的HTML&CSS網頁設計」這本書籍。</p>
+
+      <p>下面影片是W3Schools製作的HTML簡單介紹影片，我們可從中大致了解HTML的「標籤」和結構。</p>
+
+
+      <iframe width="600" height="315" src="https://www.youtube.com/embed/ewZ_YWbIWXI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+      <p>一般，我們會使用編輯工具撰寫HTML，如Windows內建的記事本，或另行下載的軟體，較常見的有Sublime Text、Notepade++ 、Atom…等。</p>
+      <p>此單元我們以練習為主，因此先不使用編輯軟體撰寫HTML，而是使用W3Schools提供的線上HTML撰寫平台來學習HTML，因其具有即寫即看的功能，較能快速了解HTML的元素和其結構，連結如下:<br><a href="https://www.w3schools.com/html/tryit.asp?filename=tryhtml_default_default" target="_blank">W3Schools HTML練習區</a></p><br>
+
+
+
+      <h3>練習一、網頁基本的架構:</h3>
+
+
+      <p>&lt;!DOCTYPE html&gt;，&lt; html&gt;&lt;/html&gt;，&lt; head&gt;&lt;/head&gt;，&lt;body&gt;&lt;/body&gt;</p>
+
+      <p>1.請進入<a href="https://www.w3schools.com/html/tryit.asp?filename=tryhtml_default_default" target="_blank">W3Schools HTML練習區</a>開始練習撰寫HTML。</p>
+
+      <p>2.將下方HTML打上W3Schools HTML練習區的左側。</p>
+
+  
+     <div style="background-color:#CAFFFF">
+      <p>&lt;!DOCTYPE html&gt;<br>
+      <font color="red">&lt;html lang="zh-Hant-TW"&gt;</font><br><br>
+
+      <font color="blue">&lt;head&gt;</font><br>
+
+       &lt;meta charset="UTF-8"&gt;<br>
+      &lt;title&gt;Page Title&lt;/title&gt;<br>
+       &lt;meta name ="description" content="homework test"&gt;<br>
+
+      <font color="blue">&lt;/head&gt;</font><br><br>
+
+      <font color="Green">&lt;body&gt;</font><br>
+
+      &lt;h1&gt;觀音高中&lt;/h1&gt;<br>
+
+      &lt;h6&gt;物理科&lt;/h6&gt;<br>
+
+      &lt;p&gt;林仟弘&lt;/p&gt;<br>
+
+
+     <font color="Green">&lt;/body&gt;</font><br><br>
+     <font color="red"> &lt;/html&gt;</font></p>
+   </div>
+
+     <p>3.按練習區上方的Run>按鈕，右邊則會顯示出其在網頁呈現的樣子，如下圖所示。</p>
+
+     <img src="images/WebDesign/WebDesign-1.png"  alt=""><br>
+
+     <h3>網頁架構及標籤說明</h3>
+
+     <p>1.&lt;!DOCTYPE html&gt;<br>
+      必須放在第一行，用來宣告文件類型。現在網頁的DOCTYPE基本上都是用&lt;!DOCTYPE html&gt;來表示這是一份標準的 HTML5 文件。</p>
+
+    <p>2.&lt;html&gt;……&lt;/html&gt;<br>
+      通常放在Doctype宣告的後面，HTML 網頁中一定有一個 &lt;html&gt;標籤，整個網頁中所有的 HTML 元素都包含在 &lt;html&gt;和&lt;/html&gt;標籤之間。</p>
+
+    <p>此練習中的&lt;html&gt;標籤內還寫了lang="zh-Hant-TW"，表示這個網頁是一份繁體中文的文件。</p>
+
+    <p>3.&lt;head&gt;……&lt;/head&gt;<br>
+      這部分是描述網頁的資料，包括網頁的標題、說明、使用的外部JavaScript或CSS的連結等。在我們瀏覽網頁時，這此內容並不會顯示出來。</p>
+    <p>此練習中，&lt;head&gt;……&lt;/head&gt;內有<br>
+      (1)&lt;meta charset="UTF-8"&gt;，是要把文字的編碼格式變成「UTF8」的編碼設定，如果沒有正確描述，可能會讓網頁變亂碼而無法正確的顯示文字。<br><br> 
+      (2)&lt;title&gt;……&lt;/title&gt;，它所包的文字即為此網頁在瀏覽器打開時的標題名稱，但因我們目前是在HTML練習區中撰寫，它並不是真的網頁，故無法看到其標題，未來若是編寫網頁，則會在開啟時從瀏覽器上看到其標題名稱，如下圖所示。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-2.png"  alt="">
+      </div>
+    <p>(3)&lt;meta name ="description" content="~"&gt;，用來描述網站的內容概要以及關鍵字，內容不會顯示在網頁上，但在google搜尋網頁時，meta中 content內部寫的文字會和標題一起出現，讓使用者能快速理解這是和什麼有關的網站。</p>
+
+    <p>4.&lt;body&gt;……&lt;/body&gt;:<br>
+      「body」標籤是HTML文件的主體，這裡輸入的內容才是會顯示在瀏覽器上，裡面可以文字、圖片、表格、影片...等內容。</p>
+
+    <p>(1)&lt;h1&gt;&lt;/h1&gt; ~ &lt;h6&gt;&lt;/h6&gt;:<br>
+      文章標題是使用&lt;h1&gt;~&lt;h6&gt;標籤表示，「h」後面的數字愈大，顯示出來的標題就愈小，因此&lt;h1&gt;是最大的標題，&lt;h6&gt;是最小的。</p>
+
+    <p>(2)&lt;p&gt;……&lt;/p&gt;:<br>
+      此標籤是用來顯示文章段落，通常寫文章時，會用&lt;p&gt;標籤包夾，包夾的內容就會變成段落，瀏覽器也會自動在段落後面換行，並讓段落間產生些許間隔，看起來像有分段的感覺，增加美觀及閱讀的便利性。</p>
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+    <!-- ↓ 增加這個部分 ↓ -->
+    
+    <!-- ↑ 到這裡為止↑ -->
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+    
+
+</body>
+</html>
