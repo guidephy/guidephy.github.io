@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>網頁設計的第三堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+
+  <script src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+
+
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">程式設計</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">網頁設計第三堂課:CSS(一)</h2>
+        
+        <p class="post-date">3/9 <span>2022</span></p>
+        <p class="post-cat">類別：程式設計</p>
+      </header>
+
+      <h3>一、使用編輯工具撰寫網頁</h3>
+      <br>
+      
+      <p>常見編寫程式的軟體有Sublime Text、Notepade++ 、Atom…等，此教學平台我們介紹使用Sublime Text。<br>
+        可直接於google搜尋<font color="red">Sublime Text</font>至其官網，或直接點擊後方連結:
+        <a href="https://www.sublimetext.com/">Sublime Text官網</a>。</p>
+       
+      <p>Sublime Text支援眾多程式語言，未來也可以使用它來編寫各種常見的程式語言，此門課我們會利用它來編寫HTML、CSS和JavaScript。<br><br>另外，因其支援語法上色，所以在編寫程式時，只要看輸入文字的顏色即可知道有無打錯，還有許多輔助功能都能幫助我們在編寫程式時能更方便。</p>
+
+      <br>
+      <p>Step1、下載軟體</p>
+      <p>至官網後，選擇<font color="blue">DOWNLOAD FOR WINDOWS</font>下載軟體，如下圖。<br>
+        下載完成後點擊檔案，並依其步驟將軟體安裝於電腦上。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-1.png"  alt=""><br>
+      </div>
+      <br>
+      <p>Step2、編寫HTML</p>
+      <p>開啟Sublime Text3程式</p>
+      <p>我們先以網頁設計第一堂課的程式碼作為練習，將下方程式碼貼上Sublime Text上</p>
+
+      <div style="background-color:#CAFFFF">
+      <p>&lt;!DOCTYPE html&gt;<br>
+      &lt;html lang="zh-Hant-TW"&gt;<br><br>
+
+      &lt;head&gt;<br>
+
+       &lt;meta charset="UTF-8"&gt;<br>
+       &lt;title&gt;Page Title&lt;/title&gt;<br>
+       &lt;meta name ="description" content="homework test"&gt;<br>
+
+      &lt;/head&gt;<br><br>
+
+      &lt;body&gt;<br>
+
+      &lt;h1&gt;觀音高中&lt;/h1&gt;<br>
+
+      &lt;h6&gt;物理科&lt;/h6&gt;<br>
+
+      &lt;p&gt;林仟弘&lt;/p&gt;<br>
+
+
+      &lt;/body&gt;<br><br>
+      &lt;/html&gt;</p>
+      </div>
+
+      <p>程式碼貼上Sublime Text後，可看到標籤都為紅色，屬性都為綠色，值為黃色，而我們打的標題和段落內容為白色，使程式碼較易識讀。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-2.png"  alt=""><br>
+      </div>
+
+      <p>Step3、輸出網頁</p>
+      <p>撰寫好HTML後，我們另存新檔，並將檔名取為<font color="red">index</font>，存檔類型:<font color="red">HTML</font></p>
+      <p>備註:檔名為index.html的網頁，在未來我們上傳至網站後，即會為此網站的首頁。</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-3.png"  alt=""><br>
+      </div>
+      <p>輸出後，點擊index.html，即會從瀏覽器開啟網頁，如下圖所示，我們能從上方看到網頁標題:Page Title，並看到我們於HTML &lt;body&gt;中撰寫的內容。</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-4.png"  alt=""><br>
+      </div>
+
+      <h3>二、CSS美化HTML</h3>
+      <br>
+      <p>目前我們所學習到的網頁都只用HTML進行撰寫，網頁只會有白色背景和黑色的文字這樣簡單的畫面，而CSS則是一項能將HTML進行美化的工具。</p>
+      <p>CSS是「Cascading Style Sheets」的縮寫，是用來裝飾HTML文件外觀的語言，CSS檔案的副檔名為「.css」。</p>
+      <p>CSS可設定網頁中元素的大小、位置、背景及色彩...等等，也能設定文字的字型，因此活用CSS能讓網頁更易讀也更吸引人。</p>
+      <p>使用CSS有三種方法，分別介紹如下:<br><br>
+        1、在HTML檔的<font color="red">&lt;head&gt;標籤內</font>撰寫:<br>
+           在&lt;head&gt;標籤內新增<font color="red">&lt;style&gt;</font>標籤，並在&lt;style&gt;標籤內描述CSS，我們將上面練習的index.html做更改，在head中增加CSS，參考如下:<br>
+         </p>
+
+      <div style="background-color:#CAFFFF">
+      <p>&lt;!DOCTYPE html&gt;<br>
+      &lt;html lang="zh-Hant-TW"&gt;<br><br>
+
+      &lt;head&gt;<br>
+
+       &lt;meta charset="UTF-8"&gt;<br>
+       &lt;title&gt;Page Title&lt;/title&gt;<br>
+       &lt;meta name ="description" content="homework test"&gt;<br><br>
+       <font color="red">&lt;style&gt;</font><br>
+
+       <font color="red">h1 { color: #f00;}</font><br>
+       <font color="red">p { font-size:18px;}</font><br>
+
+       <font color="red">&lt;/style&gt;</font><br><br>
+
+
+      &lt;/head&gt;<br><br>
+
+      &lt;body&gt;<br>
+
+      &lt;h1&gt;觀音高中&lt;/h1&gt;<br>
+
+      &lt;h6&gt;物理科&lt;/h6&gt;<br>
+
+      &lt;p&gt;林仟弘&lt;/p&gt;<br>
+
+
+      &lt;/body&gt;<br>
+      &lt;/html&gt;</p>
+      </div>
+    
+      <p>可和未加CSS的前的網頁做比較，即可知道CSS對網頁的影響，關於CSS的語法，我們會在下面再仔細說明。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-7.png"  alt=""><br>
+      </div>
+
+      <p>2、直接在HTML<font color="red">元素的標籤內撰寫style屬性:</font><br>
+       若我們只想對網頁內特定幾個元素做外觀的修改，可直接在這些特定元素的標籤內增加style的屬性，我們一樣用上面練習的index.html做更改，參考如下:<br>
+      </p>
+      <div style="background-color:#CAFFFF">
+      <p>&lt;!DOCTYPE html&gt;<br>
+      &lt;html lang="zh-Hant-TW"&gt;<br><br>
+
+      &lt;head&gt;<br>
+
+       &lt;meta charset="UTF-8"&gt;<br>
+       &lt;title&gt;Page Title&lt;/title&gt;<br>
+       &lt;meta name ="description" content="homework test"&gt;<br><br>
+
+      &lt;/head&gt;<br><br>
+
+      &lt;body&gt;<br>
+
+      &lt;h1 <font color="red">style="color: #f000;"</font>&gt;觀音高中&lt;/h1&gt;<br>
+
+      &lt;h6&gt;物理科&lt;/h6&gt;<br>
+
+      &lt;p <font color="red">style="font-size:18px;"</font>&gt;林仟弘&lt;/p&gt;<br>
+
+
+      &lt;/body&gt;<br>
+      &lt;/html&gt;</p>
+      </div><br>
+
+      <p>3、<font color="red">建立一個CSS檔案，並於&lt;head&gt;標籤內載入</font>:<br>
+        上述兩個方法都能成功利用CSS修改網頁，但若網站中有許多網頁，使用第1個方法需在每個網頁中的&lt;head&gt;標籤內打上CSS的描述，對網站經營較麻煩;另外，一個完整的網頁，內部也會有相當多不同的元素，若使用第2個方法，在每個元素的標籤內都增加style的屬性，也會是一件非常辛苦的事情。<br>
+        因此通常會建議大家用這裡要介紹的方式來使用CSS美化我們的網頁。</p>
+
+
+      <p>
+        Step1、先於Sublime Text新增一個空白的檔案，並於上面編寫CSS，編寫的CSS碼如下，關於CSS的語法，我們會在下面再仔細說明。
+      </p>
+
+      <div style="background-color:#FFFF96">
+
+      <font color="red">@charset "UTF-8";</font><br>
+       <font color="red">h1 { <br>
+        color: #f00;<br>
+       }</font><br>
+       <font color="red">p {<br> 
+        font-size:18px;<br>
+       }</font><br>
+
+
+      </div><br>
+
+
+
+      <p>Step2、寫好上述CSS描述後，我們要將其儲存，將檔案名稱設定為<font color="red">style.css</font>，並將其<font color="red">儲存至和上面練習的index.html放在同一個位置</font>，如下圖。(例如都放在桌面，或是都放在同一個資料夾內)</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-6.png"  alt=""><br>
+      </div><br>
+
+      <p>Step3、修改index.html，於&lt;head&gt;中加入<font color="red">&lt;link rel="stylesheet" href="style.css"&gt;</font>，參考如下:</p>
+      <div style="background-color:#CAFFFF">
+      <p>&lt;!DOCTYPE html&gt;<br>
+      &lt;html lang="zh-Hant-TW"&gt;<br><br>
+
+      &lt;head&gt;<br>
+
+       &lt;meta charset="UTF-8"&gt;<br>
+       &lt;title&gt;Page Title&lt;/title&gt;<br>
+       &lt;meta name ="description" content="homework test"&gt;<br><br>
+       <font color="red">&lt;link rel="stylesheet" href="style.css"&gt;</font><br><br>
+
+
+      &lt;/head&gt;<br><br>
+
+      &lt;body&gt;<br>
+
+      &lt;h1&gt;觀音高中&lt;/h1&gt;<br>
+
+      &lt;h6&gt;物理科&lt;/h6&gt;<br>
+
+      &lt;p&gt;林仟弘&lt;/p&gt;<br>
+
+
+      &lt;/body&gt;<br>
+      &lt;/html&gt;</p>
+      </div>
+      <br>
+
+     <p>使用瀏覽器打開index.html網頁，就會顯示加入CSS的效果。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-7.png"  alt=""><br>
+      </div>
+
+      <p>使用此方法，未來我們只要於每個綱頁中的&lt;head&gt;標籤內增加&lt;link&gt;引入style.css，在每次想改變網頁的設計時，只要我們在style.css檔案中進行修改，每個網頁的外觀即都會同步跟著改變，增加網頁維護和更新的便利性。</p>
+     <br>
+
+     <h3>三、CSS的基本寫法</h3>
+     <br>
+     <p>CSS的原始碼是由<font color="red">選擇器</font>、<font color="red">屬性</font>、<font color="red">值</font>三個部分組合而成的，如下圖，因此我們能設定要改變哪一個元素、改變它的什麼屬性和該屬性要改變為何。</p>
+     <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-8.png"  alt="">
+      </div>
+      <p>此CSS碼中，選擇器為「h1」，屬性是「color」，值是「紅色」，因此表示其CSS的目的是要讓HTML中，所有&lt;h1&gt;標籤的元素內容的顏色都變為紅色。</p><br>
+
+      <p>關於標題或段落，除了顏色的屬性可修改，還有常用到的屬性，下面我們分別做介紹:<br><br>
+      1、文字大小「<font color="red">font-size</font>」:使用的單位是「px」、「%」、「rem」。<br><br>
+      2、文字粗細「<font color="red">font-weight</font>」:normal(標準)、bold(粗體)、lighter(較細)、bolder(較粗)。<br><br>
+      3、行高「<font color="red">line-height</font>」:不需要單位，通常設1.5~2之間。<br><br>
+      4、背景顏色「<font color="red">background-color</font>」:可直接打顏色名稱或是使用色碼。<br>
+         備註:色碼表可參考右方連結:<a href="https://www.wibibi.com/info.php?tid=372">色碼表</a></p>
+
+      <p>練習:請將style.css的檔案內容修改為下方程式碼，並於瀏覽器打開index.html觀看網頁，
+        並嘗試自行修改下方的CSS，並看網頁的變化，以理解CSS的寫法。</p>
+      <div style="background-color:#FFFF96">
+      <font color="red">@charset "UTF-8";</font><br>
+       <font color="red">h1 { <br>
+        color:red;<br>
+        font-size:24px;<br>
+        font-weight:bolder;<br>
+        line-height:1.9;<br>
+        background-color:#82FF82<br>
+       }</font><br>
+       <font color="red">h6 { <br>
+        color:blue;<br>
+        font-size:20px;<br>
+        font-weight:bold;<br>
+        line-height:1.7;<br>
+        background-color:#FF8282<br>
+       }</font><br>
+       <font color="red">p {<br> 
+        color:green;<br>
+        font-size:16px;<br>
+        font-weight:lighter;<br>
+        line-height:1.5;<br>
+        background-color:#CA82FF<br>
+       }</font><br>
+
+      </div><br>
+
+      <p>其它常用屬性還有對齊「<font color="red">text-align</font>」、字體「<font color="red">font-family</font>」，未來有機會再介紹。</p>
+
+      <p>練習:網頁設計的第一堂課和第二堂課中，我們還介紹許多不同元素的標籤，例如&lt;body&gt;、&lt;table&gt;…等等，請試試利用上述所學CSS對更多的元素進行屬性上的調整。</p>
+
+
+
+   
+
+      <br>
+
+      <h3>課堂作業2-設計自我介紹的網頁</h3>
+      <br>
+      <p>需具備下列內容:<br>
+
+   
+      1.自我介紹(至少300字)。(20%)<br>
+
+      2.自我介紹文章中相關的照片。(10%)<br>
+
+      3.CSS美化網頁。(20%)<br>
+   
+      4.基本資料表。(40%)<br>
+      (需用html table繪製，不能直接貼圖片)<br>
+
+      5.網頁排版(10%)</p>
+
+
+      <p>備註:基本資料表可參考下圖，或從你個申科系中有需上傳基本資料表的格式作為設計。</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-3-5.png"  alt=""><br>
+      </div>
+
+
+
+
+
+
+
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+
+
+  </div>
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+    
+
+</body>
+</html>
