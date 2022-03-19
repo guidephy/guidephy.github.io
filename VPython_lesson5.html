@@ -73,223 +73,99 @@
       </header>
 
     
+      <p>此單元我們要繪製等速率圓週運動的動畫，關於等速率圓週運動，可先參考下圖中於高二物理學習到的相關物理量，或另外再作相關的複習，可幫助對接下來的程式撰寫較有幫助。</p>
 
 
       <div style="text-align:center;">
-      <img src="images/VPython/VPython-4-3.png">
+      <img src="images/VPython/VPython-5-1.png">
       </div>
 
-      <h3>一、自由落體運動</h3><br>
+      <h3>一、等速率圓周運動</h3><br>
+      <p>我們要利用圓的參數式的想法來繪製運動，若圓周運動的角速度為&omega;，
+        且球由正右方開始作逆時鐘的圓周運動，球的x、y座標和時間的關係為下:<br>
+        <font color="red">x=Rcos&theta;=Rcos(&omega;t)</font><br>
+        <font color="red">y=Rsin&theta;=Rsin(&omega;t)</font><br><br>
 
-      <p>Step1、我們先使用之前等速度的程式碼開始，並從中做修改。</p>
-      <p>(1)新增一變數<font color="red">ball_height</font>作為球的初始高度。<br>
-      (2)新增場景<font color="red">scene</font>，並始其高度(y方向)的中間點訂為ball_height/2。<br>
-      (3)新增一地板<font color="red">floor</font>，並使其高度(y方向)在0的位置<p>  
-      
-
-      <div style="background-color:#CAFFFF">
-      <p>GlowScript 3.2 VPython<br>
-      #關於球<br>
-      size=0.5 <br>
-      
-     #球的高度<br>
-      <font color="red">ball_height=20</font>  <br><br>
-
-      #關於場景(背景)<br>
-       <font color="red">scene=canvas(width=800, height=800,center=vector(0,ball_height/2,0), background=color.white)</font> <br><br>
-
-
-      ball=sphere(pos=vector(0,<font color="red">ball_height</font> ,0),radius=size ,color=color.magenta ,v=vector(1,0,0)) <br><br>
-
-      #關於地板<br>
-
-      <font color="red">floor=box(pos=vector(0,0,0),length=20,width=20,height=1 ,color=color.blue)</font><br><br>
-
-
-
-      #關於時間<br>
-      t=0<br>
-      dt=0.01 <br><br>
-
-      #關於運動情形<br>
-      while (t<=10): <br>
-      &emsp;rate(100) <br>
-      &emsp;ball.pos=ball.pos+ball.v*dt <br>
-      &emsp;t=t+dt <br>
-      &emsp;print(t,ball.pos)<br></p>
-      </div>
-
-      <br>
-
-      <p>Step2、增加重力加速度g<br>
-        自由落體的初速為0 m/s，且其在鉛直方向有重力加速度，因此我們需將程式中，球的初速度改為靜止，並增加重力加速度g的值(向下10 m/s<sup>2</sup>)。<br>
-        重力加速度的方向為鉛直向下，因此我們在程式中新增一變數g作為重力加速度，並使其為(0,<font color="red">-10</font>,0)<br><br>
-
-        由物理所學可知，等加速度運動的<font color="red">v<sub>末</sub>=v<sub>初</sub>+a&Delta;t</font><br>
-
-        因此while()中，我們增加<font color="red">v=v+a*dt</font>，使球的速度隨著加速度而增加<br><br>
-
-
-
-        程式修改如下:</p>
-
-      <div style="background-color:#CAFFFF">
-      <p>GlowScript 3.2 VPython<br>
-      #關於球<br>
-      size=0.5 <br>
-      
-     #球的高度<br>
-      ball_height=20 <br><br>
-
-      #重力加速度<br>
-      <font color="red">g=vector(0,-10,0)</font><br><br>
-
-      #關於場景(背景)<br>
-      scene=canvas(width=800, height=600,center=vector(0,ball_height/2,0), background=color.white)<br><br>
-
-
-      ball=sphere(pos=vector(0,ball_height ,0),radius=size ,color=color.magenta ,<font color="red">v=vector(0,0,0)</font>) <br><br>
-
-      #關於地板<br>
-      floor=box(pos=vector(0,0,0),length=20,width=20,height=1 ,color=color.blue)<br><br>
-
-
-
-      #關於時間<br>
-      t=0<br>
-      dt=0.01 <br><br>
-
-      #關於運動情形<br>
-      while (t<=10): <br>
-      &emsp;rate(100) <br>
-      &emsp;ball.pos=ball.pos+ball.v*dt <br>
-      &emsp;<font color="red">ball.v=ball.v+g*dt</font><br>
-      &emsp;t=t+dt <br>
-      &emsp;print(t,ball.pos)<br>
+        程式碼無法打出&omega;和&theta;，<br>
+        因此我們自定變數<font color="red">omega</font>取代&omega;，定變數<font color="red">theta</font>取代&theta;。<br>
+        另外，程式中的<font color="red">pi</font>即為&pi;，這是程式預設的變數。
       </p>
-      </div><br>
 
+      <p>程式碼撰寫如下:</p>
 
+      <div style="background-color:#CAFFFF">
+      <p>Web VPython 3.2<br>
 
+      size=0.8<br>
+      <font color="red">theta=0</font><br>
+      R=10<br>
+      <font color="red">omega=2*pi</font><br>
+      t=0<br>
+      scene=canvas(width=800, height=600,center=vector(0,0,0), background=color.white)<br> 
+      ball=sphere(pos=vector(R,0,0),radius=size,color=color.blue,make_trail=True)<br>
+      dt=0.001<br>
+      while True:<br>
+      &emsp;rate(1/dt)<br>
+      &emsp;t=t+dt<br>
+      <font color="red">&emsp;theta=theta+omega*dt</font><br>
+      <font color="red">&emsp;ball.pos=R*vector(cos(theta),sin(theta),0)</font><br>
+      </p>
+      </div>
+      <p>練習1:改變theta一開始的值為<font color="red">pi/6</font>、<font color="red">pi/4</font>、<font color="red">pi/2</font>，看模擬動畫有何不同。</p>
+      <p>練習2:將上述圓周運動轉動一圈的時間調整和秒針針尖一樣為<font color="red">60秒</font>。</p>
 
-      <h3>課程任務7: 調整不同的ball_height，並觀看模擬的動畫，試著從物理所學自由落體計簡落體時間是否和動畫的一致。</h3><br><br>
-      <h3>課程任務8:為自由落體的球增加速度的向量</h3>
-       <div style="text-align:center;">
-      <img src="images/VPython/VPython-4-1.png">
-       </div>
+      <h3>二、加上切線速度的向量</h3><br>
+      <p>切線速度是一個向量，它的大小v=R&omega;，方向是圓的切線方向。<br>
+         此向量的位置和大小設定不難，和上個單元的做法差不多，但向量的方向就比較困難。</br>
+         由速度的定義可知，一段時間的平均速度方向和位移&Delta;x方向相同，因此我們用位移&Delta;x方向來當作速度的方向。
+         程式以變數<font color="red">dx</font>表示位移&Delta;x，
+         並新增一速度向量<font color="red">v_arrow</font><br>
+         而<font color="red">位移&Delta;x是末位置-初位置</font>，
+         在while內利用<font color="red">newpos-prepos</font>算出位移<br>
+         因此程式碼撰寫如下:</p>
+      <div style="background-color:#CAFFFF">
+      <p>Web VPython 3.2<br>
 
+      size=0.8<br>
+      theta=0<br>
+      R=10<br>
+      omega=2*pi<br>
+      t=0<br>
+      scene=canvas(width=800, height=600,center=vector(0,0,0), background=color.white)<br> 
+      ball=sphere(pos=vector(R,0,0),radius=size,color=color.blue,make_trail=True)<br>
+      <font color="red">dx=(0,0,0)</font><br> 
+      <font color="red">v_arrow=arrow(color=color.red, shaftwidth=0.1)</font><br> 
+      dt=0.001<br>
+      while True:<br>
+      &emsp;<font color="red">prepos=ball.pos</font><br>
+      &emsp;rate(1/dt)<br>
+      &emsp;t=t+dt<br>
+      &emsp;theta=theta+omega*dt<br>
+      &emsp;ball.pos=R*vector(cos(theta),sin(theta),0)<br>
+      &emsp;<font color="red">newpos=ball.pos</font><br>
+      &emsp;<font color="red">dx=newpos-prepos</font><br>
+      &emsp;<font color="red">v_arrow.pos=ball.pos</font><br>
+      &emsp;<font color="red">v_arrow.axis=dx</font><br>
+      </p>
+      </div>
 
-      <h3>二、if()條件判斷</h3><br>
-      <p>在現實生活中，我們時常會視條件進行判斷下一步要怎麼做，在程式語言中，也能一樣的功能，就是使用if()函式，其運作情形如下圖所示:</p>
+      <p>但執行程式時，會發現沒看到速度的向量，原因是因為我們用速度是用位移的方向，但大小是位移的大小，因位移太小，因此這個動畫無法顯示出來<br>
+        為了解決此問量，我們可以用位移向量的單位向量的再乘上速度的大小，來得到速度的向量。<br>
+        取單位向量的作法為<font color="red">vector.norm()</font>，而切線速度的大小<font color="red">v=R*&omega;</font>，<br>
+        所以原程式中最後一行的v_arrow要修改如下:</p>
 
+      <div style="background-color:#CAFFFF">
+        &emsp;<font color="red">v_arrow.axis=dx.norm()*R*omega</font><br>
+      </div>
+      <p>可再乘一個數值使動畫中的v有較適當的大小，如下圖。</p>
       <div style="text-align:center;">
-      <img src="images/VPython/VPython-4-2.png">
-       </div><br>
-
-      <p>程式練習</p>
-      <p>1、判斷成績是否及格(1)<br>
-        <div style="background-color:#CAFFFF">
-        score=int(input("輸入成績"))<br>
-        if(score>=60):<br>
-        &emsp;print("及格")<br></p>
-        </div>
-
-      <p>2、判斷成績是否及格(2)<br>
-        <div style="background-color:#CAFFFF">
-        score=int(input("輸入成績"))<br>
-        if(score>=60):<br>
-        &emsp;print("及格")<br>
-        else:<br>
-        &emsp;print("不及格")<br></p>
-        </div>
-
-      <p>2、判斷成績的等第<br>
-        <div style="background-color:#CAFFFF">
-        score=int(input("輸入成績"))<br>
-        if(score>=80):<br>
-        &emsp;print("成績甲")<br>
-        else&emsp;if(score>=60&score<80):<br>
-        &emsp;print("成績乙")<br>
-        else:<br>
-        &emsp;print("成績丙")<br></p>
-        </div><br>
-
-
-
-
-      <h3>三、彈跳的球</h3><br>
-      <p>在上面的程式中，我們有畫上一個地板，現實生活中球碰到地板應該要反彈，因此我們 可以利用上面學到的if()函數和上方自由落體的程式碼進行修改，來達到此效果。</p>
-      <p>Step1、我們要讓球在地板的位置反彈，因此增加<font color="red">if()</font>，並判斷球的位置是否小於等於地板。<br>
-      Step2、滿足上述條件，讓球的速度<font color="red">v=-v</font>，使其向上反彈。<br>
-      Step3、將while的條件由(t<=10)，更改為(<font color="red">True</font>)，使其能一直運動下去。</p>
-
-      程式修改如下:</p>
-      <div style="background-color:#CAFFFF">
-      <p>GlowScript 3.2 VPython<br>
-      #關於球<br>
-      size=0.5 <br>
-      
-     #球的高度<br>
-      ball_height=20 <br><br>
-
-      #重力加速度<br>
-      g=vector(0,-10,0)<br><br>
-
-      #關於場景(背景)<br>
-      scene=canvas(width=800, height=600,center=vector(0,ball_height/2,0), background=color.white)<br><br>
-
-
-      ball=sphere(pos=vector(0,ball_height ,0),radius=size ,color=color.magenta ,v=vector(0,0,0)) <br><br>
-
-      #球速的向量<br>
-      <font color="blue">v_arrow=arrow(color=color.red, shaftwidth=0.1)</font><br><br>
-
-      #關於地板<br>
-      floor=box(pos=vector(0,0,0),length=20,width=20,height=1 ,color=color.blue)<br><br>
-
-
-
-      #關於時間<br>
-      t=0<br>
-      dt=0.01 <br><br>
-
-      #關於運動情形<br>
-      while (<font color="red">True</font>): <br>
-      &emsp;rate(100) <br>
-      &emsp;ball.pos=ball.pos+ball.v*dt <br>
-      &emsp;ball.v=ball.v+g*dt</font><br>
-      &emsp;<font color="blue">v_arrow.pos=ball.pos</font><br>
-      <font color="blue">v_arrow.axis=ball.v</font><br>
-      &emsp;<font color="red">if(ball.pos.y<=0):</font><br>
-      &emsp;&emsp;<font color="red">ball.v=-ball.v</font><br>
-      &emsp;t=t+dt <br>
-      &emsp;print(t,ball.pos)<br>
-      </p>
-      </div><br>
-
-      <h3>課程任務9:將球的初速度v更改為v=(2,0,0)，觀看球的運動情形。</h3>
-      <br>
-      
-      <p>加分選項(1):調整適當的地板大小和while()的條件，使球運動至地板邊界後停止運動。
-
-      <p>加分選項(2):增加球的運動軌跡。<br>
-        sphere()內，增加<font color="red">make_trail=True,trail_type="points",interval=10</font>，顯示球的運動軌跡。<br>程式修改如下:</p>
-      <div style="background-color:#CAFFFF">
-      <p>ball=sphere(pos=vector(0,ball_height ,0),make_trail=True,trail_type="points",interval=10,radius=size ,color=color.magenta ,v=vector(1,0,0))</p>
+      <img src="images/VPython/VPython-5-2.png">
       </div>
 
-
-
-
-
-
-
-
-
-
-      
-
-
+      <h3>課程任務10:在圓周運動上，再加上向心力的向量。</h3>
+      <div style="text-align:center;">
+      <img src="images/VPython/VPython-5-3.png">
+      </div>
 
     </article>
 
