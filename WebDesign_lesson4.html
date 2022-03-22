@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>網頁設計的第四堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+
+  <script src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+
+
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">程式設計</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">網頁設計第四堂課:建立網站</h2>
+        
+        <p class="post-date">3/23 <span>2022</span></p>
+        <p class="post-cat">類別：程式設計</p>
+      </header>
+
+      <p>為了將撰寫好的網頁分享給大家，使大家能在線上看到你的作品，我們需將網頁發佈至網路上。</p>
+      <p>此處我們將分享使用<font color="red">GitHub</font>建立一個免費的網站。</p>
+
+      <p>GitHub的連結如右:<br><a href="https://github.com/">https://github.com/</a></p> 
+
+      <p>建立GitHub帳號步驟如下:</p>
+
+      <p>Step1、進到GitHub首頁後，點繫右上角<font color="red">Sign up</font>建立帳號。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-1.png"  alt=""><br>
+      </div>
+
+
+      <p>Step2、依其指示，輸入電子信箱email、密碼password、<font color="red">使用者名稱username</font>、是否收取GitHub新資訊。</p>
+
+      <p>此處的<font color="red">username</font>將會是你網站的名稱，其會出現在網址上，因此請想清楚建立的網站內容為何，為其設定一個較理想的名字。</p>
+
+      <p>完成後，按右下角的<font color="red">Continue</font>。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-2.png"  alt=""><br>
+      </div>
+
+      <p>Step3、進行真人驗證。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-3.png"  alt=""><br>
+      </div>
+
+      <p>Step4、至電子信箱收驗證碼，並於此輸入驗證碼。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-4.png"  alt=""><br>
+      </div>
+
+      <p>Step5、工作團隊人數選擇及身分選擇。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-5.png"  alt=""><br>
+      </div>
+
+      <p>Step6、想透過GitHub建立什麼?我們要建立網頁，因此此處選擇Community。</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-6.png"  alt=""><br>
+      </div>
+
+      <p>Step7、我們先選擇free免費版本，若未來有相關需求，可更改為Pro版以使用更多功能。</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-7.png"  alt=""><br>
+      </div>
+
+      <p>此時我們已經擁有GitHub帳號來建立專案或網頁，以下將說明如何將寫好的網頁上傳至
+        GitHub，讓大家能線上觀看。</p>
+
+      <p>Step1、建立好帳號後，進入GitHub的頁面如下，先點繫左上角的Create Repositoriy建立儲存空間。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-8.png"  alt=""><br>
+      </div>
+
+      <p>Step2、為此儲存空間<font color="red">命名</font>，其會在網址後方出現，因此可以取和此網頁相關的名稱，如要做一個自傳的網頁，名稱可輸入autobiography。<br>
+        輸入完成後，點擊下方Create Repositoriy。</p>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-9.png"  alt=""><br>
+      </div>
+
+      <p>Step3、此時已建立網頁的儲存區，將撰寫好的index.html檔案拖曳進來。</p>
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-10.png"  alt=""><br>
+      </div>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-11.png"  alt=""><br>
+      </div>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-12.png"  alt=""><br>
+      </div>
+
+            <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-13.png"  alt=""><br>
+      </div>
+
+
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-14.png"  alt=""><br>
+      </div>
+
+      <div style="text-align:center;">
+      <img src="images/WebDesign/WebDesign-4-15.png"  alt=""><br>
+      </div>
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+
+
+  </div>
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+    
+
+</body>
+</html>
