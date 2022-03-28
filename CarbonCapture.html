@@ -1,5 +1,6 @@
-<!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<!Doctype html>
+<html>
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -74,7 +75,7 @@ function send() {
   } 
 });
      setInterval(async function () {
-       if(timedata%100<=20){
+       if(timedata%50<=10){
        Switch.on();
        document.getElementById('state').innerHTML ="碳捕捉";
        a=0;
