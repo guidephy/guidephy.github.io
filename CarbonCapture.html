@@ -79,7 +79,6 @@ function send() {
     document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   } 
   
-  
 });
 
      setInterval(async function () {
@@ -99,36 +98,16 @@ function send() {
        
       }
 
-
-
     }, 1000 * 1);
-
-
-
-  
-  
-
-
 
  clearInterval(myVar);
  myVar=setInterval(function(){myTimer()},10);
  document.getElementById("timer1").style.display='none';
  document.getElementById("timer").style.display='';  
 
-
-
-
-
   });
 
-
-
  }
-
-
-
-
-
 
  function myTimer()
   {
