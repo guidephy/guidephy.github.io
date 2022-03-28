@@ -23,7 +23,7 @@
 <button id="sendBtn" onclick="send()">開始運行</button><br><br>
 
 <div align="center">
-	<h2 style="display:inline;">目前狀態:</h2><h2 style="display:inline;" id="state"></h2>
+  <h2 style="display:inline;">目前狀態:</h2><h2 style="display:inline;" id="state"></h2>
 </div>
 <h2 id="data"></h2>
 <h2 id="timer1">運行時間:0秒</h2>
@@ -36,6 +36,8 @@ var Switch;
 var Battery;
 var recycle;
 var starttime;
+var timedata;
+var a=0;
 Battery=0;
 var myVar=setInterval(function(){myTimer()},10);
 document.getElementById('data').innerHTML = (['電池電壓:',0,"V",("<br/>"),("<br/>"),'循環次數:',0,"次"].join(''));
@@ -58,45 +60,67 @@ function get_time(t) {
   return varNow;
 }
 function send() {
+  starttime = new Date();
   document.getElementById("sendBtn").style.display='none';
   document.getElementById('state').innerHTML ="碳捕捉";
-  boardReady({board: 'Smart', device: '10VaEXRV', transport: 'mqtt', multi: true}, function (board) {
+  boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt', multi: true}, function (board) {
   board.samplingInterval = 50;
   Switch = getRelay(board, 2);
-  Battery = getPhotocell(board, 0);
-  recycle = 1;
+  Battery =getPhotocell(board, 0);
+  recycle = 0;
 
+
+ Battery.measure(function (val) {
+    Battery.detectedVal = val;
   if(Battery.detectedVal==null){
-  	Battery.detectedVal="未連接裝置";
-  	  	document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
+    Battery.detectedVal="未連接裝置";
+        document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   }else{
-		document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
-  }	  
-  Switch.on();
-  delay(255000);
-  Switch.off();  
-  if (Battery.detectedVal < 0.8) {
-    Switch.on();
-    recycle = recycle + 1;
-    document.getElementById('state').innerHTML ="碳捕捉";
-    delay(255000);
-    Switch.off();
-  } else if(Battery.detectedVal >= 0.8){
-    Switch.off();
-    document.getElementById('state').innerHTML ="電池發電";
-  }else{
-  	document.getElementById('state').innerHTML ="未連接裝置";
-  }
+    document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
+  } 
+  
+  
 });
- starttime = new Date();
+
+     setInterval(async function () {
+
+       if(timedata%50<=10){
+       Switch.on();
+       document.getElementById('state').innerHTML ="碳捕捉";
+       a=0;
+
+       }else{
+       if(a==0){
+        recycle = recycle+1;
+       }
+       a=a+1; 
+       document.getElementById('state').innerHTML ="電池";
+       Switch.off();
+       
+      }
+
+
+
+    }, 1000 * 1);
+
+
  clearInterval(myVar);
  myVar=setInterval(function(){myTimer()},10);
  document.getElementById("timer1").style.display='none';
- document.getElementById("timer").style.display='';
+ document.getElementById("timer").style.display='';  
+
+
+  });
+
+
+
  }
+
+
  function myTimer()
   {
-        document.getElementById("timer").innerHTML="運行時間:"+Math.floor((new Date-starttime)/1000)+"秒";
+        timedata=Math.floor((new Date-starttime)/1000)
+        document.getElementById("timer").innerHTML="運行時間:"+timedata+"秒";
    }
 </script>
 </body>
