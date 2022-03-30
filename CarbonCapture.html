@@ -62,7 +62,7 @@ function send() {
   document.getElementById('state').innerHTML ="碳捕捉";
   boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt', multi: true}, function (board) {
   board.samplingInterval = 50;
-  Switch = getRelay(board, 2);
+  Switch = getRelay(board, 5);
   Battery =getPhotocell(board, 0);
   recycle = 0;
  Battery.measure(function (val) {
