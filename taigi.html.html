@@ -13,9 +13,12 @@
 </head>
 
 <body>
+<div style="text-align:center;">
 <h1>台語羅馬拼音聽寫測驗</h1>
+</div>
 <button id="sendBtn" onclick="send()">開始測驗</button><br>
 <p id="question"></p><br>
+<p id="answer"></p><br>
 <audio id="questionvoice"src="" autoplay controls></audio>
 
 
@@ -32,7 +35,8 @@ function send() {
      	
      	var i=Math.floor(Math.random()*124)+1;
      	
-         document.getElementById("question").innerHTML=questiondata[i*6+0];
+       document.getElementById("question").innerHTML=questiondata[i*6+0];
+       document.getElementById("answer").innerHTML=questiondata[i*6+1];
      	 document.getElementById("questionvoice").src=questiondata[i*6+5];
 
      	
