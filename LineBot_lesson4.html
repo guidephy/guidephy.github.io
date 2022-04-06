@@ -79,19 +79,31 @@
       <img src="images/LineBot/LineBot-4-1.png"  alt=""><br>
       </div>
 
-      <p>Step2、</p>
+      <p>Step2、建立新的LineBot</p>
+      <p>於帳號一覽的頁面左側，點擊「建立」新增一個LineBot。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-2.png"  alt=""><br>
       </div>
 
+      <p>我們預計這個LineBot是一個能即時做多國語言翻譯的聊天機器人，因此帳號名稱輸入「<font color="red">翻譯機器人</font>」，
+        所在國家選擇「<font color="red">台灣</font>」</p>
+      <p>公司名稱可輸入您的學校或公司名稱，不影響LineBot的運作，使用者也不會看到此資訊。</p>
+      <p>業種分類可依您剛輸入的公司名稱進行選擇，一樣不影響LineBot的運作，使用者也不會看到此資訊。</p>
+      <p>設定完成後，按下方的<font color="red">確定</font>至下一步。</p>
+
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-3.png"  alt=""><br>
       </div>
+      <br>
+
+      <p>此時會請您確認帳號資訊是否有誤，若沒問題，可點擊下方<font color="red">完成</font>至下一步。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-4.png"  alt=""><br>
       </div>
+      <br>
+      <p>到此處，您新的LineBot已建立完成，可直接將頁面向下滑，點擊<font color="red">稍後進行認證(前往管理畫面)</font>至Line官方帳號的管理畫面。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-5.png"  alt=""><br>
@@ -100,18 +112,29 @@
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-6.png"  alt=""><br>
       </div>
-
-      <p>Step3、</p>
+      <br>
+      <p>Step3、LineBot管理頁面進行設定</p>
+      
+      <p>點繫上方的<font color="red">回應模式:聊天機器人</font>進入回應設定</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-7.png"  alt=""><br>
       </div>
+      <br>
+      <p>回應模式預設即為<font color="red">聊天機器人</font>，若不是，請調整為聊天機器人。</p>
+      <p>另外，下方的自動回應訊息，請選擇為<font color="red">停用</font>。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-8.png"  alt=""><br>
       </div>
+      <br>
+      <p>Step4、Messaging API設定</p>
+      
+      <p>我們要至到LINE Developers對剛建立的LineBot進行<font color="red">Messaging API</font>設定，LINE Developers連結如下:<br><a href="https://developers.line.biz/zh-hant/" target="_blank">https://developers.line.biz/zh-hant/</a></p>
 
-      <p>Step4、</p>
+      <p>進入LINE Developers後，點繫<font color="red">Messaging API</font>進入，再點擊開始體驗進行相關設定。</p>
+
+
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-9.png"  alt=""><br>
@@ -121,13 +144,25 @@
       <img src="images/LineBot/LineBot-4-10.png"  alt=""><br>
       </div>
 
+ 
+      <p>進入Messaging API設定後，不用於右方建立新帳號，而是直接選擇Admin中已建立的<font color="red">Provider</font>。</p>
+
+      <p>補充說明:第一堂課的教學，是直接在LINE Developers建立帳號，而此堂課我們是於Line官方帳號管理平台建立，未來可依自己的喜好，於這兩種方法擇一建立新的LineBot。</p>
+      <br>
+
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-11.png"  alt=""><br>
       </div>
+      <br>
+      <p>點擊後，即會看到剛建立的「<font color="red">翻譯機器人</font>」的LineBot，點擊它進行相關設定。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-12.png"  alt=""><br>
       </div>
+      <br>
+      <p>此處我們有兩個重要的任務，第一個是取得<font color="red">Channel access token</font>，第二個是設定<font color="red">Webhook settings</font>。</p>
+      <p>我們目前只能先完成第一個取得Channel access token的任務，上方選項選擇<font color="red">Messaging API</font>，再將畫面移到最下方，即會看到Channel access token，點擊其下方的<font color="red">issue</font>。</p>
+      <p>點擊後，即會看到一長串的代碼，此即為您LineBot的<font color="red">Channel access token</font>，此token請務必保管好，勿讓其它人知道，因此token是外部程式連結此LineBot的重要<font color="red">鑰匙</font>，若落入有心人的手上，對方即能輕易修改您的LineBot運作功能。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-13.png"  alt=""><br>
@@ -141,29 +176,37 @@
       <img src="images/LineBot/LineBot-4-15.png"  alt=""><br>
       </div>
 
-      <p>Step5、</p>
+      <p>Step5、Google Apps Script</p>
+      <p>登入Google雲端硬碟，並點擊左方的<font color="red">新增</font>，此時會跳出許多Google的工具，如文件、試算表、簡報...等。點擊下方「<font color="red">更多</font>」，若有Google Apps Script則點擊開啟，若沒有，則點擊下方「連結更多應用程式」進行安裝。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-16.png"  alt=""><br>
       </div>
-
+       <p>安裝Google Apps Script: 於右上方輸入Google Apps Script，下方即會出現Google Apps Script應用程式，點擊其右邊的<font color="red">連接</font>進行安裝。</p>
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-17.png"  alt=""><br>
       </div>
-
+      <br>
+      
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-18.png"  alt=""><br>
       </div>
+      <p>進入Google Apps Script，因為筆者於新版撰寫程式後，無法順利連結LineBot，因此建議點擊右上方<font color="red">使用舊版編輯器</font>進行編輯。</p>
      
          <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-19.png"  alt=""><br>
       </div>
 
-      <p>Step6、</p>
+      <p>Step6、使用Google Apps Script撰寫LineBot程式</p>
+       <p>進到舊版編輯器後，於左上方打上專案名稱，名稱輸入<font color="red">翻譯機器人</font>。(此只為專案名稱，方便管理，不影響程式運行)</p>
+     
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-20.png"  alt=""><br>
       </div>
+
+      <p>將原程式碼的內容刪掉，並把下面的程式碼複製貼上，如下圖所示。</p>
+      <p>將第一行"你的Linebot的channel access token"改成上面教學中，取得的LineBot的token。</p>
 
        <div style="background-color:#CAFFFF">
        <p>var channel_access_token = "<font color="red">你的Linebot的channel access token</font>"<br>
@@ -217,52 +260,68 @@
 
       </div>
 
+      <p>關於程式碼，將於下堂課作說明。</p>
+     
+      <p>完成上述步驟後，點擊上方<font color="red">發布</font>，並選擇「<font color="red">部署為網頁應用程式</font>」。</p>
 
-      <div style="text-align:center;">
-      <img src="images/LineBot/LineBot-4-21.png"  alt=""><br>
-      </div>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-22.png"  alt=""><br>
       </div>
 
+      <p>跳出發布設定的頁面，將最下方<font color="red">who has access to the app</font>:更改為<font color="red">Anyone,even anonymous</font>後，按下方<font color="red">Deploy</font>進行發布。</p>
+
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-23.png"  alt=""><br>
       </div>
 
-            <div style="text-align:center;">
+      <p>發布後會要求<font color="red">核對權限</font>，點擊核對權限。</p>
+
+      <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-24.png"  alt=""><br>
       </div>
-
+      <p>若出現下方畫面，需點擊<font color="red">進階</font>，再點擊<font color="red">前往「翻譯機器人」(不安全)</font>。</p>
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-25.png"  alt=""><br>
       </div>
 
+
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-26.png"  alt=""><br>
       </div>
-
+      <p>點擊右下方的<font color="red">允許</font>，即完成權限核對並完成發布。</p>
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-27.png"  alt=""><br>
       </div>
+
+      <p>此時會出現完成發布後的 <font color="red">web app URL</font>，下方的連結請<font color="red">複製</font>下來，此連結將幫助我們完成Messaging API設定的第二個任務。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-28.png"  alt=""><br>
       </div>
 
-      <p>Step7、</p>
+      <p>Step7、設定Webhook settings</p>
+
+      <p>回到Messaging API設定的頁面，並將畫面移至<font color="red">Webhook settings</font>，於Webhook settings貼上Google Apps Script發布後取得的連結，貼上後，點擊<font color="red">Update</font>。</p>
+
+      <p>下方會出現Use webhook，請記得<font color="red">點擊右方滑桿</font>啟用。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-29.png"  alt=""><br>
       </div>
 
-      <p>Step8、</p>
+      <p>Step8、LineBot測試</p>
+
+      <p>用手機掃描Messaging API設定上方的<font color="red">QR code</font>，將剛開發的翻譯機器人LineBot加入好友。</p>
+      <p>傳訊息到您的翻譯機器人Linebot，成功的話他會重複你說的話。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-30.png"  alt=""><br>
       </div>
 
-      <p>補充說明:</p>
+      <p>我們將於下堂課延續課程，開發出能自動翻譯的聊天機器人。</p>
+
+      <p>補充說明:若<font color="red">更改Google Apps Script的程式</font>並重新發布時，請先於專案版本選擇<font color="red">新增</font>，再按下方的更新，才會更新成功。</p>
 
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-4-31.png"  alt=""><br>
