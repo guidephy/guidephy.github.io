@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>台語羅馬拼音聽寫測驗</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+   <script src="JS/menu.js"></script>
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+         <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">台羅拼音聽寫測驗</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+     
+  <div style="text-align:center;">
+
+  <button id="sendBtn" onclick="send()">開始測驗</button><br>
+  <p id="question"></p>
+
+  <audio style="display: none;" id="questionvoice"src="" autoplay controls></audio><br><br>
+  <input style="display: none;" type="text" id="keyanswer"  placeholder="請輸入台羅拼音" ><br>
+  <p style=" color:red; display: none;"  id="feedback" ></p>
+  <p style="display: none;" id="answer"></p><br>
+  <button style="display: none;" id="sendAnswerBtn" onclick="sendAnswer()">送出答案</button>
+  <button style="display: none;" id="sendNextBtn" onclick="send()">下一題</button><br>
+  </div>
+
+     
+        
+    
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="exp.html">科學實驗</a></li>
+         <li><a href="#">讀書心得</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+
+  <script>
+var parameter = {};
+var questiondata;
+var answer;
+
+function send() { 
+
+
+ $.get("https://script.google.com/macros/s/AKfycbzOUdPA0KkWKzPwSEH3iujnWxp_y0T0F2RhaqOtfgc-yGJNqJE/exec",parameter, function(data) {
+            questiondata =data.split(",");
+        
+        var i=Math.floor(Math.random()*questiondata[0])+1;
+
+       document.getElementById("sendBtn").style.display="none";
+
+       document.getElementById("questionvoice").style.display="";
+       document.getElementById("keyanswer").style.display="";
+       document.getElementById("sendAnswerBtn").style.display="";
+      
+
+       //下一題的動作
+       document.getElementById("sendNextBtn").style.display="none";
+       document.getElementById("answer").style.display="none";
+       document.getElementById("keyanswer").value="";
+        document.getElementById("feedback").style.display="none";
+
+       //
+        
+       document.getElementById("question").innerHTML=questiondata[i*6+0];
+
+       answer=questiondata[i*6+1];
+       document.getElementById("questionvoice").src=questiondata[i*6+5];
+
+        
+     });
+};
+
+function sendAnswer() { 
+        document.getElementById("answer").style.display="";
+        document.getElementById("sendNextBtn").style.display="";
+        document.getElementById("feedback").style.display="";
+        document.getElementById("sendAnswerBtn").style.display="none";
+        document.getElementById("answer").innerHTML="答案:"+answer;
+        if(document.getElementById("keyanswer").value==answer){
+                 document.getElementById("feedback").innerHTML="答對了";
+        }else{
+                 document.getElementById("feedback").innerHTML="答錯了";
+        }
+}
+</script>
+
+</body>
+</html>
+
+
