@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant-TW">
 
@@ -14,12 +13,17 @@
 
 <body>
 <div style="text-align:center;">
-<h1>台羅拼音聽寫測驗</h1>
+<h1 style="color:blue;">台羅拼音聽寫測驗</h1>
 
 <button id="sendBtn" onclick="send()">開始測驗</button><br>
 <p id="question"></p>
-<p id="answer"></p><br>
-<audio id="questionvoice"src="" autoplay controls></audio>
+
+<audio style="display: none;" id="questionvoice"src="" autoplay controls></audio><br><br>
+ <input style="display: none;" type="text" id="keyanswer"  placeholder="請輸入台羅拼音" ><br>
+ <p style=" color:red; display: none;"  id="feedback" ></p>
+ <p style="display: none;" id="answer"></p><br>
+ <button style="display: none;" id="sendAnswerBtn" onclick="sendAnswer()">送出答案</button>
+ <button style="display: none;" id="sendNextBtn" onclick="send()">下一題</button><br>
 </div>
 
 
@@ -27,22 +31,52 @@
 <script>
 var parameter = {};
 var questiondata;
+var answer;
 
 function send() { 
 
 
  $.get("https://script.google.com/macros/s/AKfycbzOUdPA0KkWKzPwSEH3iujnWxp_y0T0F2RhaqOtfgc-yGJNqJE/exec",parameter, function(data) {
- 	    questiondata =data.split(",");
-     	
-     	var i=Math.floor(Math.random()*questiondata[0])+1;
-     	
-       document.getElementById("question").innerHTML=questiondata[i*6+0];
-       document.getElementById("answer").innerHTML=questiondata[i*6+1];
-     	 document.getElementById("questionvoice").src=questiondata[i*6+5];
+            questiondata =data.split(",");
+        
+        var i=Math.floor(Math.random()*questiondata[0])+1;
 
-     	
+       document.getElementById("sendBtn").style.display="none";
+
+       document.getElementById("questionvoice").style.display="";
+       document.getElementById("keyanswer").style.display="";
+       document.getElementById("sendAnswerBtn").style.display="";
+      
+
+       //下一題的動作
+       document.getElementById("sendNextBtn").style.display="none";
+       document.getElementById("answer").style.display="none";
+       document.getElementById("keyanswer").value="";
+        document.getElementById("feedback").style.display="none";
+
+       //
+        
+       document.getElementById("question").innerHTML=questiondata[i*6+0];
+
+       answer=questiondata[i*6+1];
+       document.getElementById("questionvoice").src=questiondata[i*6+5];
+
+        
      });
 };
+
+function sendAnswer() { 
+        document.getElementById("answer").style.display="";
+        document.getElementById("sendNextBtn").style.display="";
+        document.getElementById("feedback").style.display="";
+        document.getElementById("sendAnswerBtn").style.display="none";
+        document.getElementById("answer").innerHTML="答案:"+answer;
+        if(document.getElementById("keyanswer").value==answer){
+                 document.getElementById("feedback").innerHTML="答對了";
+        }else{
+                 document.getElementById("feedback").innerHTML="答錯了";
+        }
+}
 </script>
 
 
