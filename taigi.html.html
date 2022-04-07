@@ -34,7 +34,7 @@ function send() {
  $.get("https://script.google.com/macros/s/AKfycbzOUdPA0KkWKzPwSEH3iujnWxp_y0T0F2RhaqOtfgc-yGJNqJE/exec",parameter, function(data) {
  	    questiondata =data.split(",");
      	
-     	var i=Math.floor(Math.random()*124)+1;
+     	var i=Math.floor(Math.random()*questiondata[0])+1;
      	
        document.getElementById("question").innerHTML=questiondata[i*6+0];
        document.getElementById("answer").innerHTML=questiondata[i*6+1];
