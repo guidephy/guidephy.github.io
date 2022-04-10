@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>VPython的第六堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+
+  <script src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+
+
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">程式設計</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">VPython的第六堂課:簡諧運動與單擺</h2>
+        
+        <p class="post-date">4/11 <span>2022</span></p>
+        <p class="post-cat">類別：程式設計</p>
+      </header>
+
+      <h3>一、簡諧運動</h3><br>
+      
+      <p>在高二物理簡諧運動的單元，我們學到若將一質量為<font color="red">m</font>的物體連接在一條彈力係數為<font color="red">k</font>的彈簧，且彈簧另一端連接在牆壁上，如下圖，此時若將物體右拉一段距離<font color="red">R</font>再由靜止釋放，則此物體會作振幅為R的簡諧運動(simple harmonic motion, S.H.M.)，且其運動恰為等速率圓週運動的投影結果。</p>
+
+       <div style="text-align:center;">
+       <img src="images/VPython/VPython-6-1.gif">
+       </div>
+       <p style="text-align:center;">(from 維基百科)</p>
+
+      <p>且我們可知物體受力與加速度的關係為:</p>
+      <div style="text-align:center;background-color:#FFFF96">
+      <p><font color="red">F = -kx = ma</font></p>
+   
+       </div>
+       <p>其中<font color="red">x</font>為彈簧的形變量(伸長or壓縮的大小)</p>
+
+       <p>而我們證明若物體拉至右拉一段距離R再靜止釋放，其運動的位置x、速度v和加速度a和時間的關係式如下:</p>
+       <div style="text-align:center;background-color:#FFFF96">
+       <p><font color="red">x = Rcos(&omega;t)</font></p>
+       <p><font color="red">v = -R&omega;sin(&omega;t)</font></p>
+       <p><font color="red">a = -R&omega;&sup2;cos(&omega;t)</font></p>
+  
+       </div>
+       <p>其中&omega;為簡諧運動的角頻率，其大小和物體質量m和彈簧的彈力係數k有關，關係式如下:
+        <div style="text-align:center;background-color:#FFFF96">
+          <p><font color="red">&omega; = √<span style="text-decoration:overline;">k/m</font></p>
+          <p>且簡諧運動的週期<font color="red">T=2&pi;√<span style="text-decoration:overline;">m/k</font></p>
+       </div>
+       
+       <h3>1、繪製物件</h3>
+       <p>我們先繪製簡諧運動的動畫所需物件，包含牆、物體、地板及彈簧，並設定相關參數，<br>
+        其中，物體的大小設為<font color="red">size</font>，且其作簡諧運動的振幅為<font color="red">R</font>，因此讓彈簧原長<font color="red">L0</font>的大小設定為<font color="red">R+size*2</font>，讓彈簧原長確定夠長。<br>
+        並為了讓物體運動的畫面在<font color="red">中間</font>，因此連接彈簧的牆的<font color="red">位置(x方向)</font>設定在<font color="red">-L0處</font>。<br>
+        假設物體一開始是先拉至<font color="red">最右邊振幅R處</font>靜止釋放，但物體本身大小為size，因此物體<font color="red">初始位置(x方向)</font>設定為<font color="red">R+size/2</font>。<br>
+        另外，為了讓物體在動畫的中間，也將地板的<font color="red">位置(y方向)</font>設定在<font color="red">-(size+0.1)/2</font>。<br>
+        而彈簧我們是以<font color="red">helix（螺旋線）</font>來畫出其樣子。<br>
+        程式碼如下:</p>
+
+       <div style="background-color:#CAFFFF">
+       <p>Web VPython 3.2<br>
+
+       #木塊質量 4 kg<br>
+       m= 4<br>
+       # 木塊邊長 1 m<br>
+       size = 1 <br>         
+       # 振幅 5 m<br>
+       R = 5  <br>
+       # 彈性常數 1 N/m  <br>      
+       k = 1   <br>           
+       # 彈簧原長<br>
+       L0 = R + size*2<br><br>   
+
+       #場景scene設定 <br>
+       scene = canvas(title = "Simple Harmonic Motion", width = 900, height = 400, x = 0, y = 0, background = vector(1, 1, 1))<br>
+       #牆wall<br>
+       wall = box(pos = vector(-L0, size-(size+0.1)/2, 0), length = 0.1, height = size*2, width = R, color = vector(0.9, 0.9, 0.9))<br>
+       #物體object<br>
+       object = box(pos = vector(R+size/2, 0, 0), length = size, height = size, width = size, color = color.blue)<br>
+       #地板floor<br>
+       floor = box(pos = vector(0, -(size+0.1)/2, 0), length = 2*L0, height = 0.1, width = R, color = color.yellow)<br>
+       #彈簧spring<br>
+       spring = helix(pos = vector(-L0, 0, 0), radius = 0.3*size, thickness = 0.05*size, color = vector(0.9, 0.9, 0.9))<br>
+       spring.axis = object.pos - spring.pos - vector(size/2, 0, 0)<br></p>
+
+       </div>
+       <p>繪製結果如下圖所示</p>
+
+       <div style="text-align:center;">
+       <img src="images/VPython/VPython-6-2.png">
+       </div>
+      
+       <h3>2、使物體作簡諧運動</h3>
+
+       <p>我們可利用彈力F=-kx=ma，求出物體的加速度a，<br>
+       再利用之前繪製等加速度的方法由加速度求速度v再求位置x，<br>
+       以畫出此物體作簡諧運動的樣子，請於上述程式碼後，再加上下方程式，程式碼如下:</p>
+
+       <div style="background-color:#CAFFFF">
+       <p>object.v= vector(0,0,0)<br>
+       # 時間<br>
+       t = 0<br> 
+       # 時間間隔<br>              
+       dt = 0.001 <br>
+
+       while(True):<br>
+       &emsp;rate(1000)<br>
+       # 計算彈簧長度、伸長量、回復力<br>
+       &emsp;spring.axis = object.pos - spring.pos - vector(size/2, 0, 0)<br>
+       &emsp;F = -k * (spring.axis - vector(L0, 0, 0))<br>
+       # 計算木塊加速度, 更新速度、位置<br>
+       &emsp;object.a = F/m<br>
+       &emsp;object.v = object.v+object.a*dt<br>
+       &emsp;object.pos =object.pos+object.v*dt<br>
+       </div>
+
+       <p>完成動畫如下</p>
+
+
+       <iframe src="https://www.glowscript.org/#/user/ttnpgjqua26/folder/MyPrograms/program/lesson6-SHM" width="100%" height="500"></iframe>
+       <br>
+
+       <h3>課程任務11:請觀察此簡諧運動的週期T，其大小是否和公式<font color="red">T=2&pi;√<span style="text-decoration:overline;">m/k</font>的結果相同，並嘗試更改動畫中物體的質量m和彈簧的彈力係數k，並再次觀察動畫的週期和公式算出來的值是否相同。</h3><br>
+
+       <h3>課程任務12:任務11中的週期，除了直接觀察測量外，試著透過程式的修改，直接從動畫中得到簡諧運動的週期大小。</h3>
+       <p>提示:週期為物體剛成一次循環回到原位置所需的時間。</p><br>
+
+       <h3>課程任務13:請畫上物體作簡諧運動時的速度向量和加速度向量</h3>
+       <div style="text-align:center;">
+       <img src="images/VPython/VPython-6-3.png">
+       </div><br>
+
+
+       <h3>單擺</h3>
+       <p>1、繪製物件</p>
+
+
+       <div style="background-color:#CAFFFF">
+       <p>Web VPython 3.2<br>
+       # 小球半徑<br>
+       size = 0.2<br> 
+       # 小球質量<br>
+       m = 1<br>
+       # 擺長<br>
+       L = 5<br>
+       # 起始擺角, 用 radians 將單位換成 rad<br>
+       theta0 = radians(30)<br>
+        # 擺角<br>
+       theta = theta0<br> 
+       # 重力加速度<br>
+       g = 9.8 <br>  
+       # 單擺週期理論值, L = 5, g = 9.8, T = 4.48798950512828<br>
+       T = 2*pi*sqrt(L/g)<br>
+       # 角加速度, 初始值為 0<br>
+       alpha = 0<br>  
+       # 角速度, 初始值為 0<br>
+       omega = 0<br><br> 
+
+       scene = canvas(title = "Pendulum", width = 700, height = 600, x = 0, y = 0, background = vector(1, 1, 1))<br>
+       ceiling = box(pos = vector(0, L/2 + 0.05, 0), length = L, height = 0.1, width = L/2, color = color.blue)<br>
+       ball = sphere(pos = vector(L*sin(theta0), L/2 - L*cos(theta0), 0), radius = size, color = color.red, make_trail = True, retain = 100)<br>
+       rope = cylinder(pos = vector(0, L/2, 0), axis = ball.pos - vector(0, L/2, 0), radius = 0.1*size, color = color.yellow)</p>
+
+       </div>
+
+       <p>2、使單擺開始擺動</p>
+       <div style="background-color:#CAFFFF">
+       # 時間<br>
+       t = 0 <br>  
+        # 時間間隔<br>
+       dt = 0.001 <br><br>        
+
+       while(True):<br>
+       &emsp;rate(1000)<br>
+       # 計算小球所受力矩、角加速度、角速度、擺角<br>
+       &emsp;r = ball.pos - vector(0, L/2, 0)<br>
+       &emsp;alpha = -m*g*ball.pos.x/(m*L*L)<br>
+       &emsp;omega = omega+ alpha*dt<br>
+       &emsp;theta = theta+omega*dt<br>
+       # 更新小球的位置、速度, 繩子的軸方向及長度<br>
+       &emsp;ball.pos = vector(L*sin(theta), L/2 - L*cos(theta), 0)<br>
+       &emsp;rope.axis = r<br>
+       &emsp;t =t+ dt<br>
+       </div>
+       <p>完成動畫如下</p>
+
+
+       <iframe src="https://www.glowscript.org/#/user/ttnpgjqua26/folder/MyPrograms/program/lesson6-Pendulum" width="100%" height="600"></iframe>
+       <br>
+
+
+
+
+
+
+      
+
+
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+    <!-- ↓ 增加這個部分 ↓ -->
+    
+    <!-- ↑ 到這裡為止↑ -->
+
+  </div><!-- /.news-contents -->
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+    
+
+</body>
+</html>
