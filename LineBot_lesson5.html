@@ -104,13 +104,13 @@
 
             var data = sheet.getRange(2,1);  //存對話資料的儲存格 (2,1)表示為試算表的A2<br>
 
-            var respond = sheet.getRange(3,4).getValue(); //預設要回話資料的儲存格 (3,4)表示為試算表的D3</p>
+            var reply = sheet.getRange(3,4).getValue(); //預設要回話資料的儲存格 (3,4)表示為試算表的D3</p>
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-5-5.png"  alt=""><br>
       </div>
       <p>7、將原程式中的push_message(ME,event.message.text); <br>
       改為data.setValue(event.message.text);<br>
-      push_message(ME,respond); </p>
+      push_message(ME,reply); </p>
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-5-6.png"  alt=""><br>
       </div>
