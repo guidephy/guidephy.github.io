@@ -2,7 +2,7 @@
 <html lang="zh-Hant-TW">
 <head>
   <meta charset="utf-8">
-   <title>LineBot第四堂課</title>
+   <title>LineBot第五堂課</title>
    <meta name="description" content="提供物理與程式學習的教學與心得">
   <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -65,26 +65,38 @@
   <div class="news-contents wrapper">
     <article>
       <header class="post-info">
-        <h2  class="post-title">LineBot第四堂課</h2>
+        <h2  class="post-title">LineBot第五堂課</h2>
         
-        <p class="post-date">4/6 <span>2022</span></p>
+        <p class="post-date">4/13 <span>2022</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
 
-     <h3>LineBot與google試算表的連結</h3>
+     <h3>LineBot與google試算表的結合</h3><br>
      <p>1、先至google雲端硬碟新增一個google試算表。</p>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-1.png"  alt=""><br>
+      </div>
      <p>2、點擊左上角的「無標題的試算表」為此試算表命名，命什麼名字都可以，不影響程式編寫。</p>
 
      <p>3、點擊右上角的「 共用」，將共用權限改為「開啟-任何知道連結的使用者」。</p>
 
      <p>4、下方工作列的名稱先保留原本的名字「工作表1」，此資訊在後面的程式會用到。</p>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-2.png"  alt=""><br>
+      </div>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-3.png"  alt=""><br>
+      </div>
 
-     <p>5、查看此時您google試算表的網址，在 d/  和 /edit中間的一串英文與數字為此試算表的ID，<br>
-      以下圖為例，ID為1b8RxFa5Fj1JXmTOZ4gUTuQa3R2mU2OprJfM3SMuwvVQ<br>
-      此ID在後面的程式會用到</p>
-    <p>6、回到單元3已建立好google apps script的程式碼，<br>
+      <p>5、查看此時您google試算表的網址，在 d/  和 /edit中間的一串英文與數字為此試算表的ID，<br>
+      以下圖為例，ID為1b8RxFa5Fj1JXmTOZ4gUTuQa3R2mU2OprJfM3SMuwvVQ，<br>
+      此ID在後面的程式會用到。</p>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-4.png"  alt=""><br>
+      </div>
+      <p>6、回到單元3已建立好google apps script的程式碼，<br>
       在 var channel_access_token = "你的Linebot的channel access token" 的下面新增4行程式碼，<br>
-             記得將"你的"你的試算表ID" 改成第5步中你的試算表的ID<br>
+             記得將"你的試算表ID" 改成第5步中你的試算表的ID。<br>
 
             var ss = SpreadsheetApp.openById("你的試算表ID"); //試算表ID<br>
 
@@ -93,17 +105,29 @@
             var data = sheet.getRange(2,1);  //存對話資料的儲存格 (2,1)表示為試算表的A2<br>
 
             var respond = sheet.getRange(3,4).getValue(); //預設要回話資料的儲存格 (3,4)表示為試算表的D3</p>
-    <p>7、將原程式中的push_message(ME,event.message.text); <br>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-5.png"  alt=""><br>
+      </div>
+      <p>7、將原程式中的push_message(ME,event.message.text); <br>
       改為data.setValue(event.message.text);<br>
       push_message(ME,respond); </p>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-6.png"  alt=""><br>
+      </div>
 
       <p> 8、點選「發佈」中的「佈署為網路應用程式......」，<br>專案版本記得一定要選「新增」再更新才會真的更新。</p>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-7.png"  alt=""><br>
+      </div>
 
       <p>9、此次修改程式碼的目的是當在LineBot上送出對話後，<br>
            將對話存在試算表的A2格中<br>
            然後LineBot會回應在試算表D3格的文字<br>
            請檢查A2格是不是有記錄剛打在LineBot上的文字<br>
            另外，可更改D3內的文字，看LineBot是不是會回應該內容</p>
+      <div style="text-align:center;">
+      <img src="images/LineBot/LineBot-5-8.png"  alt=""><br>
+      </div>
       <p>可試著改不同的儲存格儲存和回應對話。</p>
 
 
