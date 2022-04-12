@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>LineBot第五堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+   <script src="JS/menu.js"></script>
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+         <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">LineBot</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">LineBot第六堂課</h2>
+        
+        <p class="post-date">4/13 <span>2022</span></p>
+        <p class="post-cat">類別：程式教學</p>
+      </header>
+      <h3>翻譯機器人的製作</h3>
+      <br>
+      <p>在LineBot的第四課中，我們將LineBot的名稱取為翻譯機器人，原因就是要在此堂課透過上堂課連結Google試算表的方法，讓它能具有即時翻譯的功能，且翻譯的語言還可以自己作設定使它變為一個多國語言翻譯機，如中翻英、中翻日、英翻日... 等等，在未來讀原文書、旅行都相當實用，製作方法如下:</p>
+
+      <p>1、延續單元4的課程，請開啟已建立好的google 試算表。
+
+      <p>2、在B1格輸入「原文」，在C1格輸入「語系代碼」，在D1格輸入「翻譯」。
+   
+      <p>3、在C2格輸入「en-us」，這是要翻譯成「英文」的代碼，若要翻其他語言可參考 <a href="https://www.itread01.com/articles/1495793960.html">各國語言代碼</a>。
+      <div style="text-align:center;">
+       <img src="images/LineBot/LineBot-6-1.png">
+       </div>
+
+      <p>4、在D2的儲存格輸入「<font color="red">=GOOGLETRANSLATE(B2,"auto",C2) </font>」，此為google試算表內建的翻譯函式。<br>
+ 
+          函式中的B2是要翻譯原文的儲存格，"auto"是讓試算表自動偵測原文為哪一種語言，C2是要翻譯語言代碼的儲存格。</p>
+      <div style="text-align:center;">
+       <img src="images/LineBot/LineBot-6-2.png">
+       </div>
+      <p> *可試試在B2儲存格隨意打上文字，看D2是否有順利翻譯成英文，若沒有，則檢查此步驟有無做錯。</p>
+      <p>5、開啟單元4中已編寫好的google apps script程式碼，並修改下方所列的程式碼。</p>
+
+       <div style="background-color:#CAFFFF">
+
+      <p>var data = sheet.getRange(2,1);<font color="red">改成</font> <font color="blue">var data = sheet.getRange(2,2);</font></p>
+
+      <p>在  data.setValue(event.message.text);<font color="red">下面新增下列兩行</font><br>
+             <font color="blue">Utilities.sleep(1000);<br> 
+             //延遲1秒後再執行之後的程式，為的是讓試算表來的及翻譯</font></p>
+             
+      <p>var reply = sheet.getRange(3,4).getValue(); <font color="red">改成</font> <font color="blue">var reply = sheet.getRange(2,4).getValue();</font><br>     
+        <font color="red">並移至</font> <font color="blue">Utilities.sleep(1000);  的下面</font>。</p>
+      </div>
+        <div style="text-align:center;">
+       <img src="images/LineBot/LineBot-6-3.png">
+       </div>
+
+      <p> 程式中，//後方寫的中文是註解，程式不會去讀，是寫給人看的，讓人了解這段程式碼的意義。</p>
+
+      <p>6、點選「發佈」中的「佈署為網路應用程式......」，專案版本記得一定要選「新增」再更新才會真的更新。</p>
+
+      <p>7、打開你的LineBot，輸入一段話，看他是否會翻譯成英文的內容回來。</p>
+      <div style="text-align:center;">
+       <img src="images/LineBot/LineBot-6-4.png">
+       </div><br><br>
+
+      <h3>作業: 試著更改程式，讓使用此LineBot的人可以自己選擇要翻譯的語言，打造一個多國語言翻譯機器人。</p>
+
+     
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="exp.html">科學實驗</a></li>
+         <li><a href="#">讀書心得</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+
+
+  </div>
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+
+</body>
+</html>
