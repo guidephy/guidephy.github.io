@@ -108,6 +108,77 @@
        </div>
 
       <p> 程式中，//後方寫的中文是註解，程式不會去讀，是寫給人看的，讓人了解這段程式碼的意義。</p>
+      
+      <p>完整程式碼如下:</p>
+      <div style="background-color:#CAFFFF">
+      <p>var channel_access_token = "<font color="red">你的LineBot的token</font>"<br>
+
+
+         var ss = SpreadsheetApp.openById("<font color="red">你的試算表ID</font>"); //試算表ID<br>
+         var sheet = ss.getSheetByName("工作表1"); //要讀取工作列的名稱<br>
+         var data = sheet.getRange(2,2); //存對話資料的儲存格 (2,1)表示為試算表的A2<br><br>
+
+
+        function doPost(e) {<br>
+var posted_json = JSON.parse(e.postData.contents);<br>
+var events = posted_json.events;<br>
+events.forEach(function(event) {<br>
+ME=event.source.userId; //使用者的userId<br><br>
+  
+  
+  
+if(event.message.type == "text"){<br>
+  
+data.setValue(event.message.text);<br>
+  
+  Utilities.sleep(1000);<br>
+//延遲1秒後再執行之後的程式，為的是讓試算表來的及翻譯<br>
+  
+  
+  var reply = sheet.getRange(2,4).getValue(); <br>
+  push_message(ME,reply); <br>
+
+  
+}<br>
+  
+
+});<br>
+};<br><br>
+
+//下面是po訊息的函數<br>
+function push_message(to,msg) {<br>
+var postData = {<br>
+"to": to,<br>
+"messages": [{<br>
+"type": "text",<br>
+"text": msg,<br>
+}]<br>
+};<br><br>
+
+  var url = "https://api.line.me/v2/bot/message/push";<br>
+var headers = {<br>
+"Content-Type": "application/json",<br>
+'Authorization': 'Bearer ' + channel_access_token,<br>
+};<br><br>
+
+var options = {<br>
+"method": "post",<br>
+"headers": headers,<br>
+"payload": JSON.stringify(postData)<br>
+};<br><br>
+
+var response = UrlFetchApp.fetch(url, options);<br>
+}<br></p>
+     
+        
+        
+        
+        
+        
+      </div>
+      
+      
+      
 
       <p>6、點選「發佈」中的「佈署為網路應用程式......」，專案版本記得一定要選「新增」再更新才會真的更新。</p>
 
