@@ -95,22 +95,22 @@
       <img src="images/LineBot/LineBot-5-4.png"  alt=""><br>
       </div>
       <p>6、回到單元3已建立好google apps script的程式碼，<br>
-      在 var channel_access_token = "你的Linebot的channel access token" 的下面新增4行程式碼，<br>
-             記得將"你的試算表ID" 改成第5步中你的試算表的ID。<br>
+      在 var channel_access_token = "你的Linebot的channel access token" 的下面<font color="red">新增4行程式碼</font>，<br>
+             記得將"你的試算表ID" <font color="red">改成</font>第5步中<font color="blue">你的試算表的ID</blue>。<br>
 
-            var ss = SpreadsheetApp.openById("你的試算表ID"); //試算表ID<br>
+            <font color="blue">var ss = SpreadsheetApp.openById("你的試算表ID"); //試算表ID<br>
 
             var sheet = ss.getSheetByName("工作表1"); //要讀取工作列的名稱<br>
 
-            var data = sheet.getRange(2,1);  //存對話資料的儲存格 (2,1)表示為試算表的A2<br>
+           var data = sheet.getRange(2,1);  //存對話資料的儲存格 (2,1)表示為試算表的A2<br>
 
-            var reply = sheet.getRange(3,4).getValue(); //預設要回話資料的儲存格 (3,4)表示為試算表的D3</p>
+            var reply = sheet.getRange(3,4).getValue(); </font>//預設要回話資料的儲存格 (3,4)表示為試算表的D3</p>
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-5-5.png"  alt=""><br>
       </div>
       <p>7、將原程式中的push_message(ME,event.message.text); <br>
-      改為data.setValue(event.message.text);<br>
-      push_message(ME,reply); </p>
+      <font color="red">改為</font><br><font color="blue">data.setValue(event.message.text);<br>
+      push_message(ME,reply);</font> </p>
       <div style="text-align:center;">
       <img src="images/LineBot/LineBot-5-6.png"  alt=""><br>
       </div>
@@ -121,8 +121,8 @@
       </div>
 
       <p>9、此次修改程式碼的目的是當在LineBot上送出對話後，<br>
-           將對話存在試算表的A2格中<br>
-           然後LineBot會回應在試算表D3格的文字<br>
+           將對話存在試算表的<font color="red">A2格</font>中<br>
+           然後LineBot會回應在試算表<font color="red">D3格</font>的文字<br>
            請檢查A2格是不是有記錄剛打在LineBot上的文字<br>
            另外，可更改D3內的文字，看LineBot是不是會回應該內容</p>
       <div style="text-align:center;">
