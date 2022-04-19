@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>LineBot第七堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+   <script src="JS/menu.js"></script>
+  
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+         <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">LineBot</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">LineBot第七堂課</h2>
+        
+        <p class="post-date">4/20 <span>2022</span></p>
+        <p class="post-cat">類別：程式教學</p>
+      </header>
+      <h3>LineBot更多元的回覆功能</h3>
+      <br>
+      <p>1、回覆文字</p>
+      <div style="background-color:#CAFFFF">
+        <p>{<br>
+           "type": "<font color="green">text</font>",<br>
+           "text": "<font color="red">輸入回覆文字</font>"<br>
+            }<br></p>
+      </div>
+      <div style="text-align:center;">
+       <img src="images//LineBot/LineBot-7-1.png"  alt="">
+       </div>
+
+      <p>2、回覆圖片</p>
+      <div style="background-color:#CAFFFF">
+        <p>{<br>
+           
+            "type": "<font color="green">image</font>",<br>
+            "originalContentUrl": "<font color="red">圖片網址</font>",<br>
+            "previewImageUrl": "<font color="red">預覽圖片網址</font>"<br>
+
+            }<br></p>
+      </div>
+
+      <div style="text-align:center;">
+       <img src="images//LineBot/LineBot-7-2.png"  alt="">
+       </div>
+
+      <p>3、回覆影片</p>
+      <div style="background-color:#CAFFFF">
+        <p>{<br>
+           
+              "type": "<font color="green">video</font>",<br>
+              "originalContentUrl": "<font color="red">影片網址</font>",<br>
+              "previewImageUrl": "<font color="red">預覽圖片網址</font>"<br>
+
+            }<br></p>
+      </div>
+
+      <div style="text-align:center;">
+       <img src="images//LineBot/LineBot-7-3.png"  alt="">
+       </div>
+      <p>4、回覆貼圖</p>
+      <div style="background-color:#CAFFFF">
+        <p>{<br>
+           
+              "type": "<font color="green">sticker</font>",<br>
+              "packageId": "<font color="red">貼圖的packageId</font>",<br>
+              "stickerId": "<font color="red">貼圖的stickerId</font>"<br>
+             
+            }<br></p>
+      </div>
+      <p>貼圖的packageId和stickerId可參考右方的網址:
+      <a href="https://developers.line.biz/en/docs/messaging-api/sticker-list/#specify-sticker-in-message-object">貼圖Id查詢</a>
+
+      <div style="text-align:center;">
+       <img src="images//LineBot/LineBot-7-4.png"  alt="">
+       </div>
+        <p>5、回覆確認按鈕</p>
+        <div style="background-color:#CAFFFF">
+        <p>{<br>
+       "type": "<font color="green">template</font>",<br>
+       "altText": "this is a confirm template",<br>
+       "template": {<br>
+       "type": "<font color="green">confirm</font>,<br>
+       "actions": [<br>
+      {<br>
+        "type": "<font color="green">message</font>",<br>
+        "label": "<font color="red">是</font>",<br>
+        "text": "是"<br>
+      },<br>
+      {<br>
+        "type": "<font color="green">message</font>",<br>
+        "label": "<font color="red">否</font>",<br>
+        "text": "否"<br>
+      }<br>
+    ],<br>
+    "text": "<font color="red">您確定嗎？</font>"<br>
+  }<br>
+     }<br>
+   </div>
+      <div style="text-align:center;">
+       <img src="images//LineBot/LineBot-7-5.png"  alt="">
+       </div>
+
+
+
+
+
+      <p>6、回覆選擇按鈕</p>
+        <div style="background-color:#CAFFFF">
+        <p>{<br>
+       "type": "<font color="green">template</font>",<br>
+       "altText": "this is a buttons template",<br>
+       "template": {<br>
+       "type": "buttons",<br>
+       "title": "<font color="red">按鈕標題</font>",<br>
+       "text": "<font color="red">按鈕敘述文字</font>",<br>
+
+      "actions": [
+      {
+        "type": "<font color="green">message</font>",<br>
+        "label": "<font color="red">動作一</font>",<br>
+        "text": "動作 1"<br>
+      },
+      {
+        "type": "<font color="green">message</font>",<br>
+        "label": "<font color="red">動作二</font>",<br>
+        "text": "動作 2"<br>
+      }]<br>
+      }<br>
+     }<br></p>
+     </div>
+      <div style="text-align:center;">
+       <img src="images//LineBot/LineBot-7-6.png"  alt="">
+       </div>
+    <br>
+    <h3>撰寫Google apps script</h3>
+
+    <p>我們由六堂課的程式碼作範本進行講解及修改</p>
+
+
+    <div style="background-color:#CAFFFF">
+      <p>var channel_access_token = "<font color="red">你的LineBot的token</font>"<br>
+
+
+         var ss = SpreadsheetApp.openById("<font color="red">你的試算表ID</font>"); //試算表ID<br>
+         var sheet = ss.getSheetByName("工作表1"); //要讀取工作列的名稱<br>
+         var data = sheet.getRange(2,2); //存對話資料的儲存格 (2,1)表示為試算表的A2<br><br>
+
+
+        function doPost(e) {<br>
+        var posted_json = JSON.parse(e.postData.contents);<br>
+        var events = posted_json.events;<br>
+        events.forEach(function(event) {<br>
+        ME=event.source.userId; //使用者的userId<br><br>
+  
+  
+  
+        if(event.message.type == "text"){<br>
+  
+         data.setValue(event.message.text);<br>
+  
+        Utilities.sleep(1000);<br>
+        //延遲1秒後再執行之後的程式，為的是讓試算表來的及翻譯<br>
+  
+  
+        var reply = sheet.getRange(2,4).getValue(); <br>
+
+        <font color="red">push_message(ME,reply)</font>; <br>
+
+  
+        }<br>
+  
+
+        });<br>
+        };<br><br>
+
+        //下面是po訊息的函數<br>
+        function <font color="red">push_message(to,msg)</font> {<br>
+        var postData = {<br>
+        "to": to,<br>
+        "messages": [<font color="red">{<br>
+        "type": "text",<br>
+        "text": msg,<br>
+        }</font>]<br>
+        };<br><br>
+
+        var url = "https://api.line.me/v2/bot/message/push";<br>
+        var headers = {<br>
+        "Content-Type": "application/json",<br>
+        'Authorization': 'Bearer ' + channel_access_token,<br>
+        };<br><br>
+
+        var options = {<br>
+        "method": "post",<br>
+        "headers": headers,<br>
+        "payload": JSON.stringify(postData)<br>
+        };<br><br>
+
+        var response = UrlFetchApp.fetch(url, options);<br>
+        }<br></p>
+     
+      </div>
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="exp.html">科學實驗</a></li>
+         <li><a href="#">讀書心得</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+
+
+  </div>
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+
+</body>
+</html>
