@@ -59,7 +59,7 @@ function get_time(t) {
 function send() {
   starttime = new Date();
   document.getElementById("sendBtn").style.display='none';
-  document.getElementById('state').innerHTML ="碳捕捉";
+  document.getElementById('state').innerHTML ="系統未上線";
   boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt', multi: true}, function (board) {
   board.samplingInterval = 50;
   Switch = getRelay(board, 5);
