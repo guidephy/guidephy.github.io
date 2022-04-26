@@ -68,7 +68,7 @@ function send() {
  Battery.measure(function (val) {
     Battery.detectedVal = val;
   if(Battery.detectedVal==null){
-    Battery.detectedVal="未連接裝置";
+   document.getElementById('state').innerHTML ="碳捕捉";
         document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   }else{
     
