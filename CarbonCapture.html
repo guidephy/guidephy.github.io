@@ -73,7 +73,7 @@ function send() {
   }else{
     
     var BdV=Battery.detectedVal;
-    BdV=BdV.toFixed(4);
+    BdV=BdV.toFixed(5);
     document.getElementById('data').innerHTML = (['電池電壓:',BdV,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   } 
 });
