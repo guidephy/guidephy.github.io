@@ -71,7 +71,10 @@ function send() {
     Battery.detectedVal="未連接裝置";
         document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   }else{
-    document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
+    
+    var BdV=Battery.detectedVal;
+    BdV=BdV.toFixed(2);
+    document.getElementById('data').innerHTML = (['電池電壓:',BdV,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
   } 
 });
      setInterval(async function () {
