@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+   <title>網頁設計的第五堂課</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="JS/menu.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+
+  <script src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+
+
+</head>
+
+<body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+      <nav>
+        <ul class="main-nav">
+          <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="test.html">高中物理</a>
+                  <a href="program.html">LineBot</a>
+                  <a href="program.html">VPython</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+              </div>
+          </li>
+
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">程式設計</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+      <header class="post-info">
+        <h2  class="post-title">網頁設計第五堂課:JavaScript</h2>
+        
+        <p class="post-date">5/3 <span>2022</span></p>
+
+        <p class="post-cat">類別：程式設計</p>
+      </header>
+
+      <p>JavaScript是一個常用在網頁設計，使網頁呈現動態效果和增加互動性的程式語言。</p>
+
+      <p>之前學到的HTML和CSS主要是網頁的配置，而現在要教學的JavaScript則是讓網頁配置的元件具有功能和互動。</p>
+
+
+      <h3>常見JavaScript程式語言</h3><br>
+      <p>一、彈出視窗:<font color="red">alert("...")</font></p>
+
+      <p>常見的JavaScript寫法是在&lt;body&gt;…&lt;/body&gt;之內來內嵌程式碼，並用&lt;script&gt;…&lt;/script&gt;的標籤包起來。</p>
+
+      <p>程式練習:</p>
+
+      <div style="background-color:#CAFFFF">
+      <p>&lt;!DOCTYPE html&gt;<br>
+      &lt;html lang="zh-Hant-TW"&gt;<br><br>
+
+      &lt;head&gt;<br>
+
+       &lt;meta charset="UTF-8"&gt;<br>
+      &lt;title&gt;Page Title&lt;/title&gt;<br>
+       &lt;meta name ="description" content="homework test"&gt;<br>
+
+      &lt;/head&gt;<br><br>
+
+     &lt;body&gt;<br>
+
+     <font color="red">&lt;script&gt;</font><br><br>
+
+     <font color="red">alert("Hello World!");</font><br><br>
+
+
+     <font color="red">&lt;/script&gt;</font><br><br>
+
+
+    &lt;/body&gt;<br><br>
+    &lt;/html&gt;</p>
+   </div>
+
+   <p>網頁執行結果如下，彈出寫著Hellow World的對話視窗。</p>
+
+   <div style="text-align:center;">
+   <img src="images/WebDesign/WebDesign-5-1.png"  alt=""><br>
+   </div>
+
+
+   <p>二、變數<font color="red">var</font></p>
+   <p>我們有時要將「值」(可能是數字、文字、陣列)儲存成一個變數，方便未來讀取，並減化程式。</p>
+   <p>設定變數的方法是取一個變數名稱，如x，並在前方加上var，如下所示:<br>
+    var x = 6<br>
+    在這個例子中，x 被定義為一個變數。然後，x 的值設定為6。</p>
+    <br>
+    <p>程式練習:</p>
+
+        <div style="background-color:#CAFFFF">
+  
+    <p>
+
+     &lt;body&gt;<br>
+
+     <font color="red">&lt;script&gt;<br>
+     
+     var x=6;<br>
+
+     var y=10;<br>
+
+     alert("x");<br>
+
+     alert(x);<br>
+
+     alert(y);<br>
+
+     alert(x+y);<br>
+
+
+     &lt;/script&gt;</font><br>
+
+
+    &lt;/body&gt;<br>
+
+    </p>
+   
+   </div>
+
+   <p>備註:<br>
+    a、變數的名稱的開始字元必須為英文字母的大小寫或「_」字元，不能使用數字開頭。<br>
+    b、變數名稱不能使用JavaScript語法的保留字，如if、else、true、flase...等。</p>
+    <br>
+
+   <p>三、判斷<font color="red">if</font></p>
+
+   <p>有些情況，我們會想讓程式依不同條件執行對應的程式，此時if的函式就能達成此功能。</p>
+
+   <p>if函式的程式碼架構如下:
+
+   <p><font color="red">if (條件判斷) {</font><br>
+         <font color="blue">若符合條件要執行的程式;</font><br>
+      <font color="red">} else {</font><br>
+         <font color="blue">若不符合條件要執行的程式;</font><br>
+      <font color="red">}</font></p><br>
+
+    <p>也可以是多個條件的架構:</p>
+
+    <p><font color="red">if (條件判斷1) {</font><br>
+         <font color="blue">若符合條件要執行的程式;</font><br>
+      <font color="red">} else if (條件判斷2) {</font><br>
+         <font color="blue">若符合條件要執行的程式;</font><br>
+      <font color="red">} else {</font><br>
+         <font color="blue">若不符合條件要執行的程式;</font><br>
+      <font color="red">}</font><br></p>
+
+    <br>
+    <p>程式練習:</p>
+
+    <div style="background-color:#CAFFFF">
+  
+     <p>
+     &lt;body&gt;<br>
+
+     <font color="red">&lt;script&gt;<br>
+
+      var x=6;<br>
+     
+    <p><font color="red">if (x>8) {</font><br>
+         <font color="blue">alert("Too Big")</font><br>
+      <font color="red">} else if (x>4&&x<=8) {</font><br>
+         <font color="blue">alert("ok")</font><br>
+      <font color="red">} else {</font><br>
+         <font color="blue">alert("Too small")</font><br>
+      <font color="red">}</font><br></p>
+
+
+     &lt;/script&gt;</font><br>
+
+
+    &lt;/body&gt;<br>
+
+  </p>
+   
+   </div>
+  <br><br>
+   <p>四、<font color="red">function</font>和<font color="red">更改HTML內容</font>/p>
+
+   <p>為了能清楚實現JavaScript能更改HTML的內容，這裡要介紹在HTML常用的按鈕標籤<font color="red">&lt;button&gt;</font>。寫法如下:<br>
+
+   
+   <font color="red">&lt;button  onclick="send()" &gt;按鈕上要呈現的文字&lt;/button&gt;</font></p>
+   <p>其中的onclick="send()" 是指當按下按鈕時，要執行send()的程式，而send()是我們要自編的function函式。</p>
+
+
+    <p>程式練習:</p>
+
+     <div style="background-color:#CAFFFF">
+  
+     <p>
+     &lt;body&gt;<br><br>
+
+     &lt;p id="test1">12345&lt;/p&gt;&lt;br&gt;<br>
+
+     &lt;img  id="test2" src="https://guidephy.github.io/images//LineBot/LineBot-6-0.png"  alt=""&gt;&lt;br&gt;<br><br>
+
+
+     <font color="red">&lt;button  onclick="send1()" &gt;改數字&lt;/button&gt;</font>&lt;/p&gt;&lt;br&gt;<br>
+
+     <font color="red">&lt;button  onclick="send2()" &gt;改照片&lt;/button&gt;</font>&lt;/p&gt;&lt;br&gt;<br><br>
+
+     <font color="red">&lt;script&gt;<br><br>
+
+      
+     
+      function send1(){<br>
+
+      document.getElementById("test1").innerHTML = "67890";<br>
+
+
+      }<br><br>
+
+      function send2(){<br>
+
+      document.getElementById("test2").src = "https://guidephy.github.io/images//LineBot/LineBot-5-0.png";<br>
+
+
+      }<br>
+    
+
+
+     &lt;/script&gt;</font><br>
+
+
+    &lt;/body&gt;<br>
+
+    </p>
+   
+   </div>
+
+    <br><br>
+    <p>備註:<br>
+      可利用&lt;div style="text-align:center;"&gt;...&lt;/div&gt;區塊功能，將HTML物件置中。
+    </p>
+    <p>程式如下:</p>
+
+    <div style="background-color:#CAFFFF">
+    <p>
+
+     &lt;body&gt;<br><br>
+
+     <font color="green">&lt;div style="text-align:center;"&gt;</font><br><br>
+
+     &lt;p id="test1">12345&lt;/p&gt;&lt;br&gt;<br>
+
+     &lt;img  id="test2" src="https://guidephy.github.io/images//LineBot/LineBot-6-0.png"  alt=""&gt;&lt;br&gt;<br><br>
+
+
+     <font color="red">&lt;button  onclick="send1()" &gt;改數字&lt;/button&gt;</font>&lt;/p&gt;&lt;br&gt;<br>
+
+     <font color="red">&lt;button  onclick="send2()" &gt;改照片&lt;/button&gt;</font>&lt;/p&gt;&lt;br&gt;<br><br>
+    <font color="green">&lt;/div&gt;</font><br><br>
+     <font color="red">&lt;script&gt;<br><br>
+     
+      
+     
+      function send1(){<br>
+
+      document.getElementById("test1").innerHTML = "67890";<br>
+
+
+      }<br><br>
+
+      function send2(){<br>
+
+      document.getElementById("test2").src = "https://guidephy.github.io/images//LineBot/LineBot-5-0.png";<br>
+
+
+      }<br>
+    </p>
+
+
+     &lt;/script&gt;</font><br>
+
+
+    &lt;/body&gt;<br>
+   
+   </div>
+   
+   <p>執行結果如下:</p>
+   <div style="text-align:center;">
+   <img src="images/WebDesign/WebDesign-5-2.png"  alt=""><br>
+   </div>
+
+   <br><br>
+
+
+    <p>綜合練習:</p>
+    <div style="background-color:#CAFFFF">
+  
+    <p>
+
+     &lt;body&gt;<br>
+
+     &lt;input id="answer" placeholder="請輸入數字" &gt;<br>
+     &lt;button onclick="send()" &gt;確認數字&lt;/button&gt;</p><br>
+
+     <font color="red">&lt;script&gt;<br>
+
+      function send(){<br>
+
+      var x=document.getElementById("answer").value;<br>
+
+     
+     
+      <font color="red">if (x>8) {</font><br>
+         <font color="blue">alert("Too Big")</font><br>
+      <font color="red">} else if (x==8) {</font><br>
+         <font color="blue">alert("bingo!")</font><br>
+      <font color="red">} else {</font><br>
+         <font color="blue">alert("Too small")</font><br>
+      <font color="red">}</font><br>
+    }<br>
+
+
+     &lt;/script&gt;</font><br>
+
+
+    &lt;/body&gt;<br>
+
+    </p>
+   
+   </div>
+
+
+
+
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physcis.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+         <li><a href="test.html">線上題庫</a></li>
+         <li><a href="contact.html">CONTACT</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+    </aside>
+
+
+
+  </div>
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
+    
+
+</body>
+</html>
