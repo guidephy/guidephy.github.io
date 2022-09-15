@@ -46,7 +46,7 @@ function send() {
 
 function addgrade(abc){
 
-alert(abc.id);
+
 
 
 $.get("https://script.google.com/macros/s/AKfycbx4bb8KiigE_AQIED1X5axxJ1QxqgkCp8ahvllGUYvr1jPc6kJV/exec", {
@@ -70,7 +70,7 @@ $.get("https://script.google.com/macros/s/AKfycbx4bb8KiigE_AQIED1X5axxJ1QxqgkCp8
 
 function minusgrade(abc){
 
-alert(abc.id);
+
 
 
 $.get("https://script.google.com/macros/s/AKfycbyYaMUzDMDoLoO168f0a1woWgsyyV2JCEUrivakoBZLb7KL1o8/exec", {
