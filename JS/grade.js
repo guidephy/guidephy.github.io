@@ -1,6 +1,3 @@
-
-
-
 function sendCheck(){
 
 
@@ -18,23 +15,27 @@ document.getElementById("Btn").style.display='';
 
 function send() { 
 
-	
-	document.getElementById("gradetable").style.display='';
+       
+       document.getElementById("gradetable").style.display='';
 
-	
+       
 
-	$.get("https://script.google.com/macros/s/AKfycbzu1ux3zWqX4F9AErJSaOsvI2fOZKi2uNtfDQV4F1GzBRCDESI/exec", {
+       $.get("https://script.google.com/macros/s/AKfycbzu1ux3zWqX4F9AErJSaOsvI2fOZKi2uNtfDQV4F1GzBRCDESI/exec", {
  
          "selectClass":document.getElementById("selectClass").value
 
      }, function(data) {
 
-     	    gradedata=data.split(",");
+           gradedata=data.split(",");
 
                  
-            for(var i=3;i<123;i++){
-　			document.getElementById(i+100).innerHTML=gradedata[i];
-			}
+            for(var i=3;i<108;i++){
+              if(gradedata[i]){
+　                    document.getElementById(i+100).innerHTML=gradedata[i];
+                     }else{
+                          document.getElementById(i+100).innerHTML="無";  
+                     }
+                     }
        
       });
 
@@ -56,7 +57,7 @@ $.get("https://script.google.com/macros/s/AKfycbx4bb8KiigE_AQIED1X5axxJ1QxqgkCp8
 
 
 
-     	 alert(document.getElementById(101+3*(abc.id)).innerHTML+"加1分");
+        alert(document.getElementById(101+3*(abc.id)).innerHTML+"加1分");
 
          document.getElementById(102+3*(abc.id)).innerHTML=data;
 
