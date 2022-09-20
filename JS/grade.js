@@ -3,17 +3,15 @@
 
 function sendCheck(){
 
-/*
+
 if(document.getElementById("passcode").value=="iqtsnoyijjbdp"){
 
 document.getElementById("password").style.display='none';
 document.getElementById("Btn").style.display='';
 
 }
-*/
 
-document.getElementById("password").style.display='none';
-document.getElementById("Btn").style.display='';
+
 
 }
 
