@@ -1,5 +1,3 @@
-
-
 $('.js-start').on('click', function () {
 
 function getRandom(x){
