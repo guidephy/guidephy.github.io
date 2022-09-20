@@ -6,7 +6,7 @@ function getRandom(x){
     return Math.floor(Math.random()*x)+1;
 };
 
-var x=getRandom(39);
+var x=getRandom(34);
 
 x=1+x*3;
 
