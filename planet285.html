@@ -1,0 +1,131 @@
+
+<!doctype html>
+<html>
+<head>
+
+    <script src=jquery-2.2.4.min.js></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+
+    <title>Planet285計畫</title>
+    <style>
+html, body {
+  height: 100%;
+  margin: 0 auto;
+
+}
+
+#container {
+  text-align: center;
+  height: 100%;
+}
+
+.button {
+ 
+ 
+  text-align: center;
+ 
+}
+.info {
+  padding: 20px;
+}
+.error {
+  font-weight: bold;
+  font-size: 20px;
+  padding: 20px;
+}
+iframe {
+  margin: 20px;
+  width: 300px;
+  height: 200px;
+}
+</style>
+</head>
+
+
+
+
+
+ <body bgcolor="#ECFFFF">
+<div id="container">
+
+  <h2>Project PLANET-285</h2>  
+  
+
+  <iframe id="startgame" src="https://guidephy.github.io/EnergyTransition/" style="display: none;"></iframe>
+
+  <div>
+    <button class="button">開始遊戲</button>
+  </div>
+  <div class="info">請點擊「開始遊戲」進入全螢幕遊玩</div
+  <div class="error"></div>
+</div>
+
+
+<script>
+var button = document.querySelector('#container .button');
+button.addEventListener('click', fullscreen);
+// when you are in fullscreen, ESC and F11 may not be trigger by keydown listener. 
+// so don't use it to detect exit fullscreen
+document.addEventListener('keydown', function (e) {
+  console.log('key press' + e.keyCode);
+});
+// detect enter or exit fullscreen mode
+document.addEventListener('webkitfullscreenchange', fullscreenChange);
+document.addEventListener('mozfullscreenchange', fullscreenChange);
+document.addEventListener('fullscreenchange', fullscreenChange);
+document.addEventListener('MSFullscreenChange', fullscreenChange);
+
+function fullscreen() {
+    document.getElementById("startgame").style.display='';
+  // check if fullscreen mode is available
+  if (document.fullscreenEnabled || 
+    document.webkitFullscreenEnabled || 
+    document.mozFullScreenEnabled ||
+    document.msFullscreenEnabled) {
+    
+    // which element will be fullscreen
+    var iframe = document.querySelector('#container iframe');
+    // Do fullscreen
+    if (iframe.requestFullscreen) {
+      iframe.requestFullscreen();
+    } else if (iframe.webkitRequestFullscreen) {
+      iframe.webkitRequestFullscreen();
+    } else if (iframe.mozRequestFullScreen) {
+      iframe.mozRequestFullScreen();
+    } else if (iframe.msRequestFullscreen) {
+      iframe.msRequestFullscreen();
+    }
+  }
+  else {
+    document.querySelector('.error').innerHTML = 'Your browser is not supported';
+  }
+}
+
+/*
+function fullscreenChange() {
+  if (document.fullscreenEnabled ||
+       document.webkitIsFullScreen || 
+       document.mozFullScreen ||
+       document.msFullscreenElement) {
+    console.log('enter fullscreen');
+
+  }
+  else {
+    console.log('exit fullscreen');
+  }
+  // force to reload iframe once to prevent the iframe source didn't care about trying to resize the window
+  // comment this line and you will see
+  var iframe = document.querySelector('iframe');
+
+  //iframe.src = iframe.src;
+}
+*/
+</script>
+</body>
+ </html>
+
