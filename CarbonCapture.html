@@ -4,104 +4,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>碳捕捉暨Na循環發電系統</title>
-  <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
-  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
+  <title>我沒創意只能偷</title>
 
-  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
-  <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
 </head>
 <body>
   <div align="center">
-  <h2 style="color:blue;">碳捕捉暨Na循環發電系統</h2>
+  <h2 style="color:blue;">龍華是個很爛的學校</h2>
   </div>
 <div align="center">
-<button id="sendBtn" onclick="send()">開始運行</button><br><br>
-<div align="center">
-  <h2 style="display:inline;">目前狀態:</h2><h2 style="display:inline;" id="state"></h2>
-</div>
-<h2 id="data"></h2>
-<h2 id="timer1">運行時間:0秒</h2>
-<h2 id="timer" style="display: none;"></h2>
+<button id="sendBtn" onclick="send()">誰最爛</button><br><br>
+
+
 <br>
-<img src="images/equipment.png"  width="90%" alt="">
+
 </div>
 <script>
-var Switch;
-var Battery;
-var recycle;
-var starttime;
-var timedata;
-var a=0;
+
 Battery=0;
-var myVar=setInterval(function(){myTimer()},10);
-document.getElementById('data').innerHTML = (['電池電壓:',0,"V",("<br/>"),("<br/>"),'循環次數:',0,"次"].join(''));
-function get_time(t) {
-  var varTime = new Date(),
-    varHours = varTime.getHours(),
-    varMinutes = varTime.getMinutes(),
-    varSeconds = varTime.getSeconds();
-  var varNow;
-  if (t == "hms") {
-    varNow = varHours + ":" + varMinutes + ":" + varSeconds;
-  } else if (t == "h") {
-    varNow = varHours;
-  } else if (t == "m") {
-    varNow = varMinutes;
-  } else if (t == "s") {
-    varNow = varSeconds;
-  }
-  return varNow;
-}
+
 function send() {
-  starttime = new Date();
-  document.getElementById("sendBtn").style.display='none';
-  document.getElementById('state').innerHTML ="系統未上線";
-  boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt', multi: true}, function (board) {
-  board.samplingInterval = 50;
-  Switch = getRelay(board, 5);
-  Battery =getPhotocell(board, 0);
-  recycle = 0;
- Battery.measure(function (val) {
-    Battery.detectedVal = val;
-  if(Battery.detectedVal==0){
-   document.getElementById('state').innerHTML ="碳捕捉";
-        document.getElementById('data').innerHTML = (['電池電壓:',Battery.detectedVal,("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
-  }else{
-    
-    var BdV=Battery.detectedVal;
-    BdV=BdV.toFixed(5);
-    document.getElementById('data').innerHTML = (['電池電壓:',BdV,"V",("<br/>"),("<br/>"),'循環次數:',recycle,"次"].join(''));
-  } 
-});
-     setInterval(async function () {
-       if(timedata%20<=10){
-       Switch.on();
-       document.getElementById('state').innerHTML ="碳捕捉";
-       a=0;
-       }else{
-       if(a==0){
-        recycle = recycle+1;
-       }
-       a=a+1; 
-       document.getElementById('state').innerHTML ="電池";
-       Switch.off();       
-      }
-    }, 1000 * 1);
- clearInterval(myVar);
- myVar=setInterval(function(){myTimer()},1000);
- document.getElementById("timer1").style.display='none';
- document.getElementById("timer").style.display='';  
-  });
- }
- function myTimer()
-  {
-        timedata=Math.floor((new Date-starttime)/1000)
-        document.getElementById("timer").innerHTML="運行時間:"+timedata+"秒";
-   }
+  alert("化工系最爛，教授學生沒本事，難怪倒系")
 </script>
 </body>
 </html>
