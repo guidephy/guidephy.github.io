@@ -22,7 +22,22 @@
 			box-sizing: border-box;
 		}
 
+        .school-data{
+        	background-color: pink;
 
+        }
+
+        .subject-data{
+        	background-color: yellow;
+        	width: 200px;
+        	display: inline-block;
+
+        }
+
+        .teacher-data{
+        	background-color: gray;
+        	display: block;
+        }
 
 
 		@media (max-width: 600px) {
@@ -31,8 +46,7 @@
 			}
 			.left-column,
 			.right-column {
-				flex-basis: 100%;
-				padding-right: 0;
+				width: 100%;
 			}
 		}
 	</style>
@@ -40,14 +54,21 @@
 <body>
 	<div class="container">
 		<div class="left-column">
-			<h1>觀音高中</h1>
+          <div class="school-data">
+            <h1>觀音高中</h1>
 			<p >觀音高中是位於桃園市觀音區的高中，有五種學制，包含普通科、化工科、動畫科、體育班以及國中部。</p>
-
-			<h1>物理科</h1>
+          </div>
+			
+          <div class="subject-data">
+          	<h1>物理科</h1>
 			<p>物理科為自然領域的其中一個科目。</p>
-
-			<h1>物理教師</h1>
+          </div>
+			
+          <div class="teacher-data">
+          	<h1>物理教師</h1>
 			<p>姓名:林仟弘</p>
+          </div>
+			
 		
 		</div>
 		<div class="right-column">
