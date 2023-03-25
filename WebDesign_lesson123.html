@@ -140,13 +140,12 @@
       三個類別分別設置了文本的字體大小、顏色和對齊方式、最大寬度以及背景色...等。</p>
 
        <p>用class類別的優點是可以讓您在整個網站中重複使用相同的樣式集合。如果您需要更改樣式，只需更改樣式集合中的一個定義，而不是每個元素的樣式。</p>
-
-      <h3>二、元素邊界</h3>
+       <br>
+      <h3>二、元素邊界和框線</h3>
         <img src="images/WebDesign/WebDesign-5-4.png"  alt="">
-        <p>1、外邊界margin</p>
-
-        <p>修改上面範例中的.text1內容，增加margin、border和padding<br>
-        CSS代碼如下:</p>
+      
+        <p>修改上面範例中的.text1內容，增加<font color="red">margin</font>、<font color="red">padding</font>和<font color="red">border</font>，並比較差別<br>
+        修改的CSS代碼如下:</p>
 
         <div style="background-color:#FFFF96">
         <p>
@@ -165,11 +164,49 @@
        </div>
 
       <h3>三、CSS互動功能</h3>
-        <p>1、hover</p>
-        <p>cusor</p>
-        <p>opacity</p>
-        <p>2、active</p>
-
+      
+      <a href="https://guidephy.github.io/exercises/WebDesign/CSS_exercise.html">互動範例連結</a><br><br>
+      <p>1、<font color="red">cusor:</font></p>
+      <p>cusor可改變滑鼠鼠標形狀，當鼠標移至該元素時會顯示設定的鼠標形狀，請於CSS中增加下列代碼進行練習。</p>
+      <div style="background-color:#FFFF96">
+        <p>
+          .title{<br>
+            
+            cursor: pointer;
+          }<br>
+        </p>
+        <p>
+          .text1{<br>
+            cursor: progress;
+          }<br>
+        </p>
+        <p>
+          .text2{<br>
+            cursor: move;
+          }<br>
+        </p>
+      </div>  
+      
+      <p>2、<font color="red">hover:</font></p>
+        <p>hover的功能是當滑鼠移到該元素時，讓元素外觀作改變，請於CSS中增加下列代碼進行練習。</p>
+        <div style="background-color:#FFFF96">
+          <p>
+            .title:hover{<br>
+              color:blue<br>
+            }<br>
+            .text1:hover{<br>
+              opacity:0.4<br>
+            }<br>
+            .text2:hover{<br>
+              background-color:yellow;<br>
+            }<br>
+          </p>
+        </div>
+       
+        
+        
+        <p>3、<font color="red">active:</font></p>
+        <p>hover的功能是當滑鼠點擊該元素時，讓元素外觀作改變，請於CSS中增加下列代碼進行練習。</p>
 
       <h3>三、自響應網頁設計(RWD)</h3>
       <br>
