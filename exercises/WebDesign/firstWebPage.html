@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+		<link rel="stylesheet" 
+		href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+		integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+		crossorigin="anonymous" 
+		referrerpolicy="no-referrer" 
+		/>
+
+		<link rel="stylesheet" href="style.css"/>
+		<title>My first WebPage</title>
+	</head>
+	<body>
+		<header>
+			<div class="navbar">
+				<div class="logo"><a href="#">My first WebPage</a></div> 
+				<ul class="links">
+					<li><a href="#home">Home</a></li>
+					<li><a href="#about">About</a></li>
+					<li><a href="#services">Services</a></li>
+					<li><a href="#contact">Contace</a></li>
+				</ul>
+				<a href="#" class="action_btn">Get Started</a>
+				<div class="toggle_btn">
+					<i class="fa-solid fa-bars"></i>
+				</div>
+			</div>
+
+			<div class="dropdown_menu">
+				<li><a href="#home">Home</a></li>
+				<li><a href="#about">About</a></li>
+				<li><a href="#services">Services</a></li>
+				<li><a href="#contact">Contace</a></li>
+				<li><a href="#" class="action_btn">Get Started</a></li>
+			</div>
+		</header>
+
+		<main>
+			<section id="home">
+				<h1>Welcome</h1>
+				<p>這是林仟弘的個人網站<br>
+					請點擊各項目觀看</p>
+			</section>
+		</main>
+
+		<script>
+			const toggleBtn = document.querySelector('.toggle_btn');
+			const toggleBtnIcon = document.querySelector('.toggle_btn i');
+			const dropDownMenu = document.querySelector('.dropdown_menu');
+
+			toggleBtn.onclick = function(){
+				dropDownMenu.classList.toggle('open');
+				const isOpen = dropDownMenu.classList.contains('open');
+
+				toggleBtnIcon.classList=isOpen
+				?'fa-solid fa-xmark'
+				:'fa-solid fa-bars'
+			}
+		</script
+
+	</body>
+</html>
