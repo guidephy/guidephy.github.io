@@ -12,12 +12,24 @@
             padding: 20px;
         }
 
-        #videoContainer {
-            display: none;
-        }
-
+      
         .question {
             margin-top: 20px;
+        }
+
+        #videoContainer {
+            display: none;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 高寬比例 */
+            overflow: hidden;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -30,7 +42,10 @@
     <iframe width="560" height="315" src="https://www.youtube.com/embed/P7cEPc5cwKU?rel=0" frameborder="0" allowfullscreen></iframe>
 
     <!-- 問題區域 -->
-<div id="Question" style="display: none;">
+
+</div>
+
+<div id="Question" style='visibility:hidden'>
     <div class="question">
         <h3>問題 1（選擇題）：......？</h3>
         <input type="radio" name="q1" value="A"> A
@@ -56,8 +71,6 @@
     <!-- 送出答案的按鈕 -->
     <button id="submitBtn" onclick="submitAnswers()">下一關</button>
 </div>
-</div>
-
 <script>
 
     questionAppearTime=5*1000;
@@ -67,7 +80,7 @@
     });
 
        setTimeout(function() {
-            document.getElementById("Question").style.display = "" ;
+            document.getElementById("Question").style.visibility='visible'; ;
         }, questionAppearTime); // 1分鐘 = 60,000毫秒
 
     function submitAnswers() {
