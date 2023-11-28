@@ -1,52 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物理學習</title>
-    <style>
-        /* 可以添加一些樣式來美化頁面 */
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
+  <meta charset="utf-8">
+   <title>物理自學</title>
+   <meta name="description" content="提供物理與程式學習的教學與心得">
+  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      
-        .question {
-            margin-top: 20px;
-        }
-
-        #videoContainer {
-            display: none;
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 高寬比例 */
-            overflow: hidden;
-        }
-
-        iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  
+  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
+   <script src="JS/menu.js"></script>
+  
 </head>
+
 <body>
+  <div id="news" class="big-bg">
+    <header class="page-header wrapper">
+      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+            <nav>
+       <ul class="main-nav">
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+              <div class="dropdown-content" id="myDropdown1">
+                  <a href="physics.html">物理課程</a>
+                  <a href="WebDesign.html">網頁設計</a>
+                  <a href="LineBot.html">LineBot</a>
+                  <a href="VPython.html">VPython</a>
+                  <a href="Ohtaigi.html">台語課程</a>
+              </div>
+          </li>
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
+              <div class="dropdown-content" id="myDropdown2">
+                  <a href="phyhistorytest.html">物理史小測驗</a>
+                  <a href="phystest.html">高中物理題目</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+              </div>
 
-<h1>物理學習</h1>
+          </li>
 
+          
+          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
+              <div class="dropdown-content" id="myDropdown3">
+                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+                  <a href="https://guidephy.github.io/EnergyTransition/">Planet713計畫</a>
+                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+                  <a href="https://guidephy.github.io/111ceproject.html">碳捕捉暨Na循環發電IoT系統</a>
+                   <a href="https://guidephy.github.io/grades.html">課堂計分</a>
+                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+                
+              </div>
+
+          </li>
+          
+          <li><a href="#">讀書心得</a></li>
+        </ul>
+      </nav>
+    </header>
+
+  </div>
+  
+    <div class="wrapper">
+      <h2 class="page-title">高中物理自學</h2>
+    </div>
+
+  <div class="news-contents wrapper">
+    <article>
+
+      <header class="post-info">
+        <h2  class="post-title" target="_blank" href="">科學態度與方法</h2>
+        
+        <p class="post-date">高一 <span>CH1</span></p>
+        <p class="post-cat">類別：物理課程</p>
+      </header>
+    
 <div id="videoContainer">
-    <!-- YouTube 嵌入影片 -->
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/P7cEPc5cwKU?rel=0" frameborder="0" allowfullscreen></iframe>
-
-    <!-- 問題區域 -->
-
+  <iframe src="https://www.youtube.com/embed/P7cEPc5cwKU?rel=0" width="640" height="360" allow="autoplay"></iframe>
 </div>
-
-<div id="Question" style='visibility:hidden'>
-    <div class="question">
+<div align="right">
+<p>影片來源:<a target="_blank" href="https://www.youtube.com/@CooC-Cloud">臺北酷課雲</p>
+</div>
+<div id="Question" style='visibility:hidden'  >
+    <div class="question" >
         <h3>問題 1（選擇題）：......？</h3>
         <input type="radio" name="q1" value="A"> A
         <input type="radio" name="q1" value="B"> B
@@ -55,7 +92,7 @@
 
     </div>
 
-    <div class="question">
+    <div class="question" >
         <h3>問題 2（選擇題）：......？</h3>
         <input type="radio" name="q2" value="A"> A
         <input type="radio" name="q2" value="B"> B
@@ -63,52 +100,56 @@
         <input type="radio" name="q2" value="D"> D
     </div>
 
-    <div class="question">
+    <div class="question" >
         <h3>問題 3（簡答題）：......？</h3>
         <textarea id="q3Answer" rows="1" cols="50"></textarea>
     </div>
 
     <!-- 送出答案的按鈕 -->
-    <button id="submitBtn" onclick="submitAnswers()">下一關</button>
+    <div align="center">
+        <button id="submitBtn" onclick="submitAnswers()" >下一關</button>
+    </div>
 </div>
-<script>
-
-    questionAppearTime=5*1000;
-    // 影片結束後顯示問題和按鈕
-    document.querySelector('iframe').addEventListener('load', function () {
-        document.getElementById('videoContainer').style.display = 'block';
-    });
-
-       setTimeout(function() {
-            document.getElementById("Question").style.visibility='visible'; ;
-        }, questionAppearTime); // 1分鐘 = 60,000毫秒
-
-    function submitAnswers() {
-        // 取得正確的答案
-        q1CorrectAnswer="A";
-        q2CorrectAnswer="D";
-        q3CorrectAnswer="123";
-        // 取得問題的答案
-        var q1Answer = document.querySelector('input[name="q1"]:checked');
-        var q2Answer = document.querySelector('input[name="q2"]:checked');
-        var q3Answer = document.getElementById('q3Answer').value;
-
-        // 在實際應用中，你可能需要進行答案的驗證和處理
-
-       if(q1Answer.value==q1CorrectAnswer&&q2Answer.value==q2CorrectAnswer&&q3Answer.trim().toLowerCase() === q3CorrectAnswer.trim().toLowerCase()){
-            alert("答對了");
-        }else{
-            alert("答案有誤，請重新作答，或再觀看影片找尋答案!");
-        }
-
-        // 這裡只是一個簡單的例子，可以在控制台中看到答案
-        console.log('問題1答案：', q1Answer ? q1Answer.value : '未選擇');
-        console.log('問題2答案：', q2Answer ? q2Answer.value : '未選擇');
-        console.log('問題3答案：', q3Answer || '未填寫');
-    }
-
+<br><br> 
+<script src="JS/Ophysics.js">
 
 </script>
 
+     
+    </article>
+
+    <aside>
+      <h3 class="sub-title">類別</h3>
+      <ul class="sub-menu">
+         <li><a href="physics.html">物理學習</a></li>
+         <li><a href="program.html">程式語言</a></li>
+          <li><a href="exp.html">科學實驗</a></li>
+         <li><a href="#">讀書心得</a></li>
+      </ul>
+
+      <h3 class="sub-title">About Me</h3>
+      <p>
+       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
+      </p>
+     
+      
+      <h3 class="sub-title">瀏覽人次</h3>
+      <br>
+   
+      <img src="https://hitwebcounter.com/counter/counter.php?page=8081074&style=0003&nbdigits=5&type=page&initCount=0" title="Free Counter" Alt="web counter"   border="0" style="float: center;" /></a> 
+
+  
+      
+      
+    </aside>
+
+
+  </div>
+
+  <footer>
+    <div class="wrapper">
+      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    </div>
+  </footer>
 </body>
 </html>
