@@ -18,16 +18,24 @@ questionAppearTime=5*1000;
         var q2Answer = document.querySelector('input[name="q2"]:checked');
         var q3Answer = document.getElementById('q3Answer').value;
 
+
+
+       if (!q1Answer || !q2Answer || q3Answer.trim() === '') {
+            alert("請先回答上面的問題");
+            return;
+        }
         // 在實際應用中，你可能需要進行答案的驗證和處理
+
+
 
        if(q1Answer.value==q1CorrectAnswer&&q2Answer.value==q2CorrectAnswer&&q3Answer.trim().toLowerCase() === q3CorrectAnswer.trim().toLowerCase()){
             alert("答對了");
+        }else if(q1Answer==""){
+            alert("請回答上面三個問題");
+
         }else{
             alert("答案有誤，請重新作答，或再觀看影片找尋答案!");
         }
 
-        // 這裡只是一個簡單的例子，可以在控制台中看到答案
-        console.log('問題1答案：', q1Answer ? q1Answer.value : '未選擇');
-        console.log('問題2答案：', q2Answer ? q2Answer.value : '未選擇');
-        console.log('問題3答案：', q3Answer || '未填寫');
+
     }
