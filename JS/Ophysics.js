@@ -7,7 +7,7 @@
     // 使用 jQuery 的 $.get 方法發送 GET 請求
     $.get("https://script.google.com/macros/s/AKfycbyBbvR9w9_wdQlOVi9h9P8u8iUs0BKNlsOGzZDR3muqRW4yWSKrKhsdB43v4nwaVDpL/exec", parameter, function(data) {
       questiondata = data.split(",");
-      alert(questiondata[10]);
+      
      
 
     youtubeEmbedUrl = 'https://www.youtube.com/embed/' + questiondata[10];
