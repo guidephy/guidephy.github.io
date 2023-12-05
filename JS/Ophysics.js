@@ -7,7 +7,7 @@
     // 使用 jQuery 的 $.get 方法發送 GET 請求
     $.get("https://script.google.com/macros/s/AKfycbyBbvR9w9_wdQlOVi9h9P8u8iUs0BKNlsOGzZDR3muqRW4yWSKrKhsdB43v4nwaVDpL/exec", parameter, function(data) {
       questiondata = data.split(",");
-      
+    
      
 
     youtubeEmbedUrl = 'https://www.youtube.com/embed/' + questiondata[10];
@@ -19,6 +19,11 @@
        setTimeout(function() {
             document.getElementById("Question").style.visibility='visible'; ;
         }, questionAppearTime); // 1分鐘 = 60,000毫秒
+
+         //第一題答案
+        q1CorrectAnswer=questiondata[13];
+        q2CorrectAnswer=questiondata[15];
+        q3CorrectAnswer=questiondata[17];
     });
 
 
@@ -31,9 +36,7 @@
 
     function submitAnswers() {
         // 取得正確的答案
-        q1CorrectAnswer="A";
-        q2CorrectAnswer="D";
-        q3CorrectAnswer="123";
+    
         // 取得問題的答案
         var q1Answer = document.querySelector('input[name="q1"]:checked');
         var q2Answer = document.querySelector('input[name="q2"]:checked');
@@ -57,6 +60,10 @@
                    // 更改 <iframe> 的 src 屬性
                    iframe.src = youtubeEmbedUrl;
                    n=n+1;
+                   q1CorrectAnswer=questiondata[22];
+                   q2CorrectAnswer=questiondata[24];
+                   q3CorrectAnswer=questiondata[26];
+
             break;
 
             case 2:
@@ -64,6 +71,9 @@
                    // 更改 <iframe> 的 src 屬性
                    iframe.src = youtubeEmbedUrl;
                    n=n+1;
+                   q1CorrectAnswer=questiondata[31];
+                   q2CorrectAnswer=questiondata[33];
+                   q3CorrectAnswer=questiondata[35];
             break;
 
             default:
