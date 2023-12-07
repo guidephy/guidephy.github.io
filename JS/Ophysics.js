@@ -1,6 +1,9 @@
-    var parameter = {};
+  var parameter = {};
     var questiondata;
     var youtubeEmbedUrl;
+    var question1;
+    var question2;
+    var question3;
     var iframe = document.getElementById('vedioUrl');
     var n=1;
 
@@ -13,11 +16,21 @@
     youtubeEmbedUrl = 'https://www.youtube.com/embed/' + questiondata[10];
       // 更改 <iframe> 的 src 屬性
      iframe.src = youtubeEmbedUrl;
+     //問題的圖片
+     document.getElementById('question1').src=questiondata[12];
+
+     document.getElementById('question2').src=questiondata[14];
+
+     document.getElementById('question3').src=questiondata[16];
+
+
+
+     
 
       // 影片結束後顯示問題和按鈕
         questionAppearTime=questiondata[11]*1000;
        setTimeout(function() {
-            document.getElementById("Question").style.visibility='visible'; ;
+            document.getElementById("Question").style.display="block";
         }, questionAppearTime); // 1分鐘 = 60,000毫秒
 
          //第一題答案
