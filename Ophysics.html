@@ -13,7 +13,37 @@
   <link href="css/style.css" rel="stylesheet">
   
   <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
-   <script src="JS/menu.js"></script>
+  <script src="JS/menu.js"></script>
+
+  <style>
+
+   /* 更新的 CSS 規則，將 radio 文字靠左 */
+.radio-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.type-container {
+  padding: 0 10px;
+}
+
+/* 將文字靠左 */
+label {
+  display: flex;
+
+  align-items: center; /* 垂直居中對齊文字和 radio 按鈕 */
+}
+
+input[type="radio"] {
+  margin-right: 5px;
+}
+
+#q3Answer {
+  border: 1px solid #ccc; /* 設置框線為淺灰色 */
+  padding: 8px; /* 設置內邊距以增加舒適性 */
+}
+  </style>>
 
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
@@ -79,33 +109,46 @@
         <p class="post-cat">類別：物理課程</p>
       </header>
     
-<div id="videoContainer">
+<div id="videoContainer" style="display: none;">
   <iframe id="vedioUrl"src="" width="640" height="360" allow="autoplay"></iframe>
+  <div align="right">
+  <p>影片來源:<a target="_blank" href="https://www.youtube.com/@CooC-Cloud">臺北酷課雲</a></p>
+  </div>
+
 </div>
-<div align="right">
-<p>影片來源:<a target="_blank" href="https://www.youtube.com/@CooC-Cloud">臺北酷課雲</a></p>
-</div>
-<div id="Question" style='visibility:hidden'  >
+<div id="Question" style="display: none;" >
     <div class="question" >
-        <h3>問題 1（選擇題）：......？</h3>
-        <input type="radio" name="q1" value="A"> A
-        <input type="radio" name="q1" value="B"> B
-        <input type="radio" name="q1" value="C"> C
-        <input type="radio" name="q1" value="D"> D
+        <h3>問題 1</h3>
+        <img id="question1" src="" alt="問題1">
+        <div class="radio-container">
+            <label><input type="radio" name="q1" value="A"> A</label>
+            <label><input type="radio" name="q1" value="B"> B</label>
+            <label><input type="radio" name="q1" value="C"> C</label>
+            <label><input type="radio" name="q1" value="D"> D</label>
+        </div>
 
     </div>
+    <br>
 
     <div class="question" >
-        <h3>問題 2（選擇題）：......？</h3>
-        <input type="radio" name="q2" value="A"> A
-        <input type="radio" name="q2" value="B"> B
-        <input type="radio" name="q2" value="C"> C
-        <input type="radio" name="q2" value="D"> D
+        <h3>問題 2</h3>
+        <img id="question2" src="" alt="問題2">
+        <div class="radio-container">
+            <label><input type="radio" name="q2" value="A"> A</label>
+            <label><input type="radio" name="q2" value="B"> B</label>
+            <label><input type="radio" name="q2" value="C"> C</label>
+            <label><input type="radio" name="q2" value="D"> D</label>
+        </div>
+
     </div>
+    <br>
 
     <div class="question" >
-        <h3>問題 3（簡答題）：......？</h3>
-        <input type="text" id="q3Answer" >
+        <h3>問題 3（簡答題)</h3>
+        <img id="question3" src="" alt="問題3" >
+        <div class="type-container">
+            <input type="text" id="q3Answer"  placeholder="請輸入答案">
+        </div>
     </div>
 
     <!-- 送出答案的按鈕 -->
