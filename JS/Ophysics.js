@@ -7,6 +7,7 @@
     var iframe = document.getElementById('vedioUrl');
     var n=1;
     var questionNumber;
+    var answerTimes=0;
 
     // 使用 jQuery 的 $.get 方法發送 GET 請求
     $.get("https://script.google.com/macros/s/AKfycbyMlsAc7r01-bYvCV025eUTQh0rK88RsYpECZA5Q8uXOPgglembu5hLICEjcX-nhmS8/exec", parameter, function(data) {
@@ -50,6 +51,8 @@
 
 
     function submitAnswers() {
+
+        answerTimes=answerTimes+1;
         // 取得正確的答案
     
         // 取得問題的答案
@@ -109,7 +112,13 @@
                    n=n+1;
 
             }else{
+
+        document.getElementById('videoContainer').style.display = 'none';
+        document.getElementById('restartButton').style.display = 'block';
                 alert("你完成此單元的測驗了");
+                var score=questionNumber/answerTimes*100;
+                alert("答對率為"+score.toFixed(2)+" %");
+
             }
 
             
