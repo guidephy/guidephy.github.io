@@ -9,6 +9,7 @@
     var questionNumber;
     var answerTimes=0;
 
+
     // 使用 jQuery 的 $.get 方法發送 GET 請求
     $.get("https://script.google.com/macros/s/AKfycbyMlsAc7r01-bYvCV025eUTQh0rK88RsYpECZA5Q8uXOPgglembu5hLICEjcX-nhmS8/exec", parameter, function(data) {
       questiondata = data.split(",");
@@ -45,9 +46,7 @@
 
 
    
-    document.querySelector('iframe').addEventListener('load', function () {
-        document.getElementById('videoContainer').style.display = 'block';
-    });
+    
 
 
     function submitAnswers() {
@@ -133,3 +132,18 @@
 
 
     }
+
+
+    function handleSectionClick(section) {
+    var sectionTitle = section.textContent; // 獲取節標題的文字內容
+    alert('你選擇的節標題是：' + sectionTitle); // 彈出選擇的節標題
+
+    document.querySelector('iframe').addEventListener('load', function () {
+        document.getElementById('videoContainer').style.display = 'block';
+    });
+  
+
+    document.getElementById("chapterChoose").style.display="none";
+  // 隱藏章節
+  
+   }
