@@ -43,6 +43,39 @@ input[type="radio"] {
   border: 1px solid #ccc; /* 設置框線為淺灰色 */
   padding: 8px; /* 設置內邊距以增加舒適性 */
 }
+
+
+/* 添加 CSS 樣式以調整章節清單的外觀 */
+.chapter-list {
+  font-family: Arial, sans-serif;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.chapter {
+  margin-top: 20px;
+  list-style-type: none;
+}
+
+.chapter-title {
+  font-size: 24px; /* 章節標題字體大小 */
+  font-weight: bold;
+  color: #3366cc; /* 章節標題顏色 */
+  display: block;
+  margin-bottom: 10px; /* 章節標題和節標題之間的間距 */
+}
+
+.section {
+  font-size: 18px; /* 節標題字體大小 */
+  color: #ff6600; /* 節標題顏色 */
+  list-style-type: none;
+  cursor: pointer; /* 將滑鼠指標設置為手指 */
+}
+
+
+
+
+
   </style>
 
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -108,6 +141,30 @@ input[type="radio"] {
         <p class="post-date">高一 <span>CH6</span></p>
         <p class="post-cat">類別：物理課程</p>
       </header>
+
+<div id="chapterChoose"class="chapter-list">
+
+  <h1>選擇自學單元</h1>
+    
+    <ul>
+      <li class="chapter">第一章
+        <ul>
+          <li class="section" onclick="handleSectionClick(this)">節 1.1</li>
+          <li class="section" onclick="handleSectionClick(this)">節 1.2</li>
+          <li class="section" onclick="handleSectionClick(this)">節 1.3</li>
+        </ul>
+      </li>
+      <li class="chapter">第二章
+        <ul>
+          <li class="section" onclick="handleSectionClick(this)">節 2.1</li>
+          <li class="section" onclick="handleSectionClick(this)">節 2.2</li>
+          <li class="section" onclick="handleSectionClick(this)">節 2.3</li>
+        </ul>
+      </li>
+      <!-- 添加更多章節和節的清單 -->
+    </ul>
+  </div>
+
     
 <div id="videoContainer" style="display: none;">
   <iframe id="vedioUrl"src="" width="640" height="360" allow="autoplay"></iframe>
