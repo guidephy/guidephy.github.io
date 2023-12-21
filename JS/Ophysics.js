@@ -114,6 +114,7 @@
 
         document.getElementById('videoContainer').style.display = 'none';
         document.getElementById('restartButton').style.display = 'block';
+        document.getElementById("hint").textContent="";
                 alert("你完成此單元的測驗了");
                 var score=questionNumber/answerTimes*100;
                 alert("答對率為"+score.toFixed(2)+" %");
@@ -136,7 +137,12 @@
 
     function handleSectionClick(section) {
     var sectionTitle = section.textContent; // 獲取節標題的文字內容
-    alert('你選擇的節標題是：' + sectionTitle); // 彈出選擇的節標題
+    alert('你選擇的單元是：' + sectionTitle); // 彈出選擇的節標題
+
+
+    document.getElementById("unitName").textContent=sectionTitle;
+
+    document.getElementById("hint").textContent="題目將於影片結束後出現";
 
     document.querySelector('iframe').addEventListener('load', function () {
         document.getElementById('videoContainer').style.display = 'block';
