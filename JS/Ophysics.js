@@ -157,3 +157,20 @@
   // 隱藏章節
   
    }
+
+   function scoreData(){
+
+    document.getElementById("registerScore").style.display="block";
+    document.getElementById("restartButton").style.display="none";
+
+   }
+
+   function registerScore(){
+
+    var school = document.getElementById('selectSchool').value;
+    var className = document.getElementById('class').value;
+    var seatNumber = document.getElementById('seat').value;
+    var userName = document.getElementById('name').value;
+
+    alert(school+className+seatNumber+userName);
+   }
