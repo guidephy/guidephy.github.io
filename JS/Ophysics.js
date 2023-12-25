@@ -10,38 +10,7 @@
     var answerTimes=0;
 
 
-    // 使用 jQuery 的 $.get 方法發送 GET 請求
-    $.get("https://script.google.com/macros/s/AKfycbyMlsAc7r01-bYvCV025eUTQh0rK88RsYpECZA5Q8uXOPgglembu5hLICEjcX-nhmS8/exec", parameter, function(data) {
-      questiondata = data.split(",");
-    
-     
-     questionNumber=questiondata[0];
 
-    youtubeEmbedUrl = 'https://www.youtube.com/embed/' + questiondata[10];
-      // 更改 <iframe> 的 src 屬性
-     iframe.src = youtubeEmbedUrl;
-     //問題的圖片
-     document.getElementById('question1').src=questiondata[12];
-
-     document.getElementById('question2').src=questiondata[14];
-
-     document.getElementById('question3').src=questiondata[16];
-
-
-
-     
-
-      // 影片結束後顯示問題和按鈕
-        questionAppearTime=questiondata[11]*1000;
-       setTimeout(function() {
-            document.getElementById("Question").style.display="block";
-        }, questionAppearTime); // 1分鐘 = 60,000毫秒
-
-         //第一題答案
-        q1CorrectAnswer=questiondata[13];
-        q2CorrectAnswer=questiondata[15];
-        q3CorrectAnswer=questiondata[17];
-    });
 
 
 
@@ -138,6 +107,41 @@
     function handleSectionClick(section) {
     var sectionTitle = section.textContent; // 獲取節標題的文字內容
     alert('你選擇的單元是：' + sectionTitle); // 彈出選擇的節標題
+
+    parameter={"sectionTitle": sectionTitle};
+
+        // 使用 jQuery 的 $.get 方法發送 GET 請求
+    $.get("https://script.google.com/macros/s/AKfycbx6S9WYY36HFdKW6VlDvKgzGlwbKXbXBZSza2k8FrGlwr7h77gm4J1wriBf8fERg_4/exec", parameter, function(data) {
+      questiondata = data.split(",");
+    
+     
+     questionNumber=questiondata[0];
+
+    youtubeEmbedUrl = 'https://www.youtube.com/embed/' + questiondata[10];
+      // 更改 <iframe> 的 src 屬性
+     iframe.src = youtubeEmbedUrl;
+     //問題的圖片
+     document.getElementById('question1').src=questiondata[12];
+
+     document.getElementById('question2').src=questiondata[14];
+
+     document.getElementById('question3').src=questiondata[16];
+
+
+
+     
+
+      // 影片結束後顯示問題和按鈕
+        questionAppearTime=questiondata[11]*1000;
+       setTimeout(function() {
+            document.getElementById("Question").style.display="block";
+        }, questionAppearTime); // 1分鐘 = 60,000毫秒
+
+         //第一題答案
+        q1CorrectAnswer=questiondata[13];
+        q2CorrectAnswer=questiondata[15];
+        q3CorrectAnswer=questiondata[17];
+    });
 
 
     document.getElementById("unitName").textContent=sectionTitle;
