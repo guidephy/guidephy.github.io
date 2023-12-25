@@ -73,7 +73,21 @@ input[type="radio"] {
 }
 
 
+.input-row label {
+  display: block; /* 設置為 block，每個元素佔據一行 */
+  font-weight: bold;
+  margin-bottom: 5px; /* 在上方添加一些間距 */
+}
 
+.input-row select,
+.input-row input {
+  display: block; /* 設置為 block，每個元素佔據一行 */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px; /* 在下方添加一些間距 */
+  width: 50%; /* 填充父元素的寬度 */
+}
 
 
   </style>
@@ -215,12 +229,38 @@ input[type="radio"] {
 
 </div>
 
-    <div id="restartButton" align="center" style="display: none;" > 
-      <a href="https://guidephy.github.io/Ophysics" >
-         <button>繼續學習</button>
-       </a>
+
+ <div class="input-row" id="registerScore" style="display: none;">
+    <label for="selectTest">學校:</label>
+    <select name="select" id="selectSchool">
+      <option>請選擇學校</option>
+      <option>桃園市立觀音高中</option>
+      <option>其它</option>
+    </select>
+
+    <label for="class">班級:</label>
+    <input type="text" id="class" placeholder="請輸入班級">
+    
+    <label for="seat">座號:</label>
+    <input type="text" id="seat" placeholder="請輸入座號">
+    
+    <label for="name">姓名:</label>
+    <input type="text" id="name" placeholder="請輸入名字">
+
+    <br>
+
+    <div align="center">
+       <button  onclick="registerScore()">登記</button>
     </div>
-<br><br> 
+</div>
+
+<div id="restartButton" align="center" style="display: none;"> 
+      <button style="margin: 20px;"  onclick="scoreData()">登記成績</button>
+      <a href="https://guidephy.github.io/Ophysics" ><button style="margin: 20px;">繼續學習</button>
+       </a>
+</div>
+
+<br> 
 <script src="JS/Ophysics.js">
 
 </script>
