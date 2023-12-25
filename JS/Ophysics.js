@@ -8,7 +8,8 @@
     var n=1;
     var questionNumber;
     var answerTimes=0;
-
+    var score=0;
+    var sectionTitle ;
 
 
 
@@ -85,8 +86,9 @@
         document.getElementById('restartButton').style.display = 'block';
         document.getElementById("hint").textContent="";
                 alert("你完成此單元的測驗了");
-                var score=questionNumber/answerTimes*100;
-                alert("答對率為"+score.toFixed(2)+" %");
+                score=questionNumber/answerTimes*100;
+                score=score.toFixed(2);
+                alert("答對率為"+score+" %");
 
             }
 
@@ -105,7 +107,7 @@
 
 
     function handleSectionClick(section) {
-    var sectionTitle = section.textContent; // 獲取節標題的文字內容
+    sectionTitle = section.textContent; // 獲取節標題的文字內容
     alert('你選擇的單元是：' + sectionTitle); // 彈出選擇的節標題
 
     parameter={"sectionTitle": sectionTitle};
@@ -129,7 +131,6 @@
 
 
 
-     
 
       // 影片結束後顯示問題和按鈕
         questionAppearTime=questiondata[11]*1000;
@@ -141,7 +142,11 @@
         q1CorrectAnswer=questiondata[13];
         q2CorrectAnswer=questiondata[15];
         q3CorrectAnswer=questiondata[17];
+
     });
+
+
+
 
 
     document.getElementById("unitName").textContent=sectionTitle;
@@ -172,5 +177,25 @@
     var seatNumber = document.getElementById('seat').value;
     var userName = document.getElementById('name').value;
 
-    alert(school+className+seatNumber+userName);
+    parameter={"sectionTitle": sectionTitle,"score":score,"school":school,"className":className,"seatNumber":seatNumber,"userName":userName};
+
+$.get("https://script.google.com/macros/s/AKfycbx_ZZCztmy-rHxveISpTCepII7kug4ks3B4et2I1W22rwKtK2DWeRdMCuBbK_9uD6_n/exec", parameter, function(data) {
+      
+    
+      alert(data);
+
+
+    document.getElementById("registerScore").style.display="none";
+
+    document.getElementById("restartButton").style.display="block";
+
+    document.getElementById("scoreData").style.display="none";
+
+
+    
+
+    });
+    
+
+
    }
