@@ -179,7 +179,7 @@
 
     parameter={"sectionTitle": sectionTitle,"score":score,"school":school,"className":className,"seatNumber":seatNumber,"userName":userName};
 
-$.get("https://script.google.com/macros/s/AKfycbx_ZZCztmy-rHxveISpTCepII7kug4ks3B4et2I1W22rwKtK2DWeRdMCuBbK_9uD6_n/exec", parameter, function(data) {
+$.get("https://script.google.com/macros/s/AKfycby4jNSeXw5wVMwD6OUgZQKteaTax3-THO0R5V9c9MPfcRtdS8FaOFfPdIV1LBq4afFi/exec", parameter, function(data) {
       
     
       alert(data);
