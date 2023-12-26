@@ -191,6 +191,8 @@ $.get("https://script.google.com/macros/s/AKfycbx_ZZCztmy-rHxveISpTCepII7kug4ks3
 
     document.getElementById("scoreData").style.display="none";
 
+    document.getElementById("lookScore").style.display="block";
+
 
     
 
