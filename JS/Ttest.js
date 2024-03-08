@@ -1,14 +1,5 @@
-var parameter = {};
-    var questiondata;
-    var youtubeEmbedUrl;
-    var question1;
-    var question2;
-    var question3;
-    var iframe = document.getElementById('vedioUrl');
-    var n=1;
-    var questionNumber;
-    var answerTimes=0;
-    var score=0;
+
+
     var sectionTitle ;
 
 
@@ -18,13 +9,6 @@ var parameter = {};
    
     
 
-
-    function submitAnswers() {
-
-      
-
-
-    }
 
 
     function handleSectionClick(section) {
