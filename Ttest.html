@@ -122,13 +122,12 @@ input[type="radio"] {
 
 <div id="chapterChoose"class="chapter-list">
 
- 
-    
+
     <ul>
       <li class="chapter">
         <span class="chapter-title">科別</span>
         <ul>
-          <li class="section" onclick="handleSectionClick(this)">機械</li>
+          <li class="section" onclick="handleSectionClick(this)">電機與電子群</li>
           <li class="section" onclick="handleSectionClick(this)">美容美髮</li>
           <li class="section" onclick="handleSectionClick(this)">資訊</li>
         </ul>
@@ -141,48 +140,7 @@ input[type="radio"] {
     
 
   <div id="Question" style="display: none;" >
-    <div class="question" >
-        <h3>問題 1</h3>
-        <img id="question1" src="" alt="問題1">
-        <div class="radio-container">
-            <label><input type="radio" name="q1" value="A"> A</label>
-            <label><input type="radio" name="q1" value="B"> B</label>
-            <label><input type="radio" name="q1" value="C"> C</label>
-            <label><input type="radio" name="q1" value="D"> D</label>
-        </div>
-
-    </div>
-    <br>
-
-    <div class="question" >
-        <h3>問題 2</h3>
-        <img id="question2" src="" alt="問題2">
-        <div class="radio-container">
-            <label><input type="radio" name="q2" value="A"> A</label>
-            <label><input type="radio" name="q2" value="B"> B</label>
-            <label><input type="radio" name="q2" value="C"> C</label>
-            <label><input type="radio" name="q2" value="D"> D</label>
-        </div>
-
-    </div>
-    <br>
-
-    <div class="question" >
-        <h3>問題 3</h3>
-        <img id="question1" src="" alt="問題1">
-        <div class="radio-container">
-            <label><input type="radio" name="q1" value="A"> A</label>
-            <label><input type="radio" name="q1" value="B"> B</label>
-            <label><input type="radio" name="q1" value="C"> C</label>
-            <label><input type="radio" name="q1" value="D"> D</label>
-        </div>
-
-    </div>
-
-    <!-- 送出答案的按鈕 -->
-    <div align="center">
-        <button id="submitBtn" onclick="submitAnswers()" >送出答案</button>
-    </div>
+    <div id="questions-container" class="questions-container">
 </div>
 
 
@@ -207,18 +165,10 @@ input[type="radio"] {
     <br>
 
     <div align="center">
-       <button  onclick="registerScore()">登記</button>
+       <button  onclick="registerScore()">登記成績</button>
     </div>
 </div>
 
-<div id="restartButton" align="center" style="display: none;"> 
-      <button style="margin: 20px;"  onclick="scoreData()" id="scoreData">登記成績</button>
-      <a href="https://guidephy.github.io/Ophysics" ><button style="margin: 20px;">繼續學習</button></a>
-
-      <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQkPQvWslhK-dGwzeImWAei8-kGcJoXL9sSHL2LgbenIsErrRkrF5EB0gGUfG1TxoqRYkjLoJYSmP3M/pubhtml?gid=0&single=true" target="_blank" id="lookScore"style="display: none;"><button style="margin: 20px;">成績查詢</button></a>
-</div>
-
-<br> 
 <script src="JS/Ttest.js">
 
 </script>
