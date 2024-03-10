@@ -17,6 +17,11 @@
 
   <style>
 
+   /* 定義紅色文字的樣式 */
+  .red-text {
+    color: red;
+  }
+
    /* 更新的 CSS 規則，將 radio 文字靠左 */
 .radio-container {
   display: flex;
@@ -141,8 +146,13 @@ input[type="radio"] {
 
   <div id="Question" style="display: none;" >
     <div id="questions-container" class="questions-container">
-</div>
 
+        
+</div>
+    <!-- 送出答案的按鈕 -->
+    <div align="center">
+        <button id="submitBtn" onclick="submitAnswers()" >送出答案</button>
+    </div>
 
 
  <div class="input-row" id="registerScore" style="display: none;">
