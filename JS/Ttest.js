@@ -67,6 +67,10 @@ for (var i = 1; i <= numQuestions; i++) {
 
     // 添加問題元素到容器中
     questionsContainer.appendChild(questionDiv);
+
+    // 添加一行空白
+    questionsContainer.appendChild(document.createElement('br'));
+
 }
 
     alert(data);
