@@ -150,34 +150,15 @@ input[type="radio"] {
         
 </div>
     <!-- 送出答案的按鈕 -->
-    <div align="center">
+    <div align="center" id="submitButton">
         <button id="submitBtn" onclick="submitAnswers()" >送出答案</button>
     </div>
 
 
- <div class="input-row" id="registerScore" style="display: none;">
-    <label for="selectTest">學校:</label>
-    <select name="select" id="selectSchool">
-      <option>請選擇學校</option>
-      <option>桃園市立觀音高中</option>
-      <option>其它</option>
-    </select>
-
-    <label for="class">班級:</label>
-    <input type="text" id="class" placeholder="請輸入班級">
-    
-    <label for="seat">座號:</label>
-    <input type="text" id="seat" placeholder="請輸入座號">
-    
-    <label for="name">姓名:</label>
-    <input type="text" id="name" placeholder="請輸入名字">
-
-    <br>
-
-    <div align="center">
-       <button  onclick="registerScore()">登記成績</button>
+   <div align="center" style="display: none;" id="againButton">
+       <button onclick="refreshPage()">再寫一次</button>
     </div>
-</div>
+
 
 <script src="JS/Ttest.js">
 
@@ -206,7 +187,7 @@ input[type="radio"] {
 
   <footer>
     <div class="wrapper">
-      <p><small>&copy; 桃園市立觀音高中輔導室</small></p>
+      <p><small>&copy; 桃園市立觀音高中物理科林仟弘</small></p>
     </div>
   </footer>
 </body>
