@@ -2,6 +2,7 @@
 
     var sectionTitle ;
     var questiondata;
+    var allQuestionNumber;
 
 
     function handleSectionClick(section) {
@@ -13,11 +14,11 @@
        
 
         // 使用 jQuery 的 $.get 方法發送 GET 請求
-    $.get("https://script.google.com/macros/s/AKfycbx70llR9-j9E0Vrv9W4g1b3ORv4g5tBRHSNnxKPsM651Qll1gZjjNTZhSOfOvnOtB6Y/exec", parameter, function(data) {
+    $.get("https://script.google.com/macros/s/AKfycbwYvmPn1Ae-ahIP2b-VKu63wOQzega35ZQLkhoYqsYw1d2BdpMG3KkPE7t0Yr19UmsM/exec", parameter, function(data) {
       
 
       questiondata = data.split(",");
-    
+
      
     document.getElementById("Question").style.display="block";
 
@@ -27,7 +28,7 @@
 
     document.getElementById("chapterChoose").style.display="none";
 
-    var numQuestions = questiondata[3];
+    var numQuestions = questiondata[1];
 
 // 獲取題目容器元素
 var questionsContainer = document.getElementById('questions-container');
