@@ -117,6 +117,9 @@ for (var i = 1; i <=numQuestions; i++) {
 
 function submitAnswers() {
 
+
+   document.getElementById("submitButton").style.display="none";
+
  var answers = []; // 儲存所有答案的數組
 
 // 遍歷每個問題
@@ -138,13 +141,14 @@ for (var i = 1; i <= numQuestions; i++) {
     }
 }
 
+    alert("本次作答的分數為"+score+"分!");
 
-alert("本次作答的分數為"+score+"分!");
-
-
+    document.getElementById("againButton").style.display="block";
 
 }
 
-
+function refreshPage() {
+    location.reload(); // 重新整理網頁
+}
 
    
