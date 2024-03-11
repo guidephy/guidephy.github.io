@@ -143,9 +143,26 @@ for (var i = 1; i <= numQuestions; i++) {
 
     alert("本次作答的分數為"+score+"分!");
 
-    document.getElementById("againButton").style.display="block";
+
+
+ 
+    var userName = document.getElementById('name').value;
+
+    parameter={"sectionTitle": sectionTitle,"score":score,"userName":userName};
+
+    $.get("https://script.google.com/macros/s/AKfycbz_taXoWyTaBTaruJp5eF_-mFDmWFTX6qxBzo8UPnTgaV2R7g17YWQA2QQdiY6SOvYH/exec", parameter, function(data) {
+      
+    
+      alert(data);
+
+
+      document.getElementById("againButton").style.display="block";
+    
+    });
+    
 
 }
+
 
 function refreshPage() {
     location.reload(); // 重新整理網頁
