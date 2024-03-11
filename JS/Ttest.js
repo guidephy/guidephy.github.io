@@ -135,7 +135,7 @@ for (var i = 1; i <= numQuestions; i++) {
             score=score+100/numQuestions;
         }else{
              document.getElementById('questionTitle' + i).classList.add('red-text');
-             document.getElementById('questionTitle' + i).textContent = '✗ ' + document.getElementById('questionTitle' + i).textContent+"正確答案為:"+correctAnswer[i];
+             document.getElementById('questionTitle' + i).textContent = '✗ ' + document.getElementById('questionTitle' + i).textContent+"，原題號:"+selectedNumbers[i]+"，正確答案為:"+correctAnswer[i];
         }
        
     }
