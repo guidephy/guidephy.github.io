@@ -135,8 +135,19 @@ for (var i = 1; i <= numQuestions; i++) {
             score=score+100/numQuestions;
         }else{
              document.getElementById('questionTitle' + i).classList.add('red-text');
-             document.getElementById('questionTitle' + i).textContent = '✗ ' + document.getElementById('questionTitle' + i).textContent+"，原題號:"+selectedNumbers[i]+"，正確答案為:"+correctAnswer[i];
-        }
+             
+
+if (sectionTitle.includes("126-250")) {
+    // 如果 sectionTitle 包含 "126-250"，則執行以下程式碼
+    var selectedNumber = selectedNumbers[i] + 125;
+    document.getElementById('questionTitle' + i).textContent = '✗ ' + document.getElementById('questionTitle' + i).textContent + "，原題號:" + selectedNumber + "，正確答案為:" + correctAnswer[i];
+} else {
+    // 如果 sectionTitle 不包含 "126-250"，則執行以下程式碼
+    document.getElementById('questionTitle' + i).textContent = '✗ ' + document.getElementById('questionTitle' + i).textContent + "，原題號:" + selectedNumbers[i] + "，正確答案為:" + correctAnswer[i];
+}
+
+
+             }
        
     }
 }
