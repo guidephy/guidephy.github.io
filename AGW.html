@@ -30,13 +30,15 @@
   <h3 >裝置狀態</h3>
   <p style="display:inline;">溫度:</p> <p style="display:inline;">濕度:</p><br>
   <h3 id="stateName" style="color:red;"></h3>
-  <p style="display:inline;">進氣風扇:</p><button id="fanButton" style="display:inline;" >off</button>
+  <h6 id="explain" style="color:gray;">智能模式下,致冷晶片於濕度高於40%才會啟動</h6>
+  <p style="display:inline;" id="fanState">進氣風扇:</p><button id="fanButton" style="display:inline;" >off</button>
   <br>
-  <p style="display:inline;">致冷晶片:</p><button id="coldButton" style="display:inline;">off</button>
+  <p style="display:inline;" id="coldState">致冷晶片:</p><button id="coldButton" style="display:inline;">off</button>
   </div>
   <br>
 
   <div align="center" id="manualControl" style="display: none;">
+
   <button id="sendBtn" onclick="send()">切換手動模式</button><br>
   </div>
   
@@ -86,12 +88,23 @@ boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true},
 
   if(document.getElementById('stateName').innerHTML=="手動模式"){
     document.getElementById('stateName').innerHTML="智能模式";
+    document.getElementById('fanState').innerHTML="進氣風扇:on";
+    document.getElementById('coldState').innerHTML="致冷晶片:on";
+    document.getElementById("fanButton").style.visibility="hidden";
+    document.getElementById("coldButton").style.visibility="hidden";
     document.getElementById("manualControl").style.display="block";
     document.getElementById("autoControl").style.display="none";
+    document.getElementById("explain").style.display="block";
+
   }else{
     document.getElementById('stateName').innerHTML="手動模式";
+    document.getElementById('fanState').innerHTML="進氣風扇:";
+    document.getElementById('coldState').innerHTML="致冷晶片:";
+    document.getElementById("fanButton").style.visibility="visible";
+    document.getElementById("coldButton").style.visibility="visible";
     document.getElementById("autoControl").style.display="block";
     document.getElementById("manualControl").style.display="none";
+    document.getElementById("explain").style.display="none";
   }
 }
 </script>
