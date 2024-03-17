@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 05</title>
+<script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
+
+  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+  <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
+
+</head>
+
+<body>
+  <button id="sendBtn" onclick="send()">開始運行</button><br><br>
+  <div><button id="demo-area-05-btn1" class="db5">按鈕 1</button>
+    <button id="demo-area-05-btn2" class="db5">按鈕 2</button>
+    <button id="demo-area-05-btn3" class="db5">按鈕 3</button>
+    <button id="demo-area-05-btn4" class="db5">按鈕 4</button>
+    <button id="demo-area-05-btn5" class="db5">按鈕 5</button></div>
+</body>
+
+<script>
+  var fanrelay;
+var coldrelay;
+
+function send() {
+
+boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true}, function (board) {
+  board.samplingInterval = 50;
+  fanrelay = getLed(board, 16);
+  coldrelay = getLed(board, 14);
+  fanrelay.on();
+  coldrelay.on();
+  document.getElementById('demo-area-05-btn1').addEventListener('click',function () {
+    fanrelay.toggle();
+  });
+  document.getElementById('demo-area-05-btn2').addEventListener('click',function () {
+    coldrelay.toggle();
+  });
+});
+}
+</script>
+
+</html>
