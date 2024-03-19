@@ -28,9 +28,9 @@
 
   <div align="center" id="nowState"style="display: none;">
   <h3 >裝置狀態</h3>
-  <p style="display:inline;">溫度:</p> <p style="display:inline;">濕度:</p><br>
+  <p style="display:inline;"id="dhtData">溫度:, 溼度:</p> <br>
   <h3 id="stateName" style="color:red;"></h3>
-  <h6 id="explain" style="color:gray;">智能模式下,致冷晶片於濕度高於40%才會啟動</h6>
+  <h6 id="explain" style="color:gray;">智能模式下<br>致冷晶片於濕度高於40%啟動<br>進氣風扇於溫度高於20°C啟動。</h6>
   <p style="display:inline;" id="fanState">進氣風扇:</p><button id="fanButton" style="display:inline;" >off</button>
   <br>
   <p style="display:inline;" id="coldState">致冷晶片:</p><button id="coldButton" style="display:inline;">off</button>
@@ -51,6 +51,7 @@
 <script>
 var fanrelay;
 var coldrelay;
+var smartMode=false;
 
 function send() {
 
@@ -61,8 +62,51 @@ boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true},
   board.samplingInterval = 50;
   fanrelay = getLed(board, 16);
   coldrelay = getLed(board, 14);
+  dht = getDht(board, 2);
   fanrelay.on();
   coldrelay.on();
+
+
+  dht.read(function(evt){
+    document.getElementById('dhtData').innerHTML = (['溫度:',dht.temperature,'°C,','溼度:',dht.humidity,'%'].join(''));
+
+
+if(smartMode){
+
+  if(dht.humidity>40&&dht.temperature<20){
+    fanrelay.on();
+    coldrelay.off();
+    document.getElementById('fanState').innerHTML="進氣風扇:off";
+    document.getElementById('coldState').innerHTML="致冷晶片:on";
+
+
+  }else if(dht.humidity>40&&dht.temperature>=20){
+
+    fanrelay.off();
+    coldrelay.off();
+    document.getElementById('fanState').innerHTML="進氣風扇:on";
+    document.getElementById('coldState').innerHTML="致冷晶片:on";
+
+  }else if(dht.humidity<=40){
+
+    fanrelay.off();
+    coldrelay.on();
+    document.getElementById('fanState').innerHTML="進氣風扇:on";
+    document.getElementById('coldState').innerHTML="致冷晶片:off";
+
+
+  }else{
+    fanrelay.on();
+    coldrelay.on();
+    document.getElementById('fanState').innerHTML="進氣風扇:off";
+    document.getElementById('coldState').innerHTML="致冷晶片:off";
+  }
+
+}
+
+
+  }, 1000);
+
   document.getElementById('fanButton').addEventListener('click',function () {
     fanrelay.toggle();
     if(document.getElementById('fanButton').innerHTML=="off"){
@@ -81,6 +125,11 @@ boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true},
     }
  
   });
+
+
+
+
+
 });
   document.getElementById("nowState").style.display="block";
  
@@ -96,6 +145,11 @@ boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true},
     document.getElementById("autoControl").style.display="none";
     document.getElementById("explain").style.display="block";
 
+  
+    smartMode=true;
+   
+    
+
   }else{
     document.getElementById('stateName').innerHTML="手動模式";
     document.getElementById('fanState').innerHTML="進氣風扇:";
@@ -105,6 +159,9 @@ boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true},
     document.getElementById("autoControl").style.display="block";
     document.getElementById("manualControl").style.display="none";
     document.getElementById("explain").style.display="none";
+
+
+   smartMode=false;
   }
 }
 </script>
