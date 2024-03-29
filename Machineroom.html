@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>資訊機房溫溼度監控</title>
+<script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
+
+  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+  <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
+
+</head>
+
+<body>
+  <div align="center">
+  <h2 style="color:blue;">資訊機房溫溼度監控</h2>
+  </div>
+
+ 
+
+
+  <div align="center" id="nowState">
+  <h3 >機房狀態</h3>
+  <p style="display:inline;"id="dhtData">溫度:, 溼度:</p> <br>
+  </div>
+  <br>
+
+
+</body>
+
+<script>
+
+var sendMail=false;
+var dht;
+
+
+
+
+boardReady({board: 'Smart', device: '10VnA5Py', transport: 'mqtt', multi: true}, function (board) {
+  board.samplingInterval = 50;
+
+  dht = getDht(board, 2);
+
+  dht.read(function(evt){
+    document.getElementById('dhtData').innerHTML = (['溫度:',dht.temperature,'°C,','溼度:',dht.humidity,'%'].join(''));
+  }, 1000);
+});
+
+
+
+</script>
+
+</html>
