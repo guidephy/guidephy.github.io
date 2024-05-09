@@ -11,7 +11,8 @@
   <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
   <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
 
-  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
   <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
 
 </head>
@@ -37,8 +38,19 @@
 
 <script>
 
-var people;
+
 var ultrasonic;
+var todayNumber;
+//parameter={};
+
+ $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
+      Alldata= data.split(",");
+ 
+
+      todayNumber=parseInt(Alldata[1]);
+
+      document.getElementById('todayNumber').innerHTML = todayNumber;
+});
 
 
 boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (board) {
@@ -47,12 +59,19 @@ boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (bo
   ultrasonic = getUltrasonic(board, 16, 14);
   ultrasonic.ping(function (cm) {
     document.getElementById('uDistance').innerHTML = ultrasonic.distance;
-    if (ultrasonic.distance < 80&&ultrasonic.distance>0) {
-      people = people + 1;
-      document.getElementById('todayNumber').innerHTML = people;
+    if (ultrasonic.distance < 120&&ultrasonic.distance>0) {
+      todayNumber = todayNumber + 1;
+      document.getElementById('todayNumber').innerHTML = todayNumber;
+
+      $.get("https://script.google.com/macros/s/AKfycbzdWjVH_kFLTd-X0twr100_xcnODUWhLEKJaT1-dxYByIC-9bdBrhnMugATF6uVaGQDCA/exec", {"todayNumber": todayNumber}, function(data) {
+      
+});
+
+
     }
   }, 1000);
 });
+
 
 
 
