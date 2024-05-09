@@ -43,34 +43,35 @@ var ultrasonic;
 var todayNumber;
 //parameter={};
 
- $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
-      Alldata= data.split(",");
- 
+      $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
+             
+             Alldata= data.split(",");
+             todayNumber=parseInt(Alldata[1]);
 
-      todayNumber=parseInt(Alldata[1]);
+             document.getElementById('todayNumber').innerHTML = todayNumber;
 
-      document.getElementById('todayNumber').innerHTML = todayNumber;
-});
-
-
-boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (board) {
-  board.samplingInterval = 50;
-  people = 0;
-  ultrasonic = getUltrasonic(board, 16, 14);
-  ultrasonic.ping(function (cm) {
-    document.getElementById('uDistance').innerHTML = ultrasonic.distance;
-    if (ultrasonic.distance < 80&&ultrasonic.distance>0) {
-      todayNumber = todayNumber + 1;
-      document.getElementById('todayNumber').innerHTML = todayNumber;
+      boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (board) {
+        board.samplingInterval = 50;
+       
+        ultrasonic = getUltrasonic(board, 16, 14);
+        ultrasonic.ping(function (cm) {
+        document.getElementById('uDistance').innerHTML = ultrasonic.distance;
+        if (ultrasonic.distance < 80&&ultrasonic.distance>0) {
+        todayNumber = todayNumber + 1;
+        document.getElementById('todayNumber').innerHTML = todayNumber;
 
       $.get("https://script.google.com/macros/s/AKfycbzdWjVH_kFLTd-X0twr100_xcnODUWhLEKJaT1-dxYByIC-9bdBrhnMugATF6uVaGQDCA/exec", {"todayNumber": todayNumber}, function(data) {
       
-});
+      });
 
 
     }
   }, 1000);
 });
+
+});
+
+
 
 
 
