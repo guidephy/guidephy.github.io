@@ -47,7 +47,7 @@ boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (bo
   ultrasonic = getUltrasonic(board, 16, 14);
   ultrasonic.ping(function (cm) {
     document.getElementById('uDistance').innerHTML = ultrasonic.distance;
-    if (ultrasonic.distance < 80) {
+    if (ultrasonic.distance < 80&&ultrasonic.distance>0) {
       people = people + 1;
       document.getElementById('todayNumber').innerHTML = people;
     }
