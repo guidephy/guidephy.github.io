@@ -56,11 +56,11 @@ var todayNumber;
         ultrasonic = getUltrasonic(board, 16, 14);
         ultrasonic.ping(function (cm) {
         document.getElementById('uDistance').innerHTML = ultrasonic.distance;
-        if (ultrasonic.distance < 80&&ultrasonic.distance>0) {
+        if (ultrasonic.distance < 60&&ultrasonic.distance>0) {
         todayNumber = todayNumber + 1;
         document.getElementById('todayNumber').innerHTML = todayNumber;
 
-      $.get("https://script.google.com/macros/s/AKfycbzdWjVH_kFLTd-X0twr100_xcnODUWhLEKJaT1-dxYByIC-9bdBrhnMugATF6uVaGQDCA/exec", {"todayNumber": todayNumber}, function(data) {
+      $.get("https://script.google.com/macros/s/AKfycbynjawhJgTxjvJFPyrob6Xvs9owECad2T_bAUYCUUW9pVY2j-jR87AlN4H6Bf50BAuftw/exec", {"todayNumber": todayNumber}, function(data) {
       
       });
 
