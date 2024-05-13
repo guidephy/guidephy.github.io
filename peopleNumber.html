@@ -5,42 +5,117 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>觀高圖書館進館人數</title>
-<script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
-  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
-
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.4.5/jquery.mobile.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f8f8;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
 
-  <link rel=stylesheet href=jquery.mobile-1.4.5.min.css>
+    #container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
+    h2, h3 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    h1 {
+      text-align: center;
+      color: #e74c3c;
+      font-size: 4em;
+      margin-top: 0.5em;
+      margin-bottom: 0.2em;
+    }
+
+    table {
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      color:gray;
+    }
+
+    th {
+      font-weight: bold;
+    }
+
+    #date {
+      color: #3498db;
+    }
+
+    .past-date {
+      color: #7f8c8d;
+    }
+  </style>
 </head>
 
 <body>
-  <div align="center">
-  <h2 style="color:blue;">桃園市立觀音高中圖書館<br>進館人數</h2>
+  <div id="container">
+    <h2>桃園市立觀音高中圖書館</h2>
+
+    <div >
+      <h4 id="date"></h2>
+    </div>
+
+    <div id="nowState">
+      <h3>今日進館人數</h3>
+      <h1 id="todayNumber">0</h1>
+    </div>
+    <br>
+    <br>
+
+    <div>
+
+     <h3 style="color:gray;" >前五日進館人數</h3> 
+  
+
+  <table border="0" >
+<tr>
+<th id="5"></th>
+<th id="4"></th>
+<th id="3"></th>
+<th id="2"></th>
+<th id="1"></th>
+</tr>
+<tr>
+<td id="5-1"></td>
+<td id="4-1"></td>
+<td id="3-1"></td>
+<td id="2-1"></td>
+<td id="1-1"></td>
+</tr>
+
+</table>
+
+</div>
   </div>
-
- 
-
-
-  <div align="center" id="nowState">
-  <h3 >今日進館人數</h3>
-
-  <p style="display:inline;"id="todayNumber">0</p> <br>
-
-  <p style="display:inline;"id="uDistance">裝置尚末連線</p> <br>
-  <br>
-
-
 </body>
 
 <script>
 
+ var today = new Date();
+ var days = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
+
+
+  // 将日期格式化为字符串，例如：2024-05-13
+ var formattedDate = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate()+ '日'+' '+days[today.getDay()] ;
+  // 将日期插入到HTML元素中
+     document.getElementById('date').innerHTML = formattedDate;
 
 var ultrasonic;
 var todayNumber;
+var arrayLength;
 //parameter={};
 
       $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
@@ -48,7 +123,26 @@ var todayNumber;
              Alldata= data.split(",");
              todayNumber=parseInt(Alldata[1]);
 
+             arrayLength=Alldata.length;
+
+
              document.getElementById('todayNumber').innerHTML = todayNumber;
+
+             document.getElementById('5').innerHTML = Alldata[arrayLength-15];
+             document.getElementById('5-1').innerHTML = parseInt(Alldata[arrayLength-14]);
+
+             document.getElementById('4').innerHTML = Alldata[arrayLength-12];
+             document.getElementById('4-1').innerHTML = parseInt(Alldata[arrayLength-11]);
+
+             document.getElementById('3').innerHTML = Alldata[arrayLength-9];
+             document.getElementById('3-1').innerHTML =parseInt(Alldata[arrayLength-8]);
+
+
+             document.getElementById('2').innerHTML = Alldata[arrayLength-6];
+             document.getElementById('2-1').innerHTML = parseInt(Alldata[arrayLength-5]);
+
+             document.getElementById('1').innerHTML =  Alldata[arrayLength-3];
+             document.getElementById('1-1').innerHTML = parseInt(Alldata[arrayLength-2]);
 
       boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (board) {
         board.samplingInterval = 50;
