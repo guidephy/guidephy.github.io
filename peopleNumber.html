@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>觀高圖書館進館人數</title>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.4.5/jquery.mobile.min.css">
   <style>
     body {
@@ -43,19 +48,21 @@
 
     th, td {
       padding: 5px;
-      
       color: #7f8c8d;
+
     }
 
     th {
       font-weight: bold;
-       font-size: 0.8em;
+      font-size: 0.8em;
     }
 
     #date {
       color: #3498db;
     }
 
+   
+    }
   </style>
 </head>
 
@@ -70,6 +77,7 @@
     <div id="nowState">
       <h3>今日進館人數</h3>
       <h1 id="todayNumber">0</h1>
+
     </div>
     <br>
     <br>
@@ -98,6 +106,7 @@
 </table>
 
 </div>
+<h6 id="uDistance" style="text-align:right">ac</h6>
   </div>
 </body>
 
