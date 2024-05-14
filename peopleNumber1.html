@@ -126,15 +126,16 @@ var todayNumber;
 var arrayLength;
 //parameter={};
 
-      $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
+ $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
              
              Alldata= data.split(",");
-             todayNumber=parseInt(Alldata[1]);
+             todayNumber=parseInt(Alldata[2]);
+            
 
              arrayLength=Alldata.length;
 
 
-             document.getElementById('todayNumber').innerHTML = todayNumber;
+             document.getElementById('todayNumber').innerHTML = parseInt(todayNumber/2);
 
              document.getElementById('5').innerHTML = Alldata[arrayLength-15];
              document.getElementById('5-1').innerHTML = parseInt(Alldata[arrayLength-14]);
@@ -151,27 +152,34 @@ var arrayLength;
 
              document.getElementById('1').innerHTML =  Alldata[arrayLength-3];
              document.getElementById('1-1').innerHTML = parseInt(Alldata[arrayLength-2]);
+     
 
       boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (board) {
         board.samplingInterval = 50;
+
+        
        
         ultrasonic = getUltrasonic(board, 16, 14);
         ultrasonic.ping(function (cm) {
         document.getElementById('uDistance').innerHTML = ultrasonic.distance;
-        if (ultrasonic.distance < 60&&ultrasonic.distance>0) {
+        if (ultrasonic.distance < 80&&ultrasonic.distance>0) {
         todayNumber = todayNumber + 1;
-        document.getElementById('todayNumber').innerHTML = todayNumber;
+        document.getElementById('todayNumber').innerHTML = parseInt(todayNumber/2);
 
       $.get("https://script.google.com/macros/s/AKfycbynjawhJgTxjvJFPyrob6Xvs9owECad2T_bAUYCUUW9pVY2j-jR87AlN4H6Bf50BAuftw/exec", {"todayNumber": todayNumber}, function(data) {
       
       });
 
-
+      
+      
     }
+
+    
   }, 1000);
 });
-
 });
+
+
 
 
 
