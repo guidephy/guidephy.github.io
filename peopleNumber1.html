@@ -161,10 +161,39 @@ var arrayLength;
 
 
 
-        
+ 
        
         ultrasonic = getUltrasonic(board, 16, 14);
         ultrasonic.ping(function (cm) {
+       
+        $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
+
+        Alldata= data.split(",");
+         arrayLength=Alldata.length;
+
+
+             document.getElementById('todayNumber').innerHTML = parseInt(todayNumber/2);
+
+             document.getElementById('5').innerHTML = Alldata[arrayLength-15];
+             document.getElementById('5-1').innerHTML = parseInt(Alldata[arrayLength-14]);
+
+             document.getElementById('4').innerHTML = Alldata[arrayLength-12];
+             document.getElementById('4-1').innerHTML = parseInt(Alldata[arrayLength-11]);
+
+             document.getElementById('3').innerHTML = Alldata[arrayLength-9];
+             document.getElementById('3-1').innerHTML =parseInt(Alldata[arrayLength-8]);
+
+
+             document.getElementById('2').innerHTML = Alldata[arrayLength-6];
+             document.getElementById('2-1').innerHTML = parseInt(Alldata[arrayLength-5]);
+
+             document.getElementById('1').innerHTML =  Alldata[arrayLength-3];
+             document.getElementById('1-1').innerHTML = parseInt(Alldata[arrayLength-2]);
+
+
+});
+
+
        
             today = new Date();
             days = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
@@ -193,7 +222,9 @@ var arrayLength;
   
     
   }, 1000);
-});
+});        
+
+
 });
 
 
