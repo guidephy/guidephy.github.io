@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html>
 
@@ -106,7 +107,6 @@
 </table>
 
 </div>
-
   </div>
 </body>
 
@@ -119,29 +119,9 @@ var todayNumber;
 var arrayLength;
 //parameter={};
 
+  $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
 
-
-      boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (board) {
-        board.samplingInterval = 50;
-
-
-
-        
-       
-        ultrasonic = getUltrasonic(board, 16, 14);
-        ultrasonic.ping(function (cm) {
-         $.get("https://script.google.com/macros/s/AKfycbxBXP5p21LOVkw7FF-IEGNF9sEX4Cs3uueRuEnLu4rqU-AecpYAB5IsPF0JxR0YVJcvmA/exec", {}, function(data) {
-
-           var today = new Date();
-           var days = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
-
-
-         // 将日期格式化为字符串，例如：2024-05-13
-           var formattedDate = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate()+ '日'+' '+days[today.getDay()] ;
-         // 将日期插入到HTML元素中
-     document.getElementById('date').innerHTML = formattedDate;
-             
-             Alldata= data.split(",");
+        Alldata= data.split(",");
              todayNumber=parseInt(Alldata[2]);
             
 
@@ -165,9 +145,41 @@ var arrayLength;
 
              document.getElementById('1').innerHTML =  Alldata[arrayLength-3];
              document.getElementById('1-1').innerHTML = parseInt(Alldata[arrayLength-2]);
+
+      var today = new Date();
+      var days = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
+
+
+         // 将日期格式化为字符串，例如：2024-05-13
+      var formattedDate = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate()+ '日'+' '+days[today.getDay()] ;
+         // 将日期插入到HTML元素中
+     document.getElementById('date').innerHTML = formattedDate;
+
+
+      boardReady({board: 'Smart', device: '10VPwJ2y', transport: 'mqtt'}, function (board) {
+        board.samplingInterval = 50;
+
+
+
+        
+       
+        ultrasonic = getUltrasonic(board, 16, 14);
+        ultrasonic.ping(function (cm) {
+       
+            today = new Date();
+            days = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
+
+
+         // 将日期格式化为字符串，例如：2024-05-13
+            formattedDate = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate()+ '日'+' '+days[today.getDay()] ;
+         // 将日期插入到HTML元素中
+     document.getElementById('date').innerHTML = formattedDate;
+             
+     
      
         document.getElementById('uDistance').innerHTML = ultrasonic.distance;
-        if (ultrasonic.distance < 80&&ultrasonic.distance>0) {
+
+        if (ultrasonic.distance < 60&&ultrasonic.distance>0) {
         todayNumber = todayNumber + 1;
         document.getElementById('todayNumber').innerHTML = parseInt(todayNumber/2);
 
@@ -178,9 +190,10 @@ var arrayLength;
       
       
     }
-  });
+  
     
   }, 1000);
+});
 });
 
 
