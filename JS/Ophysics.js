@@ -85,6 +85,7 @@
         document.getElementById('videoContainer').style.display = 'none';
         document.getElementById('restartButton').style.display = 'block';
         document.getElementById("hint").textContent="";
+        iframe.src = "";
                 alert("你完成此單元的測驗了");
                 score=questionNumber/answerTimes*100;
                 score=score.toFixed(2);
