@@ -81,7 +81,6 @@
                    n=n+1;
 
             }else{
-             
 
         document.getElementById('videoContainer').style.display = 'none';
         document.getElementById('restartButton').style.display = 'block';
