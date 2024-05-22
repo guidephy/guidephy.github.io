@@ -1,412 +1,74 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant-TW">
 <head>
-  <meta charset="utf-8">
-  <title>Guidephy學習教室</title>
-  <meta name="description" content="提供物理與程式學習的教學與心得">
-  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
-  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
-  
-  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
-  
-  <script src="JS/menu.js"></script>
-
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LQRF00LJWJ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-LQRF00LJWJ', { 'cookie_flags': 'SameSite=None;Secure' });
-  </script>
-  
+    <meta charset="utf-8">
+    <title>Guidephy學習教室</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="JS/menu.js"></script>
 </head>
-
 <body>
-  <div id="news" class="big-bg">
     <header class="page-header wrapper">
-      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
-      <nav>
-        <ul class="main-nav">
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
-              <div class="dropdown-content" id="myDropdown1">
-                  <a href="physics.html">物理課程</a>
-                  <a href="WebDesign.html">網頁設計</a>
-                  <a href="LineBot.html">LineBot</a>
-                  <a href="VPython.html">VPython</a>
-                  <a href="Ohtaigi.html">台語課程</a>
-              </div>
-          </li>
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
-              <div class="dropdown-content" id="myDropdown2">
-                  <a href="phyhistorytest.html">物理史小測驗</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-                  <a href="Ttest.html">國中技藝競賽題庫</a>
-              </div>
-
-          </li>
-
-          
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
-              <div class="dropdown-content" id="myDropdown3">
-                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
-                  <a href="https://guidephy.github.io/EnergyTransition/">Planet713計畫</a>
-                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
-                  <a href="https://guidephy.github.io/111ceproject.html">碳捕捉暨Na循環發電IoT系統</a>
-                   <a href="https://guidephy.github.io/grades.html">課堂計分</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-                  <a href="https://guidephy.notion.site/Learn-to-Create-An-RPG-Game-In-Unity-Tutorial-Udemy-e1e79f20d692448b86fd4fc740aac94b?pvs=4">unity2D學習筆記</a>
-                  <a href="https://guidephy.notion.site/Unity-Learning-d45d104ccbf34dcaa15c937affee7546">unity3D學習筆記</a>
-             
-                
-              </div>
-
-          </li>
-          
-          <li><a href="https://guidephy.github.io/Ophysics">物理自學平台</a></li>
-        </ul>
-      </nav>
+        <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
+        <nav>
+            <ul class="main-nav">
+                <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
+                    <div class="dropdown-content" id="myDropdown1">
+                        <a href="physics.html">物理課程</a>
+                        <a href="WebDesign.html">網頁設計</a>
+                        <a href="LineBot.html">LineBot</a>
+                        <a href="VPython.html">VPython</a>
+                        <a href="Ohtaigi.html">台語課程</a>
+                    </div>
+                </li>
+                <!-- More dropdowns as needed -->
+            </ul>
+        </nav>
     </header>
-
-  </div>
-
-  <div class="wrapper">
-      <h2 class="page-title">近期文章</h2>
-  </div>
-
-  <div class="news-contents wrapper">
-    <article>
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" href="https://guidephy.github.io/Ophysics">物理自學平台說明</a></h2>
-        
-        <p class="post-date">物理 <span>自學</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="physics.html">物理教學</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAF4tqIRPdU&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-      
-<br><br>
-<header class="post-info">
-        <h2  class="post-title">科館解謎腳本競賽</h2>
-        
-        <p class="post-date">112 <span>學年度</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">比賽</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAF2Wi2pj7M&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-      
-<br><br>
-
-
-   <header class="post-info">
-        <h2  class="post-title">Google表單設計</h2>
-        
-        <p class="post-date">校必 <span>高二</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">桃源觀新</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAF20kSvF2s&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br><p>世界咖啡館簡報:</><a href="https://docs.google.com/spreadsheets/d/1Ixg_kYBTqRd0P48xaAapmRiNvH8V05DGjkso0ltzsZ4/edit?usp=sharing" target="_blank">連結</a>
-      
-<br><br>
-  <header class="post-info">
-        <h2  class="post-title">專題實作修練1-1</h2>
-        
-        <p class="post-date">校必 <span>高二</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">桃源觀新</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFxlRLVUI4&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-
-<p>簡報內容:觀音高中校定必修課程創新小組</p>
-      
-<br><br>
-
-<header class="post-info">
-        <h2  class="post-title">物理暑輔WEEK4</h2>
-        
-        <p class="post-date">暑輔 <span>4</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="physics.html">物理教學</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFqXwKnjGA&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-    
-<br><br>
-      
-    <header class="post-info">
-        <h2  class="post-title">物理暑輔WEEK3</h2>
-        
-        <p class="post-date">暑輔 <span>3</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="physics.html">物理教學</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFqHbQMJD0&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br><p>學習單下載:</><a href="https://drive.google.com/file/d/1D6YVBBoNBlyVE4fWkqUvtHbgDaSmDYI-/view?usp=sharing" target="_blank">電學實驗學習單</a>
-      
-<br><br>
-
-
-
-      
-    <header class="post-info">
-        <h2  class="post-title">物理暑輔WEEK2</h2>
-        
-        <p class="post-date">暑輔 <span>2</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="physics.html">物理教學</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFGECnNZQQ&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br><p>學習單下載:</><a href="https://drive.google.com/file/d/1xxrlmsoR6B-35VAqFkV-LpR9tdD994r1/view?usp=drive_link" target="_blank">光學實驗學習單</a>
-      
-<br><br>
-         <header class="post-info">
-        <h2  class="post-title">物理暑輔WEEK1</h2>
-        
-        <p class="post-date">暑輔 <span>1</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="physics.html">物理教學</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFokQMhOqA&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br><p>學習單下載:</><a href="https://drive.google.com/file/d/1KfpiFTDSXxzYbpdeiUTO_Fbo74vufKwG/view?usp=drive_link" target="_blank">滑車實驗學習單</a>
-      
-<br><br>
-
-
-
-      
-         <header class="post-info">
-        <h2  class="post-title">遊戲設計與VR認識與體驗</h2>
-        
-        <p class="post-date">國中 <span>1</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">體驗課程</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFhQm2XKMA&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-      
-<br><br>
-      
-
-       <header class="post-info">
-        <h2  class="post-title">AR認識與遊戲體驗</h2>
-        
-        <p class="post-date">國中 <span>2</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">體驗課程</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFgagJS49g&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-
-
-
-<br><br> 
-      
-      
-  <header class="post-info">
-        <h2  class="post-title">網頁設計第0堂課</h2>
-        
-        <p class="post-date">Lesson <span>0</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="https://guidephy.github.io/WebDesign.html">網頁設計</a></p>
-      </header>
-    
-
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFaaRvs81E&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-
-<br><br>           
-      
-      
-   <header class="post-info">
-        <h2  class="post-title" target="_blank" href="">按怎拍台語字佮查字典</h2>
-        
-        <p class="post-date">10/26 <span>2022</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="Ohtaigi.html">台語學習</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFQBVm0Lr8&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
- <br><br>   
-          
-
-      
-      <header class="post-info">
-        <h2  class="post-title" target="_blank" href="">臺羅拼音教學</h2>
-        
-        <p class="post-date">9/28 <span>2022</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="Ohtaigi.html">台語學習</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFNbSlB5Sw&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-
-      <br><br>       
-      
-      
-      
-      
-      
-      <header class="post-info">
-        <h2  class="post-title" target="_blank" href="Otaigi.html">咱來學台語</h2>
-        
-        <p class="post-date">8/31 <span>2022</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="Ohtaigi.html">台語學習</a></p>
-      </header>
-    
-      <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 48px; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFKNcPNmn0&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-    
-      <br><br>
-     
-      
-      
-       <header class="post-info">
-        <a class="post-title"  target="_blank" href="Boomerang.html">四葉迴力鏢</a>
-        <p class="post-date">2/22 <span>2022</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="exp.html">科學實驗</a></p>
-       </header>
-      <div style="text-align:center;">
-       <img src="images/Exp/Boomerang/Boomerang-0.png"  alt="">
-       </div>
-
-      <p>以往做的迴力鏢都是V型或三葉式的，<br>
-         但這個影片分享的做法是使用四葉式，不同的是除了可以用手接回迴力標外<br>
-         還多了一個可用手指頭接的趣味。<a target="_blank" href="Boomerang.html">點繫此處前往課程...</a></p>
-      <br>
-      
-     
-      <br>
-      
-      
-     
-    </article>
-    
-    
-
-    <aside>
-      <h3 class="sub-title">類別</h3>
-      <ul class="sub-menu">
-         <li><a href="physics.html">物理學習</a></li>
-         <li><a href="program.html">程式語言</a></li>
-         <li><a href="exp.html">科學實驗</a></li>
-         <li><a href="https://books.i-yuida.com.tw/">台語電子書</a></li>
-        <li><a href="https://gimy.ai/vod/234682.html">台語電影賞析</a></li>
-      </ul>
-
-      <h3 class="sub-title">About Me</h3>
-      <p>
-       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
-      </p>
-      
-       <h3 class="sub-title"><a href="https://ufile.io/">CONTACT</a></h3>
-      <p>
-       E-mail:<br>
-        ttnpgjqua26@gish.tyc.edu.tw
-      </p>
-      <img style="text-align:center;" src="images/guidephy-qrcode.png"  alt="guidephy-qrcode">
-      
-       <h3 class="sub-title">瀏覽人次</h3>
-      <br>
-   
-<img src="https://hitwebcounter.com/counter/counter.php?page=8081074&style=0003&nbdigits=5&type=page&initCount=0" title="Free Counter" Alt="web counter"   border="0" style="float: center;" /></a>             
-
-    </aside>
-
- 
-
-  </div><!-- /.news-contents -->
-
-  <footer>
-    <div class="wrapper">
-      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    <!-- 文章內容示例 -->
+    <div class="news-contents wrapper">
+        <article>
+            <header class="post-info">
+                <h2 class="post-title"><a target="_blank" href="https://guidephy.github.io/Ophysics">物理自學平台說明</a></h2>
+                <p class="post-date">物理 <span>自學</span></p>
+                <p class="post-cat">類別：<a target="_blank" href="physics.html">物理教學</a></p>
+            </header>
+            <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden; border-radius: 8px; will-change: transform;">
+                <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;" src="https://www.canva.com/design/DAF4tqIRPdU/view?embed" allow="fullscreen"></iframe>
+            </div>
+        </article>
+        <!-- More articles as needed -->
     </div>
-  </footer>
 
+    <script>
+        (function() {
+            function myFunction1() {
+                document.getElementById("myDropdown1").classList.toggle("show");
+            }
 
+            window.onclick = function(e) {
+                if (!e.target.matches('.dropbtn')) {
+                    var dropdowns = document.getElementsByClassName("dropdown-content");
+                    for (var d = 0; d < dropdowns.length; d++) {
+                        var openDropdown = dropdowns[d];
+                        if (openDropdown.classList.contains('show')) {
+                            openDropdown.classList.remove('show');
+                        }
+                    }
+                }
+            };
+
+            window.myFunction1 = myFunction1;
+        })();
+
+        // AudioContext handling
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        document.addEventListener('click', function() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
+    </script>
 </body>
 </html>
