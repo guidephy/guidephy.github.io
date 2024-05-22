@@ -2,303 +2,230 @@
 <html lang="zh-Hant-TW">
 <head>
   <meta charset="utf-8">
-   <title>Guidephy物理自學</title>
-   <meta name="description" content="高中物理自學">
+  <title>Guidephy物理自學</title>
+  <meta name="description" content="高中物理自學">
   <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
-
-  <!-- CSS -->
   <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
   <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
-  
-  <script src="JS/menu.js"></script>
-
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+  <script src="JS/menu.js" defer></script>
+  <script src="JS/Ophysics.js" defer></script>
   <style>
+    /* 更新的 CSS 規則，將 radio 文字靠左 */
+    .radio-container {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
 
-   /* 更新的 CSS 規則，將 radio 文字靠左 */
-.radio-container {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 10px;
-}
+    .type-container {
+      padding: 0 10px;
+    }
 
-.type-container {
-  padding: 0 10px;
-}
+    /* 將文字靠左 */
+    label {
+      display: flex;
+      align-items: center; /* 垂直居中對齊文字和 radio 按鈕 */
+    }
 
-/* 將文字靠左 */
-label {
-  display: flex;
+    input[type="radio"] {
+      margin-right: 5px;
+    }
 
-  align-items: center; /* 垂直居中對齊文字和 radio 按鈕 */
-}
+    #q3Answer {
+      border: 1px solid #ccc; /* 設置框線為淺灰色 */
+      padding: 8px; /* 設置內邊距以增加舒適性 */
+    }
 
-input[type="radio"] {
-  margin-right: 5px;
-}
+    /* 添加 CSS 樣式以調整章節清單的外觀 */
+    .chapter-list {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 0 auto;
+    }
 
-#q3Answer {
-  border: 1px solid #ccc; /* 設置框線為淺灰色 */
-  padding: 8px; /* 設置內邊距以增加舒適性 */
-}
+    .chapter {
+      margin-top: 20px;
+      list-style-type: none;
+    }
 
+    .chapter-title {
+      font-size: 24px; /* 章節標題字體大小 */
+      font-weight: bold;
+      color: #3366cc; /* 章節標題顏色 */
+      display: block;
+      margin-bottom: 10px; /* 章節標題和節標題之間的間距 */
+    }
 
-/* 添加 CSS 樣式以調整章節清單的外觀 */
-.chapter-list {
-  font-family: Arial, sans-serif;
-  max-width: 400px;
-  margin: 0 auto;
-}
+    .section {
+      font-size: 18px; /* 節標題字體大小 */
+      color: #ff6600; /* 節標題顏色 */
+      list-style-type: none;
+      cursor: pointer; /* 將滑鼠指標設置為手指 */
+    }
 
-.chapter {
-  margin-top: 20px;
-  list-style-type: none;
-}
+    .input-row label {
+      display: block; /* 設置為 block，每個元素佔據一行 */
+      font-weight: bold;
+      margin-bottom: 5px; /* 在上方添加一些間距 */
+    }
 
-.chapter-title {
-  font-size: 24px; /* 章節標題字體大小 */
-  font-weight: bold;
-  color: #3366cc; /* 章節標題顏色 */
-  display: block;
-  margin-bottom: 10px; /* 章節標題和節標題之間的間距 */
-}
-
-.section {
-  font-size: 18px; /* 節標題字體大小 */
-  color: #ff6600; /* 節標題顏色 */
-  list-style-type: none;
-  cursor: pointer; /* 將滑鼠指標設置為手指 */
-}
-
-
-.input-row label {
-  display: block; /* 設置為 block，每個元素佔據一行 */
-  font-weight: bold;
-  margin-bottom: 5px; /* 在上方添加一些間距 */
-}
-
-.input-row select,
-.input-row input {
-  display: block; /* 設置為 block，每個元素佔據一行 */
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 10px; /* 在下方添加一些間距 */
-  width: 50%; /* 填充父元素的寬度 */
-}
-
-
+    .input-row select,
+    .input-row input {
+      display: block; /* 設置為 block，每個元素佔據一行 */
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px; /* 在下方添加一些間距 */
+      width: 50%; /* 填充父元素的寬度 */
+    }
   </style>
-
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-  
 </head>
-
 <body>
   <div id="news" class="big-bg">
     <header class="page-header wrapper">
       <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
-            <nav>
-       <ul class="main-nav">
+      <nav>
+        <ul class="main-nav">
           <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
-              <div class="dropdown-content" id="myDropdown1">
-                  <a href="physics.html">物理課程</a>
-                  <a href="WebDesign.html">網頁設計</a>
-                  <a href="LineBot.html">LineBot</a>
-                  <a href="VPython.html">VPython</a>
-                  <a href="Ohtaigi.html">台語課程</a>
-              </div>
+            <div class="dropdown-content" id="myDropdown1">
+              <a href="physics.html">物理課程</a>
+              <a href="WebDesign.html">網頁設計</a>
+              <a href="LineBot.html">LineBot</a>
+              <a href="VPython.html">VPython</a>
+              <a href="Ohtaigi.html">台語課程</a>
+            </div>
           </li>
           <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
-              <div class="dropdown-content" id="myDropdown2">
-                  <a href="phyhistorytest.html">物理史小測驗</a>
-                  <a href="phystest.html">高中物理題目</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-              </div>
-
+            <div class="dropdown-content" id="myDropdown2">
+              <a href="phyhistorytest.html">物理史小測驗</a>
+              <a href="phystest.html">高中物理題目</a>
+              <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+            </div>
           </li>
-
-          
           <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
-              <div class="dropdown-content" id="myDropdown3">
-                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
-                  <a href="https://guidephy.github.io/EnergyTransition/">Planet713計畫</a>
-                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
-                  <a href="https://guidephy.github.io/111ceproject.html">碳捕捉暨Na循環發電IoT系統</a>
-                   <a href="https://guidephy.github.io/grades.html">課堂計分</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-                
-              </div>
-
+            <div class="dropdown-content" id="myDropdown3">
+              <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
+              <a href="https://guidephy.github.io/EnergyTransition/">Planet713計畫</a>
+              <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
+              <a href="https://guidephy.github.io/111ceproject.html">碳捕捉暨Na循環發電IoT系統</a>
+              <a href="https://guidephy.github.io/grades.html">課堂計分</a>
+              <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
+            </div>
           </li>
-          
           <li><a href="#">讀書心得</a></li>
         </ul>
       </nav>
     </header>
-
   </div>
-  
-    <div class="wrapper">
-      <h2 class="page-title">高中物理自學</h2>
-    </div>
-
+  <div class="wrapper">
+    <h2 class="page-title">高中物理自學</h2>
+  </div>
   <div class="news-contents wrapper">
     <article>
-
       <header class="post-info">
-        <h2 id="unitName" class="post-title"  href="">選擇自學單元</h2>
-        
+        <h2 id="unitName" class="post-title">選擇自學單元</h2>
         <p class="post-date">物理 <span>自學</span></p>
         <p id="hint" class="post-cat"></p>
       </header>
       <br>
-
-<div id="chapterChoose"class="chapter-list">
-
- 
-
-     <ul>
-      <li class="chapter">
-        <span class="chapter-title">第五章</span>
+      <div id="chapterChoose" class="chapter-list">
         <ul>
-          <li class="section" onclick="handleSectionClick(this)">功與能</li>
-          <li class="section" onclick="handleSectionClick(this)">力學能守恆</li>
+          <li class="chapter">
+            <span class="chapter-title">第五章</span>
+            <ul>
+              <li class="section" onclick="handleSectionClick(this)">功與能</li>
+              <li class="section" onclick="handleSectionClick(this)">力學能守恆</li>
+            </ul>
+          </li>
         </ul>
-      </li>
-
-      </ul>
-      
-      
-    
-    <ul>
-      <li class="chapter">
-        <span class="chapter-title">第六章</span>
         <ul>
-          <li class="section" onclick="handleSectionClick(this)">量子論</li>
-          <li class="section" onclick="handleSectionClick(this)">光電效應</li>
-          <li class="section" onclick="handleSectionClick(this)">光的本質</li>
-          <li class="section" onclick="handleSectionClick(this)">物質波</li>
-          <li class="section" onclick="handleSectionClick(this)">原子能階與光譜</li>
+          <li class="chapter">
+            <span class="chapter-title">第六章</span>
+            <ul>
+              <li class="section" onclick="handleSectionClick(this)">量子論</li>
+              <li class="section" onclick="handleSectionClick(this)">光電效應</li>
+              <li class="section" onclick="handleSectionClick(this)">光的本質</li>
+              <li class="section" onclick="handleSectionClick(this)">物質波</li>
+              <li class="section" onclick="handleSectionClick(this)">原子能階與光譜</li>
+            </ul>
+          </li>
         </ul>
-      </li>
-      
-    </ul>
-
-    
-  </div>
-
-    
-<div id="videoContainer" style="display: none;">
-  <iframe id="vedioUrl"src="" width="640" height="360" allow="autoplay"></iframe>
-  <div align="right">
-  <p>影片來源:<a target="_blank" href="https://www.youtube.com/@CooC-Cloud">臺北酷課雲</a></p>
-  </div>
-
-  <div id="Question" style="display: none;" >
-    <div class="question" >
-        <h3>問題 1</h3>
-        <img id="question1" src="" alt="問題1">
-        <div class="radio-container">
-            <label><input type="radio" name="q1" value="A"> A</label>
-            <label><input type="radio" name="q1" value="B"> B</label>
-            <label><input type="radio" name="q1" value="C"> C</label>
-            <label><input type="radio" name="q1" value="D"> D</label>
+      </div>
+      <div id="videoContainer" style="display: none;">
+        <iframe id="vedioUrl" src="" width="640" height="360" allow="autoplay"></iframe>
+        <div align="right">
+          <p>影片來源:<a target="_blank" href="https://www.youtube.com/@CooC-Cloud">臺北酷課雲</a></p>
         </div>
-
-    </div>
-    <br>
-
-    <div class="question" >
-        <h3>問題 2</h3>
-        <img id="question2" src="" alt="問題2">
-        <div class="radio-container">
-            <label><input type="radio" name="q2" value="A"> A</label>
-            <label><input type="radio" name="q2" value="B"> B</label>
-            <label><input type="radio" name="q2" value="C"> C</label>
-            <label><input type="radio" name="q2" value="D"> D</label>
+        <div id="Question" style="display: none;">
+          <div class="question">
+            <h3>問題 1</h3>
+            <img id="question1" src="" alt="問題1">
+            <div class="radio-container">
+              <label><input type="radio" name="q1" value="A"> A</label>
+              <label><input type="radio" name="q1" value="B"> B</label>
+              <label><input type="radio" name="q1" value="C"> C</label>
+              <label><input type="radio" name="q1" value="D"> D</label>
+            </div>
+          </div>
+          <br>
+          <div class="question">
+            <h3>問題 2</h3>
+            <img id="question2" src="" alt="問題2">
+            <div class="radio-container">
+              <label><input type="radio" name="q2" value="A"> A</label>
+              <label><input type="radio" name="q2" value="B"> B</label>
+              <label><input type="radio" name="q2" value="C"> C</label>
+              <label><input type="radio" name="q2" value="D"> D</label>
+            </div>
+          </div>
+          <br>
+          <div class="question">
+            <h3>問題 3（簡答題)</h3>
+            <img id="question3" src="" alt="問題3">
+            <div class="type-container">
+              <input type="text" id="q3Answer" placeholder="請輸入答案">
+            </div>
+          </div>
+          <div align="center">
+            <button id="submitBtn" onclick="submitAnswers()">下一關</button>
+          </div>
         </div>
-
-    </div>
-    <br>
-
-    <div class="question" >
-        <h3>問題 3（簡答題)</h3>
-        <img id="question3" src="" alt="問題3" >
-        <div class="type-container">
-            <input type="text" id="q3Answer"  placeholder="請輸入答案">
+      </div>
+      <div class="input-row" id="registerScore" style="display: none;">
+        <label for="selectTest">學校:</label>
+        <select name="select" id="selectSchool">
+          <option>請選擇學校</option>
+          <option>桃園市立觀音高中</option>
+          <option>其它</option>
+        </select>
+        <label for="class">班級:</label>
+        <input type="text" id="class" placeholder="請輸入班級">
+        <label for="seat">座號:</label>
+        <input type="text" id="seat" placeholder="請輸入座號">
+        <label for="name">姓名:</label>
+        <input type="text" id="name" placeholder="請輸入名字">
+        <br>
+        <div align="center">
+          <button onclick="registerScore()">登記</button>
         </div>
-    </div>
-
-    <!-- 送出答案的按鈕 -->
-    <div align="center">
-        <button id="submitBtn" onclick="submitAnswers()" >下一關</button>
-    </div>
-</div>
-
-</div>
-
-
- <div class="input-row" id="registerScore" style="display: none;">
-    <label for="selectTest">學校:</label>
-    <select name="select" id="selectSchool">
-      <option>請選擇學校</option>
-      <option>桃園市立觀音高中</option>
-      <option>其它</option>
-    </select>
-
-    <label for="class">班級:</label>
-    <input type="text" id="class" placeholder="請輸入班級">
-    
-    <label for="seat">座號:</label>
-    <input type="text" id="seat" placeholder="請輸入座號">
-    
-    <label for="name">姓名:</label>
-    <input type="text" id="name" placeholder="請輸入名字">
-
-    <br>
-
-    <div align="center">
-       <button  onclick="registerScore()">登記</button>
-    </div>
-</div>
-
-<div id="restartButton" align="center" style="display: none;"> 
-      <button style="margin: 20px;"  onclick="scoreData()" id="scoreData">登記成績</button>
-      <a href="https://guidephy.github.io/Ophysics" ><button style="margin: 20px;">繼續學習</button></a>
-
-      <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQkPQvWslhK-dGwzeImWAei8-kGcJoXL9sSHL2LgbenIsErrRkrF5EB0gGUfG1TxoqRYkjLoJYSmP3M/pubhtml?gid=0&single=true" target="_blank" id="lookScore"style="display: none;"><button style="margin: 20px;">成績查詢</button></a>
-</div>
-
-<br> 
-<script src="JS/Ophysics.js">
-
-</script>
-
-     
+      </div>
+      <div id="restartButton" align="center" style="display: none;">
+        <button style="margin: 20px;" onclick="scoreData()" id="scoreData">登記成績</button>
+        <a href="https://guidephy.github.io/Ophysics"><button style="margin: 20px;">繼續學習</button></a>
+        <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQkPQvWslhK-dGwzeImWAei8-kGcJoXL9sSHL2LgbenIsErrRkrF5EB0gGUfG1TxoqRYkjLoJYSmP3M/pubhtml?gid=0&single=true" target="_blank" id="lookScore" style="display: none;"><button style="margin: 20px;">成績查詢</button></a>
+      </div>
+      <br>
     </article>
-
     <aside>
-    
-      
       <h3 class="sub-title">瀏覽人次</h3>
       <br>
-   
-      <img src="https://hitwebcounter.com/counter/counter.php?page=8081074&style=0003&nbdigits=5&type=page&initCount=0" title="Free Counter" Alt="web counter"   border="0" style="float: center;" /></a> 
-
-  
-      
-      
+      <img src="https://hitwebcounter.com/counter/counter.php?page=8081074&style=0003&nbdigits=5&type=page&initCount=0" title="Free Counter" Alt="web counter" border="0" style="float: center;" />
     </aside>
-
-
-
-
   </div>
-
   <footer>
     <div class="wrapper">
       <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
