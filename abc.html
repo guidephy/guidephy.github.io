@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	  <meta charset="utf-8">
+    <title>Guidephy學習教室</title>
+    <meta name="description" content="提供物理與程式學習的教學與心得">
+    <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		.container {
+			
+			margin: 0 auto;
+			padding: 0 20px;
+			display: flex;
+			flex-wrap: wrap;
+		}
+		.left-column {
+			flex-basis: 60%;
+			padding-right: 20px;
+			box-sizing: border-box;
+
+		}
+		.right-column {
+			flex-basis: 40%;
+			box-sizing: border-box;
+		}
+
+        .school-data{
+        	background-color: pink;
+
+        }
+
+        .subject-data{
+        	background-color: yellow;
+        	width: 200px;
+        	display: inline-block;
+
+        }
+
+        .teacher-data{
+        	background-color: gray;
+        	display: block;
+        }
+
+
+		@media (max-width: 600px) {
+			.container {
+				flex-direction: column;
+			}
+			.left-column,
+			.right-column {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="left-column">
+          <div class="school-data">
+            <h1>觀音高中</h1>
+			<p >觀音高中是位於桃園市觀音區的高中，有五種學制，包含普通科、化工科、動畫科、體育班以及國中部。</p>
+          </div>
+			
+          <div class="subject-data">
+          	<h1>物理科</h1>
+			<p>物理科為自然領域的其中一個科目。</p>
+          </div>
+			
+          <div class="teacher-data">
+          	<h1>物理教師</h1>
+			<p>姓名:林仟弘</p>
+          </div>
+			
+		
+		</div>
+		<div class="right-column">
+			<h3>聯絡方式</h3>
+			<p>電話:03-4981464分機611 </p>
+			
+		</div>
+	</div>
+</body>
+
+</html>
