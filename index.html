@@ -69,6 +69,12 @@
                 audioContext.resume();
             }
         });
+
+        document.addEventListener('keydown', function() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
     </script>
 </body>
 </html>
