@@ -103,7 +103,7 @@ function handleSectionClick(section) {
     });
 
     document.getElementById("unitName").textContent = sectionTitle;
-    document.getElementById("hint").textContent = "影片讀取中...;
+    document.getElementById("hint").textContent = "影片讀取中...";
 
     iframe.addEventListener('load', function () {
         document.getElementById('videoContainer').style.display = 'block';
