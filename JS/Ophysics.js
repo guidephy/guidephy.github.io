@@ -103,10 +103,11 @@ function handleSectionClick(section) {
     });
 
     document.getElementById("unitName").textContent = sectionTitle;
-    document.getElementById("hint").textContent = "題目將於影片結束後出現";
+    document.getElementById("hint").textContent = "影片讀取中...;
 
     iframe.addEventListener('load', function () {
         document.getElementById('videoContainer').style.display = 'block';
+        document.getElementById("hint").textContent = "題目將於影片結束後出現";
     });
 
     document.getElementById("chapterChoose").style.display = "none";
