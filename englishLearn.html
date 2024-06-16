@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html>
 
@@ -27,7 +26,7 @@
     h2 {
       color: #039be5;
     }
-    h3, h4 {
+    h3{
       color: black;
     }
 
@@ -54,8 +53,8 @@
 <body>
 
 <div id="container">
-  <h2>英文學習</h2>
-  <h3 id="vocabulary"></h3>
+  <h2 id="title">英文單字學習</h2>
+  <h2 id="vocabulary"></h2>
 
   <div id="visibleCnotrol">
     <h4 id="part"></h4>
@@ -92,6 +91,9 @@
     // Show the buttons after content is loaded
     document.getElementById('back').style.display = 'inline-block';
     document.getElementById('next').style.display = 'inline-block';
+
+    // Hide the title after content is loaded
+    document.getElementById('title').style.display = 'none';
   }
 
   function back() {
