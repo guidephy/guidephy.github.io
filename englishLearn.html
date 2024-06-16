@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html>
 
@@ -6,98 +7,104 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>英文單字學習</title>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #e0f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #container {
+      text-align: center;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    h2 {
+      color: #039be5;
+    }
+    h3, h4 {
+      color: black;
+    }
 
-  
+    h4 {
+      color: red;
+    }
+    button {
+      background-color: #039be5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      display: none; /* Initially hide buttons */
+    }
+    button:hover {
+      background-color: #0277bd;
+    }
+  </style>
 </head>
 
 <body>
 
-</body>
+<div id="container">
+  <h2>英文學習</h2>
+  <h3 id="vocabulary"></h3>
 
-<div align="center">
-<h2>英文學習</h2>
-<h2 id="vocabulary"></h2>
+  <div id="visibleCnotrol">
+    <h4 id="part"></h4>
+    <h4 id="mean"></h4>
+  </div>
+  <h3 id="example"></h3>
 
-<div id="visibleCnotrol">
-      <h4 id="part"></h3>
-      <h3 id="mean"></h4>
-</div>
-<h3 id="example"></h3>
-
-
- <button id="back" onclick="back()" data-inline="true">back</button>
- <button id="next" onclick="next()" data-inline="true">next</button>
-
+  <button id="back" onclick="back()" data-inline="true">Back</button>
+  <button id="next" onclick="next()" data-inline="true">Next</button>
 </div>
 
 <script>
+  var Alldata;
+  var parameter = {};
+  var i = 0;
 
-var Alldata;
-var parameter={};
-var i=0
+  $.get("https://script.google.com/macros/s/AKfycbyTa9Fo_u_MRRmvPwNKil6u9QU_z3zVj_1XebTZv8S05ECPtCYkvlq6oEm21koVMIkQ/exec", {}, function(data) {
+    Alldata = data.split(",");
 
-        $.get("https://script.google.com/macros/s/AKfycbyTa9Fo_u_MRRmvPwNKil6u9QU_z3zVj_1XebTZv8S05ECPtCYkvlq6oEm21koVMIkQ/exec", {}, function(data) {
+    updateContent();
+  });
 
-        Alldata= data.split(",");
+  function updateContent() {
+    var vocabulary = Alldata[4 * i + 4];
+    var part = Alldata[4 * i + 5];
+    var mean = Alldata[4 * i + 6];
+    var example = Alldata[4 * i + 7];
 
-        vocabulary=Alldata[4*i+4];
-        part=Alldata[4*i+5];
-        mean=Alldata[4*i+6];
-        example=Alldata[4*i+7];
+    document.getElementById('vocabulary').innerHTML = vocabulary;
+    document.getElementById('part').innerHTML = part;
+    document.getElementById('mean').innerHTML = mean;
+    document.getElementById('example').innerHTML = example;
 
+    // Show the buttons after content is loaded
+    document.getElementById('back').style.display = 'inline-block';
+    document.getElementById('next').style.display = 'inline-block';
+  }
 
+  function back() {
+    if (i > 0) i--;
+    updateContent();
+  }
 
-        document.getElementById('vocabulary').innerHTML = vocabulary ;
-        document.getElementById('part').innerHTML = part;
-        document.getElementById('mean').innerHTML = mean;
-        document.getElementById('example').innerHTML = example;
-
-        });
-
-        function back(){
-
-          if(i>0)
-          i=i-1;
-
-          vocabulary=Alldata[4*i+4];
-          part=Alldata[4*i+5];
-          mean=Alldata[4*i+6];
-          example=Alldata[4*i+7];
-
-
-          document.getElementById('vocabulary').innerHTML = vocabulary ;
-          document.getElementById('part').innerHTML = part;
-          document.getElementById('mean').innerHTML = mean;
-          document.getElementById('example').innerHTML = example;
-
-        }
-
-        function next(){
-
-          
-          i=i+1;
-
-          vocabulary=Alldata[4*i+4];
-          part=Alldata[4*i+5];
-          mean=Alldata[4*i+6];
-          example=Alldata[4*i+7];
-
-
-
-          document.getElementById('vocabulary').innerHTML = vocabulary ;
-          document.getElementById('part').innerHTML = part;
-          document.getElementById('mean').innerHTML = mean;
-          document.getElementById('example').innerHTML = example;
-
-        }
-
-       
-
-
-
-
-
-
+  function next() {
+    i++;
+    updateContent();
+  }
 </script>
+
+</body>
 
 </html>
