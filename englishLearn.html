@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>英文單字學習</title>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+  
+</head>
+
+<body>
+
+</body>
+
+<div align="center">
+<h2>英文學習</h2>
+<h2 id="vocabulary"></h2>
+
+<div id="visibleCnotrol">
+      <h4 id="part"></h3>
+      <h3 id="mean"></h4>
+</div>
+<h3 id="example"></h3>
+
+
+ <button id="back" onclick="back()" data-inline="true">back</button>
+ <button id="next" onclick="next()" data-inline="true">next</button>
+
+</div>
+
+<script>
+
+var Alldata;
+var parameter={};
+var i=0
+
+        $.get("https://script.google.com/macros/s/AKfycbyTa9Fo_u_MRRmvPwNKil6u9QU_z3zVj_1XebTZv8S05ECPtCYkvlq6oEm21koVMIkQ/exec", {}, function(data) {
+
+        Alldata= data.split(",");
+
+        vocabulary=Alldata[4*i+4];
+        part=Alldata[4*i+5];
+        mean=Alldata[4*i+6];
+        example=Alldata[4*i+7];
+
+
+
+        document.getElementById('vocabulary').innerHTML = vocabulary ;
+        document.getElementById('part').innerHTML = part;
+        document.getElementById('mean').innerHTML = mean;
+        document.getElementById('example').innerHTML = example;
+
+        });
+
+        function back(){
+
+          if(i>0)
+          i=i-1;
+
+          vocabulary=Alldata[4*i+4];
+          part=Alldata[4*i+5];
+          mean=Alldata[4*i+6];
+          example=Alldata[4*i+7];
+
+
+          document.getElementById('vocabulary').innerHTML = vocabulary ;
+          document.getElementById('part').innerHTML = part;
+          document.getElementById('mean').innerHTML = mean;
+          document.getElementById('example').innerHTML = example;
+
+        }
+
+        function next(){
+
+          
+          i=i+1;
+
+          vocabulary=Alldata[4*i+4];
+          part=Alldata[4*i+5];
+          mean=Alldata[4*i+6];
+          example=Alldata[4*i+7];
+
+
+
+          document.getElementById('vocabulary').innerHTML = vocabulary ;
+          document.getElementById('part').innerHTML = part;
+          document.getElementById('mean').innerHTML = mean;
+          document.getElementById('example').innerHTML = example;
+
+        }
+
+       
+
+
+
+
+
+
+</script>
+
+</html>
