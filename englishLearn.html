@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>英文單字學習</title>
+  <title>仟弘的單字卡</title>
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <style>
     body {
@@ -36,6 +36,10 @@
     h4 {
       color: red;
     }
+
+    p {
+      color: #039be5;
+    }
     button {
       background-color: #039be5;
       color: white;
@@ -49,9 +53,11 @@
     button:hover {
       background-color: #0277bd;
     }
-    #content, #addWordForm {
+    #content, #addWordForm,#startButton,#addWordButton {
       display: none;
     }
+
+
     input[type="text"] {
       width: 80%;
       padding: 10px;
@@ -71,6 +77,7 @@
 <div id="container">
   <h2 id="guidephy-text">仟弘的單字卡</h2>
   <div class="button-group">
+    <p id="dataLoarding">資料讀取中...</p>
     <button id="startButton" onclick="startLearning()">開始英文單字學習</button>
     <button id="addWordButton" onclick="showAddWordForm()">新增單字</button>
   </div>
@@ -102,9 +109,15 @@
   var parameter = {};
   var i = 0;
 
-  $.get("https://script.google.com/macros/s/AKfycbyTa9Fo_u_MRRmvPwNKil6u9QU_z3zVj_1XebTZv8S05ECPtCYkvlq6oEm21koVMIkQ/exec", {}, function(data) {
+  $.get("https://script.google.com/macros/s/AKfycbyUkpg0Pon-CnKBLRTGGD_uLqS9kJ_X4F4WhdZDqp63xLRrj7CbsPtgXM-N9XXjGGtI/exec", {}, function(data) {
     Alldata = data.split(",");
+
+    document.getElementById('dataLoarding').style.display = 'none';
+    document.getElementById('startButton').style.display = 'block';
+    document.getElementById('addWordButton').style.display = 'block';
+
     updateContent();
+
   });
 
   function startLearning() {
