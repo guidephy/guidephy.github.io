@@ -131,7 +131,7 @@
       
      
    
-   $.get("https://script.google.com/macros/s/AKfycbzCz0cnFilAHOumsW6z-bUDL00pHNp0iM_q1RRAQBaGRaIlCJf0AVTz-MnZ17K0vNO1fw/exec", {
+   $.get("https://script.google.com/macros/s/AKfycbzmonThIr1qTSkIw4aMCDCawxUq_GIwKmlHrV7tutdHpHsnStqwaKVnZUMGh7Xwlc3YaA/exec", {
                        
                       "newVocabulary":newVocabulary,
                       "newPart":newPart,
@@ -140,7 +140,9 @@
                     },
                     function (data) {
 
+                      i=Number(data)-1;
                       alert("單字已新增！");
+                      clearFormFields();
                       goBackToLearning();
                        
                     });
@@ -158,6 +160,7 @@
     document.getElementById('addWordButton').style.display = 'inline-block';
      $.get("https://script.google.com/macros/s/AKfycbyUkpg0Pon-CnKBLRTGGD_uLqS9kJ_X4F4WhdZDqp63xLRrj7CbsPtgXM-N9XXjGGtI/exec", {}, function(data) {
     Alldata = data.split(",");
+    
     updateContent();
   });
   }
@@ -175,6 +178,13 @@
 
     document.getElementById('back').style.display = 'inline-block';
     document.getElementById('next').style.display = 'inline-block';
+  }
+
+   function clearFormFields() {
+    document.getElementById('newVocabulary').value = '';
+    document.getElementById('newPart').value = '';
+    document.getElementById('newMean').value = '';
+    document.getElementById('newExample').value = '';
   }
 
   function back() {
