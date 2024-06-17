@@ -8,7 +8,7 @@
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;;
+      font-family: Arial, sans-serif;
       background-color: #e0f7fa;
       display: flex;
       justify-content: center;
@@ -23,13 +23,16 @@
       border-radius: 15px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
+    h1 {
+      color: #0288d1;
+      margin-bottom: 20px;
+    }
     h2 {
       color: #039be5;
     }
-    h3{
+    h3 {
       color: black;
     }
-
     h4 {
       color: red;
     }
@@ -42,10 +45,23 @@
       border-radius: 10px;
       cursor: pointer;
       font-size: 16px;
-      display: none; /* Initially hide buttons */
     }
     button:hover {
       background-color: #0277bd;
+    }
+    #content, #addWordForm {
+      display: none;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .button-group {
+      display: flex;
+      justify-content: center;
     }
   </style>
 </head>
@@ -53,17 +69,32 @@
 <body>
 
 <div id="container">
-  <h2 id="title">英文單字學習</h2>
-  <h2 id="vocabulary"></h2>
-
-  <div id="visibleCnotrol">
-    <h4 id="part"></h4>
-    <h4 id="mean"></h4>
+  <h2 id="guidephy-text">Guidephy</h2>
+  <div class="button-group">
+    <button id="startButton" onclick="startLearning()">開始英文單字學習</button>
+    <button id="addWordButton" onclick="showAddWordForm()">新增單字</button>
   </div>
-  <h3 id="example"></h3>
 
-  <button id="back" onclick="back()" data-inline="true">Back</button>
-  <button id="next" onclick="next()" data-inline="true">Next</button>
+  <div id="content">
+    <h2 id="vocabulary"></h2>
+    <div id="visibleCnotrol">
+      <h4 id="part"></h4>
+      <h4 id="mean"></h4>
+    </div>
+    <h3 id="example"></h3>
+    <button id="back" onclick="back()" data-inline="true">Back</button>
+    <button id="next" onclick="next()" data-inline="true">Next</button>
+  </div>
+
+  <div id="addWordForm">
+    <input type="text" id="newVocabulary" placeholder="單字">
+    <input type="text" id="newPart" placeholder="詞性">
+    <input type="text" id="newMean" placeholder="意思">
+    <input type="text" id="newExample" placeholder="例句">
+    <div class="button-group">
+      <button onclick="submitWord()">送出</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -71,11 +102,61 @@
   var parameter = {};
   var i = 0;
 
-  $.get("https://script.google.com/macros/s/AKfycbyYw1JNjmpy3RCL-YHPgAFcVnt-Trd6hS37-CykFP4bl0ezVClZTXVxaOzxJWaXTy_h/exec", {}, function(data) {
+  $.get("https://script.google.com/macros/s/AKfycbyTa9Fo_u_MRRmvPwNKil6u9QU_z3zVj_1XebTZv8S05ECPtCYkvlq6oEm21koVMIkQ/exec", {}, function(data) {
     Alldata = data.split(",");
-
     updateContent();
   });
+
+  function startLearning() {
+    document.getElementById('guidephy-text').style.display = 'none';
+    document.getElementById('startButton').style.display = 'none';
+    document.getElementById('addWordButton').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+
+  function showAddWordForm() {
+    document.getElementById('guidephy-text').style.display = 'none';
+    document.getElementById('startButton').style.display = 'none';
+    document.getElementById('addWordButton').style.display = 'none';
+    document.getElementById('addWordForm').style.display = 'block';
+  }
+
+  function submitWord() {
+    var newVocabulary = document.getElementById('newVocabulary').value;
+    var newPart = document.getElementById('newPart').value;
+    var newMean = document.getElementById('newMean').value;
+    var newExample = document.getElementById('newExample').value;
+
+    if(newVocabulary && newPart && newMean && newExample) {
+      
+     
+   
+   $.get("https://script.google.com/macros/s/AKfycbzCz0cnFilAHOumsW6z-bUDL00pHNp0iM_q1RRAQBaGRaIlCJf0AVTz-MnZ17K0vNO1fw/exec", {
+                       
+                      "newVocabulary":newVocabulary,
+                      "newPart":newPart,
+                      "newMean":newMean,
+                      "newExample":newExample
+                    },
+                    function (data) {
+
+                      alert("單字已新增！");
+                      goBackToLearning();
+                       
+                    });
+
+      
+    } else {
+      alert("請填寫所有欄位！");
+    }
+  }
+
+  function goBackToLearning() {
+    document.getElementById('addWordForm').style.display = 'none';
+    document.getElementById('guidephy-text').style.display = 'block';
+    document.getElementById('startButton').style.display = 'inline-block';
+    document.getElementById('addWordButton').style.display = 'inline-block';
+  }
 
   function updateContent() {
     var vocabulary = Alldata[4 * i + 4];
@@ -88,12 +169,8 @@
     document.getElementById('mean').innerHTML = mean;
     document.getElementById('example').innerHTML = example;
 
-    // Show the buttons after content is loaded
     document.getElementById('back').style.display = 'inline-block';
     document.getElementById('next').style.display = 'inline-block';
-
-    // Hide the title after content is loaded
-    document.getElementById('title').style.display = 'none';
   }
 
   function back() {
