@@ -156,6 +156,10 @@
     document.getElementById('guidephy-text').style.display = 'block';
     document.getElementById('startButton').style.display = 'inline-block';
     document.getElementById('addWordButton').style.display = 'inline-block';
+     $.get("https://script.google.com/macros/s/AKfycbyUkpg0Pon-CnKBLRTGGD_uLqS9kJ_X4F4WhdZDqp63xLRrj7CbsPtgXM-N9XXjGGtI/exec", {}, function(data) {
+    Alldata = data.split(",");
+    updateContent();
+  });
   }
 
   function updateContent() {
