@@ -1,135 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>土地開發遊戲</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden; /* 防止滚动 */
+        :root {
+            --main-bg-color: #f0f8ff;
+            --board-bg-color: #ffffff;
+            --cell-bg-color: #e6e6fa;
+            --water-color: #4169e1;
+            --farm-color: #32cd32;
+            --factory-color: #708090;
+            --btn-color: #4682b4;
+            --btn-hover-color: #5f9ea0;
         }
 
-        #main-container {
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--main-bg-color);
+            overflow: hidden;
+        }
+
+        #game-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: space-around;
-            width: 100%;
+            justify-content: flex-start;
             height: 100%;
-            max-width: 1200px;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 0 5% 5% 5%;
         }
 
         h1 {
             color: #333;
-            font-size: 2.5vh;
-            margin: 0;
-            padding: 10px 0;
+            font-size: 4vmin;
+            text-align: center;
+            margin: 2vh 0;
+        }
+
+        #status {
+            font-size: 2.5vmin;
+            text-align: center;
+            margin-bottom: 2vh;
         }
 
         #game-board {
             display: grid;
             grid-template-columns: repeat(11, 1fr);
-            grid-template-rows: repeat(11, 1fr);
             gap: 1px;
-            margin: 10px 0;
-            background-color: #fff;
+            background-color: var(--board-bg-color);
             border: 2px solid #ccc;
-            width: 80vmin;
-            height: 80vmin;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-width: 70vh;
+            max-height: 70vh;
+            margin: 0 auto;
         }
 
         .grid-cell {
             display: flex;
             align-items: center;
             justify-content: center;
+            background-color: var(--cell-bg-color);
             cursor: pointer;
-            transition: background-color 0.3s;
-            background-color: #eee;
-            border: 1px solid #ccc;
-            font-size: 1.5vmin;
+            transition: all 0.3s ease;
         }
 
         .grid-cell:hover {
-            background-color: #ddd;
+            opacity: 0.8;
         }
 
-        .water {
-            background-color: #00f;
-        }
-
-        .farm {
-            background-color: #0f0;
-        }
-
-        .factory {
-            background-color: #888;
-        }
+        .water { background-color: var(--water-color); }
+        .farm { background-color: var(--farm-color); }
+        .factory { background-color: var(--factory-color); }
 
         #controls {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 10px;
-            width: 100%;
+            margin-top: 2vh;
         }
 
         button {
-            padding: 1vh;
+            padding: 1vh 2vw;
             border: none;
             border-radius: 5px;
-            background-color: #007bff;
+            background-color: var(--btn-color);
             color: white;
             cursor: pointer;
-            font-size: 2vmin;
+            font-size: 2.5vmin;
             transition: background-color 0.3s;
-            flex: 1 1 calc(25% - 20px);
-            max-width: 120px;
-            box-sizing: border-box;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--btn-hover-color);
         }
 
-        #status {
-            margin-top: 10px;
-            font-size: 2vmin;
-            text-align: left;
-            width: 100%;
-            max-width: 600px;
-        }
-
-        @media (min-width: 1024px) {
-            h1 {
-                font-size: 3vh;
+        @media (max-width: 768px) {
+            #game-container {
+                padding: 0 2% 5% 2%;
             }
 
             button {
-                font-size: 1.5vmin;
-                padding: 1.5vh;
+                font-size: 3vmin;
+                padding: 1.5vh 3vw;
             }
 
             #status {
-                font-size: 1.8vmin;
+                font-size: 3vmin;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 6vmin;
+            }
+
+            button {
+                font-size: 3.5vmin;
+                padding: 2vh 4vw;
+            }
+
+            #status {
+                font-size: 3.5vmin;
             }
         }
     </style>
 </head>
 <body>
-    <div id="main-container">
+    <div id="game-container">
         <h1>土地開發遊戲</h1>
+        <div id="status">
+            <p>當前玩家: <span id="current-player"></span> | 
+               當前選擇: <span id="current-selection">無</span> | 
+               <span id="message"></span></p>
+        </div>
         <div id="game-board"></div>
         <div id="controls">
             <button id="water-btn">放置水</button>
@@ -137,11 +150,6 @@
             <button id="factory-btn">放置工廠</button>
             <button id="reset-btn">恢復土地</button>
             <button id="end-game-btn">結束遊戲</button>
-        </div>
-        <div id="status">
-            <p>當前玩家: <span id="current-player"></span></p>
-            <p>當前選擇: <span id="current-selection">無</span></p>
-            <p>信息: <span id="message"></span></p>
         </div>
     </div>
     <script>
