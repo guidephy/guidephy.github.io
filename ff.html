@@ -12,8 +12,7 @@
             --water-color: #4169e1;
             --farm-color: #32cd32;
             --factory-color: #708090;
-            --btn-color: #4682b4;
-            --btn-hover-color: #5f9ea0;
+            --btn-hover-opacity: 0.8;
         }
 
         * {
@@ -93,15 +92,30 @@
             padding: 1vh 2vw;
             border: none;
             border-radius: 5px;
-            background-color: var(--btn-color);
             color: white;
             cursor: pointer;
             font-size: 2.5vmin;
-            transition: background-color 0.3s;
+            transition: opacity 0.3s;
         }
 
         button:hover {
-            background-color: var(--btn-hover-color);
+            opacity: var(--btn-hover-opacity);
+        }
+
+        #water-btn {
+            background-color: var(--water-color);
+        }
+
+        #farm-btn {
+            background-color: var(--farm-color);
+        }
+
+        #factory-btn {
+            background-color: var(--factory-color);
+        }
+
+        #reset-btn, #end-game-btn {
+            background-color: #4682b4;
         }
 
         @media (max-width: 768px) {
@@ -145,9 +159,9 @@
         </div>
         <div id="game-board"></div>
         <div id="controls">
-            <button id="water-btn">放置水</button>
-            <button id="farm-btn">放置農田</button>
-            <button id="factory-btn">放置工廠</button>
+            <button id="water-btn">挖水道</button>
+            <button id="farm-btn">開發農田</button>
+            <button id="factory-btn">開工廠</button>
             <button id="reset-btn">恢復土地</button>
             <button id="end-game-btn">結束遊戲</button>
         </div>
