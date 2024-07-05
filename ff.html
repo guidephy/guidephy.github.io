@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>土地開發遊戲</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: auto; /* 确保在屏幕较小时可以滚动查看 */
+}
+
+h1 {
+    color: #333;
+    font-size: 2rem;
+    margin: 20px 0;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(11, minmax(20px, 8vw));
+    grid-template-rows: repeat(11, minmax(20px, 8vw));
+    gap: 1px;
+    margin: 20px auto;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    width: fit-content;
+}
+
+.grid-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #eee;
+    border: 1px solid #ccc;
+}
+
+.grid-cell:hover {
+    background-color: #ddd;
+}
+
+.water {
+    background-color: #00f;
+}
+
+.farm {
+    background-color: #0f0;
+}
+
+.factory {
+    background-color: #888;
+}
+
+#controls {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: 100%; /* 确保按钮在较小屏幕上也能正确换行 */
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+    flex: 1 1 calc(50% - 10px);
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#status {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    text-align: left;
+    width: 100%;
+    max-width: 600px;
+}
+
+@media (min-width: 600px) {
+    button {
+        flex: 1 1 calc(33.33% - 10px); /* 在中等屏幕上，按钮分为三列 */
+    }
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    #status {
+        font-size: 1.5rem;
+    }
+
+    button {
+        font-size: 1.2rem;
+        flex: 1 1 calc(25% - 10px); /* 在大屏幕上，按钮分为四列 */
+    }
+}
+
+@media (min-width: 1024px) {
+    h1 {
+        font-size: 3rem;
+    }
+
+    #status {
+        font-size: 1.8rem;
+    }
+
+    button {
+        font-size: 1.4rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <h1>土地開發遊戲</h1>
+        <div id="game-board"></div>
+        <div id="controls">
+            <button id="water-btn">放置水</button>
+            <button id="farm-btn">放置農田</button>
+            <button id="factory-btn">放置工廠</button>
+            <button id="reset-btn">恢復土地</button>
+            <button id="end-game-btn">結束遊戲</button>
+        </div>
+        <div id="status">
+            <p>當前玩家: <span id="current-player"></span></p>
+            <p>當前選擇: <span id="current-selection">無</span></p>
+            <p>信息: <span id="message"></span></p>
+        </div>
+    </div>
+    <script>
+        const BOARD_SIZE = 11;
+const WATER_CELLS = [
+    [4, 4], [4, 5], [4, 6],
+    [5, 4], [5, 5], [5, 6],
+    [6, 4], [6, 5], [6, 6]
+];
+let players = ['農夫', '資本家', '政府'];
+let currentPlayerIndex = 0;
+let currentSelection = null;
+let gameBoard = [];
+let canReset = true;
+let movesLeft = 3;
+
+// 初始化遊戲板
+function initializeBoard() {
+    const gameBoardElement = document.getElementById('game-board');
+    gameBoardElement.innerHTML = '';
+    gameBoard = [];
+
+    for (let row = 0; row < BOARD_SIZE; row++) {
+        const rowArray = [];
+        for (let col = 0; col < BOARD_SIZE; col++) {
+            const cell = document.createElement('div');
+            cell.classList.add('grid-cell');
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+
+            if (isWaterCell(row, col)) {
+                cell.classList.add('water');
+                rowArray.push('water');
+            } else {
+                rowArray.push(null);
+            }
+
+            cell.addEventListener('click', () => handleCellClick(row, col));
+            gameBoardElement.appendChild(cell);
+        }
+        gameBoard.push(rowArray);
+    }
+
+    updateStatus();
+}
+
+// 檢查是否是水源格子
+function isWaterCell(row, col) {
+    return WATER_CELLS.some(cell => cell[0] === row && cell[1] === col);
+}
+
+// 處理格子點擊事件
+function handleCellClick(row, col) {
+    if (movesLeft === 0 || currentSelection === null) return;
+
+    const cell = gameBoard[row][col];
+
+    if (currentSelection === 'reset') {
+        if (!canReset || cell === null || isWaterCell(row, col)) return;
+        resetLand(row, col);
+    } else {
+        if (cell !== null || !isAdjacentToDevelopedLand(row, col)) return;
+        if (currentSelection === 'farm') {
+            placeFarm(row, col);
+        } else if (currentSelection === 'factory') {
+            placeFactory(row, col);
+        } else if (currentSelection === 'water') {
+            placeWater(row, col);
+        }
+    }
+
+    movesLeft--;
+    updateStatus();
+
+    if (movesLeft === 0) {
+        switchPlayer();
+    }
+}
+
+// 檢查是否相鄰已開發的土地
+function isAdjacentToDevelopedLand(row, col) {
+    const adjacentOffsets = [
+        [-1, 0], [1, 0], [0, -1], [0, 1]
+    ];
+
+    return adjacentOffsets.some(([dx, dy]) => {
+        const newRow = row + dx;
+        const newCol = col + dy;
+        return (
+            newRow >= 0 && newRow < BOARD_SIZE &&
+            newCol >= 0 && newCol < BOARD_SIZE &&
+            gameBoard[newRow][newCol] !== null
+        );
+    });
+}
+
+// 放置農田
+function placeFarm(row, col) {
+    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    cell.classList.add('farm');
+    gameBoard[row][col] = 'farm';
+}
+
+// 放置工廠
+function placeFactory(row, col) {
+    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    cell.classList.add('factory');
+    gameBoard[row][col] = 'factory';
+}
+
+// 放置水
+function placeWater(row, col) {
+    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    cell.classList.add('water');
+    gameBoard[row][col] = 'water';
+}
+
+// 恢復土地
+function resetLand(row, col) {
+    if (!canReset || gameBoard[row][col] === null || isWaterCell(row, col)) return;
+
+    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    cell.classList.remove('farm', 'factory', 'water');
+    gameBoard[row][col] = null;
+    canReset = false;
+    document.getElementById('reset-btn').style.display = 'none';
+    currentSelection = null;
+    updateStatus();
+}
+
+// 切換玩家
+function switchPlayer() {
+    movesLeft = 3;
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    currentSelection = null;
+    alert(`現在輪到 ${players[currentPlayerIndex]} 操作`);
+    updateStatus();
+}
+
+// 更新狀態信息
+function updateStatus() {
+    document.getElementById('current-player').textContent = players[currentPlayerIndex];
+    document.getElementById('current-selection').textContent = currentSelection || '無';
+    document.getElementById('message').textContent = `剩餘行動次數: ${movesLeft}`;
+
+    if (players[currentPlayerIndex] === '政府' && canReset) {
+        document.getElementById('reset-btn').style.display = 'inline-block';
+    } else {
+        document.getElementById('reset-btn').style.display = 'none';
+    }
+}
+
+// 結束遊戲
+function endGame() {
+    alert(`遊戲結束！請玩家計算有效農田和有效工廠數。`);
+}
+
+// 初始化
+document.getElementById('water-btn').addEventListener('click', () => {
+    currentSelection = 'water';
+    updateStatus();
+});
+document.getElementById('farm-btn').addEventListener('click', () => {
+    currentSelection = 'farm';
+    updateStatus();
+});
+document.getElementById('factory-btn').addEventListener('click', () => {
+    currentSelection = 'factory';
+    updateStatus();
+});
+document.getElementById('reset-btn').addEventListener('click', () => {
+    currentSelection = 'reset';
+    updateStatus();
+});
+document.getElementById('end-game-btn').addEventListener('click', endGame);
+
+initializeBoard();
+    </script>
+</body>
+</html>
