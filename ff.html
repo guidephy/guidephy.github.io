@@ -167,18 +167,18 @@
         </div>
     </div>
     <script>
-        const BOARD_SIZE = 11;
-        const WATER_CELLS = [
-            [4, 4], [4, 5], [4, 6],
-            [5, 4], [5, 5], [5, 6],
-            [6, 4], [6, 5], [6, 6]
-        ];
-        let players = ['農夫', '資本家', '政府'];
-        let currentPlayerIndex = 0;
-        let currentSelection = null;
-        let gameBoard = [];
-        let canReset = true;
-        let movesLeft = 3;
+       const BOARD_SIZE = 11;
+const WATER_CELLS = [
+    [4, 4], [4, 5], [4, 6],
+    [5, 4], [5, 5], [5, 6],
+    [6, 4], [6, 5], [6, 6]
+];
+let players = ['農夫', '資本家', '政府'];
+let currentPlayerIndex = 0;
+let currentSelection = null;
+let gameBoard = [];
+let canReset = true;
+let movesLeft = 3;
 
         // 初始化遊戲板
         function initializeBoard() {
@@ -316,31 +316,98 @@
             }
         }
 
-        // 結束遊戲
-        function endGame() {
-            alert(`遊戲結束！請玩家計算有效農田和有效工廠數。`);
+      // 結束遊戲
+function endGame() {
+    const { harvestingFarms, operatingFactories } = calculateResults();
+    let winner;
+
+    if (harvestingFarms > operatingFactories) {
+        winner = '農夫';
+    } else if (harvestingFarms < operatingFactories) {
+        winner = '資本家';
+    } else {
+        winner = '政府';
+    }
+
+    alert(`遊戲結束！
+收成農田數量: ${harvestingFarms}
+運作工廠數量: ${operatingFactories}
+獲勝者: ${winner}`);
+}
+
+// 計算結果
+function calculateResults() {
+    let harvestingFarms = 0;
+    let operatingFactories = 0;
+
+    // 計算收成農田
+    for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+            if (gameBoard[row][col] === 'farm' && isAdjacentToWater(row, col)) {
+                harvestingFarms++;
+            }
         }
+    }
 
-        // 初始化
-        document.getElementById('water-btn').addEventListener('click', () => {
-            currentSelection = 'water';
-            updateStatus();
-        });
-        document.getElementById('farm-btn').addEventListener('click', () => {
-            currentSelection = 'farm';
-            updateStatus();
-        });
-        document.getElementById('factory-btn').addEventListener('click', () => {
-            currentSelection = 'factory';
-            updateStatus();
-        });
-        document.getElementById('reset-btn').addEventListener('click', () => {
-            currentSelection = 'reset';
-            updateStatus();
-        });
-        document.getElementById('end-game-btn').addEventListener('click', endGame);
+    // 計算運作工廠
+    for (let row = 0; row < BOARD_SIZE - 1; row++) {
+        for (let col = 0; col < BOARD_SIZE - 1; col++) {
+            if (isFactorySquare(row, col)) {
+                operatingFactories += 4;
+            }
+        }
+    }
 
-        initializeBoard();
+    return { harvestingFarms, operatingFactories };
+}
+
+// 檢查是否相鄰水源
+function isAdjacentToWater(row, col) {
+    const adjacentOffsets = [
+        [-1, 0], [1, 0], [0, -1], [0, 1]
+    ];
+
+    return adjacentOffsets.some(([dx, dy]) => {
+        const newRow = row + dx;
+        const newCol = col + dy;
+        return (
+            newRow >= 0 && newRow < BOARD_SIZE &&
+            newCol >= 0 && newCol < BOARD_SIZE &&
+            (gameBoard[newRow][newCol] === 'water' || isWaterCell(newRow, newCol))
+        );
+    });
+}
+
+// 檢查是否是 2x2 的工廠方塊
+function isFactorySquare(row, col) {
+    return (
+        gameBoard[row][col] === 'factory' &&
+        gameBoard[row][col + 1] === 'factory' &&
+        gameBoard[row + 1][col] === 'factory' &&
+        gameBoard[row + 1][col + 1] === 'factory'
+    );
+}
+
+// 初始化
+document.getElementById('water-btn').addEventListener('click', () => {
+    currentSelection = 'water';
+    updateStatus();
+});
+document.getElementById('farm-btn').addEventListener('click', () => {
+    currentSelection = 'farm';
+    updateStatus();
+});
+document.getElementById('factory-btn').addEventListener('click', () => {
+    currentSelection = 'factory';
+    updateStatus();
+});
+document.getElementById('reset-btn').addEventListener('click', () => {
+    currentSelection = 'reset';
+    updateStatus();
+});
+document.getElementById('end-game-btn').addEventListener('click', endGame);
+
+initializeBoard();
     </script>
 </body>
 </html>
