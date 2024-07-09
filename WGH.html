@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>水產氫氣IoT裝置</title>
+  <title>水產氫氣IoT系統</title>
   <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
   <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
   <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
@@ -31,7 +31,7 @@
       color: #333;
       font-size: 2.5rem;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     h3 {
@@ -61,15 +61,19 @@
       color: #007bff;
     }
 
-    #nowState {
-      margin-top: 20px;
+    #stateName {
+      margin-bottom: 30px;
+    }
+
+    #pumbButton {
+      margin-bottom: 50px;
     }
   </style>
 </head>
 
 <body>
   <div align="center">
-  <h2 style="color:blue;">空氣取水IoT系統</h2>
+  <h2 style="color:blue;">水產氫氣IoT系統</h2>
   </div>
 
   <div align="center" id="startButton">
@@ -79,141 +83,64 @@
 
   <div align="center" id="nowState"style="display: none;">
   <h3 >裝置狀態</h3>
-  <p style="display:inline;"id="dhtData">溫度:, 溼度:</p> <br>
+
   <h3 id="stateName" style="color:red;"></h3>
-  <h6 id="explain" style="color:gray;">智能模式下<br>致冷晶片於濕度高於40%啟動<br>進氣風扇於溫度高於15°C啟動</h6>
-  <p style="display:inline;" id="fanState">進氣風扇:</p><button id="fanButton" style="display:inline;" >off</button>
+  <p style="display:inline;" id="pumbState">馬達:</p><button id="pumbButton" style="display:inline;" >off</button>
   <br>
-  <p style="display:inline;" id="coldState">致冷晶片:</p><button id="coldButton" style="display:inline;">off</button>
+ 
   </div>
   <br>
 
   <div align="center" id="manualControl" style="display: none;">
 
-  <button id="sendBtn" onclick="send()">切換手動模式</button><br>
+  <button id="sendBtn" onclick="manualsend()">切換手動模式</button><br>
   </div>
   
   <div align="center" id="autoControl" style="display: none;">
-  <button id="sendBtn" onclick="send()">切換智能模式</button><br>
+  <button id="sendBtn" onclick="autosend()">切換智能模式</button><br>
   </div>
 
 </body>
 
 <script>
-var fanrelay;
-var coldrelay;
-var smartMode=false;
+  function send() {
 
-function send() {
+    document.getElementById("sendBtn").style.display="none";
+    document.getElementById("nowState").style.display="block";
 
-document.getElementById('fanButton').innerHTML="off"
-document.getElementById('coldButton').innerHTML="off"
+    document.getElementById("autoControl").style.display="block";
 
-boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true}, function (board) {
+    document.getElementById('stateName').innerHTML="手動模式";
+
+boardReady({board: 'Smart', device: '10dgEbKV', transport: 'mqtt'}, function (board) {
   board.samplingInterval = 50;
-  fanrelay = getLed(board, 16);
-  coldrelay = getLed(board, 14);
-  dht = getDht(board, 2);
-  fanrelay.on();
-  coldrelay.on();
-
-
-  dht.read(function(evt){
-    document.getElementById('dhtData').innerHTML = (['溫度:',dht.temperature,'°C,','溼度:',dht.humidity,'%'].join(''));
-
-
-if(smartMode){
-
-  if(dht.humidity>40&&dht.temperature<15){
-    fanrelay.on();
-    coldrelay.off();
-    document.getElementById('fanState').innerHTML="進氣風扇:off";
-    document.getElementById('coldState').innerHTML="致冷晶片:on";
-
-
-  }else if(dht.humidity>40&&dht.temperature>=15){
-
-    fanrelay.off();
-    coldrelay.off();
-    document.getElementById('fanState').innerHTML="進氣風扇:on";
-    document.getElementById('coldState').innerHTML="致冷晶片:on";
-
-  }else if(dht.humidity<=40){
-
-    fanrelay.off();
-    coldrelay.on();
-    document.getElementById('fanState').innerHTML="進氣風扇:on";
-    document.getElementById('coldState').innerHTML="致冷晶片:off";
-
-
-  }else{
-    fanrelay.on();
-    coldrelay.on();
-    document.getElementById('fanState').innerHTML="進氣風扇:off";
-    document.getElementById('coldState').innerHTML="致冷晶片:off";
-  }
-
+  led = getLed(board, 0);
+  document.getElementById('pumbrelay').addEventListener('click',function () {
+    led.toggle();
+  });
+});
 }
 
 
-  }, 1000);
-
-  document.getElementById('fanButton').addEventListener('click',function () {
-    fanrelay.toggle();
-    if(document.getElementById('fanButton').innerHTML=="off"){
-      document.getElementById('fanButton').innerHTML="on";
-    }else{
-      document.getElementById('fanButton').innerHTML="off";
-    }
- 
-  });
-  document.getElementById('coldButton').addEventListener('click',function () {
-    coldrelay.toggle();
-     if(document.getElementById('coldButton').innerHTML=="off"){
-      document.getElementById('coldButton').innerHTML="on";
-    }else{
-      document.getElementById('coldButton').innerHTML="off";
-    }
- 
-  });
+function autosend(){
+document.getElementById("autoControl").style.display="none";
+document.getElementById("manualControl").style.display="block";
 
 
-
-
-
-});
-  document.getElementById("nowState").style.display="block";
- 
-  document.getElementById("startButton").style.display="none";
-
-  if(document.getElementById('stateName').innerHTML=="手動模式"){
     document.getElementById('stateName').innerHTML="智能模式";
-    document.getElementById('fanState').innerHTML="進氣風扇:on";
-    document.getElementById('coldState').innerHTML="致冷晶片:on";
-    document.getElementById("fanButton").style.visibility="hidden";
-    document.getElementById("coldButton").style.visibility="hidden";
-    document.getElementById("manualControl").style.display="block";
-    document.getElementById("autoControl").style.display="none";
-    document.getElementById("explain").style.display="block";
 
-  
-    smartMode=true;
-   
-    
 
-  }else{
+}
+
+function manualsend(){
+
+document.getElementById("autoControl").style.display="block";
+document.getElementById("manualControl").style.display="none";
+
+
     document.getElementById('stateName').innerHTML="手動模式";
-    document.getElementById('fanState').innerHTML="進氣風扇:";
-    document.getElementById('coldState').innerHTML="致冷晶片:";
-    document.getElementById("fanButton").style.visibility="visible";
-    document.getElementById("coldButton").style.visibility="visible";
-    document.getElementById("autoControl").style.display="block";
-    document.getElementById("manualControl").style.display="none";
-    document.getElementById("explain").style.display="none";
 
 
-   smartMode=false;
-  }
 }
 </script>
 </body>
