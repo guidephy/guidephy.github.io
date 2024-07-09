@@ -91,7 +91,7 @@
     document.getElementById("nowState").style.display = "block";
     document.getElementById("startButton").style.display = "none";
 
-    boardReady({ board: 'Smart', device: '10y73wry', transport: 'mqtt', multi: true }, function (board) {
+    boardReady({ board: 'Smart', device: '10dgEbKV', transport: 'mqtt', multi: true }, function (board) {
       board.samplingInterval = 50;
       batteryrelay = getLed(board, 16);
       waterrelay = getLed(board, 14);
