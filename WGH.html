@@ -114,8 +114,8 @@
 
 boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt'}, function (board) {
   board.samplingInterval = 50;
-  led = getLed(board, 0);
-  document.getElementById('pumbrelay').addEventListener('click',function () {
+  led = getLed(board, 4);
+  document.getElementById('pumbButton').addEventListener('click',function () {
     led.toggle();
   });
 });
