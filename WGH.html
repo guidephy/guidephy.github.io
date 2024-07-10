@@ -85,7 +85,7 @@
   <h3 >裝置狀態</h3>
 
   <h3 id="stateName" style="color:red;"></h3>
-  <p style="display:inline;" id="pumbState">馬達:</p><button id="pumbButton" style="display:inline;" >off</button>
+  <p style="display:inline;" id="pumpState">馬達:</p><button id="pumpButton" style="display:inline;" >off</button>
   <br>
  
   </div>
@@ -103,6 +103,7 @@
 </body>
 
 <script>
+  var pumprelay;
   function send() {
 
     document.getElementById("sendBtn").style.display="none";
@@ -114,9 +115,9 @@
 
 boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt'}, function (board) {
   board.samplingInterval = 50;
-  led = getLed(board, 4);
-  document.getElementById('pumbButton').addEventListener('click',function () {
-    led.toggle();
+  pumprelay = getLed(board, 4);
+  document.getElementById('pumpButton').addEventListener('click',function () {
+    pumprelay.toggle();
   });
 });
 }
