@@ -90,7 +90,7 @@
   </div>
 
   <div id="autoControl" style="display: none;">
-    <button onclick="autosend()">切換智能模式</button><br>
+    <button onclick="autosend()">切換自動模式</button><br>
   </div>
 
 <script>
@@ -120,9 +120,9 @@
   function autosend() {
     document.getElementById("autoControl").style.display = "none";
     document.getElementById("manualControl").style.display = "block";
-    document.getElementById('stateName').innerHTML = "智能模式";
+    document.getElementById('stateName').innerHTML = "自動模式";
 
-    // 确保pumprelay是开启状态
+    // 確保pumprelay是開啟的狀態
     if (document.getElementById('pumpButton').innerHTML == "off") {
       document.getElementById('pumpButton').innerHTML = "on";
       pumprelay.on();
