@@ -9,7 +9,6 @@
   <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
   <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
   <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
   <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
   <link rel="stylesheet" href="jquery.mobile-1.4.5.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -28,7 +27,7 @@
     }
 
     h2 {
-      color: #333;
+      color: blue;
       font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 10px;
@@ -65,89 +64,68 @@
       margin-bottom: 30px;
     }
 
-    #pumbButton {
+    #pumpButton {
       margin-bottom: 50px;
     }
   </style>
 </head>
 
 <body>
-  <div align="center">
-  <h2 style="color:blue;">水產氫氣IoT系統</h2>
+  <h2>水產氫氣IoT系統</h2>
+
+  <div id="startButton">
+    <button id="sendBtn" onclick="send()">開始運行</button><br><br>
   </div>
 
-  <div align="center" id="startButton">
-  <button id="sendBtn" onclick="send()">開始運行</button><br><br>
-  </div>
-
-
-  <div align="center" id="nowState"style="display: none;">
-  <h3 >裝置狀態</h3>
-
-  <h3 id="stateName" style="color:red;"></h3>
-  <p style="display:inline;" id="pumpState">馬達:</p><button id="pumpButton" style="display:inline;" >off</button>
-  <br>
- 
+  <div id="nowState" style="display: none;">
+    <h3>裝置狀態</h3>
+    <h3 id="stateName" style="color:red;"></h3>
+    <p style="display:inline;" id="pumpState">馬達:</p><button id="pumpButton" style="display:inline;">off</button>
+    <br>
   </div>
   <br>
 
-  <div align="center" id="manualControl" style="display: none;">
-
-  <button id="sendBtn" onclick="manualsend()">切換手動模式</button><br>
-  </div>
-  
-  <div align="center" id="autoControl" style="display: none;">
-  <button id="sendBtn" onclick="autosend()">切換智能模式</button><br>
+  <div id="manualControl" style="display: none;">
+    <button onclick="manualsend()">切換手動模式</button><br>
   </div>
 
-</body>
+  <div id="autoControl" style="display: none;">
+    <button onclick="autosend()">切換智能模式</button><br>
+  </div>
 
 <script>
   var pumprelay;
   function send() {
+    document.getElementById("sendBtn").style.display = "none";
+    document.getElementById("nowState").style.display = "block";
+    document.getElementById("autoControl").style.display = "block";
+    document.getElementById('stateName').innerHTML = "手動模式";
 
-    document.getElementById("sendBtn").style.display="none";
-    document.getElementById("nowState").style.display="block";
+    boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt'}, function (board) {
+      board.samplingInterval = 50;
+      pumprelay = getLed(board, 5);
+      document.getElementById('pumpButton').addEventListener('click', function () {
+        if (document.getElementById('pumpButton').innerHTML == "off") {
+          document.getElementById('pumpButton').innerHTML = "on";
+        } else {
+          document.getElementById('pumpButton').innerHTML = "off";
+        }
+        pumprelay.toggle();
+      });
+    });
+  }
 
-    document.getElementById("autoControl").style.display="block";
+  function autosend() {
+    document.getElementById("autoControl").style.display = "none";
+    document.getElementById("manualControl").style.display = "block";
+    document.getElementById('stateName').innerHTML = "智能模式";
+  }
 
-    document.getElementById('stateName').innerHTML="手動模式";
-
-boardReady({board: 'Smart', device: '10QMXm7V', transport: 'mqtt'}, function (board) {
-  board.samplingInterval = 50;
-  pumprelay = getLed(board, 5);
-  document.getElementById('pumpButton').addEventListener('click',function () {
-    if(document.getElementById('pumpButton').innerHTML=="off"){
-      document.getElementById('pumpButton').innerHTML="on"
-    }else if{
-      document.getElementById('pumpButton').innerHTML="off"
-    }
-    pumprelay.toggle();
-  });
-});
-}
-
-
-function autosend(){
-document.getElementById("autoControl").style.display="none";
-document.getElementById("manualControl").style.display="block";
-
-
-    document.getElementById('stateName').innerHTML="智能模式";
-
-
-}
-
-function manualsend(){
-
-document.getElementById("autoControl").style.display="block";
-document.getElementById("manualControl").style.display="none";
-
-
-    document.getElementById('stateName').innerHTML="手動模式";
-
-
-}
+  function manualsend() {
+    document.getElementById("autoControl").style.display = "block";
+    document.getElementById("manualControl").style.display = "none";
+    document.getElementById('stateName').innerHTML = "手動模式";
+  }
 </script>
 </body>
 </html>
