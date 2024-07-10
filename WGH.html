@@ -1,6 +1,3 @@
-<!doctype html>
-<html>
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -95,6 +92,8 @@
 
 <script>
   var pumprelay;
+  var autoModeInterval;
+
   function send() {
     document.getElementById("sendBtn").style.display = "none";
     document.getElementById("nowState").style.display = "block";
@@ -119,12 +118,23 @@
     document.getElementById("autoControl").style.display = "none";
     document.getElementById("manualControl").style.display = "block";
     document.getElementById('stateName').innerHTML = "智能模式";
+
+    autoModeInterval = setInterval(function() {
+      pumprelay.toggle();
+      if (document.getElementById('pumpButton').innerHTML == "off") {
+        document.getElementById('pumpButton').innerHTML = "on";
+      } else {
+        document.getElementById('pumpButton').innerHTML = "off";
+      }
+    }, 5000); // 每10秒切換一次
   }
 
   function manualsend() {
     document.getElementById("autoControl").style.display = "block";
     document.getElementById("manualControl").style.display = "none";
     document.getElementById('stateName').innerHTML = "手動模式";
+
+    clearInterval(autoModeInterval); // 清除定時器
   }
 </script>
 </body>
