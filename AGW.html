@@ -55,8 +55,8 @@ var smartMode=false;
 
 function send() {
 
-document.getElementById('fanButton').innerHTML="off"
-document.getElementById('coldButton').innerHTML="off"
+document.getElementById('fanButton').innerHTML="on"
+document.getElementById('coldButton').innerHTML="on"
 
 boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true}, function (board) {
   board.samplingInterval = 50;
