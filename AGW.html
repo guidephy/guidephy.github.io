@@ -74,30 +74,30 @@ boardReady({board: 'Smart', device: '10QRRggQ', transport: 'mqtt', multi: true},
 if(smartMode){
 
   if(dht.humidity>40&&dht.temperature<15){
-    fanrelay.on();
-    coldrelay.off();
+    fanrelay.off();
+    coldrelay.on();
     document.getElementById('fanState').innerHTML="進氣風扇:off";
     document.getElementById('coldState').innerHTML="致冷晶片:on";
 
 
   }else if(dht.humidity>40&&dht.temperature>=15){
 
-    fanrelay.off();
-    coldrelay.off();
+    fanrelay.on();
+    coldrelay.on();
     document.getElementById('fanState').innerHTML="進氣風扇:on";
     document.getElementById('coldState').innerHTML="致冷晶片:on";
 
   }else if(dht.humidity<=40){
 
-    fanrelay.off();
-    coldrelay.on();
+    fanrelay.on();
+    coldrelay.off();
     document.getElementById('fanState').innerHTML="進氣風扇:on";
     document.getElementById('coldState').innerHTML="致冷晶片:off";
 
 
   }else{
-    fanrelay.on();
-    coldrelay.on();
+    fanrelay.off();
+    coldrelay.off();
     document.getElementById('fanState').innerHTML="進氣風扇:off";
     document.getElementById('coldState').innerHTML="致冷晶片:off";
   }
