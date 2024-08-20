@@ -6,38 +6,56 @@
     <title>高中物理素養題</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #FFE5E5;
+            color: #333;
         }
         #game-container {
-            border: 1px solid #ccc;
+            background-color: #FFF0F5;
+            border: 3px solid #FF69B4;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
+        }
+        h1 {
+            color: #FF1493;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
         .blank {
             display: inline-block;
             width: 80px;
             height: 30px;
-            border: 1px dashed #999;
+            border: 2px dashed #FF69B4;
             text-align: center;
             line-height: 30px;
             margin: 0 5px;
+            border-radius: 10px;
+            background-color: #FFFFFF;
         }
         .answer-area {
             margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            justify-content: center;
         }
         .draggable {
             padding: 5px 10px;
-            background-color: #f0f0f0;
-            border: 1px solid #999;
+            background-color: #FFB6C1;
+            border: 2px solid #FF69B4;
             cursor: move;
             touch-action: none;
             user-select: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .draggable:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
         }
         .dragging {
             opacity: 0.5;
@@ -46,10 +64,36 @@
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
+            background-color: #FF69B4;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #FF1493;
+            transform: scale(1.05);
         }
         #result {
             margin-top: 20px;
             font-weight: bold;
+            text-align: center;
+            color: #FF1493;
+        }
+        .correct {
+            color: blue !important;
+        }
+        #footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #footer a {
+            color: #FF1493;
+            text-decoration: none;
+        }
+        #footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -99,7 +143,10 @@
             if (e.stopPropagation) {
                 e.stopPropagation();
             }
-            if (draggingElement != this) {
+            if (draggingElement != this && !this.classList.contains('correct')) {
+                if (this.textContent) {
+                    returnToPreviousPosition(this.textContent);
+                }
                 this.textContent = draggingElement.textContent;
                 draggingElement.style.visibility = 'hidden';
             }
@@ -132,9 +179,14 @@
             draggingElement.style.position = '';
             draggingElement.style.zIndex = '';
             const blank = document.elementFromPoint(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
-            if (blank && blank.classList.contains('blank')) {
+            if (blank && blank.classList.contains('blank') && !blank.classList.contains('correct')) {
+                if (blank.textContent) {
+                    returnToPreviousPosition(blank.textContent);
+                }
                 blank.textContent = draggingElement.textContent;
                 draggingElement.style.visibility = 'hidden';
+            } else {
+                draggingElement.style.visibility = 'visible';
             }
             draggingElement = null;
         }
@@ -144,14 +196,29 @@
             draggingElement.style.top = pageY - draggingElement.offsetHeight / 2 + 'px';
         }
 
+        function returnToPreviousPosition(text) {
+            const options = document.querySelectorAll('.draggable');
+            options.forEach(option => {
+                if (option.textContent === text) {
+                    option.style.visibility = 'visible';
+                }
+            });
+        }
+
         function checkAnswers() {
             const blanks = document.querySelectorAll('.blank');
             let allCorrect = true;
             blanks.forEach(blank => {
                 const correct = blank.dataset.correct;
                 const answer = blank.textContent.trim();
-                if (correct !== answer) {
+                if (correct === answer) {
+                    blank.classList.add('correct');
+                } else {
                     allCorrect = false;
+                    if (answer) {
+                        returnToPreviousPosition(answer);
+                        blank.textContent = '';
+                    }
                 }
             });
             document.getElementById('result').textContent = allCorrect ? '答案正確！' : '答案不正確，請再試一次。';
