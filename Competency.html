@@ -141,56 +141,40 @@
 
             draggable.addEventListener('touchend', function (e) {
                 e.preventDefault(); // 阻止默认的触控事件
-                draggedElement.style.position = 'relative';
-                draggedElement.style.left = '';
-                draggedElement.style.top = '';
-                draggedElement.style.zIndex = '';
-            });
-        });
 
-        document.querySelectorAll('.blank').forEach(blank => {
-            blank.addEventListener('dragover', function (e) {
-                e.preventDefault();
-            });
+                // 获取所有空白区域
+                const blanks = document.querySelectorAll('.blank');
+                let placed = false;
 
-            blank.addEventListener('drop', function (e) {
-                e.preventDefault();
-                if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
-                    if (blank.dataset.userAnswer && blank.style.color !== 'green') {
-                        const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
-                        previousAnswer.style.display = 'inline-block';
-                    }
-                    blank.textContent = draggedElement.textContent;
-                    blank.dataset.userAnswer = draggedElement.dataset.answer;
-                    blank.style.color = '#333'; // 重置为黑色
-                    draggedElement.style.display = 'none';
-                    draggedElement = null;
-                }
-            });
-
-            // 添加触控事件支持
-            blank.addEventListener('touchend', function (e) {
-                e.preventDefault(); // 阻止默认的触控事件
-                const touch = e.changedTouches[0];
-                const blankRect = blank.getBoundingClientRect();
-                if (
-                    touch.clientX >= blankRect.left &&
-                    touch.clientX <= blankRect.right &&
-                    touch.clientY >= blankRect.top &&
-                    touch.clientY <= blankRect.bottom
-                ) {
-                    if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
+                // 检查是否在任何空白区域内
+                blanks.forEach(blank => {
+                    const blankRect = blank.getBoundingClientRect();
+                    const draggedRect = draggedElement.getBoundingClientRect();
+                    
+                    if (
+                        draggedRect.top > blankRect.top &&
+                        draggedRect.bottom < blankRect.bottom &&
+                        draggedRect.left > blankRect.left &&
+                        draggedRect.right < blankRect.right
+                    ) {
+                        // 如果空格已有答案，返回之前的答案
                         if (blank.dataset.userAnswer && blank.style.color !== 'green') {
                             const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
                             previousAnswer.style.display = 'inline-block';
                         }
+
                         blank.textContent = draggedElement.textContent;
                         blank.dataset.userAnswer = draggedElement.dataset.answer;
                         blank.style.color = '#333'; // 重置为黑色
                         draggedElement.style.display = 'none';
+                        placed = true;
                     }
+                });
+
+                if (!placed) {
+                    draggedElement.style.position = 'relative';
                 }
-                draggedElement.style.position = 'relative';
+
                 draggedElement.style.left = '';
                 draggedElement.style.top = '';
                 draggedElement.style.zIndex = '';
