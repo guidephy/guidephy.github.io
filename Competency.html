@@ -6,35 +6,39 @@
     <title>高中物理素養題</title>
     <style>
         body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-family: 'Arial', sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #FFE5E5;
-            color: #333;
+            background-color: #F0F4F8;
+            color: #2D3748;
         }
         #game-container {
-            background-color: #FFF0F5;
-            border: 3px solid #FF69B4;
+            background-color: #FFFFFF;
+            border: 3px solid #4A5568;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #FF1493;
+            color: #2B6CB0;
             text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         .blank {
             display: inline-block;
             width: 80px;
             height: 30px;
-            border: 2px dashed #FF69B4;
+            border: 2px dashed #4A5568;
             text-align: center;
             line-height: 30px;
             margin: 0 5px;
-            border-radius: 10px;
-            background-color: #FFFFFF;
+            border-radius: 5px;
+            background-color: #EDF2F7;
+            transition: all 0.3s ease;
+        }
+        .blank:hover {
+            background-color: #E2E8F0;
         }
         .answer-area {
             margin-top: 20px;
@@ -45,60 +49,70 @@
         }
         .draggable {
             padding: 5px 10px;
-            background-color: #FFB6C1;
-            border: 2px solid #FF69B4;
+            background-color: #EDF2F7;
+            border: 2px solid #4A5568;
             cursor: move;
             touch-action: none;
             user-select: none;
-            border-radius: 10px;
+            border-radius: 5px;
             transition: all 0.3s ease;
         }
         .draggable:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .dragging {
-            opacity: 0.5;
+            opacity: 0.7;
         }
-        button {
-            margin-top: 20px;
+        #check-answer {
+            display: block;
+            margin: 20px auto;
             padding: 10px 20px;
             font-size: 16px;
-            background-color: #FF69B4;
+            background-color: #4299E1;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        button:hover {
-            background-color: #FF1493;
-            transform: scale(1.05);
+        #check-answer:hover {
+            background-color: #3182CE;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         #result {
             margin-top: 20px;
             font-weight: bold;
             text-align: center;
-            color: #FF1493;
+            color: #2B6CB0;
+            min-height: 24px;
         }
         .correct {
-            color: blue !important;
+            color: #38A169 !important;
+            font-weight: bold;
         }
         #footer {
             margin-top: 20px;
             text-align: center;
         }
         #footer a {
-            color: #FF1493;
+            color: #2B6CB0;
             text-decoration: none;
         }
         #footer a:hover {
             text-decoration: underline;
         }
+        #message {
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+            color: #718096;
+        }
     </style>
 </head>
 <body>
-    <div id="game-container">
+   <div id="game-container">
         <h1>高中物理素養題</h1>
         
         <div id="passage">
@@ -107,14 +121,13 @@
         </div>
         
         <div id="answer-area" class="answer-area">
-            <div id="option-1" class="draggable" draggable="true" data-answer="中心">中心</div>
-            <div id="option-2" class="draggable" draggable="true" data-answer="地球">地球</div>
-            <div id="option-3" class="draggable" draggable="true" data-answer="星星">星星</div>
+            <!-- 答案選項將由 JavaScript 動態生成 -->
         </div>
         
-        <button onclick="checkAnswers()">確認答案</button>
+        <button id="check-answer" onclick="checkAnswers()">確認答案</button>
         
         <div id="result"></div>
+        <div id="message"></div>
         
         <div id="footer">
             <a href="https://guidephy.github.io/" target="_blank">@Guidephy</a>
@@ -129,6 +142,7 @@
             draggingElement = this;
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/html', this.innerHTML);
+            updateMessage('正在拖動答案...');
         }
 
         function handleDragOver(e) {
@@ -149,12 +163,14 @@
                 }
                 this.textContent = draggingElement.textContent;
                 draggingElement.style.visibility = 'hidden';
+                updateMessage('答案已放置！');
             }
             return false;
         }
 
         function handleDragEnd() {
             this.classList.remove('dragging');
+            updateMessage('');
         }
 
         function handleTouchStart(e) {
@@ -164,6 +180,7 @@
             this.style.position = 'absolute';
             this.style.zIndex = 1000;
             moveAt(touch.pageX, touch.pageY);
+            updateMessage('正在移動答案...');
         }
 
         function handleTouchMove(e) {
@@ -185,8 +202,10 @@
                 }
                 blank.textContent = draggingElement.textContent;
                 draggingElement.style.visibility = 'hidden';
+                updateMessage('答案已放置！');
             } else {
                 draggingElement.style.visibility = 'visible';
+                updateMessage('');
             }
             draggingElement = null;
         }
@@ -208,11 +227,13 @@
         function checkAnswers() {
             const blanks = document.querySelectorAll('.blank');
             let allCorrect = true;
+            let correctCount = 0;
             blanks.forEach(blank => {
                 const correct = blank.dataset.correct;
                 const answer = blank.textContent.trim();
                 if (correct === answer) {
                     blank.classList.add('correct');
+                    correctCount++;
                 } else {
                     allCorrect = false;
                     if (answer) {
@@ -221,10 +242,72 @@
                     }
                 }
             });
-            document.getElementById('result').textContent = allCorrect ? '答案正確！' : '答案不正確，請再試一次。';
+            const resultElement = document.getElementById('result');
+            if (allCorrect) {
+                resultElement.textContent = '恭喜你！所有答案都正確！';
+                resultElement.style.color = '#38A169';
+            } else {
+                resultElement.textContent = `答對了 ${correctCount} 題，繼續加油！`;
+                resultElement.style.color = '#2B6CB0';
+            }
+            updateMessage('答案已檢查，請繼續完成題目。');
+        }
+
+        function updateMessage(text) {
+            document.getElementById('message').textContent = text;
         }
 
         document.addEventListener('DOMContentLoaded', (event) => {
+            const draggables = document.querySelectorAll('.draggable');
+            const blanks = document.querySelectorAll('.blank');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', handleDragStart);
+                draggable.addEventListener('dragend', handleDragEnd);
+                draggable.addEventListener('touchstart', handleTouchStart);
+                draggable.addEventListener('touchmove', handleTouchMove);
+                draggable.addEventListener('touchend', handleTouchEnd);
+            });
+
+            blanks.forEach(blank => {
+                blank.addEventListener('dragover', handleDragOver);
+                blank.addEventListener('drop', handleDrop);
+            });
+        });
+
+                function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createAnswerOptions() {
+            const answerArea = document.getElementById('answer-area');
+            const answers = [
+                { id: 'option-1', answer: '中心' },
+                { id: 'option-2', answer: '地球' },
+                { id: 'option-3', answer: '星星' },
+                // 在這裡添加更多答案選項
+            ];
+
+            const shuffledAnswers = shuffleArray(answers);
+
+            shuffledAnswers.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.id = `option-${index + 1}`;
+                div.className = 'draggable';
+                div.draggable = true;
+                div.setAttribute('data-answer', item.answer);
+                div.textContent = item.answer;
+                answerArea.appendChild(div);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            createAnswerOptions();
+
             const draggables = document.querySelectorAll('.draggable');
             const blanks = document.querySelectorAll('.blank');
 
