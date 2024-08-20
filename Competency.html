@@ -51,6 +51,7 @@
             display: inline-block;
             cursor: grab;
             transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+            position: relative;
         }
         .draggable:hover {
             transform: scale(1.1);
@@ -119,8 +120,6 @@
 
     <script>
         let draggedElement = null;
-        let touchOffsetX = 0;
-        let touchOffsetY = 0;
 
         // 處理拖曳事件
         document.querySelectorAll('.draggable').forEach(draggable => {
@@ -133,21 +132,22 @@
                 draggedElement = e.target;
                 const touch = e.touches[0];
                 const rect = draggedElement.getBoundingClientRect();
-                touchOffsetX = touch.clientX - rect.left;
-                touchOffsetY = touch.clientY - rect.top;
+                draggedElement.style.position = 'absolute';
+                draggedElement.style.zIndex = 1000;
+                draggedElement.style.left = `${touch.clientX - rect.width / 2}px`;
+                draggedElement.style.top = `${touch.clientY - rect.height / 2}px`;
             });
 
             draggable.addEventListener('touchmove', function (e) {
+                e.preventDefault();
                 const touch = e.touches[0];
-                draggedElement.style.position = 'absolute';
-                draggedElement.style.left = `${touch.clientX - touchOffsetX}px`;
-                draggedElement.style.top = `${touch.clientY - touchOffsetY}px`;
+                draggedElement.style.left = `${touch.clientX - draggedElement.offsetWidth / 2}px`;
+                draggedElement.style.top = `${touch.clientY - draggedElement.offsetHeight / 2}px`;
             });
 
-            draggable.addEventListener('touchend', function (e) {
-                draggedElement.style.position = '';
-                draggedElement.style.left = '';
-                draggedElement.style.top = '';
+            draggable.addEventListener('touchend', function () {
+                draggedElement.style.position = 'relative';
+                draggedElement.style.zIndex = '';
                 draggedElement = null;
             });
         });
@@ -160,7 +160,6 @@
             blank.addEventListener('drop', function (e) {
                 e.preventDefault();
                 if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
-                    // 如果空格已有答案，將其返回答案區
                     if (blank.dataset.userAnswer && blank.style.color !== 'green') {
                         const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
                         previousAnswer.style.display = 'inline-block';
@@ -176,15 +175,20 @@
             // 添加觸控事件支援
             blank.addEventListener('touchend', function (e) {
                 if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
-                    // 如果空格已有答案，將其返回答案區
-                    if (blank.dataset.userAnswer && blank.style.color !== 'green') {
-                        const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
-                        previousAnswer.style.display = 'inline-block';
+                    const blankRect = blank.getBoundingClientRect();
+                    const draggedRect = draggedElement.getBoundingClientRect();
+                    if (draggedRect.top > blankRect.top && draggedRect.bottom < blankRect.bottom && draggedRect.left > blankRect.left && draggedRect.right < blankRect.right) {
+                        if (blank.dataset.userAnswer && blank.style.color !== 'green') {
+                            const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
+                            previousAnswer.style.display = 'inline-block';
+                        }
+                        blank.textContent = draggedElement.textContent;
+                        blank.dataset.userAnswer = draggedElement.dataset.answer;
+                        blank.style.color = '#333'; // 重置為黑色
+                        draggedElement.style.display = 'none';
                     }
-                    blank.textContent = draggedElement.textContent;
-                    blank.dataset.userAnswer = draggedElement.dataset.answer;
-                    blank.style.color = '#333'; // 重置為黑色
-                    draggedElement.style.display = 'none';
+                    draggedElement.style.position = 'relative';
+                    draggedElement.style.zIndex = '';
                     draggedElement = null;
                 }
             });
