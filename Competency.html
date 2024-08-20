@@ -125,40 +125,37 @@
             z-index: 1000;
         }
 
-        @media screen and (max-width: 768px) and (orientation: portrait) {
-            #orientation-message {
-                display: block;
-            }
-            #game-container {
-                display: none;
-            }
-        }
+       @media screen and (min-width: 769px) and (orientation: landscape) {
+    #orientation-message {
+        display: block;
+    }
+    #game-container {
+        display: none;
+    }
+}
 
-        .draggable {
-            transition: transform 0.1s ease, opacity 0.1s ease;
-        }
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    #orientation-message {
+        display: block;
+    }
+    #game-container {
+        display: none;
+    }
+}
 
-        .dragging {
-            opacity: 0.7;
-            transform: scale(1.05);
-        }
-
-        @media screen and (max-width: 768px) {
-            body {
-                font-size: 0.6em;
-            }
-
-            #game-container {
-
-                font-size: 0.6em;
-            }
-
-        }
+@media screen and (orientation: portrait) {
+    #orientation-message {
+        display: none;
+    }
+    #game-container {
+        display: block;
+    }
+}
     </style>
 </head>
 <body>
  <div id="orientation-message">
-    請將設備轉至橫向以開始遊戲
+    請將設備轉至縱向以開始遊戲
 </div>
 
 <div id="game-container">
@@ -393,6 +390,19 @@ function createAnswerOptions() {
     });
 }
 
+
+
+
+    function checkOrientation() {
+    if ((window.innerWidth > window.innerHeight)) {
+        document.getElementById('orientation-message').style.display = 'block';
+        document.getElementById('game-container').style.display = 'none';
+    } else {
+        document.getElementById('orientation-message').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', (event) => {
     createAnswerOptions();
 
@@ -407,20 +417,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
         blank.addEventListener('dragstart', handleDragStart);
     });
 
-
-    function checkOrientation() {
-        if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
-            document.getElementById('orientation-message').style.display = 'block';
-            document.getElementById('game-container').style.display = 'none';
-        } else {
-            document.getElementById('orientation-message').style.display = 'none';
-            document.getElementById('game-container').style.display = 'block';
-        }
-    }
-
     checkOrientation();
     window.addEventListener('resize', checkOrientation);
 });
+
     </script>
 </body>
 </html>
