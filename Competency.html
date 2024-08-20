@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>填空拖曳遊戲</title>
+    <title>高中物理素養題</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f8ff;
             display: flex;
             justify-content: center;
@@ -14,12 +14,13 @@
             flex-direction: column;
             height: 100vh;
             margin: 0;
+            color: #333;
         }
         #game-container {
-            background-color: #fff;
+            background-color: #ffffff;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             text-align: center;
         }
@@ -32,23 +33,31 @@
             font-size: 18px;
         }
         .blank {
-            border-bottom: 2px solid #000;
+            border-bottom: 2px solid #4a90e2;
             min-width: 100px;
             display: inline-block;
             margin: 0 5px;
             text-align: center;
             height: 25px;
+            color: #333;
         }
         .draggable {
-            background-color:   #FFFF6F;
+            background-color: #f9e79f;
             color: #333;
             padding: 8px;
             margin: 5px;
             border-radius: 5px;
-            border: none;
+            border: 1px solid #d4ac0d;
             display: inline-block;
             cursor: grab;
-            transition: background-color 0.3s;
+            transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+        }
+        .draggable:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .draggable:active, .draggable:focus {
+            background-color: #f7d48c;
         }
         .answer-area {
             margin-top: 20px;
@@ -72,17 +81,26 @@
             margin-top: 20px;
             font-size: 20px;
             font-weight: bold;
+            color: #4a90e2;
         }
         #footer {
             margin-top: 10px;
             font-size: 14px;
             color: #888;
         }
+        #footer a {
+            color: #888;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        #footer a:hover {
+            color: #4a90e2;
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1>物理素養題目</h1>
+        <h1>高中物理素養題</h1>
         <div id="passage">
             <p>
                 月亮環繞著<span class="blank" id="blank-1" data-correct="地球"></span>運行。
@@ -96,11 +114,13 @@
         </div>
         <button id="submit">確認答案</button>
         <div id="result"></div>
-        <div id="footer">@Guidephy</div>
+        <div id="footer"><a href="https://guidephy.github.io/" target="_blank">@Guidephy</a></div>
     </div>
 
     <script>
         let draggedElement = null;
+        let touchOffsetX = 0;
+        let touchOffsetY = 0;
 
         // 處理拖曳事件
         document.querySelectorAll('.draggable').forEach(draggable => {
@@ -111,6 +131,24 @@
             // 添加觸控事件支援
             draggable.addEventListener('touchstart', function (e) {
                 draggedElement = e.target;
+                const touch = e.touches[0];
+                const rect = draggedElement.getBoundingClientRect();
+                touchOffsetX = touch.clientX - rect.left;
+                touchOffsetY = touch.clientY - rect.top;
+            });
+
+            draggable.addEventListener('touchmove', function (e) {
+                const touch = e.touches[0];
+                draggedElement.style.position = 'absolute';
+                draggedElement.style.left = `${touch.clientX - touchOffsetX}px`;
+                draggedElement.style.top = `${touch.clientY - touchOffsetY}px`;
+            });
+
+            draggable.addEventListener('touchend', function (e) {
+                draggedElement.style.position = '';
+                draggedElement.style.left = '';
+                draggedElement.style.top = '';
+                draggedElement = null;
             });
         });
 
@@ -121,9 +159,15 @@
 
             blank.addEventListener('drop', function (e) {
                 e.preventDefault();
-                if (draggedElement) {
-                    e.target.textContent = draggedElement.textContent;
-                    e.target.dataset.userAnswer = draggedElement.dataset.answer;
+                if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
+                    // 如果空格已有答案，將其返回答案區
+                    if (blank.dataset.userAnswer && blank.style.color !== 'green') {
+                        const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
+                        previousAnswer.style.display = 'inline-block';
+                    }
+                    blank.textContent = draggedElement.textContent;
+                    blank.dataset.userAnswer = draggedElement.dataset.answer;
+                    blank.style.color = '#333'; // 重置為黑色
                     draggedElement.style.display = 'none';
                     draggedElement = null;
                 }
@@ -131,9 +175,15 @@
 
             // 添加觸控事件支援
             blank.addEventListener('touchend', function (e) {
-                if (draggedElement) {
-                    e.target.textContent = draggedElement.textContent;
-                    e.target.dataset.userAnswer = draggedElement.dataset.answer;
+                if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
+                    // 如果空格已有答案，將其返回答案區
+                    if (blank.dataset.userAnswer && blank.style.color !== 'green') {
+                        const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
+                        previousAnswer.style.display = 'inline-block';
+                    }
+                    blank.textContent = draggedElement.textContent;
+                    blank.dataset.userAnswer = draggedElement.dataset.answer;
+                    blank.style.color = '#333'; // 重置為黑色
                     draggedElement.style.display = 'none';
                     draggedElement = null;
                 }
@@ -147,7 +197,9 @@
                 const userAnswer = blank.dataset.userAnswer;
                 const correctAnswer = blank.dataset.correct;
 
-                if (userAnswer !== correctAnswer) {
+                if (userAnswer === correctAnswer) {
+                    blank.style.color = 'green';
+                } else {
                     correct = false;
                     blank.style.color = 'red';
 
@@ -156,8 +208,6 @@
                     wrongOption.style.display = 'inline-block';
                     blank.textContent = "";
                     blank.removeAttribute('data-userAnswer');
-                } else {
-                    blank.style.color = 'green';
                 }
             });
 
