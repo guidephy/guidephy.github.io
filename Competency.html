@@ -153,8 +153,9 @@
     <h1>高中物理素養題</h1>
 
     <div id="passage">
-        月亮環繞著<span id="blank-1" class="blank" data-correct="地球"></span>運行。
-        太陽是我們太陽系的<span id="blank-2" class="blank" data-correct="中心"></span>。
+        在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span id="blank-1" class="blank" data-correct="重力"></span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span id="blank-2" class="blank" data-correct="弱力"></span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span id="blank-3" class="blank" data-correct="電磁力"></span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span id="blank-4" class="blank" data-correct="強力"></span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
+
+        
     </div>
 
     <div id="answer-area" class="answer-area">
@@ -356,9 +357,14 @@ function shuffleArray(array) {
 function createAnswerOptions() {
     const answerArea = document.getElementById('answer-area');
     const answers = [
-        { id: 'option-1', answer: '中心' },
-        { id: 'option-2', answer: '地球' },
-        { id: 'option-3', answer: '星星' },
+        { id: 'option-1', answer: '重力' },
+        { id: 'option-2', answer: '電磁力' },
+        { id: 'option-3', answer: '強力' },
+        { id: 'option-4', answer: '弱力' },
+        { id: 'option-5', answer: '摩擦力' },
+        { id: 'option-6', answer: '正向力' },
+        { id: 'option-5', answer: '繩張力' },
+        { id: 'option-6', answer: '彈力' },
         // 在這裡添加更多答案選項
     ];
 
