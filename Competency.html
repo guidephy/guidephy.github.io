@@ -53,10 +53,6 @@
             transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
             position: relative;
         }
-        .draggable:hover {
-            transform: scale(1.1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
         .draggable:active, .draggable:focus {
             background-color: #f7d48c;
         }
@@ -121,34 +117,34 @@
     <script>
         let draggedElement = null;
 
-        // 處理拖曳事件
+        // 支持触控事件的拖曳功能
         document.querySelectorAll('.draggable').forEach(draggable => {
+            // 鼠标拖曳支持
             draggable.addEventListener('dragstart', function (e) {
                 draggedElement = e.target;
             });
 
-            // 添加觸控事件支援
+            // 触控支持
             draggable.addEventListener('touchstart', function (e) {
                 draggedElement = e.target;
-                const touch = e.touches[0];
-                const rect = draggedElement.getBoundingClientRect();
-                draggedElement.style.position = 'absolute';
-                draggedElement.style.zIndex = 1000;
-                draggedElement.style.left = `${touch.clientX - rect.width / 2}px`;
-                draggedElement.style.top = `${touch.clientY - rect.height / 2}px`;
+                e.preventDefault(); // 阻止默认的触控事件
             });
 
             draggable.addEventListener('touchmove', function (e) {
-                e.preventDefault();
+                e.preventDefault(); // 阻止默认的触控事件
                 const touch = e.touches[0];
+                draggedElement.style.position = 'fixed';
                 draggedElement.style.left = `${touch.clientX - draggedElement.offsetWidth / 2}px`;
                 draggedElement.style.top = `${touch.clientY - draggedElement.offsetHeight / 2}px`;
+                draggedElement.style.zIndex = '1000';
             });
 
-            draggable.addEventListener('touchend', function () {
+            draggable.addEventListener('touchend', function (e) {
+                e.preventDefault(); // 阻止默认的触控事件
                 draggedElement.style.position = 'relative';
+                draggedElement.style.left = '';
+                draggedElement.style.top = '';
                 draggedElement.style.zIndex = '';
-                draggedElement = null;
             });
         });
 
@@ -166,35 +162,43 @@
                     }
                     blank.textContent = draggedElement.textContent;
                     blank.dataset.userAnswer = draggedElement.dataset.answer;
-                    blank.style.color = '#333'; // 重置為黑色
+                    blank.style.color = '#333'; // 重置为黑色
                     draggedElement.style.display = 'none';
                     draggedElement = null;
                 }
             });
 
-            // 添加觸控事件支援
+            // 添加触控事件支持
             blank.addEventListener('touchend', function (e) {
-                if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
-                    const blankRect = blank.getBoundingClientRect();
-                    const draggedRect = draggedElement.getBoundingClientRect();
-                    if (draggedRect.top > blankRect.top && draggedRect.bottom < blankRect.bottom && draggedRect.left > blankRect.left && draggedRect.right < blankRect.right) {
+                e.preventDefault(); // 阻止默认的触控事件
+                const touch = e.changedTouches[0];
+                const blankRect = blank.getBoundingClientRect();
+                if (
+                    touch.clientX >= blankRect.left &&
+                    touch.clientX <= blankRect.right &&
+                    touch.clientY >= blankRect.top &&
+                    touch.clientY <= blankRect.bottom
+                ) {
+                    if (draggedElement && blank.dataset.correct !== blank.dataset.userAnswer) {
                         if (blank.dataset.userAnswer && blank.style.color !== 'green') {
                             const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
                             previousAnswer.style.display = 'inline-block';
                         }
                         blank.textContent = draggedElement.textContent;
                         blank.dataset.userAnswer = draggedElement.dataset.answer;
-                        blank.style.color = '#333'; // 重置為黑色
+                        blank.style.color = '#333'; // 重置为黑色
                         draggedElement.style.display = 'none';
                     }
-                    draggedElement.style.position = 'relative';
-                    draggedElement.style.zIndex = '';
-                    draggedElement = null;
                 }
+                draggedElement.style.position = 'relative';
+                draggedElement.style.left = '';
+                draggedElement.style.top = '';
+                draggedElement.style.zIndex = '';
+                draggedElement = null;
             });
         });
 
-        // 確認答案按鈕
+        // 确认答案按钮
         document.getElementById('submit').addEventListener('click', function () {
             let correct = true;
             document.querySelectorAll('.blank').forEach(blank => {
@@ -207,7 +211,7 @@
                     correct = false;
                     blank.style.color = 'red';
 
-                    // 將錯誤答案返回到答案區
+                    // 将错误答案返回到答案区
                     const wrongOption = document.querySelector(`[data-answer="${userAnswer}"]`);
                     wrongOption.style.display = 'inline-block';
                     blank.textContent = "";
@@ -215,7 +219,7 @@
                 }
             });
 
-            document.getElementById('result').textContent = correct ? "所有答案正確！" : "有些答案不正確，請再試一次。";
+            document.getElementById('result').textContent = correct ? "所有答案正确！" : "有些答案不正确，请再试一次。";
         });
     </script>
 </body>
