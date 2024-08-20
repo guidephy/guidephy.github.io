@@ -40,7 +40,7 @@
             height: 25px;
         }
         .draggable {
-            background-color: #e9c46a;
+            background-color:   #FFFF6F;
             color: #333;
             padding: 8px;
             margin: 5px;
@@ -102,8 +102,14 @@
     <script>
         let draggedElement = null;
 
+        // 處理拖曳事件
         document.querySelectorAll('.draggable').forEach(draggable => {
             draggable.addEventListener('dragstart', function (e) {
+                draggedElement = e.target;
+            });
+
+            // 添加觸控事件支援
+            draggable.addEventListener('touchstart', function (e) {
                 draggedElement = e.target;
             });
         });
@@ -118,12 +124,23 @@
                 if (draggedElement) {
                     e.target.textContent = draggedElement.textContent;
                     e.target.dataset.userAnswer = draggedElement.dataset.answer;
-                    draggedElement.style.display = 'none'; // 隱藏選項區的選項
-                    draggedElement = null; // 清空拖曳的元素
+                    draggedElement.style.display = 'none';
+                    draggedElement = null;
+                }
+            });
+
+            // 添加觸控事件支援
+            blank.addEventListener('touchend', function (e) {
+                if (draggedElement) {
+                    e.target.textContent = draggedElement.textContent;
+                    e.target.dataset.userAnswer = draggedElement.dataset.answer;
+                    draggedElement.style.display = 'none';
+                    draggedElement = null;
                 }
             });
         });
 
+        // 確認答案按鈕
         document.getElementById('submit').addEventListener('click', function () {
             let correct = true;
             document.querySelectorAll('.blank').forEach(blank => {
@@ -137,8 +154,8 @@
                     // 將錯誤答案返回到答案區
                     const wrongOption = document.querySelector(`[data-answer="${userAnswer}"]`);
                     wrongOption.style.display = 'inline-block';
-                    blank.textContent = ""; // 清除空格中的錯誤答案
-                    blank.removeAttribute('data-userAnswer'); // 移除錯誤答案的資料屬性
+                    blank.textContent = "";
+                    blank.removeAttribute('data-userAnswer');
                 } else {
                     blank.style.color = 'green';
                 }
