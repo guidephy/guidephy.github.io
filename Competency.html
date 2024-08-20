@@ -146,30 +146,27 @@
 </head>
 <body>
  <div id="orientation-message">
-        請將設備轉至橫向以開始遊戲
- </div>
+    請將設備轉至橫向以開始遊戲
+</div>
 
- <div id="game-container">
-   <div id="game-container">
-        <h1>高中物理素養題</h1>
-        
-        <div id="passage">
-            月亮環繞著<span id="blank-1" class="blank" data-correct="地球"></span>運行。
-            太陽是我們太陽系的<span id="blank-2" class="blank" data-correct="中心"></span>。
-        </div>
-        
-        <div id="answer-area" class="answer-area">
-            <!-- 答案選項將由 JavaScript 動態生成 -->
-        </div>
-        
-        <button id="check-answer" onclick="checkAnswers()">確認答案</button>
-        
-        <div id="result"></div>
-        <div id="message"></div>
-        
-        <div id="footer">
-            <a href="https://guidephy.github.io/" target="_blank">@Guidephy</a>
-        </div>
+<div id="game-container">
+    <h1>高中物理素養題</h1>
+
+    <div id="passage">
+        月亮環繞著<span id="blank-1" class="blank" data-correct="地球"></span>運行。
+        太陽是我們太陽系的<span id="blank-2" class="blank" data-correct="中心"></span>。
+    </div>
+
+    <div id="answer-area" class="answer-area">
+    </div>
+
+    <button id="check-answer" onclick="checkAnswers()">確認答案</button>
+
+    <div id="result"></div>
+    <div id="message"></div>
+
+    <div id="footer">
+        <a href="https://guidephy.github.io/" target="_blank">@Guidephy</a>
     </div>
 </div>
  
@@ -197,12 +194,13 @@ function handleDragOver(e) {
     return false;
 }
 
+
 function handleDrop(e) {
     if (e.stopPropagation) {
         e.stopPropagation();
     }
     
-    const target = e.target.closest('.blank') || e.target.closest('.draggable');
+    const target = e.target.closest('.blank') || e.target;
     
     if (draggingElement != target && !target.classList.contains('correct')) {
         if (target.textContent) {
@@ -254,14 +252,21 @@ function handleTouchEnd(e) {
     draggingElement.classList.remove('dragging');
     draggingElement.style.position = '';
     draggingElement.style.zIndex = '';
-    const blank = document.elementFromPoint(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
-    if (blank && blank.classList.contains('blank') && !blank.classList.contains('correct')) {
-        if (blank.textContent) {
-            returnToPreviousPosition(blank.textContent);
+    
+    const touch = e.changedTouches[0];
+    const blank = document.elementFromPoint(touch.pageX, touch.pageY);
+    
+    if (blank && (blank.classList.contains('blank') || blank.closest('.blank'))) {
+        const targetBlank = blank.classList.contains('blank') ? blank : blank.closest('.blank');
+        if (!targetBlank.classList.contains('correct')) {
+            if (targetBlank.textContent) {
+                returnToPreviousPosition(targetBlank.textContent);
+            }
+            targetBlank.textContent = draggingElement.textContent;
+            draggingElement.style.visibility = 'hidden';
+            targetBlank.classList.add('filled');
+            updateMessage('答案已放置！');
         }
-        blank.textContent = draggingElement.textContent;
-        draggingElement.style.visibility = 'hidden';
-        updateMessage('答案已放置！');
     } else {
         draggingElement.style.visibility = 'visible';
         updateMessage('');
@@ -276,12 +281,34 @@ function moveAt(pageX, pageY) {
 
 function returnToPreviousPosition(text) {
     const options = document.querySelectorAll('.draggable');
-    options.forEach(option => {
+    for (let option of options) {
         if (option.getAttribute('data-answer') === text && !option.textContent) {
             option.textContent = text;
             option.style.visibility = 'visible';
+            return;
         }
-    });
+    }
+    // 如果沒有找到空的選項，創建一個新的
+    createNewOption(text);
+}
+
+function createNewOption(text) {
+    const answerArea = document.getElementById('answer-area');
+    const div = document.createElement('div');
+    div.className = 'draggable';
+    div.draggable = true;
+    div.setAttribute('data-answer', text);
+    div.textContent = text;
+    answerArea.appendChild(div);
+    addEventListenersToElement(div);
+}
+
+function addEventListenersToElement(element) {
+    element.addEventListener('dragstart', handleDragStart);
+    element.addEventListener('dragend', handleDragEnd);
+    element.addEventListener('touchstart', handleTouchStart);
+    element.addEventListener('touchmove', handleTouchMove);
+    element.addEventListener('touchend', handleTouchEnd);
 }
 
 function checkAnswers() {
@@ -354,19 +381,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const draggables = document.querySelectorAll('.draggable');
     const blanks = document.querySelectorAll('.blank');
 
-    draggables.forEach(draggable => {
-        draggable.addEventListener('dragstart', handleDragStart);
-        draggable.addEventListener('dragend', handleDragEnd);
-        draggable.addEventListener('touchstart', handleTouchStart);
-        draggable.addEventListener('touchmove', handleTouchMove);
-        draggable.addEventListener('touchend', handleTouchEnd);
-    });
+    draggables.forEach(addEventListenersToElement);
 
     blanks.forEach(blank => {
         blank.addEventListener('dragover', handleDragOver);
         blank.addEventListener('drop', handleDrop);
         blank.addEventListener('dragstart', handleDragStart);
     });
+
 
     function checkOrientation() {
         if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
