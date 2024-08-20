@@ -1,227 +1,178 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>高中物理素養題</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f8ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-            margin: 0;
-            color: #333;
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
         }
         #game-container {
-            background-color: #ffffff;
-            border-radius: 15px;
+            border: 1px solid #ccc;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            text-align: center;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #577590;
-        }
-        p {
-            font-size: 18px;
+            border-radius: 5px;
         }
         .blank {
-            border-bottom: 2px solid #4a90e2;
-            min-width: 100px;
             display: inline-block;
-            margin: 0 5px;
+            width: 80px;
+            height: 30px;
+            border: 1px dashed #999;
             text-align: center;
-            height: 25px;
-            color: #333;
-        }
-        .draggable {
-            background-color: #f9e79f;
-            color: #333;
-            padding: 8px;
-            margin: 5px;
-            border-radius: 5px;
-            border: 1px solid #d4ac0d;
-            display: inline-block;
-            cursor: grab;
-            transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
-            position: relative;
-        }
-        .draggable:active, .draggable:focus {
-            background-color: #f7d48c;
+            line-height: 30px;
+            margin: 0 5px;
         }
         .answer-area {
             margin-top: 20px;
-            padding: 10px;
-            border-top: 2px solid #ccc;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        #submit {
+        .draggable {
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #999;
+            cursor: move;
+            touch-action: none;
+            user-select: none;
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+        button {
             margin-top: 20px;
             padding: 10px 20px;
-            background-color: #577590;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #submit:hover {
-            background-color: #2a9d8f;
+            font-size: 16px;
         }
         #result {
             margin-top: 20px;
-            font-size: 20px;
             font-weight: bold;
-            color: #4a90e2;
-        }
-        #footer {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #888;
-        }
-        #footer a {
-            color: #888;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        #footer a:hover {
-            color: #4a90e2;
         }
     </style>
 </head>
 <body>
     <div id="game-container">
         <h1>高中物理素養題</h1>
+        
         <div id="passage">
-            <p>
-                月亮環繞著<span class="blank" id="blank-1" data-correct="地球"></span>運行。
-                太陽是我們太陽系的<span class="blank" id="blank-2" data-correct="中心"></span>。
-            </p>
+            月亮環繞著<span id="blank-1" class="blank" data-correct="地球"></span>運行。
+            太陽是我們太陽系的<span id="blank-2" class="blank" data-correct="中心"></span>。
         </div>
-        <div class="answer-area" id="answer-area">
-            <div class="draggable" draggable="true" id="option-1" data-answer="中心">中心</div>
-            <div class="draggable" draggable="true" id="option-2" data-answer="地球">地球</div>
-            <div class="draggable" draggable="true" id="option-3" data-answer="星星">星星</div>
+        
+        <div id="answer-area" class="answer-area">
+            <div id="option-1" class="draggable" draggable="true" data-answer="中心">中心</div>
+            <div id="option-2" class="draggable" draggable="true" data-answer="地球">地球</div>
+            <div id="option-3" class="draggable" draggable="true" data-answer="星星">星星</div>
         </div>
-        <button id="submit">確認答案</button>
+        
+        <button onclick="checkAnswers()">確認答案</button>
+        
         <div id="result"></div>
-        <div id="footer"><a href="https://guidephy.github.io/" target="_blank">@Guidephy</a></div>
+        
+        <div id="footer">
+            <a href="https://guidephy.github.io/" target="_blank">@Guidephy</a>
+        </div>
     </div>
 
     <script>
-        let draggedElement = null;
+        let draggingElement = null;
 
-        document.querySelectorAll('.draggable').forEach(draggable => {
-            // 支持鼠标拖曳
-            draggable.addEventListener('dragstart', function (e) {
-                draggedElement = e.target;
-                e.dataTransfer.setData('text/plain', null);
-            });
+        function handleDragStart(e) {
+            this.classList.add('dragging');
+            draggingElement = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
 
-            // 触摸支持
-            draggable.addEventListener('touchstart', function (e) {
-                draggedElement = e.target;
-                draggedElement.style.position = 'absolute';
-                draggedElement.style.zIndex = '1000';
-            });
-
-            draggable.addEventListener('touchmove', function (e) {
-                const touch = e.touches[0];
-                draggedElement.style.left = `${touch.clientX - draggedElement.offsetWidth / 2}px`;
-                draggedElement.style.top = `${touch.clientY - draggedElement.offsetHeight / 2}px`;
-            });
-
-            draggable.addEventListener('touchend', function () {
-                checkDrop();
-                resetDraggedElement();
-            });
-        });
-
-        document.querySelectorAll('.blank').forEach(blank => {
-            blank.addEventListener('dragover', function (e) {
+        function handleDragOver(e) {
+            if (e.preventDefault) {
                 e.preventDefault();
-            });
-
-            blank.addEventListener('drop', function (e) {
-                e.preventDefault();
-                if (draggedElement) {
-                    if (blank.dataset.userAnswer && blank.style.color !== 'green') {
-                        const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
-                        previousAnswer.style.display = 'inline-block';
-                    }
-                    blank.textContent = draggedElement.textContent;
-                    blank.dataset.userAnswer = draggedElement.dataset.answer;
-                    blank.style.color = '#333'; // 重置为黑色
-                    draggedElement.style.display = 'none';
-                    resetDraggedElement();
-                }
-            });
-        });
-
-        function checkDrop() {
-            const blanks = document.querySelectorAll('.blank');
-            let placed = false;
-            blanks.forEach(blank => {
-                const blankRect = blank.getBoundingClientRect();
-                const draggedRect = draggedElement.getBoundingClientRect();
-                if (
-                    draggedRect.top > blankRect.top &&
-                    draggedRect.bottom < blankRect.bottom &&
-                    draggedRect.left > blankRect.left &&
-                    draggedRect.right < blankRect.right
-                ) {
-                    if (blank.dataset.userAnswer && blank.style.color !== 'green') {
-                        const previousAnswer = document.querySelector(`[data-answer="${blank.dataset.userAnswer}"]`);
-                        previousAnswer.style.display = 'inline-block';
-                    }
-                    blank.textContent = draggedElement.textContent;
-                    blank.dataset.userAnswer = draggedElement.dataset.answer;
-                    blank.style.color = '#333';
-                    draggedElement.style.display = 'none';
-                    placed = true;
-                }
-            });
-            if (!placed) {
-                draggedElement.style.position = 'relative';
             }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
         }
 
-        function resetDraggedElement() {
-            draggedElement.style.left = '';
-            draggedElement.style.top = '';
-            draggedElement.style.zIndex = '';
-            draggedElement.style.position = 'relative';
-            draggedElement = null;
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            if (draggingElement != this) {
+                this.textContent = draggingElement.textContent;
+                draggingElement.style.visibility = 'hidden';
+            }
+            return false;
         }
 
-        // 确认答案按钮
-        document.getElementById('submit').addEventListener('click', function () {
-            let correct = true;
-            document.querySelectorAll('.blank').forEach(blank => {
-                const userAnswer = blank.dataset.userAnswer;
-                const correctAnswer = blank.dataset.correct;
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
 
-                if (userAnswer === correctAnswer) {
-                    blank.style.color = 'green';
-                } else {
-                    correct = false;
-                    blank.style.color = 'red';
+        function handleTouchStart(e) {
+            const touch = e.touches[0];
+            draggingElement = this;
+            this.classList.add('dragging');
+            this.style.position = 'absolute';
+            this.style.zIndex = 1000;
+            moveAt(touch.pageX, touch.pageY);
+        }
 
-                    // 将错误答案返回到答案区
-                    const wrongOption = document.querySelector(`[data-answer="${userAnswer}"]`);
-                    wrongOption.style.display = 'inline-block';
-                    blank.textContent = "";
-                    blank.removeAttribute('data-userAnswer');
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!draggingElement) return;
+            const touch = e.touches[0];
+            moveAt(touch.pageX, touch.pageY);
+        }
+
+        function handleTouchEnd(e) {
+            if (!draggingElement) return;
+            draggingElement.classList.remove('dragging');
+            draggingElement.style.position = '';
+            draggingElement.style.zIndex = '';
+            const blank = document.elementFromPoint(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
+            if (blank && blank.classList.contains('blank')) {
+                blank.textContent = draggingElement.textContent;
+                draggingElement.style.visibility = 'hidden';
+            }
+            draggingElement = null;
+        }
+
+        function moveAt(pageX, pageY) {
+            draggingElement.style.left = pageX - draggingElement.offsetWidth / 2 + 'px';
+            draggingElement.style.top = pageY - draggingElement.offsetHeight / 2 + 'px';
+        }
+
+        function checkAnswers() {
+            const blanks = document.querySelectorAll('.blank');
+            let allCorrect = true;
+            blanks.forEach(blank => {
+                const correct = blank.dataset.correct;
+                const answer = blank.textContent.trim();
+                if (correct !== answer) {
+                    allCorrect = false;
                 }
             });
+            document.getElementById('result').textContent = allCorrect ? '答案正確！' : '答案不正確，請再試一次。';
+        }
 
-            document.getElementById('result').textContent = correct ? "所有答案正确！" : "有些答案不正确，请再试一次。";
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const draggables = document.querySelectorAll('.draggable');
+            const blanks = document.querySelectorAll('.blank');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', handleDragStart);
+                draggable.addEventListener('dragend', handleDragEnd);
+                draggable.addEventListener('touchstart', handleTouchStart);
+                draggable.addEventListener('touchmove', handleTouchMove);
+                draggable.addEventListener('touchend', handleTouchEnd);
+            });
+
+            blanks.forEach(blank => {
+                blank.addEventListener('dragover', handleDragOver);
+                blank.addEventListener('drop', handleDrop);
+            });
         });
     </script>
 </body>
