@@ -7,465 +7,229 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        #game-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #F0F4F8;
-            color: #2D3748;
-        }
-        #game-container {
-            background-color: #FFFFFF;
-            border: 3px solid #4A5568;
-            padding: 20px;
+            background-color: #ffffff;
             border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
+
         h1 {
-            color: #2B6CB0;
+            color: #4a4a4a;
             text-align: center;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
+
+        #passage {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
         .blank {
-            display: inline-block;
-            width: 80px;
-            height: 30px;
-            border: 2px dashed #4A5568;
-            text-align: center;
-            line-height: 30px;
+            border-bottom: 2px solid #3498db;
+            padding: 0 5px;
             margin: 0 5px;
-            border-radius: 5px;
-            background-color: #EDF2F7;
+            cursor: pointer;
             transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
         }
-        .blank:hover {
-            background-color: #E2E8F0;
+
+        .blank.active {
+            background-color: #ffff99;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .answer-area {
-            margin-top: 20px;
+
+        #answer-area {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 30px;
             justify-content: center;
         }
-        .draggable {
-            padding: 5px 10px;
-            background-color: #EDF2F7;
-            border: 2px solid #4A5568;
-            cursor: move;
-            touch-action: none;
-            user-select: none;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        .draggable:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .dragging {
-            opacity: 0.7;
-        }
-        #check-answer {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
+
+        .answer-option {
+            padding: 12px 20px;
             font-size: 16px;
-            background-color: #4299E1;
+            background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        #check-answer:hover {
-            background-color: #3182CE;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .answer-option:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
         }
-        #result {
+
+        #check-answer, #next-question {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #check-answer:hover, #next-question:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+
+        #result, #message {
             margin-top: 20px;
+            font-size: 20px;
             font-weight: bold;
             text-align: center;
-            color: #2B6CB0;
-            min-height: 24px;
         }
-        .correct {
-            color: #38A169 !important;
-            font-weight: bold;
+
+        #explanation {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
+
         #footer {
-            margin-top: 20px;
+            margin-top: 30px;
             text-align: center;
-        }
-        #footer a {
-            color: #2B6CB0;
-            text-decoration: none;
-        }
-        #footer a:hover {
-            text-decoration: underline;
-        }
-        #message {
-            text-align: center;
-            margin-top: 10px;
-            font-style: italic;
-            color: #718096;
+            font-size: 14px;
+            color: #888;
         }
 
-         #orientation-message {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #F0F4F8;
-            color: #2D3748;
-            text-align: center;
-            padding-top: 50%;
-            font-size: 1.5em;
-            z-index: 1000;
+        @media (max-width: 600px) {
+            #passage, #explanation {
+                font-size: 16px;
+            }
+            
+            .answer-option {
+                font-size: 14px;
+            }
         }
-
-
-
- #next-question {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #4299E1;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#next-question:hover {
-    background-color: #3182CE;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-       @media screen and (min-width: 769px) and (orientation: landscape) {
-    #orientation-message {
-        display: block;
-    }
-    #game-container {
-        display: none;
-    }
-}
-
-@media screen and (max-width: 768px) and (orientation: landscape) {
-    #orientation-message {
-        display: block;
-    }
-    #game-container {
-        display: none;
-    }
-}
-
-@media screen and (orientation: portrait) {
-    #orientation-message {
-        display: none;
-    }
-    #game-container {
-        display: block;
-    }
-}
     </style>
 </head>
 <body>
- <div id="orientation-message">
-    請將設備轉至縱向以開始遊戲
-</div>
-
-<div id="game-container">
-    <h1>高中物理素養題</h1>
-
-    <div id="passage">
-        在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span id="blank-1" class="blank" data-correct="重力"></span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span id="blank-2" class="blank" data-correct="弱力"></span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span id="blank-3" class="blank" data-correct="電磁力"></span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span id="blank-4" class="blank" data-correct="強力"></span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
-
+    <div id="game-container">
+        <h1>高中物理素養題</h1>
         
-    </div>
-
-    <div id="answer-area" class="answer-area">
-    </div>
-
-    <button id="check-answer" onclick="checkAnswers()">確認答案</button>
-
-    <div id="result"></div>
-    <div id="message"></div>
-
-    <div id="footer">
-        <a href="https://guidephy.github.io/" target="_blank">@Guidephy</a>
-    </div>
-</div>
- 
-    <script>
-       let draggingElement = null;
-
-function handleDragStart(e) {
-    this.classList.add('dragging');
-    draggingElement = this;
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.innerHTML);
-    updateMessage('正在拖動答案...');
-
-    requestAnimationFrame(() => {
-        this.style.opacity = '0.7';
-        this.style.transform = 'scale(1.05)';
-    });
-}
-
-function handleDragOver(e) {
-    if (e.preventDefault) {
-        e.preventDefault();
-    }
-    e.dataTransfer.dropEffect = 'move';
-    return false;
-}
-
-
-function handleDrop(e) {
-    if (e.stopPropagation) {
-        e.stopPropagation();
-    }
-    
-    const target = e.target.closest('.blank') || e.target;
-    
-    if (draggingElement != target && !target.classList.contains('correct')) {
-        if (target.textContent) {
-            returnToPreviousPosition(target.textContent);
-        }
-        target.textContent = draggingElement.textContent;
-        draggingElement.textContent = '';
-        
-        requestAnimationFrame(() => {
-            draggingElement.style.visibility = 'hidden';
-            target.classList.add('filled');
-        });
-        
-        updateMessage('答案已放置！');
-    }
-    return false;
-}
-
-function handleDragEnd() {
-    this.classList.remove('dragging');
-    
-    requestAnimationFrame(() => {
-        this.style.opacity = '';
-        this.style.transform = '';
-    });
-    
-    updateMessage('');
-}
-
-function handleTouchStart(e) {
-    const touch = e.touches[0];
-    draggingElement = this;
-    this.classList.add('dragging');
-    this.style.position = 'absolute';
-    this.style.zIndex = 1000;
-    moveAt(touch.pageX, touch.pageY);
-    updateMessage('正在移動答案...');
-}
-
-function handleTouchMove(e) {
-    e.preventDefault();
-    if (!draggingElement) return;
-    const touch = e.touches[0];
-    moveAt(touch.pageX, touch.pageY);
-}
-
-function handleTouchEnd(e) {
-    if (!draggingElement) return;
-    draggingElement.classList.remove('dragging');
-    draggingElement.style.position = '';
-    draggingElement.style.zIndex = '';
-    
-    const touch = e.changedTouches[0];
-    const blank = document.elementFromPoint(touch.pageX, touch.pageY);
-    
-    if (blank && (blank.classList.contains('blank') || blank.closest('.blank'))) {
-        const targetBlank = blank.classList.contains('blank') ? blank : blank.closest('.blank');
-        if (!targetBlank.classList.contains('correct')) {
-            if (targetBlank.textContent) {
-                returnToPreviousPosition(targetBlank.textContent);
-            }
-            targetBlank.textContent = draggingElement.textContent;
-            draggingElement.style.visibility = 'hidden';
-            targetBlank.classList.add('filled');
-            updateMessage('答案已放置！');
-        }
-    } else {
-        draggingElement.style.visibility = 'visible';
-        updateMessage('');
-    }
-    draggingElement = null;
-}
-
-function moveAt(pageX, pageY) {
-    draggingElement.style.left = pageX - draggingElement.offsetWidth / 2 + 'px';
-    draggingElement.style.top = pageY - draggingElement.offsetHeight / 2 + 'px';
-}
-
-function returnToPreviousPosition(text) {
-    const options = document.querySelectorAll('.draggable');
-    for (let option of options) {
-        if (option.getAttribute('data-answer') === text && !option.textContent) {
-            option.textContent = text;
-            option.style.visibility = 'visible';
-            return;
-        }
-    }
-    // 如果沒有找到空的選項，創建一個新的
-    createNewOption(text);
-}
-
-function createNewOption(text) {
-    const answerArea = document.getElementById('answer-area');
-    const div = document.createElement('div');
-    div.className = 'draggable';
-    div.draggable = true;
-    div.setAttribute('data-answer', text);
-    div.textContent = text;
-    answerArea.appendChild(div);
-    addEventListenersToElement(div);
-}
-
-function addEventListenersToElement(element) {
-    element.addEventListener('dragstart', handleDragStart);
-    element.addEventListener('dragend', handleDragEnd);
-    element.addEventListener('touchstart', handleTouchStart);
-    element.addEventListener('touchmove', handleTouchMove);
-    element.addEventListener('touchend', handleTouchEnd);
-}
-
-function checkAnswers() {
-    const blanks = document.querySelectorAll('.blank');
-    let allCorrect = true;
-    let correctCount = 0;
-    blanks.forEach(blank => {
-        const correct = blank.dataset.correct;
-        const answer = blank.textContent.trim();
-        if (correct === answer) {
-            blank.classList.add('correct');
-            correctCount++;
-        } else {
-            allCorrect = false;
-            if (answer) {
-                returnToPreviousPosition(answer);
-                blank.textContent = '';
-                blank.classList.remove('filled');
-            }
-        }
-    });
-    const resultElement = document.getElementById('result');
-    if (allCorrect) {
-        // 修改頁面內容
-        const gameContainer = document.getElementById('game-container');
-        gameContainer.innerHTML = `
-            <h1>高中物理素養題</h1>
-            <div>
-                <p>詳解:</p>
-                <p><strong>重力</strong></p>
-                <p>首先，重力是作用範圍可達無窮遠的力。重力雖然相對其他基本力來說非常微弱，但因其作用範圍廣泛，對於天體運動、星系形成等大尺度結構具有極其重要的影響。重力在宇宙學和天體物理學中扮演著核心角色，支配著行星、恆星、星系甚至整個宇宙的結構和演化。</p>
-                <p><strong>弱力</strong></p>
-                <p>相對於重力，弱力的作用範圍非常微小，僅在亞原子粒子之間發揮作用。弱力是導致某些粒子衰變的關鍵力量，特別是在β衰變過程中，單獨的中子可以在弱力的作用下衰變為質子、電子和反微中子。弱力在粒子物理學和核物理學中起著重要作用，尤其在放射性衰變和核反應中。</p>
-                <p><strong>電磁力</strong></p>
-                <p>在原子內部，電子繞著原子核運動主要是由於電磁力的存在。電磁力是由帶電粒子之間的電荷互相作用產生的。它是使電子保持在原子核周圍運動的主要力量，而不是重力。電磁力不僅在原子尺度上起作用，還在化學反應、材料性質以及電力傳輸中扮演著關鍵角色。</p>
-                <p><strong>強力</strong></p>
-                <p>最後，強力是作用在原子核內的質子與中子之間的一種強大的力。強力的作用範圍極短，但它是所有基本力中最強的一種。強力能夠克服質子之間的電磁排斥作用，將質子和中子緊密地結合在一起，維持原子核的穩定性。因此，強力是原子核結構的基礎，也是核能和核反應的根本來源。</p>
+        <div id="question-area">
+            <div id="passage">
+                在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span class="blank" data-blank-id="重力">&nbsp;&nbsp;</span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span class="blank" data-blank-id="弱力">&nbsp;&nbsp;</span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span class="blank" data-blank-id="電磁力">&nbsp;&nbsp;</span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span class="blank" data-blank-id="強力">&nbsp;&nbsp;</span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
             </div>
-            <button id="next-question" onclick="loadNextQuestion()">下一題</button>
-        `;
 
-        // 設置按鈕樣式和居中
-        const nextButton = document.getElementById('next-question');
-        nextButton.style.display = 'block';
-        nextButton.style.margin = '20px auto';  // 居中
-    } else {
-        resultElement.textContent = `答對了 ${correctCount} 題，繼續加油！`;
-        resultElement.style.color = '#2B6CB0';
-    }
-    updateMessage('答案已檢查，請繼續完成題目。');
-}
+            <div id="answer-area">
+                <button class="answer-option" data-answer="重力">重力</button>
+                <button class="answer-option" data-answer="弱力">弱力</button>
+                <button class="answer-option" data-answer="電磁力">電磁力</button>
+                <button class="answer-option" data-answer="強力">強力</button>
+            </div>
 
-function loadNextQuestion() {
-    // 這裡可以添加加載下一題的邏輯
-    alert('下一題功能尚未實現');
-}
+            <button id="check-answer">確認答案</button>
 
-function updateMessage(text) {
-    document.getElementById('message').textContent = text;
-}
+            <div id="result"></div>
+            <div id="message"></div>
+        </div>
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
+        <div id="explanation" style="display: none;"></div>
+        <button id="next-question" style="display: none;">下一題</button>
 
-function createAnswerOptions() {
-    const answerArea = document.getElementById('answer-area');
-    const answers = [
-        { id: 'option-1', answer: '重力' },
-        { id: 'option-2', answer: '電磁力' },
-        { id: 'option-3', answer: '強力' },
-        { id: 'option-4', answer: '弱力' },
-        { id: 'option-5', answer: '摩擦力' },
-        { id: 'option-6', answer: '正向力' },
-        { id: 'option-5', answer: '繩張力' },
-        { id: 'option-6', answer: '彈力' },
-        // 在這裡添加更多答案選項
-    ];
+        <div id="footer">
+            <a href="https://guidephy.github.io/" target="_blank">@Guidephy</a>
+        </div>
+    </div>
 
-    const shuffledAnswers = shuffleArray(answers);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const blanks = document.querySelectorAll('.blank');
+            const answerOptions = document.querySelectorAll('.answer-option');
+            const checkAnswerButton = document.getElementById('check-answer');
+            const resultDiv = document.getElementById('result');
+            const messageDiv = document.getElementById('message');
+            const explanationDiv = document.getElementById('explanation');
+            const nextQuestionButton = document.getElementById('next-question');
+            const questionArea = document.getElementById('question-area');
 
-    shuffledAnswers.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.id = `option-${index + 1}`;
-        div.className = 'draggable';
-        div.draggable = true;
-        div.setAttribute('data-answer', item.answer);
-        div.textContent = item.answer;
-        answerArea.appendChild(div);
-    });
-}
+            let selectedBlank = null;
 
+            blanks.forEach(blank => {
+                blank.addEventListener('click', function() {
+                    if (selectedBlank) {
+                        selectedBlank.classList.remove('active');
+                    }
+                    selectedBlank = this;
+                    this.classList.add('active');
+                    
+                    resultDiv.textContent = '請從下方挑選正確答案';
+                });
+            });
 
+            answerOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    if (selectedBlank) {
+                        selectedBlank.textContent = this.textContent;
+                        selectedBlank.dataset.answer = this.dataset.answer;
+                        selectedBlank.classList.remove('active');
+                        selectedBlank = null;
+                        resultDiv.textContent = '';
+                    }
+                });
+            });
 
+            checkAnswerButton.addEventListener('click', function() {
+                let allCorrect = true;
+                blanks.forEach(blank => {
+                    if (blank.dataset.answer !== blank.dataset.blankId) {
+                        allCorrect = false;
+                    }
+                });
 
-    function checkOrientation() {
-    if ((window.innerWidth > window.innerHeight)) {
-        document.getElementById('orientation-message').style.display = 'block';
-        document.getElementById('game-container').style.display = 'none';
-    } else {
-        document.getElementById('orientation-message').style.display = 'none';
-        document.getElementById('game-container').style.display = 'block';
-    }
-}
+                if (allCorrect) {
+                    questionArea.style.display = 'none';
+                    explanationDiv.style.display = 'block';
+                    nextQuestionButton.style.display = 'block';
+                    explanationDiv.innerHTML = `
+                        <h2>詳解:</h2>
+                        <p>首先，重力是作用範圍可達無窮遠的力。重力雖然相對其他基本力來說非常微弱，但因其作用範圍廣泛，對於天體運動、星系形成等大尺度結構具有極其重要的影響。重力在宇宙學和天體物理學中扮演著核心角色，支配著行星、恆星、星系甚至整個宇宙的結構和演化。</p>
+                        <p>相對於重力，弱力的作用範圍非常微小，僅在亞原子粒子之間發揮作用。弱力是導致某些粒子衰變的關鍵力量，特別是在β衰變過程中，單獨的中子可以在弱力的作用下衰變為質子、電子和反微中子。弱力在粒子物理學和核物理學中起著重要作用，尤其在放射性衰變和核反應中。</p>
+                        <p>在原子內部，電子繞著原子核運動主要是由於電磁力的存在。電磁力是由帶電粒子之間的電荷互相作用產生的。它是使電子保持在原子核周圍運動的主要力量，而不是重力。電磁力不僅在原子尺度上起作用，還在化學反應、材料性質以及電力傳輸中扮演著關鍵角色。</p>
+                        <p>最後，強力是作用在原子核內的質子與中子之間的一種強大的力。強力的作用範圍極短，但它是所有基本力中最強的一種。強力能夠克服質子之間的電磁排斥作用，將質子和中子緊密地結合在一起，維持原子核的穩定性。因此，強力是原子核結構的基礎，也是核能和核反應的根本來源。</p>
+                    `;
+                } else {
+                    resultDiv.textContent = '很抱歉，答案不正確。請再試一次。';
+                    resultDiv.style.color = '#e74c3c';
+                }
+            });
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    createAnswerOptions();
-
-    const draggables = document.querySelectorAll('.draggable');
-    const blanks = document.querySelectorAll('.blank');
-
-    draggables.forEach(addEventListenersToElement);
-
-    blanks.forEach(blank => {
-        blank.addEventListener('dragover', handleDragOver);
-        blank.addEventListener('drop', handleDrop);
-        blank.addEventListener('dragstart', handleDragStart);
-    });
-
-    checkOrientation();
-    window.addEventListener('resize', checkOrientation);
-});
-
+            nextQuestionButton.addEventListener('click', function() {
+                // 這裡可以添加載入下一題的邏輯
+                alert('下一題功能尚未實現');
+            });
+        });
     </script>
 </body>
 </html>
