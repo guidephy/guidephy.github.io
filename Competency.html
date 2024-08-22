@@ -56,6 +56,11 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
+        .blank.correct {
+            color: blue;
+            pointer-events: none;
+        }
+
         #answer-area {
             display: flex;
             flex-wrap: wrap;
@@ -122,13 +127,15 @@
             color: #888;
         }
 
-        @media (max-width: 600px) {
-            #passage, #explanation {
-                font-size: 16px;
+        @media (max-width: 600px) and (orientation: portrait) {
+            body {
+                font-size: 0.8em;
             }
-            
-            .answer-option {
-                font-size: 14px;
+        }
+
+        @media (max-width: 800px) and (orientation: landscape) {
+            body {
+                font-size: 0.7em;
             }
         }
     </style>
@@ -139,7 +146,7 @@
         
         <div id="question-area">
             <div id="passage">
-                在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span class="blank" data-blank-id="重力">&nbsp;&nbsp;</span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span class="blank" data-blank-id="弱力">&nbsp;&nbsp;</span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span class="blank" data-blank-id="電磁力">&nbsp;&nbsp;</span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span class="blank" data-blank-id="強力">&nbsp;&nbsp;</span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
+                在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span class="blank" data-blank-id="重力">___</span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span class="blank" data-blank-id="弱力">___</span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span class="blank" data-blank-id="電磁力">___</span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span class="blank" data-blank-id="強力">___</span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
             </div>
 
             <div id="answer-area">
@@ -178,6 +185,7 @@
 
             blanks.forEach(blank => {
                 blank.addEventListener('click', function() {
+                    if (this.classList.contains('correct')) return;
                     if (selectedBlank) {
                         selectedBlank.classList.remove('active');
                     }
@@ -194,6 +202,9 @@
                         selectedBlank.textContent = this.textContent;
                         selectedBlank.dataset.answer = this.dataset.answer;
                         selectedBlank.classList.remove('active');
+                        if (selectedBlank.dataset.answer === selectedBlank.dataset.blankId) {
+                            selectedBlank.classList.add('correct');
+                        }
                         selectedBlank = null;
                         resultDiv.textContent = '';
                     }
