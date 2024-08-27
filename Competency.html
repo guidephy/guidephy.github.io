@@ -50,7 +50,7 @@
         }
 
         .dropzone {
-            width: 120px; /* 固定寬度以避免段落變動 */
+            width: 120px;
             padding: 5px;
             margin: 0 5px;
             border: 2px dashed #0056b3;
@@ -60,6 +60,13 @@
             transition: background-color 0.3s, border-color 0.3s;
             display: inline-block;
             cursor: pointer; /* 添加指標以顯示可點擊 */
+        }
+
+        .dropzone.selected {
+            border-color: #ffcc00; /* 更明顯的邊框顏色 */
+            background-color: white; /* 更亮的背景顏色 */
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.8); /* 添加陰影增強互動感 */
+            transform: scale(1.05); /* 輕微放大效果 */
         }
 
         .answers-container {
@@ -132,7 +139,7 @@
 <body>
     <div id="content-container">
         <h2>高中物理素養題</h2>
-        <h3 id="question-title">請依序從下方點選答案填入題目空格</h3>
+        <h3 id="question-title">請先選擇空格，再選擇答案填入</h3>
 
         <div id="question-content">
             <div id="passage">
@@ -161,20 +168,34 @@
     </div>
 
     <script>
-        let currentDropzone = 1;
+        let selectedDropzone = null;
+
+        document.querySelectorAll('.dropzone').forEach(dropzone => {
+            dropzone.addEventListener('click', function() {
+                // 如果之前有選擇的 dropzone，取消其選中狀態
+                if (selectedDropzone) {
+                    selectedDropzone.classList.remove('selected');
+                }
+                // 設置新的選中狀態
+                selectedDropzone = dropzone;
+                dropzone.classList.add('selected');
+            });
+        });
 
         function selectAnswer(element) {
-            let targetDropzone = document.querySelector('.dropzone:not(.correct):not(.has-answer)');
-
-            if (targetDropzone && targetDropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
-                targetDropzone.innerHTML = element.innerHTML;
-                targetDropzone.classList.add('has-answer'); // 標記為已填入答案
-                targetDropzone.onclick = function() {
-                    removeAnswer(targetDropzone, element);
+            if (selectedDropzone && selectedDropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
+                selectedDropzone.innerHTML = element.innerHTML;
+                selectedDropzone.classList.add('has-answer'); // 標記為已填入答案
+                selectedDropzone.onclick = function() {
+                    removeAnswer(selectedDropzone, element);
                 };
 
                 element.classList.add('selected'); // 標記選中的答案
                 element.style.display = 'none'; // 暫時隱藏答案
+
+                // 取消選中狀態
+                selectedDropzone.classList.remove('selected');
+                selectedDropzone = null;
             }
         }
 
@@ -185,6 +206,10 @@
             dropzone.innerHTML = "&nbsp;&nbsp;"; // 清空dropzone
             dropzone.classList.remove('has-answer'); // 移除已填入答案的標記
             dropzone.onclick = null; // 移除點擊事件
+
+            // 設置選中狀態
+            selectedDropzone = dropzone;
+            dropzone.classList.add('selected');
         }
 
         function checkAnswers() {
