@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,240 +7,234 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
+            background-color: #f0f4f8;
+            color: #333;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            text-align: center;
+            color: #0056b3;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        #question-title {
+            text-align: center;
+            color: #0056b3;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
             color: #333;
         }
 
-        #game-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            color: #4a4a4a;
-            text-align: center;
-            font-size: 28px;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        #content-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
         }
 
         #passage {
-            font-size: 18px;
-            line-height: 1.8;
-            margin-bottom: 30px;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            background-color: #fff;
+            margin-bottom: 20px;
         }
 
-        .blank {
-            border-bottom: 2px solid #3498db;
-            padding: 0 5px;
+        .dropzone {
+            width: 120px; /* 固定寬度以避免段落變動 */
+            padding: 5px;
             margin: 0 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            border: 2px dashed #0056b3;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #e7f3ff;
+            transition: background-color 0.3s, border-color 0.3s;
             display: inline-block;
-            min-width: 60px;
-            text-align: center;
         }
 
-        .blank.active {
-            background-color: #ffff99;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .blank.correct {
-            color: blue;
-            pointer-events: none;
-        }
-
-        #answer-area {
+        .answers-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 30px;
             justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            gap: 10px;
         }
 
-        .answer-option {
-            padding: 12px 20px;
-            font-size: 16px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .answer-option:hover {
-            background-color: #2980b9;
-            transform: scale(1.05);
-        }
-
-        #check-answer, #next-question {
-            display: block;
-            margin: 30px auto;
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        #check-answer:hover, #next-question:hover {
-            background-color: #27ae60;
-            transform: scale(1.05);
-        }
-
-        #result, #message {
-            margin-top: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        #explanation {
-            font-size: 16px;
-            line-height: 1.6;
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            padding: 20px;
+        .answer {
+            padding: 10px 20px;
+            background-color: #ffffff;
+            border: 2px solid #0056b3;
             border-radius: 10px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-        }
-
-        #footer {
-            margin-top: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+            font-size: 1rem;
             text-align: center;
-            font-size: 14px;
-            color: #888;
         }
 
-        @media (max-width: 600px) and (orientation: portrait) {
-            body {
-                font-size: 0.8em;
-            }
+        .answer:hover {
+            transform: scale(1.1);
+            background-color: #e0f7ff;
+            border-color: #007bff;
         }
 
-        @media (max-width: 800px) and (orientation: landscape) {
-            body {
-                font-size: 0.7em;
-            }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #003d80;
+        }
+
+        .correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+
+        .incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #333;
+            text-align: left;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        #next-question {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <h1>高中物理素養題</h1>
-        
-        <div id="question-area">
+    <div id="content-container">
+        <h2>高中物理素養題</h2>
+        <h3 id="question-title">請依序題目的空格從下方點選答案填入空格</h3>
+
+        <div id="question-content">
             <div id="passage">
-                在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span class="blank" data-blank-id="重力">___</span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span class="blank" data-blank-id="弱力">___</span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span class="blank" data-blank-id="電磁力">___</span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span class="blank" data-blank-id="強力">___</span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
+                在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span class="dropzone" id="dropzone1">&nbsp;&nbsp;</span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span class="dropzone" id="dropzone2">&nbsp;&nbsp;</span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span class="dropzone" id="dropzone3">&nbsp;&nbsp;</span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span class="dropzone" id="dropzone4">&nbsp;&nbsp;</span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
             </div>
 
-            <div id="answer-area">
-                <button class="answer-option" data-answer="重力">重力</button>
-                <button class="answer-option" data-answer="弱力">弱力</button>
-                <button class="answer-option" data-answer="電磁力">電磁力</button>
-                <button class="answer-option" data-answer="強力">強力</button>
+            <div class="answers-container">
+                <div class="answer" onclick="selectAnswer(this)">摩擦力</div>
+                <div class="answer" onclick="selectAnswer(this)">正向力</div>
+                <div class="answer" onclick="selectAnswer(this)">壓力</div>
+                <div class="answer" onclick="selectAnswer(this)">弱力</div>
+                <div class="answer" onclick="selectAnswer(this)">電磁力</div>
+                <div class="answer" onclick="selectAnswer(this)">繩張力</div>
+                <div class="answer" onclick="selectAnswer(this)">彈力</div>
+                <div class="answer" onclick="selectAnswer(this)">強力</div>
+                <div class="answer" onclick="selectAnswer(this)">重力</div>
             </div>
 
-            <button id="check-answer">確認答案</button>
-
-            <div id="result"></div>
-            <div id="message"></div>
+            <button onclick="checkAnswers()">確認答案</button>
         </div>
 
-        <div id="explanation" style="display: none;"></div>
-        <button id="next-question" style="display: none;">下一題</button>
-
-        <div id="footer">
-            <a href="https://guidephy.github.io/" target="_blank">@Guidephy</a>
+        <div class="explanation" id="explanation" style="display:none;">
+            <p id="answer-explanation"></p>
         </div>
+        <button id="next-question" onclick="nextQuestion()">下一題</button>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const blanks = document.querySelectorAll('.blank');
-            const answerOptions = document.querySelectorAll('.answer-option');
-            const checkAnswerButton = document.getElementById('check-answer');
-            const resultDiv = document.getElementById('result');
-            const messageDiv = document.getElementById('message');
-            const explanationDiv = document.getElementById('explanation');
-            const nextQuestionButton = document.getElementById('next-question');
-            const questionArea = document.getElementById('question-area');
+        let currentDropzone = 1;
 
-            let selectedBlank = null;
+        function selectAnswer(element) {
+            const dropzone = document.getElementById('dropzone' + currentDropzone);
+            if (dropzone && dropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
+                dropzone.innerHTML = element.innerHTML;
+                element.classList.add('selected'); // 標記選中的答案
+                element.style.display = 'none'; // 暫時隱藏答案
+                currentDropzone++;
+            }
+        }
 
-            blanks.forEach(blank => {
-                blank.addEventListener('click', function() {
-                    if (this.classList.contains('correct')) return;
-                    if (selectedBlank) {
-                        selectedBlank.classList.remove('active');
-                    }
-                    selectedBlank = this;
-                    this.classList.add('active');
-                    
-                    resultDiv.textContent = '請從下方挑選正確答案';
-                });
-            });
+        function checkAnswers() {
+            const answers = {
+                dropzone1: "重力",
+                dropzone2: "弱力",
+                dropzone3: "電磁力",
+                dropzone4: "強力"
+            };
 
-            answerOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    if (selectedBlank) {
-                        selectedBlank.textContent = this.textContent;
-                        selectedBlank.dataset.answer = this.dataset.answer;
-                        selectedBlank.classList.remove('active');
-                        if (selectedBlank.dataset.answer === selectedBlank.dataset.blankId) {
-                            selectedBlank.classList.add('correct');
-                        }
-                        selectedBlank = null;
-                        resultDiv.textContent = '';
-                    }
-                });
-            });
+            let allCorrect = true;
+            let firstIncorrectDropzone = null;
 
-            checkAnswerButton.addEventListener('click', function() {
-                let allCorrect = true;
-                blanks.forEach(blank => {
-                    if (blank.dataset.answer !== blank.dataset.blankId) {
-                        allCorrect = false;
-                    }
-                });
-
-                if (allCorrect) {
-                    questionArea.style.display = 'none';
-                    explanationDiv.style.display = 'block';
-                    nextQuestionButton.style.display = 'block';
-                    explanationDiv.innerHTML = `
-                        <h2>詳解:</h2>
-                        <p>首先，重力是作用範圍可達無窮遠的力。重力雖然相對其他基本力來說非常微弱，但因其作用範圍廣泛，對於天體運動、星系形成等大尺度結構具有極其重要的影響。重力在宇宙學和天體物理學中扮演著核心角色，支配著行星、恆星、星系甚至整個宇宙的結構和演化。</p>
-                        <p>相對於重力，弱力的作用範圍非常微小，僅在亞原子粒子之間發揮作用。弱力是導致某些粒子衰變的關鍵力量，特別是在β衰變過程中，單獨的中子可以在弱力的作用下衰變為質子、電子和反微中子。弱力在粒子物理學和核物理學中起著重要作用，尤其在放射性衰變和核反應中。</p>
-                        <p>在原子內部，電子繞著原子核運動主要是由於電磁力的存在。電磁力是由帶電粒子之間的電荷互相作用產生的。它是使電子保持在原子核周圍運動的主要力量，而不是重力。電磁力不僅在原子尺度上起作用，還在化學反應、材料性質以及電力傳輸中扮演著關鍵角色。</p>
-                        <p>最後，強力是作用在原子核內的質子與中子之間的一種強大的力。強力的作用範圍極短，但它是所有基本力中最強的一種。強力能夠克服質子之間的電磁排斥作用，將質子和中子緊密地結合在一起，維持原子核的穩定性。因此，強力是原子核結構的基礎，也是核能和核反應的根本來源。</p>
-                    `;
+            for (const [key, value] of Object.entries(answers)) {
+                const dropzone = document.getElementById(key);
+                if (dropzone.innerHTML.trim() === value) {
+                    dropzone.classList.add("correct");
+                    dropzone.classList.remove("incorrect");
                 } else {
-                    resultDiv.textContent = '很抱歉，答案不正確。請再試一次。';
-                    resultDiv.style.color = '#e74c3c';
+                    dropzone.classList.add("incorrect");
+                    dropzone.classList.remove("correct");
+                    showAnswerInOptions(dropzone.innerHTML.trim()); // 如果答案錯誤，將其顯示回答案區
+                    dropzone.innerHTML = "&nbsp;&nbsp;"; // 清空錯誤答案
+                    if (!firstIncorrectDropzone) {
+                        firstIncorrectDropzone = dropzone;
+                    }
+                    allCorrect = false;
+                }
+            }
+
+            if (!allCorrect && firstIncorrectDropzone) {
+                currentDropzone = parseInt(firstIncorrectDropzone.id.replace('dropzone', ''));
+            } else {
+                currentDropzone = Object.keys(answers).length + 1; // 如果全部正確，阻止再點選
+            }
+
+            const explanation = document.getElementById("explanation");
+            const nextButton = document.getElementById("next-question");
+            const questionContent = document.getElementById("question-content");
+            const answerExplain = document.getElementById("answer-explanation");
+
+            if (allCorrect) {
+                questionContent.style.display = "none";
+                answerExplain.innerText = "首先，重力是作用範圍可達無窮遠的力。重力雖然相對其他基本力來說非常微弱，但因其作用範圍廣泛，對於天體運動、星系形成等大尺度結構具有極其重要的影響。重力在宇宙學和天體物理學中扮演著核心角色，支配著行星、恆星、星系甚至整個宇宙的結構和演化。相對於重力，弱力的作用範圍非常微小，僅在亞原子粒子之間發揮作用。弱力是導致某些粒子衰變的關鍵力量，特別是在β衰變過程中，單獨的中子可以在弱力的作用下衰變為質子、電子和反微中子。弱力在粒子物理學和核物理學中起著重要作用，尤其在放射性衰變和核反應中。在原子內部，電子繞著原子核運動主要是由於電磁力的存在。電磁力是由帶電粒子之間的電荷互相作用產生的。它是使電子保持在原子核周圍運動的主要力量，而不是重力。電磁力不僅在原子尺度上起作用，還在化學反應、材料性質以及電力傳輸中扮演著關鍵角色。最後，強力是作用在原子核內的質子與中子之間的一種強大的力。強力的作用範圍極短，但它是所有基本力中最強的一種。強力能夠克服質子之間的電磁排斥作用，將質子和中子緊密地結合在一起，維持原子核的穩定性。因此，強力是原子核結構的基礎，也是核能和核反應的根本來源。";
+                explanation.style.display = "block";
+                nextButton.style.display = "block";
+                document.getElementById("question-title").innerText = "詳解";
+                document.querySelectorAll('.dropzone').forEach(zone => zone.style.display = 'none');
+            } else {
+                explanation.style.display = "none";
+                nextButton.style.display = "none";
+            }
+        }
+
+        function showAnswerInOptions(answerText) {
+            const answers = document.querySelectorAll('.answer');
+            answers.forEach(answer => {
+                if (answer.innerHTML === answerText) {
+                    answer.style.display = 'block'; // 錯誤答案重新顯示
+                    answer.style.pointerEvents = 'auto'; // 重新啟用選項
+                    answer.classList.remove('selected'); // 移除選中標記
                 }
             });
+        }
 
-            nextQuestionButton.addEventListener('click', function() {
-                // 這裡可以添加載入下一題的邏輯
-                alert('下一題功能尚未實現');
-            });
-        });
+        function nextQuestion() {
+            alert("尚未開發此功能");
+        }
     </script>
 </body>
 </html>
