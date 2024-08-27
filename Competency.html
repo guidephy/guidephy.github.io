@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>高中物理素養題</title>
     <style>
+        /* 你的原始CSS樣式保持不變 */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f4f8;
@@ -29,10 +30,9 @@
         #question-title {
             text-align: center;
             color: red;
-            font-size: 1 rem;
+            font-size: 1rem;
             margin-top: 5px;
             margin-bottom: 5px;
-            
         }
 
         #content-container {
@@ -59,6 +59,7 @@
             background-color: #e7f3ff;
             transition: background-color 0.3s, border-color 0.3s;
             display: inline-block;
+            cursor: pointer; /* 添加指標以顯示可點擊 */
         }
 
         .answers-container {
@@ -106,6 +107,7 @@
         .correct {
             background-color: #d4edda;
             border-color: #28a745;
+            pointer-events: none; /* 禁用點擊事件 */
         }
 
         .incorrect {
@@ -162,13 +164,27 @@
         let currentDropzone = 1;
 
         function selectAnswer(element) {
-            const dropzone = document.getElementById('dropzone' + currentDropzone);
-            if (dropzone && dropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
-                dropzone.innerHTML = element.innerHTML;
+            let targetDropzone = document.querySelector('.dropzone:not(.correct):not(.has-answer)');
+
+            if (targetDropzone && targetDropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
+                targetDropzone.innerHTML = element.innerHTML;
+                targetDropzone.classList.add('has-answer'); // 標記為已填入答案
+                targetDropzone.onclick = function() {
+                    removeAnswer(targetDropzone, element);
+                };
+
                 element.classList.add('selected'); // 標記選中的答案
                 element.style.display = 'none'; // 暫時隱藏答案
-                currentDropzone++;
             }
+        }
+
+        function removeAnswer(dropzone, element) {
+            if (dropzone.classList.contains('correct')) return; // 如果是正確答案，則不允許修改
+
+            element.style.display = 'block'; // 恢復顯示答案
+            dropzone.innerHTML = "&nbsp;&nbsp;"; // 清空dropzone
+            dropzone.classList.remove('has-answer'); // 移除已填入答案的標記
+            dropzone.onclick = null; // 移除點擊事件
         }
 
         function checkAnswers() {
@@ -180,30 +196,22 @@
             };
 
             let allCorrect = true;
-            let firstIncorrectDropzone = null;
 
             for (const [key, value] of Object.entries(answers)) {
                 const dropzone = document.getElementById(key);
                 if (dropzone.innerHTML.trim() === value) {
                     dropzone.classList.add("correct");
                     dropzone.classList.remove("incorrect");
+                    dropzone.onclick = null; // 正確答案不能再點擊
                 } else {
                     dropzone.classList.add("incorrect");
                     dropzone.classList.remove("correct");
                     showAnswerInOptions(dropzone.innerHTML.trim()); // 如果答案錯誤，將其顯示回答案區
                     dropzone.innerHTML = "&nbsp;&nbsp;"; // 清空錯誤答案
-                    if (!firstIncorrectDropzone) {
-                        firstIncorrectDropzone = dropzone;
-                    }
+                    dropzone.classList.remove('has-answer'); // 移除已填入答案的標記
+                    dropzone.onclick = null; // 移除點擊事件
                     allCorrect = false;
                 }
-            }
-
-            if (!allCorrect && firstIncorrectDropzone) {
-                currentDropzone = parseInt(firstIncorrectDropzone.id.replace('dropzone', ''));
-                document.getElementById("question-title").innerText="答案有誤，請再作答";
-            } else {
-                currentDropzone = Object.keys(answers).length + 1; // 如果全部正確，阻止再點選
             }
 
             const explanation = document.getElementById("explanation");
@@ -212,15 +220,12 @@
             const answerExplain = document.getElementById("answer-explanation");
 
             if (allCorrect) {
-
-
                 alert("答案完全正確!")
                 questionContent.style.display = "none";
                 answerExplain.innerText = "首先，重力是作用範圍可達無窮遠的力。重力雖然相對其他基本力來說非常微弱，但因其作用範圍廣泛，對於天體運動、星系形成等大尺度結構具有極其重要的影響。重力在宇宙學和天體物理學中扮演著核心角色，支配著行星、恆星、星系甚至整個宇宙的結構和演化。相對於重力，弱力的作用範圍非常微小，僅在亞原子粒子之間發揮作用。弱力是導致某些粒子衰變的關鍵力量，特別是在β衰變過程中，單獨的中子可以在弱力的作用下衰變為質子、電子和反微中子。弱力在粒子物理學和核物理學中起著重要作用，尤其在放射性衰變和核反應中。在原子內部，電子繞著原子核運動主要是由於電磁力的存在。電磁力是由帶電粒子之間的電荷互相作用產生的。它是使電子保持在原子核周圍運動的主要力量，而不是重力。電磁力不僅在原子尺度上起作用，還在化學反應、材料性質以及電力傳輸中扮演著關鍵角色。最後，強力是作用在原子核內的質子與中子之間的一種強大的力。強力的作用範圍極短，但它是所有基本力中最強的一種。強力能夠克服質子之間的電磁排斥作用，將質子和中子緊密地結合在一起，維持原子核的穩定性。因此，強力是原子核結構的基礎，也是核能和核反應的根本來源。";
                 explanation.style.display = "block";
                 nextButton.style.display = "block";
                 document.getElementById("question-title").innerText = "詳解";
-                document.querySelectorAll('.dropzone').forEach(zone => zone.style.display = 'none');
             } else {
                 explanation.style.display = "none";
                 nextButton.style.display = "none";
