@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <title>高中物理素養題</title>
     <style>
-        /* 你的原始CSS樣式保持不變 */
+      
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f4f8;
@@ -143,19 +144,10 @@
 
         <div id="question-content">
             <div id="passage">
-                在物理學中，基本交互作用是支配粒子間相互作用的四種基本力。這些基本力在自然界中扮演著不同的角色，並且它們的作用範圍和影響對象各不相同。首先，<span class="dropzone" id="dropzone1">&nbsp;&nbsp;</span>是四種基本交互作用中一種作用範圍可達無窮遠的力，這使得它在星系形成中扮演了重要角色。相反，<span class="dropzone" id="dropzone2">&nbsp;&nbsp;</span>作用範圍極其微小，僅在亞原子粒子之間發揮作用，但它能夠使單獨的中子衰變為質子、電子和其他粒子，這一過程被稱為β衰變。至於原子內部的情況，電子繞著原子核運動主要是由於<span class="dropzone" id="dropzone3">&nbsp;&nbsp;</span>的存在，而非重力作用。此外，在原子核內，質子與中子之間存在<span class="dropzone" id="dropzone4">&nbsp;&nbsp;</span>，這種力使它們能夠穩定結合在一起，維持原子核的完整性。
             </div>
 
-            <div class="answers-container">
-                <div class="answer" onclick="selectAnswer(this)">摩擦力</div>
-                <div class="answer" onclick="selectAnswer(this)">正向力</div>
-                <div class="answer" onclick="selectAnswer(this)">壓力</div>
-                <div class="answer" onclick="selectAnswer(this)">弱力</div>
-                <div class="answer" onclick="selectAnswer(this)">電磁力</div>
-                <div class="answer" onclick="selectAnswer(this)">繩張力</div>
-                <div class="answer" onclick="selectAnswer(this)">彈力</div>
-                <div class="answer" onclick="selectAnswer(this)">強力</div>
-                <div class="answer" onclick="selectAnswer(this)">重力</div>
+            <div id="answers-container"class="answers-container">
+               
             </div>
 
             <button onclick="checkAnswers()">確認答案</button>
@@ -168,109 +160,176 @@
     </div>
 
     <script>
-        let selectedDropzone = null;
+let selectedDropzone = null;
+let allQuestionData = null;
+let questionNumber = 1;
 
-        document.querySelectorAll('.dropzone').forEach(dropzone => {
-            dropzone.addEventListener('click', function() {
-                // 如果之前有選擇的 dropzone，取消其選中狀態
-                if (selectedDropzone) {
-                    selectedDropzone.classList.remove('selected');
-                }
-                // 設置新的選中狀態
-                selectedDropzone = dropzone;
-                dropzone.classList.add('selected');
-            });
-        });
+// 從google sheet獲取資料
+fetch("https://script.google.com/macros/s/AKfycbx4b1cKdaXT5Yer-k3yWQHis70ebz33ryPDZR7D6bTP8e4Kon5sKMSrcRYzSDC7ySMSew/exec")
+    .then(response => response.json())
+    .then(data => {
+        allQuestionData = data;
+        loadQuestion();
+    })
+    .catch(error => console.error('Error fetching data:', error));
 
-        function selectAnswer(element) {
-            if (selectedDropzone && selectedDropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
-                selectedDropzone.innerHTML = element.innerHTML;
-                selectedDropzone.classList.add('has-answer'); // 標記為已填入答案
-                selectedDropzone.onclick = function() {
-                    removeAnswer(selectedDropzone, element);
-                };
+function loadQuestion() {
+    const question = allQuestionData[questionNumber];
 
-                element.classList.add('selected'); // 標記選中的答案
-                element.style.display = 'none'; // 暫時隱藏答案
+    // 先隨機排列選項
+    let answersArray = question[5].split('</div>'); // 分割每個選項
+    answersArray.pop(); // 去除最後一個空元素
 
-                // 取消選中狀態
+    // 使用 Fisher-Yates 洗牌算法進行隨機排序
+    for (let i = answersArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [answersArray[i], answersArray[j]] = [answersArray[j], answersArray[i]];
+    }
+
+    // 重新組合選項並設置到容器中
+    const randomizedAnswers = answersArray.join('</div>') + '</div>';
+
+    document.getElementById("passage").innerHTML = question[3];
+    document.getElementById("answers-container").innerHTML = randomizedAnswers;
+
+    // 使用正則表達式來確保所有的 \n 替換為 <br> 標籤
+    const explanationWithLineBreaks = question[6].replace(/\\n/g, '<br>');
+    document.getElementById("answer-explanation").innerHTML = explanationWithLineBreaks;
+
+    document.getElementById("question-title").innerText = "請先選擇空格，再選擇答案填入";
+
+    selectedDropzone = null;
+    bindEvents();
+
+    document.getElementById("explanation").style.display = "none";
+    document.getElementById("next-question").style.display = "none";
+    document.getElementById("question-content").style.display = "block";
+}
+
+
+function bindEvents() {
+  
+    document.querySelectorAll('.dropzone').forEach(dropzone => {
+        dropzone.addEventListener('click', function () {
+            if (selectedDropzone) {
                 selectedDropzone.classList.remove('selected');
-                selectedDropzone = null;
             }
-        }
-
-        function removeAnswer(dropzone, element) {
-            if (dropzone.classList.contains('correct')) return; // 如果是正確答案，則不允許修改
-
-            element.style.display = 'block'; // 恢復顯示答案
-            dropzone.innerHTML = "&nbsp;&nbsp;"; // 清空dropzone
-            dropzone.classList.remove('has-answer'); // 移除已填入答案的標記
-            dropzone.onclick = null; // 移除點擊事件
-
-            // 設置選中狀態
             selectedDropzone = dropzone;
             dropzone.classList.add('selected');
+        });
+    });
+
+    
+    document.querySelectorAll('.answer').forEach(answer => {
+        answer.addEventListener('click', function () {
+            selectAnswer(answer);
+        });
+    });
+}
+
+function selectAnswer(element) {
+    if (selectedDropzone && selectedDropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
+        selectedDropzone.innerHTML = element.innerHTML;
+        selectedDropzone.classList.add('has-answer');
+        selectedDropzone.onclick = function () {
+            removeAnswer(selectedDropzone, element);
+        };
+
+        element.classList.add('selected');
+        element.style.display = 'none';
+
+        selectedDropzone.classList.remove('selected');
+        selectedDropzone = null;
+    }
+}
+
+function removeAnswer(dropzone, element) {
+    element.style.display = 'block';
+    dropzone.innerHTML = "&nbsp;&nbsp;";
+    dropzone.classList.remove('has-answer');
+    dropzone.onclick = null;
+
+    selectedDropzone = dropzone;
+    dropzone.classList.add('selected');
+}
+
+function checkAnswers() {
+    const answerString = allQuestionData[questionNumber][4];
+    const answers = parseAnswers(answerString);
+
+    let allCorrect = true;
+
+    document.querySelectorAll('.dropzone').forEach(dropzone => {
+        const id = dropzone.id;
+        const userAnswer = dropzone.innerHTML.trim();
+        const correctAnswer = answers[id];
+
+        console.log(`Checking dropzone: ${id}`);
+        console.log(`User Answer: "${userAnswer}"`);
+        console.log(`Correct Answer: "${correctAnswer}"`);
+
+        if (userAnswer === correctAnswer) {
+            dropzone.classList.add("correct");
+            dropzone.classList.remove("incorrect");
+            dropzone.onclick = null;
+        } else {
+            dropzone.classList.add("incorrect");
+            dropzone.classList.remove("correct");
+            showAnswerInOptions(userAnswer);
+            dropzone.innerHTML = "&nbsp;&nbsp;";
+            dropzone.classList.remove('has-answer');
+            allCorrect = false;
         }
+    });
 
-        function checkAnswers() {
-            const answers = {
-                dropzone1: "重力",
-                dropzone2: "弱力",
-                dropzone3: "電磁力",
-                dropzone4: "強力"
-            };
+    if (allCorrect) {
+        document.getElementById("question-content").style.display = "none";
+        document.getElementById("explanation").style.display = "block";
+        document.getElementById("next-question").style.display = "block";
+        document.getElementById("question-title").innerText = "詳解";
+    }
+}
 
-            let allCorrect = true;
+function parseAnswers(answerString) {
+    const answers = {};
 
-            for (const [key, value] of Object.entries(answers)) {
-                const dropzone = document.getElementById(key);
-                if (dropzone.innerHTML.trim() === value) {
-                    dropzone.classList.add("correct");
-                    dropzone.classList.remove("incorrect");
-                    dropzone.onclick = null; // 正確答案不能再點擊
-                } else {
-                    dropzone.classList.add("incorrect");
-                    dropzone.classList.remove("correct");
-                    showAnswerInOptions(dropzone.innerHTML.trim()); // 如果答案錯誤，將其顯示回答案區
-                    dropzone.innerHTML = "&nbsp;&nbsp;"; // 清空錯誤答案
-                    dropzone.classList.remove('has-answer'); // 移除已填入答案的標記
-                    dropzone.onclick = null; // 移除點擊事件
-                    allCorrect = false;
-                }
-            }
 
-            const explanation = document.getElementById("explanation");
-            const nextButton = document.getElementById("next-question");
-            const questionContent = document.getElementById("question-content");
-            const answerExplain = document.getElementById("answer-explanation");
+    
+    const regex = /([^,{}]+):\s*([^,{}]+)/g;
+    let match;
 
-            if (allCorrect) {
-                alert("答案完全正確!")
-                questionContent.style.display = "none";
-                answerExplain.innerText = "首先，重力是作用範圍可達無窮遠的力。重力雖然相對其他基本力來說非常微弱，但因其作用範圍廣泛，對於天體運動、星系形成等大尺度結構具有極其重要的影響。重力在宇宙學和天體物理學中扮演著核心角色，支配著行星、恆星、星系甚至整個宇宙的結構和演化。相對於重力，弱力的作用範圍非常微小，僅在亞原子粒子之間發揮作用。弱力是導致某些粒子衰變的關鍵力量，特別是在β衰變過程中，單獨的中子可以在弱力的作用下衰變為質子、電子和反微中子。弱力在粒子物理學和核物理學中起著重要作用，尤其在放射性衰變和核反應中。在原子內部，電子繞著原子核運動主要是由於電磁力的存在。電磁力是由帶電粒子之間的電荷互相作用產生的。它是使電子保持在原子核周圍運動的主要力量，而不是重力。電磁力不僅在原子尺度上起作用，還在化學反應、材料性質以及電力傳輸中扮演著關鍵角色。最後，強力是作用在原子核內的質子與中子之間的一種強大的力。強力的作用範圍極短，但它是所有基本力中最強的一種。強力能夠克服質子之間的電磁排斥作用，將質子和中子緊密地結合在一起，維持原子核的穩定性。因此，強力是原子核結構的基礎，也是核能和核反應的根本來源。";
-                explanation.style.display = "block";
-                nextButton.style.display = "block";
-                document.getElementById("question-title").innerText = "詳解";
-            } else {
-                explanation.style.display = "none";
-                nextButton.style.display = "none";
-            }
+    while ((match = regex.exec(answerString)) !== null) {
+        const key = match[1].trim();
+        const value = match[2].trim().replace(/['"]/g, '');
+        
+        answers[key] = value;
+    }
+
+    return answers;
+}
+
+
+  
+
+function showAnswerInOptions(answerText) {
+    document.querySelectorAll('.answer').forEach(answer => {
+        if (answer.innerHTML.trim() === answerText) {
+            answer.style.display = 'block';
+            answer.style.pointerEvents = 'auto';
+            answer.classList.remove('selected');
         }
+    });
+}
 
-        function showAnswerInOptions(answerText) {
-            const answers = document.querySelectorAll('.answer');
-            answers.forEach(answer => {
-                if (answer.innerHTML === answerText) {
-                    answer.style.display = 'block'; // 錯誤答案重新顯示
-                    answer.style.pointerEvents = 'auto'; // 重新啟用選項
-                    answer.classList.remove('selected'); // 移除選中標記
-                }
-            });
-        }
+function nextQuestion() {
+    questionNumber += 1;
+    if (questionNumber >= allQuestionData.length) {
+        alert("已完成最後一題了！");
+        return;
+    }
+    loadQuestion();
+}
 
-        function nextQuestion() {
-            alert("尚未開發此功能");
-        }
     </script>
 </body>
 </html>
