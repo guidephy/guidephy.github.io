@@ -281,13 +281,14 @@ function checkAnswers() {
             allCorrect = false;
         }
     });
-
+    
     if (allCorrect) {
+        alert("太棒了，完全正確!")
         document.getElementById("question-content").style.display = "none";
         document.getElementById("explanation").style.display = "block";
         document.getElementById("next-question").style.display = "block";
         document.getElementById("question-title").innerText = "詳解";
-    }
+    }else{ alert("答案有錯誤喔!")}
 }
 
 function parseAnswers(answerString) {
@@ -323,6 +324,7 @@ function showAnswerInOptions(answerText) {
 
 function nextQuestion() {
     questionNumber += 1;
+    
     if (questionNumber >= allQuestionData.length) {
         alert("已完成最後一題了！");
         return;
