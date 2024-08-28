@@ -150,7 +150,7 @@
                
             </div>
 
-            <button onclick="checkAnswers()">確認答案</button>
+            <button id="checkAnswer" onclick="checkAnswers()"style="display:none;">確認答案</button>
         </div>
 
         <div class="explanation" id="explanation" style="display:none;">
@@ -170,6 +170,7 @@ fetch("https://script.google.com/macros/s/AKfycbx4b1cKdaXT5Yer-k3yWQHis70ebz33ry
     .then(data => {
         allQuestionData = data;
         loadQuestion();
+    document.getElementById("checkAnswer").style.display = "block";
     })
     .catch(error => console.error('Error fetching data:', error));
 
