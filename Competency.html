@@ -148,6 +148,8 @@
         <h3 id="question-title">題目載入中…請稍後</h3>
 
         <div id="question-content">
+            <div id="question-picture">
+            </div>
             <div id="passage">
             </div>
 
@@ -168,7 +170,7 @@
     <script>
 let selectedDropzone = null;
 let allQuestionData = null;
-let questionNumber = 1;
+let questionNumber = 3;
 
 // 從google sheet獲取資料
 fetch("https://script.google.com/macros/s/AKfycbx4b1cKdaXT5Yer-k3yWQHis70ebz33ryPDZR7D6bTP8e4Kon5sKMSrcRYzSDC7ySMSew/exec")
@@ -184,7 +186,16 @@ fetch("https://script.google.com/macros/s/AKfycbx4b1cKdaXT5Yer-k3yWQHis70ebz33ry
 function loadQuestion() {
     const question = allQuestionData[questionNumber];
 
-    document.getElementById("questionSource").innerText ="修改至"+question[1]+question[2] 
+    document.getElementById("questionSource").innerText = "修改至" + question[1] + question[2];
+
+    // 檢查 question[7] 是否有圖片連結
+    if (question[7] && question[7].trim() !== "") {
+        const imgElement = `<img src="${question[7]}" alt="Question Image" style="max-width: 100%; height: auto;">`;
+        document.getElementById("question-picture").innerHTML = imgElement;
+        document.getElementById("question-picture").style.display = "block";
+    } else {
+        document.getElementById("question-picture").style.display = "none";
+    }
 
     // 先隨機排列選項
     let answersArray = question[5].split('</div>'); // 分割每個選項
@@ -215,6 +226,7 @@ function loadQuestion() {
     document.getElementById("next-question").style.display = "none";
     document.getElementById("question-content").style.display = "block";
 }
+
 
 
 function bindEvents() {
