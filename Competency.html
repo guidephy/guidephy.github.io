@@ -140,7 +140,7 @@
 <body>
     <div id="content-container">
         <h2>高中物理素養題</h2>
-        <h3 id="question-title">請先選擇空格，再選擇答案填入</h3>
+        <h3 id="question-title">題目載入中…請稍後</h3>
 
         <div id="question-content">
             <div id="passage">
@@ -171,6 +171,7 @@ fetch("https://script.google.com/macros/s/AKfycbx4b1cKdaXT5Yer-k3yWQHis70ebz33ry
         allQuestionData = data;
         loadQuestion();
     document.getElementById("checkAnswer").style.display = "block";
+    document.getElementById("question-title").innerText = "請先選擇空格，再選擇答案填入";
     })
     .catch(error => console.error('Error fetching data:', error));
 
