@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21週行事曆</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .calendar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .week {
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #1abc9c;
+            color: white;
+        }
+        td {
+            background-color: #ecf9f2;
+            cursor: pointer;
+        }
+        .time-slot {
+            background-color: #16a085;
+            color: white;
+            font-weight: bold;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        .controls button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .controls button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        td[contenteditable="true"] {
+            outline: none;
+        }
+        .color-picker {
+            display: flex;
+            justify-content: center;
+        }
+        .color-picker button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            margin: 0 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .color-picker .black { background-color: #000; }
+        .color-picker .blue { background-color: #3498db; }
+        .color-picker .red { background-color: #e74c3c; }
+        .color-picker .green { background-color: #2ecc71; }
+        .color-picker button.selected {
+            border: 2px solid #34495e;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>21週行事曆</h1>
+
+    <div class="calendar-container">
+        <div class="week"></div>
+        <div class="controls">
+            <button id="prev-week" disabled>上週</button>
+            <div class="color-picker">
+                <button class="black selected" data-color="black"></button>
+                <button class="blue" data-color="blue"></button>
+                <button class="red" data-color="red"></button>
+                <button class="green" data-color="green"></button>
+            </div>
+            <button id="next-week">下週</button>
+        </div>
+    </div>
+
+    <script>
+        let currentColor = 'black';
+        const totalWeeks = 21;
+        let currentWeek = 0;
+
+        document.querySelectorAll('.color-picker button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelector('.color-picker .selected').classList.remove('selected');
+                button.classList.add('selected');
+                currentColor = button.dataset.color;
+            });
+        });
+
+        function generateCalendar(startDate, weekOffset) {
+            const weekDiv = document.querySelector('.week');
+            weekDiv.innerHTML = '';
+
+            let currentDate = new Date(startDate);
+            currentDate.setDate(currentDate.getDate() + (weekOffset * 7));
+
+            let tableContent = `
+                <table>
+                    <tr>
+                        <th class="time-slot"></th>
+                        <th>${currentDate.toLocaleDateString('zh-Hant', { month: 'numeric', day: 'numeric' })}<br>星期日</th>
+                        <th>${new Date(currentDate.setDate(currentDate.getDate() + 1)).toLocaleDateString('zh-Hant', { month: 'numeric', day: 'numeric' })}<br>星期一</th>
+                        <th>${new Date(currentDate.setDate(currentDate.getDate() + 1)).toLocaleDateString('zh-Hant', { month: 'numeric', day: 'numeric' })}<br>星期二</th>
+                        <th>${new Date(currentDate.setDate(currentDate.getDate() + 1)).toLocaleDateString('zh-Hant', { month: 'numeric', day: 'numeric' })}<br>星期三</th>
+                        <th>${new Date(currentDate.setDate(currentDate.getDate() + 1)).toLocaleDateString('zh-Hant', { month: 'numeric', day: 'numeric' })}<br>星期四</th>
+                        <th>${new Date(currentDate.setDate(currentDate.getDate() + 1)).toLocaleDateString('zh-Hant', { month: 'numeric', day: 'numeric' })}<br>星期五</th>
+                        <th>${new Date(currentDate.setDate(currentDate.getDate() + 1)).toLocaleDateString('zh-Hant', { month: 'numeric', day: 'numeric' })}<br>星期六</th>
+                    </tr>
+                    ${generateTableRows(weekOffset)}
+                </table>
+            `;
+
+            weekDiv.innerHTML = tableContent;
+
+            // 加载保存的内容
+            loadContent(weekOffset);
+
+            // 添加事件监听器到每个单元格
+            addCellEventListeners();
+        }
+
+        function generateTableRows(weekOffset) {
+            const slots = ['第一節', '第二節', '第三節', '第四節', '午休', '第五節', '第六節', '第七節', '第八節', '晚上'];
+            let rows = '';
+
+            slots.forEach((slot, rowIndex) => {
+                rows += `<tr><td class="time-slot">${slot}</td>`;
+                for (let day = 0; day < 7; day++) {
+                    rows += `<td contenteditable="true" data-week="${weekOffset}" data-day="${day}" data-slot="${rowIndex}" style="color:${currentColor};"></td>`;
+                }
+                rows += `</tr>`;
+            });
+
+            return rows;
+        }
+
+        function saveContent(weekOffset) {
+            const cells = document.querySelectorAll(`td[contenteditable="true"]`);
+            const weekData = {};
+
+            cells.forEach(cell => {
+                const day = cell.getAttribute('data-day');
+                const slot = cell.getAttribute('data-slot');
+                if (!weekData[day]) {
+                    weekData[day] = {};
+                }
+                weekData[day][slot] = {
+                    content: cell.innerHTML,
+                    color: cell.style.color
+                };
+            });
+
+            localStorage.setItem(`week-${weekOffset}`, JSON.stringify(weekData));
+        }
+
+        function loadContent(weekOffset) {
+            const weekData = JSON.parse(localStorage.getItem(`week-${weekOffset}`) || '{}');
+
+            Object.keys(weekData).forEach(day => {
+                Object.keys(weekData[day]).forEach(slot => {
+                    const cell = document.querySelector(`td[data-week="${weekOffset}"][data-day="${day}"][data-slot="${slot}"]`);
+                    if (cell) {
+                        cell.innerHTML = weekData[day][slot].content || '';
+                        cell.style.color = weekData[day][slot].color || 'black';
+                    }
+                });
+            });
+        }
+
+        function addCellEventListeners() {
+            const cells = document.querySelectorAll('td[contenteditable="true"]');
+            cells.forEach(cell => {
+                cell.addEventListener('focus', () => {
+                    cell.style.color = currentColor; // Set color when cell is focused
+                });
+
+                cell.addEventListener('input', () => {
+                    saveContent(currentWeek); // Save content whenever it changes
+                });
+            });
+        }
+
+        function updateButtons() {
+            document.getElementById('prev-week').disabled = currentWeek === 0;
+            document.getElementById('next-week').disabled = currentWeek === totalWeeks - 1;
+        }
+
+        document.getElementById('prev-week').addEventListener('click', () => {
+            if (currentWeek > 0) {
+                saveContent(currentWeek);
+                currentWeek--;
+                generateCalendar('2024-08-25', currentWeek);
+                updateButtons();
+            }
+        });
+
+        document.getElementById('next-week').addEventListener('click', () => {
+            if (currentWeek < totalWeeks - 1) {
+                saveContent(currentWeek);
+                currentWeek++;
+                generateCalendar('2024-08-25', currentWeek);
+                updateButtons();
+            }
+        });
+
+        // 初始化顯示第一週
+        generateCalendar('2024-08-25', currentWeek);
+        updateButtons();
+
+    </script>
+
+</body>
+</html>
+
+
