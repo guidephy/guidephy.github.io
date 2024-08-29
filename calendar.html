@@ -9,7 +9,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f8ff;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             line-height: 1.6;
             color: #333;
         }
@@ -22,24 +22,28 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
         }
         .week {
             background-color: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             overflow: hidden;
-            width: 90%;
+            width: 100%;
             max-width: 800px;
             margin-bottom: 20px;
+            overflow-x: auto; /* 允許橫向滾動 */
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px; /* 最小寬度以便在小屏幕上顯示完整表格 */
         }
         th, td {
-            padding: 12px;
+            padding: 8px;
             text-align: center;
             border: 1px solid #ddd;
+            font-size: 14px;
         }
         th {
             background-color: #1abc9c;
@@ -58,9 +62,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 90%;
+            width: 100%;
             max-width: 800px;
             margin-bottom: 20px;
+            flex-wrap: wrap; /* 當空間不足時自動換行 */
         }
         .controls button {
             background-color: #3498db;
@@ -69,7 +74,9 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
+            flex: 1; /* 使按鈕在小屏幕上自適應寬度 */
+            margin: 5px;
         }
         .controls button:disabled {
             background-color: #bdc3c7;
@@ -81,13 +88,15 @@
         .color-picker {
             display: flex;
             justify-content: center;
+            flex: 1;
+            margin: 5px;
         }
         .color-picker button {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             border: none;
-            margin: 0 10px;
+            margin: 0 5px;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
@@ -97,6 +106,25 @@
         .color-picker .green { background-color: #2ecc71; }
         .color-picker button.selected {
             border: 2px solid #34495e;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px;
+            }
+            th, td {
+                padding: 6px;
+                font-size: 12px;
+            }
+            .controls button {
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+            .color-picker button {
+                width: 30px;
+                height: 30px;
+                margin: 0 3px;
+            }
         }
     </style>
 </head>
@@ -255,5 +283,3 @@
 
 </body>
 </html>
-
-
