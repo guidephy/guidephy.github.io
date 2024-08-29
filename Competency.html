@@ -50,6 +50,11 @@
             margin-bottom: 20px;
         }
 
+        #questionSource{
+            text-align: right;
+
+        }
+
         .dropzone {
             width: 80px;
             padding: 5px;
@@ -151,6 +156,7 @@
             </div>
 
             <button id="checkAnswer" onclick="checkAnswers()"style="display:none;">確認答案</button>
+            <p id="questionSource"></p>
         </div>
 
         <div class="explanation" id="explanation" style="display:none;">
@@ -177,6 +183,8 @@ fetch("https://script.google.com/macros/s/AKfycbx4b1cKdaXT5Yer-k3yWQHis70ebz33ry
 
 function loadQuestion() {
     const question = allQuestionData[questionNumber];
+
+    document.getElementById("questionSource").innerText ="修改至"+question[1]+question[2] 
 
     // 先隨機排列選項
     let answersArray = question[5].split('</div>'); // 分割每個選項
