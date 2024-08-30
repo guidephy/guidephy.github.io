@@ -8,7 +8,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+      background: linear-gradient(to bottom, #e0e0e0, #ffffff);
       margin: 0;
       display: flex;
       justify-content: center;
@@ -19,43 +19,45 @@
     .container {
       text-align: center;
       background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      max-width: 90%;
     }
 
     h4 {
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       color: #333333;
-      font-size: 24px;
+      font-size: 32px;
+      font-weight: bold;
     }
 
     .button-container {
       display: flex;
-      justify-content: center;
-      gap: 20px;
+      justify-content: space-around;
+      gap: 40px;
     }
 
     .arrow-up, .arrow-down {
       display: inline-block;
       width: 0;
       height: 0;
-      border-left: 30px solid transparent;
-      border-right: 30px solid transparent;
+      border-left: 40px solid transparent;
+      border-right: 40px solid transparent;
       cursor: pointer;
       transition: transform 0.3s;
     }
 
     .arrow-up {
-      border-bottom: 50px solid #007bff;
+      border-bottom: 70px solid #007bff;
     }
 
     .arrow-down {
-      border-top: 50px solid #007bff;
+      border-top: 70px solid #007bff;
     }
 
     .arrow-up:hover, .arrow-down:hover {
-      transform: scale(1.1);
+      transform: scale(1.15);
     }
 
     .arrow-up:active, .arrow-down:active {
