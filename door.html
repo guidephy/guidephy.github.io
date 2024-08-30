@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>遠端搖控鐵捲門</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h4 {
+      margin-bottom: 20px;
+      color: #333333;
+      font-size: 24px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .arrow-up, .arrow-down {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-left: 30px solid transparent;
+      border-right: 30px solid transparent;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .arrow-up {
+      border-bottom: 50px solid #007bff;
+    }
+
+    .arrow-down {
+      border-top: 50px solid #007bff;
+    }
+
+    .arrow-up:hover, .arrow-down:hover {
+      transform: scale(1.1);
+    }
+
+    .arrow-up:active, .arrow-down:active {
+      transform: scale(0.9);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h4>遠端搖控鐵捲門</h4>
+    <div class="button-container">
+      <div id="demo-area-05-btn1" class="arrow-up"></div>
+      <div id="demo-area-05-btn2" class="arrow-down"></div>
+    </div>
+  </div>
+
+  <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
+
+  <script>
+    (async function () {
+      var openDoor;
+      var closeDoor;
+
+      boardReady({ board: 'Smart', device: '10drnmad', transport: 'mqtt' }, async function (board) {
+        board.samplingInterval = 50;
+        openDoor = getRelay(board, 14);
+        closeDoor = getRelay(board, 16);
+        document.getElementById('demo-area-05-btn1').addEventListener('click', async function () {
+          openDoor.off();
+          await delay(0.5);
+          openDoor.on();
+        });
+        document.getElementById('demo-area-05-btn2').addEventListener('click', async function () {
+          closeDoor.off();
+          await delay(0.5);
+          closeDoor.on();
+        });
+      });
+    }());
+  </script>
+</body>
+
+</html>
