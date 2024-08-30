@@ -42,7 +42,7 @@ var dht;
 
 
 boardReady({board: 'Smart', device: '10VnA5Py', transport: 'mqtt', multi: true}, function (board) {
-  board.samplingInterval = 50;
+  board.samplingInterval = 100;
 
   dht = getDht(board, 2);
 
