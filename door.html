@@ -88,9 +88,12 @@
       var closeDoor;
 
       boardReady({ board: 'Smart', device: '10drnmad', transport: 'mqtt' }, async function (board) {
-        board.samplingInterval = 50;
+        board.samplingInterval = 100;
         openDoor = getRelay(board, 14);
         closeDoor = getRelay(board, 16);
+
+        openDoor.off();
+        closeDoor.off();
         document.getElementById('demo-area-05-btn1').addEventListener('click', async function () {
           openDoor.on();
           await delay(0.5);
