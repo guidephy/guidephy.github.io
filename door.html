@@ -92,14 +92,14 @@
         openDoor = getRelay(board, 14);
         closeDoor = getRelay(board, 16);
         document.getElementById('demo-area-05-btn1').addEventListener('click', async function () {
-          openDoor.off();
-          await delay(0.5);
           openDoor.on();
+          await delay(0.5);
+          openDoor.off();
         });
         document.getElementById('demo-area-05-btn2').addEventListener('click', async function () {
-          closeDoor.off();
-          await delay(0.5);
           closeDoor.on();
+          await delay(0.5);
+          closeDoor.off();
         });
       });
     }());
