@@ -229,7 +229,7 @@
     <div id="content-container">
         <h2>高中物理素養題</h2>
         <div id="level-selection">
-            <button class="level-button" onclick="selectLevel(因次')">因次</button>
+            <button class="level-button" onclick="selectLevel('因次')">因次</button>
             <button class="level-button" onclick="selectLevel('111年學測')">111年學測</button>
             <button class="level-button" onclick="selectLevel('112年學測')">112年學測</button>
             <button class="level-button" onclick="selectLevel('113年學測')">113年學測</button>
@@ -311,7 +311,7 @@
             document.getElementById("passage").innerHTML = question[3];
             document.getElementById("answers-container").innerHTML = randomizedAnswers;
 
-            const explanationWithLineBreaks = question[6].replace(/\n/g, '<br>');
+            const explanationWithLineBreaks = question[6].replace(/\\n/g, '<br>');
             document.getElementById("answer-explanation").innerHTML = explanationWithLineBreaks;
 
             document.getElementById("question-title").innerText = "請先選擇空格，再選擇答案填入";
