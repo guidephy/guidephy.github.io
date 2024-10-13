@@ -8,7 +8,6 @@
     <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
     <title>高中物理素養題</title>
     <style>
-      
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f4f8;
@@ -25,56 +24,60 @@
         h2 {
             text-align: center;
             color: #0056b3;
-            font-size: 1.5rem;
+            font-size: 2rem;
             margin-top: 5px;
-            margin-bottom: 5px;
+            margin-bottom: 20px;
         }
 
         #question-title {
             text-align: center;
-            color: red;
-            font-size: 1rem;
-            margin-top: 5px;
-            margin-bottom: 5px;
+            color: #ff6f00;
+            font-size: 1.5rem;
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
 
         #content-container {
-            background-color: #fff;
+            background-color: #ffffff;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
             max-width: 900px;
             width: 100%;
         }
 
         #passage {
-            background-color: #fff;
+            background-color: #e7f3ff;
             margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            color: #333;
         }
 
-        #questionSource{
+        #questionSource {
             text-align: right;
-
+            color: #666;
         }
 
         .dropzone {
             width: 80px;
             padding: 5px;
             margin: 0 5px;
-            border: 2px dashed #0056b3;
+            border: 2px dashed #ff6f00;
             border-radius: 8px;
             text-align: center;
-            background-color: #e7f3ff;
+            background-color: #ffffff;
             transition: background-color 0.3s, border-color 0.3s;
             display: inline-block;
-            cursor: pointer; /* 添加指標以顯示可點擊 */
+            cursor: pointer;
+            color: #333;
         }
 
         .dropzone.selected {
-            border-color: #ffcc00; /* 更明顯的邊框顏色 */
-            background-color: white; /* 更亮的背景顏色 */
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.8); /* 添加陰影增強互動感 */
-            transform: scale(1.05); /* 輕微放大效果 */
+            border-color: #00c853;
+            background-color: #ffeb3b;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
+            transform: scale(1.05);
         }
 
         .answers-container {
@@ -88,46 +91,49 @@
         .answer {
             padding: 10px 20px;
             background-color: #ffffff;
-            border: 2px solid #0056b3;
+            border: 2px solid #ff6f00;
             border-radius: 10px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
             font-size: 1rem;
             text-align: center;
+            color: #333;
         }
 
         .answer:hover {
             transform: scale(1.1);
-            background-color: #e0f7ff;
-            border-color: #007bff;
+            background-color: #ffe082;
+            border-color: #ff8f00;
         }
 
         button {
             display: block;
             margin: 20px auto;
             padding: 12px 30px;
-            background-color: #0056b3;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 15px;
             cursor: pointer;
             font-size: 1.2rem;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         button:hover {
-            background-color: #003d80;
+            background-color: #0056b3;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         .correct {
-            background-color: #d4edda;
-            border-color: #28a745;
-            pointer-events: none; /* 禁用點擊事件 */
+            background-color: #81c784;
+            border-color: #4caf50;
+            pointer-events: none;
         }
 
         .incorrect {
-            background-color: #f8d7da;
-            border-color: #dc3545;
+            background-color: #e57373;
+            border-color: #f44336;
         }
 
         .explanation {
@@ -143,42 +149,98 @@
             display: none;
         }
 
-#question-picture {
-    display: flex;
-    justify-content: center;  /* 水平置中 */
-    align-items: center;  /* 垂直置中 */
-}
+        #question-picture {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-#question-picture img {
-    display: block;
-    margin: 0 auto;
-    width: 100%; /* 預設在小螢幕上圖片寬度為100% */
-    height: auto; /* 保持圖片的高度自動調整 */
-}
+        #question-picture img {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            height: auto;
+        }
 
-@media (min-width: 768px) {
-    #question-picture img {
-        width: 50%; /* 在螢幕寬度大於768px時，圖片寬度變為50% */
-    }
-}
+        @media (min-width: 768px) {
+            #question-picture img {
+                width: 50%;
+            }
+        }
+
+        /* 新增的關卡選擇樣式，類似於 Duolingo 的關卡效果，偏藍色系 */
+        #level-selection {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .level-button {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(145deg, #42a5f5, #64b5f6);
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 6px 15px rgba(66, 165, 245, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .level-button:hover {
+            background: linear-gradient(145deg, #1e88e5, #42a5f5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(66, 165, 245, 0.6);
+        }
+
+        .level-button:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 15px rgba(66, 165, 245, 0.4);
+        }
+
+        .level-button span {
+            display: block;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .level-button::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            width: 40px;
+            height: 40px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
     <div id="content-container">
         <h2>高中物理素養題</h2>
-        <h3 id="question-title">題目載入中…請稍後</h3>
+        <div id="level-selection">
+            <button class="level-button" onclick="selectLevel('111年學測')">111年學測</button>
+            <button class="level-button" onclick="selectLevel('112年學測')">112年學測</button>
+            <button class="level-button" onclick="selectLevel('113年學測')">113年學測</button>
+        </div>
 
-        <div id="question-content">
-            <div id="question-picture" style="text-align: center;">
-            </div>
-            <div id="passage">
-            </div>
+        <h3 id="question-title" style="display: none;">題目載入中…請稍後</h3>
 
-            <div id="answers-container"class="answers-container">
-               
-            </div>
-
-            <button id="checkAnswer" onclick="checkAnswers()"style="display:none;">確認答案</button>
+        <div id="question-content" style="display: none;">
+            <div id="question-picture" style="text-align: center;"></div>
+            <div id="passage"></div>
+            <div id="answers-container" class="answers-container"></div>
+            <button id="checkAnswer" onclick="checkAnswers()" style="display:none;">確認答案</button>
             <p id="questionSource"></p>
         </div>
 
@@ -187,196 +249,193 @@
         </div>
         <button id="next-question" onclick="nextQuestion()">下一題</button>
         <div style="display:none;">
-<img src="https://hitwebcounter.com/counter/counter.php?page=8081074&style=0003&nbdigits=5&type=page&initCount=0" title="Free Counter" Alt="web counter"   border="0" style="float: center;" /></a>  </div>
+            <img src="https://hitwebcounter.com/counter/counter.php?page=8081074&style=0003&nbdigits=5&type=page&initCount=0" title="Free Counter" alt="web counter" border="0" style="float: center;" />
+        </div>
     </div>
 
     <script>
-let selectedDropzone = null;
-let allQuestionData = null;
-let questionNumber = 21;
+        let selectedDropzone = null;
+        let allQuestionData = null;
+        let questionNumber = 1;
+        let sectionTitle = "";
 
-// 從google sheet獲取資料
-fetch("https://script.google.com/macros/s/AKfycbx4b1cKdaXT5Yer-k3yWQHis70ebz33ryPDZR7D6bTP8e4Kon5sKMSrcRYzSDC7ySMSew/exec")
-    .then(response => response.json())
-    .then(data => {
-        allQuestionData = data;
-        loadQuestion();
-    document.getElementById("checkAnswer").style.display = "block";
-    document.getElementById("question-title").innerText = "請先選擇空格，再選擇答案填入";
-    })
-    .catch(error => console.error('Error fetching data:', error));
+        function selectLevel(selectedSectionTitle) {
+            sectionTitle = selectedSectionTitle;
+            document.getElementById("level-selection").style.display = "none";
+            document.getElementById("question-title").style.display = "block";
+            document.getElementById("question-content").style.display = "block";
 
-function loadQuestion() {
-    const question = allQuestionData[questionNumber];
+            // 從google sheet獲取資料
+            fetch("https://script.google.com/macros/s/AKfycbw-XfGEDQSNuhZyfhkphsoc_1lRR1KgNUc6Ox9BI-F-KJbujlGAr2ddJLK6vl3MBXO5rw/exec?sectionTitle=" + encodeURIComponent(sectionTitle))
+                .then(response => response.json())
+                .then(data => {
+                    allQuestionData = data;
+                    loadQuestion();
+                    document.getElementById("checkAnswer").style.display = "block";
+                    document.getElementById("question-title").innerText = "請先選擇空格，再選擇答案填入";
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
 
-    document.getElementById("questionSource").innerText = "修改至" + question[1] + question[2];
-
-    // 檢查 question[7] 是否有圖片連結
-    if (question[7] && question[7].trim() !== "") {
-        const imgElement = `<img src="${question[7]}" alt="Question Image" style="max-width: 100%; height: auto;">`;
-        document.getElementById("question-picture").innerHTML = imgElement;
-        document.getElementById("question-picture").style.display = "block";
-    } else {
-        document.getElementById("question-picture").style.display = "none";
-    }
-
-    // 先隨機排列選項
-    let answersArray = question[5].split('</div>'); // 分割每個選項
-    answersArray.pop(); // 去除最後一個空元素
-
-    // 使用 Fisher-Yates 洗牌算法進行隨機排序
-    for (let i = answersArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [answersArray[i], answersArray[j]] = [answersArray[j], answersArray[i]];
-    }
-
-    // 重新組合選項並設置到容器中
-    const randomizedAnswers = answersArray.join('</div>') + '</div>';
-
-    document.getElementById("passage").innerHTML = question[3];
-    document.getElementById("answers-container").innerHTML = randomizedAnswers;
-
-    // 使用正則表達式來確保所有的 \n 替換為 <br> 標籤
-    const explanationWithLineBreaks = question[6].replace(/\\n/g, '<br>');
-    document.getElementById("answer-explanation").innerHTML = explanationWithLineBreaks;
-
-    document.getElementById("question-title").innerText = "請先選擇空格，再選擇答案填入";
-
-    selectedDropzone = null;
-    bindEvents();
-
-    document.getElementById("explanation").style.display = "none";
-    document.getElementById("next-question").style.display = "none";
-    document.getElementById("question-content").style.display = "block";
-}
-
-
-
-function bindEvents() {
-  
-    document.querySelectorAll('.dropzone').forEach(dropzone => {
-        dropzone.addEventListener('click', function () {
-            if (selectedDropzone) {
-                selectedDropzone.classList.remove('selected');
+        function loadQuestion() {
+            if (!allQuestionData || !allQuestionData[questionNumber]) {
+                alert("無法載入問題資料，請稍後再試！");
+                return;
             }
-            selectedDropzone = dropzone;
-            dropzone.classList.add('selected');
-        });
-    });
 
-    
-    document.querySelectorAll('.answer').forEach(answer => {
-        answer.addEventListener('click', function () {
-            selectAnswer(answer);
-        });
-    });
-}
+            const question = allQuestionData[questionNumber];
 
-function selectAnswer(element) {
-    if (selectedDropzone && selectedDropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
-        selectedDropzone.innerHTML = element.innerHTML;
-        selectedDropzone.classList.add('has-answer');
-        selectedDropzone.onclick = function () {
-            removeAnswer(selectedDropzone, element);
-        };
+            document.getElementById("questionSource").innerText = "修改至" + question[1] + question[2];
 
-        element.classList.add('selected');
-        element.style.display = 'none';
+            // 檢查 question[7] 是否有圖片連結
+            if (question[7] && question[7].trim() !== "") {
+                const imgElement = `<img src="${question[7]}" alt="Question Image" style="max-width: 100%; height: auto;">`;
+                document.getElementById("question-picture").innerHTML = imgElement;
+                document.getElementById("question-picture").style.display = "block";
+            } else {
+                document.getElementById("question-picture").style.display = "none";
+            }
 
-        selectedDropzone.classList.remove('selected');
-        selectedDropzone = null;
-    }
-}
+            // 先隨機排列選項
+            let answersArray = question[5].split('</div>');
+            answersArray.pop(); // 去除最後一個空元素
 
-function removeAnswer(dropzone, element) {
-    element.style.display = 'block';
-    dropzone.innerHTML = "&nbsp;&nbsp;";
-    dropzone.classList.remove('has-answer');
-    dropzone.onclick = null;
+            // 使用 Fisher-Yates 洗牌算法進行隨機排序
+            for (let i = answersArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [answersArray[i], answersArray[j]] = [answersArray[j], answersArray[i]];
+            }
 
-    selectedDropzone = dropzone;
-    dropzone.classList.add('selected');
-}
+            const randomizedAnswers = answersArray.join('</div>') + '</div>';
+            document.getElementById("passage").innerHTML = question[3];
+            document.getElementById("answers-container").innerHTML = randomizedAnswers;
 
-function checkAnswers() {
-    const answerString = allQuestionData[questionNumber][4];
-    const answers = parseAnswers(answerString);
+            const explanationWithLineBreaks = question[6].replace(/\n/g, '<br>');
+            document.getElementById("answer-explanation").innerHTML = explanationWithLineBreaks;
 
-    let allCorrect = true;
+            document.getElementById("question-title").innerText = "請先選擇空格，再選擇答案填入";
 
-    document.querySelectorAll('.dropzone').forEach(dropzone => {
-        const id = dropzone.id;
-        const userAnswer = dropzone.innerHTML.trim();
-        const correctAnswer = answers[id];
+            selectedDropzone = null;
+            bindEvents();
 
-        console.log(`Checking dropzone: ${id}`);
-        console.log(`User Answer: "${userAnswer}"`);
-        console.log(`Correct Answer: "${correctAnswer}"`);
+            document.getElementById("explanation").style.display = "none";
+            document.getElementById("next-question").style.display = "none";
+            document.getElementById("question-content").style.display = "block";
+        }
 
-        if (userAnswer === correctAnswer) {
-            dropzone.classList.add("correct");
-            dropzone.classList.remove("incorrect");
-            dropzone.onclick = null;
-        } else {
-            dropzone.classList.add("incorrect");
-            dropzone.classList.remove("correct");
-            showAnswerInOptions(userAnswer);
+        function bindEvents() {
+            document.querySelectorAll('.dropzone').forEach(dropzone => {
+                dropzone.addEventListener('click', function () {
+                    if (selectedDropzone) {
+                        selectedDropzone.classList.remove('selected');
+                    }
+                    selectedDropzone = dropzone;
+                    dropzone.classList.add('selected');
+                });
+            });
+
+            document.querySelectorAll('.answer').forEach(answer => {
+                answer.addEventListener('click', function () {
+                    selectAnswer(answer);
+                });
+            });
+        }
+
+        function selectAnswer(element) {
+            if (selectedDropzone && selectedDropzone.innerHTML.trim() === "&nbsp;&nbsp;") {
+                selectedDropzone.innerHTML = element.innerHTML;
+                selectedDropzone.classList.add('has-answer');
+                selectedDropzone.onclick = function () {
+                    removeAnswer(selectedDropzone, element);
+                };
+
+                element.classList.add('selected');
+                element.style.display = 'none';
+
+                selectedDropzone.classList.remove('selected');
+                selectedDropzone = null;
+            }
+        }
+
+        function removeAnswer(dropzone, element) {
+            element.style.display = 'block';
             dropzone.innerHTML = "&nbsp;&nbsp;";
             dropzone.classList.remove('has-answer');
-            allCorrect = false;
+            dropzone.onclick = null;
+
+            selectedDropzone = dropzone;
+            dropzone.classList.add('selected');
         }
-    });
-    
-    if (allCorrect) {
-        alert("太棒了，完全正確!")
-        document.getElementById("question-content").style.display = "none";
-        document.getElementById("explanation").style.display = "block";
-        document.getElementById("next-question").style.display = "block";
-        document.getElementById("question-title").innerText = "詳解";
-    }else{ alert("答案有錯誤喔!")}
-}
 
-function parseAnswers(answerString) {
-    const answers = {};
+        function checkAnswers() {
+            const answerString = allQuestionData[questionNumber][4];
+            const answers = parseAnswers(answerString);
 
+            let allCorrect = true;
 
-    
-    const regex = /([^,{}]+):\s*([^,{}]+)/g;
-    let match;
+            document.querySelectorAll('.dropzone').forEach(dropzone => {
+                const id = dropzone.id;
+                const userAnswer = dropzone.innerHTML.trim();
+                const correctAnswer = answers[id];
 
-    while ((match = regex.exec(answerString)) !== null) {
-        const key = match[1].trim();
-        const value = match[2].trim().replace(/['"]/g, '');
-        
-        answers[key] = value;
-    }
+                if (userAnswer === correctAnswer) {
+                    dropzone.classList.add("correct");
+                    dropzone.classList.remove("incorrect");
+                    dropzone.onclick = null;
+                } else {
+                    dropzone.classList.add("incorrect");
+                    dropzone.classList.remove("correct");
+                    showAnswerInOptions(userAnswer);
+                    dropzone.innerHTML = "&nbsp;&nbsp;";
+                    dropzone.classList.remove('has-answer');
+                    allCorrect = false;
+                }
+            });
 
-    return answers;
-}
-
-
-  
-
-function showAnswerInOptions(answerText) {
-    document.querySelectorAll('.answer').forEach(answer => {
-        if (answer.innerHTML.trim() === answerText) {
-            answer.style.display = 'block';
-            answer.style.pointerEvents = 'auto';
-            answer.classList.remove('selected');
+            if (allCorrect) {
+                alert("太棒了，完全正確!");
+                document.getElementById("question-content").style.display = "none";
+                document.getElementById("explanation").style.display = "block";
+                document.getElementById("next-question").style.display = "block";
+                document.getElementById("question-title").innerText = "詳解";
+            } else {
+                alert("答案有錯誤喔!");
+            }
         }
-    });
-}
 
-function nextQuestion() {
-    questionNumber += 1;
-    
-    if (questionNumber >= allQuestionData.length) {
-        alert("已完成最後一題了！");
-        return;
-    }
-    loadQuestion();
-}
+        function parseAnswers(answerString) {
+            const answers = {};
+            const regex = /([^,{}]+):\s*([^,{}]+)/g;
+            let match;
 
+            while ((match = regex.exec(answerString)) !== null) {
+                const key = match[1].trim();
+                const value = match[2].trim().replace(/['"]/g, '');
+                answers[key] = value;
+            }
+
+            return answers;
+        }
+
+        function showAnswerInOptions(answerText) {
+            document.querySelectorAll('.answer').forEach(answer => {
+                if (answer.innerHTML.trim() === answerText) {
+                    answer.style.display = 'block';
+                    answer.style.pointerEvents = 'auto';
+                    answer.classList.remove('selected');
+                }
+            });
+        }
+
+        function nextQuestion() {
+            questionNumber += 1;
+
+            if (questionNumber >= allQuestionData.length) {
+                alert("已完成最後一題了！");
+                return;
+            }
+            loadQuestion();
+        }
     </script>
 </body>
 </html>
