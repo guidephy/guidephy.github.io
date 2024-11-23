@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第三節課：試算表與 Apps Script 的互動</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        h1 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+        }
+        code, pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warm-up {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        .question {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>第三節課：試算表與 Apps Script 的互動</h1>
+
+        <!-- 暖身問題 -->
+        <div class="warm-up">
+            <strong>暖身問題：</strong>
+            如果有 50 筆數據需要自動統計，你會用手工操作嗎？今天我們將學習如何用程式快速讀取和修改試算表中的資料，節省大量時間！
+        </div>
+
+        <h2>教學目標</h2>
+        <ul>
+            <li>學會用 Apps Script 讀取試算表中的資料。</li>
+            <li>能將數據寫入試算表的特定位置。</li>
+            <li>理解程式與試算表的交互過程。</li>
+        </ul>
+
+        <h2>教學內容與操作步驟</h2>
+        <!-- 操作1 -->
+        <h3>1. 讀取試算表數據</h3>
+        <pre>
+<code>
+function readSpreadsheet() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const data = sheet.getRange(1, 1).getValue(); // 讀取第一行第一列
+    Logger.log("讀取的數據是：" + data);
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼複製到 Apps Script 編輯器中。</li>
+            <li>執行程式並檢查日誌，確認是否成功讀取數據。</li>
+        </ol>
+        <div class="question">
+            問題：如果想讀取試算表的第三行第二列，應該如何修改程式碼？
+            <textarea id="readAnswer" placeholder="請輸入答案 (如：sheet.getRange(3, 2).getValue();"></textarea>
+            <button onclick="checkReadAnswer()">提交</button>
+            <button onclick="showReadAnswer()">顯示答案</button>
+            <p id="readFeedback"></p>
+        </div>
+
+        <!-- 操作2 -->
+        <h3>2. 修改試算表數據</h3>
+        <pre>
+<code>
+function writeSpreadsheet() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    sheet.getRange(2, 2).setValue("新數據"); // 修改第二行第二列
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼複製到 Apps Script 編輯器中。</li>
+            <li>執行程式後，檢查試算表的指定儲存格是否已更新。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望程式將 "已完成" 寫入第一行第三列，應該如何修改程式碼？
+            <textarea id="writeAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkWriteAnswer()">提交</button>
+            <button onclick="showWriteAnswer()">顯示答案</button>
+            <p id="writeFeedback"></p>
+        </div>
+
+        <!-- 操作3 -->
+        <h3>3. 読取範圍內多個數據</h3>
+        <pre>
+<code>
+function readMultipleCells() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const rangeData = sheet.getRange(1, 1, 3, 3).getValues(); // 讀取範圍
+    Logger.log("範圍內的數據是：" + JSON.stringify(rangeData));
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼添加到 Apps Script 編輯器中。</li>
+            <li>檢查日誌是否顯示讀取範圍內的所有數據。</li>
+        </ol>
+
+        <!-- 延伸挑戰 -->
+        <h2>課程延伸與挑戰</h2>
+        <ul>
+            <li>
+                <strong>挑戰1：</strong> 設計一個程式，將你的名字填入試算表中的第 3 行第 3 列。
+            </li>
+            <li>
+                <strong>挑戰2：</strong> 使用程式計算試算表第一列數字的總和。
+            </li>
+        </ul>
+
+        <a href="Lesson2.html" class="btn">上一節課</a><a href="Lesson4.html" class="btn">下一節課</a>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function checkReadAnswer() {
+            const answer = document.getElementById("readAnswer").value.trim();
+            const feedback = document.getElementById("readFeedback");
+            if (answer === "sheet.getRange(3, 2).getValue();") {
+                feedback.textContent = "正確！你成功讀取了第三行第二列的數據。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showReadAnswer() {
+            const feedback = document.getElementById("readFeedback");
+            feedback.textContent = "正確答案是：sheet.getRange(3, 2).getValue();";
+            feedback.style.color = "blue";
+        }
+
+        function checkWriteAnswer() {
+            const answer = document.getElementById("writeAnswer").value.trim();
+            const feedback = document.getElementById("writeFeedback");
+            if (answer === 'sheet.getRange(1, 3).setValue("已完成");') {
+                feedback.textContent = "正確！你成功將數據寫入了第一行第三列。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showWriteAnswer() {
+            const feedback = document.getElementById("writeFeedback");
+            feedback.textContent = '正確答案是：sheet.getRange(1, 3).setValue("已完成");';
+            feedback.style.color = "blue";
+        }
+    </script>
+</body>
+</html>

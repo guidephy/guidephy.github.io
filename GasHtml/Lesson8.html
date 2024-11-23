@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第八節課：設計 AI 命題系統 - 基本題目生成</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        h1 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+        }
+        code, pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warm-up {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        .question {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>第八節課：設計 AI 命題系統 - 基本題目生成</h1>
+
+        <!-- 暖身問題 -->
+        <div class="warm-up">
+            <strong>暖身問題：</strong>
+            想像你可以快速設計一套選擇題，只需要提供一個主題，便能生成問題、選項和答案！今天，我們將學習如何使用 Gemini API 來自動化命題。
+        </div>
+
+        <h2>教學目標</h2>
+        <ul>
+            <li>學會設計 API 請求以生成選擇題。</li>
+            <li>理解如何解析生成的 JSON 數據並儲存到試算表中。</li>
+            <li>掌握題目設計的基本結構。</li>
+        </ul>
+
+        <h2>教學內容與操作步驟</h2>
+
+        <!-- 操作1 -->
+        <h3>1. 使用 Gemini API 生成基本選擇題</h3>
+        <pre>
+<code>
+const GEMINI_API_KEY = '你的API密鑰';
+
+function generateQuiz() {
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY;
+    const payload = {
+        "prompt": "請生成一個關於物理基礎的選擇題，包括問題、四個選項以及正確答案。",
+    };
+    const options = {
+        "method": "post",
+        "contentType": "application/json",
+        "payload": JSON.stringify(payload),
+    };
+    const response = UrlFetchApp.fetch(apiUrl, options);
+    const data = JSON.parse(response.getContentText());
+    Logger.log("生成的題目：" + data.candidates[0].content);
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將上述程式碼複製到 Google Apps Script 編輯器中。</li>
+            <li>將 <code>GEMINI_API_KEY</code> 替換為你的實際密鑰。</li>
+            <li>執行程式，檢查日誌中是否顯示生成的題目。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望生成一個關於 HTML 的選擇題，應該如何修改程式碼？
+            <textarea id="quizAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkQuizAnswer()">提交</button>
+            <button onclick="showQuizAnswer()">顯示答案</button>
+            <p id="quizFeedback"></p>
+        </div>
+
+        <!-- 操作2 -->
+        <h3>2. 將生成的題目儲存到試算表</h3>
+        <pre>
+<code>
+function saveQuizToSheet() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const quiz = {
+        question: "以下哪個是 HTML 的全稱？",
+        options: ["HyperText Markup Language", "HighText Machine Language", "HyperTool Multi-Language", "HyperText Multi-Logic"],
+        answer: 0,
+    };
+
+    sheet.appendRow([quiz.question, ...quiz.options, quiz.answer]);
+    Logger.log("題目已儲存到試算表");
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>在試算表中建立一個名為「題目」的工作表。</li>
+            <li>將程式碼添加到 Apps Script 編輯器中。</li>
+            <li>執行程式，並檢查試算表是否成功新增題目。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望儲存的答案改為第二個選項，應該如何修改程式碼？
+            <textarea id="saveAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkSaveAnswer()">提交</button>
+            <button onclick="showSaveAnswer()">顯示答案</button>
+            <p id="saveFeedback"></p>
+        </div>
+
+        <!-- 延伸挑戰 -->
+        <h2>課程延伸與挑戰</h2>
+        <ul>
+            <li>
+                <strong>挑戰1：</strong> 設計一個程式，可以自動將多個生成的選擇題儲存到試算表。
+            </li>
+            <li>
+                <strong>挑戰2：</strong> 在試算表中新增一列，儲存每個選擇題的解析或解釋。
+            </li>
+        </ul>
+
+        <a href="Lesson7.html" class="btn">上一節課</a><a href="Lesson9.html" class="btn">下一節課</a>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function checkQuizAnswer() {
+            const answer = document.getElementById("quizAnswer").value.trim();
+            const feedback = document.getElementById("quizFeedback");
+            if (answer.includes("HTML 的選擇題")) {
+                feedback.textContent = "正確！你成功修改了生成題目的主題。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showQuizAnswer() {
+            const feedback = document.getElementById("quizFeedback");
+            feedback.textContent = "正確答案是：將 prompt 修改為 '請生成一個關於 HTML 的選擇題'。";
+            feedback.style.color = "blue";
+        }
+
+        function checkSaveAnswer() {
+            const answer = document.getElementById("saveAnswer").value.trim();
+            const feedback = document.getElementById("saveFeedback");
+            if (answer.includes("quiz.answer = 1")) {
+                feedback.textContent = "正確！你已成功修改為儲存第二個選項作為答案。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showSaveAnswer() {
+            const feedback = document.getElementById("saveFeedback");
+            feedback.textContent = "正確答案是：將 quiz.answer 修改為 1。";
+            feedback.style.color = "blue";
+        }
+    </script>
+</body>
+</html>

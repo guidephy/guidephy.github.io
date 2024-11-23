@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第二節課：初探程式設計</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        h1 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+        }
+        code, pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warm-up {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        .question {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>第二節課：初探程式設計</h1>
+
+        <!-- 暖身問題 -->
+        <div class="warm-up">
+            <strong>暖身問題：</strong>
+            程式設計就像寫故事，你可以控制角色、條件和劇情發展。  
+            你想像過自己創造一個「計算器」的程式嗎？今天，我們一起來學習！
+        </div>
+
+        <h2>教學目標</h2>
+        <ul>
+            <li>學會使用變數來存儲資料。</li>
+            <li>了解條件判斷（if/else）的基本邏輯。</li>
+            <li>掌握迴圈（loop）的概念，並用於簡單的應用。</li>
+        </ul>
+
+        <h2>教學內容與操作步驟</h2>
+        <!-- 操作1 -->
+        <h3>1. 使用變數存儲資料</h3>
+        <pre>
+<code>
+function useVariable() {
+    const name = "學生";
+    Logger.log("你好，" + name + "！歡迎學習 Google Apps Script！");
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼複製到 Google Apps Script 編輯器中。</li>
+            <li>執行程式並檢查日誌輸出，是否成功顯示 "你好，學生！歡迎學習 Google Apps Script！"。</li>
+        </ol>
+        <div class="question">
+            問題：如果要將訊息中的名字改為你的名字，應該修改哪部分程式碼？
+            <textarea id="variableAnswer" placeholder="請輸入答案 (如：const name = '你的名字';"></textarea>
+            <button onclick="checkVariableAnswer()">提交</button>
+            <button onclick="showVariableAnswer()">顯示答案</button>
+            <p id="variableFeedback"></p>
+        </div>
+
+        <!-- 操作2 -->
+        <h3>2. 條件判斷：實現簡單的數字檢查器</h3>
+        <pre>
+<code>
+function checkNumber() {
+    const number = 7;
+    if (number > 5) {
+        Logger.log("這是一個大於 5 的數字！");
+    } else {
+        Logger.log("這是一個小於或等於 5 的數字！");
+    }
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼添加到 Apps Script 編輯器中。</li>
+            <li>修改 <code>number</code> 的值，嘗試不同數字來觀察日誌輸出的變化。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望檢查數字是否等於 10，應該如何修改程式碼？
+            <textarea id="conditionAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkConditionAnswer()">提交</button>
+            <button onclick="showConditionAnswer()">顯示答案</button>
+            <p id="conditionFeedback"></p>
+        </div>
+
+        <!-- 操作3 -->
+        <h3>3. 迴圈：計算 1 到 10 的總和</h3>
+        <pre>
+<code>
+function calculateSum() {
+    let sum = 0;
+    for (let i = 1; i <= 10; i++) {
+        sum += i;
+    }
+    Logger.log("1 到 10 的總和是：" + sum);
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼添加到 Apps Script 編輯器中。</li>
+            <li>執行程式，檢查日誌是否顯示正確的總和。</li>
+        </ol>
+        <div class="question">
+            問題：如何修改程式碼以計算 1 到 20 的總和？
+            <textarea id="loopAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkLoopAnswer()">提交</button>
+            <button onclick="showLoopAnswer()">顯示答案</button>
+            <p id="loopFeedback"></p>
+        </div>
+
+        <!-- 延伸挑戰 -->
+        <h2>課程延伸與挑戰</h2>
+        <ul>
+            <li>
+                <strong>挑戰1：</strong> 使用條件判斷，設計一個程式檢查數字是否是偶數或奇數。
+            </li>
+            <li>
+                <strong>挑戰2：</strong> 設計一個迴圈，計算 1 到 100 的總和。
+            </li>
+        </ul>
+
+        <a href="Lesson1.html" class="btn">上一節課</a><a href="Lesson3.html" class="btn">下一節課</a>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function checkVariableAnswer() {
+            const answer = document.getElementById("variableAnswer").value.trim();
+            const feedback = document.getElementById("variableFeedback");
+            if (answer === "const name = '你的名字';") {
+                feedback.textContent = "正確！你成功修改了名字。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showVariableAnswer() {
+            const feedback = document.getElementById("variableFeedback");
+            feedback.textContent = "正確答案是：const name = '你的名字';";
+            feedback.style.color = "blue";
+        }
+
+        function checkConditionAnswer() {
+            const answer = document.getElementById("conditionAnswer").value.trim();
+            const feedback = document.getElementById("conditionFeedback");
+            if (answer.includes("if (number === 10)")) {
+                feedback.textContent = "正確！你已成功檢查數字是否等於 10。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showConditionAnswer() {
+            const feedback = document.getElementById("conditionFeedback");
+            feedback.textContent = "正確答案是：if (number === 10) { ... }";
+            feedback.style.color = "blue";
+        }
+
+        function checkLoopAnswer() {
+            const answer = document.getElementById("loopAnswer").value.trim();
+            const feedback = document.getElementById("loopFeedback");
+            if (answer.includes("i <= 20")) {
+                feedback.textContent = "正確！你已成功計算 1 到 20 的總和。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showLoopAnswer() {
+            const feedback = document.getElementById("loopFeedback");
+            feedback.textContent = "正確答案是：for (let i = 1; i <= 20; i++) { sum += i; }";
+            feedback.style.color = "blue";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第六節課：理解 API 與 Gemini 的介紹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        h1 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+        }
+        code, pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warm-up {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        .question {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>第六節課：理解 API 與 Gemini 的介紹</h1>
+
+        <!-- 暖身問題 -->
+        <div class="warm-up">
+            <strong>暖身問題：</strong>
+            你是否好奇網頁如何獲取即時資訊，例如天氣或新聞？這背後的秘密是 API。今天，我們將學習如何調用 API 並結合 Apps Script 實現功能。
+        </div>
+
+        <h2>教學目標</h2>
+        <ul>
+            <li>了解 API 的基本概念。</li>
+            <li>學習如何在 Apps Script 中調用 API。</li>
+            <li>學會結合 Gemini API 自動生成內容。</li>
+        </ul>
+
+        <h2>教學內容與操作步驟</h2>
+
+        <!-- 操作1 -->
+        <h3>1. 認識 API 並調用免費天氣 API</h3>
+        <pre>
+<code>
+function getWeather() {
+    const apiUrl = 'https://api.open-meteo.com/v1/forecast?latitude=25.033&longitude=121.565&current_weather=true';
+    const response = UrlFetchApp.fetch(apiUrl);
+    const data = JSON.parse(response.getContentText());
+    Logger.log("當前天氣：" + data.current_weather.temperature + "°C");
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將上述程式碼複製到 Google Apps Script 編輯器中。</li>
+            <li>執行程式，並檢查日誌輸出是否顯示天氣數據。</li>
+        </ol>
+        <div class="question">
+            問題：如果要查詢另一個城市的天氣，例如東京（緯度 35.6895，經度 139.6917），應該修改哪部分程式碼？
+            <textarea id="weatherAnswer" placeholder="請輸入答案 (例如：改變緯度和經度)"></textarea>
+            <button onclick="checkWeatherAnswer()">提交</button>
+            <button onclick="showWeatherAnswer()">顯示答案</button>
+            <p id="weatherFeedback"></p>
+        </div>
+
+        <!-- 操作2 -->
+        <h3>2. 認識 Gemini API 並自動生成訊息</h3>
+        <pre>
+<code>
+const GEMINI_API_KEY = '你的API密鑰';
+
+function generateMessage() {
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateMessage?key=' + GEMINI_API_KEY;
+    const payload = {
+        "prompt": {
+            "text": "生成一段歡迎學習 Google Apps Script 的訊息。"
+        }
+    };
+    const options = {
+        "method": "post",
+        "contentType": "application/json",
+        "payload": JSON.stringify(payload)
+    };
+    const response = UrlFetchApp.fetch(apiUrl, options);
+    const data = JSON.parse(response.getContentText());
+    Logger.log("生成的訊息：" + data.candidates[0].content);
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼添加到 Apps Script 編輯器中。</li>
+            <li>替換 `GEMINI_API_KEY` 為你的實際 API 密鑰。</li>
+            <li>執行程式，並檢查日誌輸出是否顯示生成的訊息。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望生成一段描述天氣的訊息，應該如何修改 `prompt` 的內容？
+            <textarea id="geminiAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkGeminiAnswer()">提交</button>
+            <button onclick="showGeminiAnswer()">顯示答案</button>
+            <p id="geminiFeedback"></p>
+        </div>
+
+        <!-- 延伸挑戰 -->
+        <h2>課程延伸與挑戰</h2>
+        <ul>
+            <li>
+                <strong>挑戰1：</strong> 使用天氣 API，將當前溫度顯示在網頁中。
+            </li>
+            <li>
+                <strong>挑戰2：</strong> 使用 Gemini API，生成一段根據天氣自動創作的詩句。
+            </li>
+        </ul>
+
+        <a href="Lesson5.html" class="btn">上一節課</a><a href="Lesson7.html" class="btn">下一節課</a>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function checkWeatherAnswer() {
+            const answer = document.getElementById("weatherAnswer").value.trim();
+            const feedback = document.getElementById("weatherFeedback");
+            if (answer.includes("latitude=35.6895") && answer.includes("longitude=139.6917")) {
+                feedback.textContent = "正確！你已成功查詢東京的天氣。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showWeatherAnswer() {
+            const feedback = document.getElementById("weatherFeedback");
+            feedback.textContent = "正確答案是：修改緯度為 35.6895，經度為 139.6917。";
+            feedback.style.color = "blue";
+        }
+
+        function checkGeminiAnswer() {
+            const answer = document.getElementById("geminiAnswer").value.trim();
+            const feedback = document.getElementById("geminiFeedback");
+            if (answer.includes("描述天氣的訊息")) {
+                feedback.textContent = "正確！你已成功修改生成訊息的內容。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showGeminiAnswer() {
+            const feedback = document.getElementById("geminiFeedback");
+            feedback.textContent = "正確答案是：將 prompt 修改為 '描述天氣的訊息'。";
+            feedback.style.color = "blue";
+        }
+    </script>
+</body>
+</html>

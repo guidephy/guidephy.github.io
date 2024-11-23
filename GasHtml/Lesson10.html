@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第十節課：部署與優化你的 AI 命題系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        h1 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+        }
+        code, pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warm-up {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        .question {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>第十節課：部署與優化你的 AI 命題系統</h1>
+
+        <!-- 暖身問題 -->
+        <div class="warm-up">
+            <strong>暖身問題：</strong>
+            你是否想過讓你的命題系統成為一個真正的 Web 應用，讓其他人可以使用？今天，我們將學習如何部署應用，並優化它的性能和功能。
+        </div>
+
+        <h2>教學目標</h2>
+        <ul>
+            <li>學習如何部署 AI 命題系統為 Web 應用。</li>
+            <li>掌握基本的性能優化技巧。</li>
+            <li>了解如何提升用戶體驗（UI/UX）。</li>
+        </ul>
+
+        <h2>教學內容與操作步驟</h2>
+
+        <!-- 操作1 -->
+        <h3>1. 部署你的命題系統</h3>
+        <pre>
+<code>
+function doGet() {
+    const htmlOutput = HtmlService.createHtmlOutputFromFile('Index')
+        .setTitle('AI 命題系統')
+        .setFaviconUrl('https://www.google.com/favicon.ico');
+    return htmlOutput;
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將上述程式碼添加到 Apps Script 編輯器中。</li>
+            <li>在 Apps Script 編輯器中，點擊 <strong>部署</strong> &gt; <strong>作為 Web 應用發布</strong>。</li>
+            <li>設置訪問權限為「任何人」或「任何人（包括匿名使用者）」。</li>
+            <li>獲取部署網址，並打開檢查你的應用是否成功運行。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望應用的標題為「我的 AI 命題系統」，應該如何修改程式碼？
+            <textarea id="deployAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkDeployAnswer()">提交</button>
+            <button onclick="showDeployAnswer()">顯示答案</button>
+            <p id="deployFeedback"></p>
+        </div>
+
+        <!-- 操作2 -->
+        <h3>2. 優化性能與功能</h3>
+        <p>以下是一些性能與功能優化的建議：</p>
+        <ul>
+            <li>減少不必要的 API 請求次數。例如，儲存生成的數據以避免重複生成。</li>
+            <li>壓縮和優化你的 HTML/CSS/JavaScript 文件，提升載入速度。</li>
+            <li>提供清晰的錯誤提示，例如當 API 密鑰無效或試算表無法讀取時。</li>
+        </ul>
+        <pre>
+<code>
+function optimizedGenerateQuiz() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const lastRow = sheet.getLastRow();
+    const lastQuestion = sheet.getRange(lastRow, 1).getValue();
+
+    if (lastQuestion) {
+        Logger.log("使用緩存的問題：" + lastQuestion);
+        return;
+    }
+
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY;
+    const payload = {
+        "prompt": "請生成一個關於科學的選擇題，包括問題、四個選項及正確答案。"
+    };
+    const options = {
+        "method": "post",
+        "contentType": "application/json",
+        "payload": JSON.stringify(payload)
+    };
+
+    const response = UrlFetchApp.fetch(apiUrl, options);
+    const data = JSON.parse(response.getContentText());
+    const question = JSON.parse(data.candidates[0].content);
+
+    sheet.appendRow([question.question, ...question.options, question.answer]);
+    Logger.log("題目已生成並儲存到試算表");
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>修改程式碼以檢查是否已有緩存數據，避免重複生成。</li>
+            <li>測試性能提升的效果。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望檢查試算表中是否已有相同的題目，應該如何修改程式碼？
+            <textarea id="optimizeAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkOptimizeAnswer()">提交</button>
+            <button onclick="showOptimizeAnswer()">顯示答案</button>
+            <p id="optimizeFeedback"></p>
+        </div>
+
+
+
+        <!-- 延伸挑戰 -->
+        <h2>課程延伸與挑戰</h2>
+        <ul>
+            <li>
+                <strong>挑戰1：</strong> 添加多語言支持，讓你的命題系統能根據用戶選擇的語言生成題目。
+            </li>
+            <li>
+                <strong>挑戰2：</strong> 使用圖表展示用戶答題的統計數據，例如正確率和完成率。
+            </li>
+        </ul>
+
+        <a href="Lesson9.html" class="btn">上一節課</a><a href="#" class="btn" >完成課程</a>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function checkDeployAnswer() {
+            const answer = document.getElementById("deployAnswer").value.trim();
+            const feedback = document.getElementById("deployFeedback");
+            if (answer.includes("setTitle('我的 AI 命題系統')")) {
+                feedback.textContent = "正確！你成功修改了應用的標題。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showDeployAnswer() {
+            const feedback = document.getElementById("deployFeedback");
+            feedback.textContent = "正確答案是：將程式碼修改為 setTitle('我的 AI 命題系統')。";
+            feedback.style.color = "blue";
+        }
+
+        function checkOptimizeAnswer() {
+            const answer = document.getElementById("optimizeAnswer").value.trim();
+            const feedback = document.getElementById("optimizeFeedback");
+            if (answer.includes("檢查相同的題目")) {
+                feedback.textContent = "正確！你成功添加了檢查重複題目的功能。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showOptimizeAnswer() {
+            const feedback = document.getElementById("optimizeFeedback");
+            feedback.textContent = "正確答案是：檢查試算表的每一行，確認是否有相同的問題。";
+            feedback.style.color = "blue";
+        }
+    </script>
+</body>
+</html>

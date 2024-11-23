@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第九節課：創建完整的 AI 命題系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        h1 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+        }
+        code, pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warm-up {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        .question {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>第九節課：創建完整的 AI 命題系統</h1>
+
+        <!-- 暖身問題 -->
+        <div class="warm-up">
+            <strong>暖身問題：</strong>
+            你是否想過自己能設計一個完整的命題系統，從生成到儲存，並展示結果？今天，我們將整合前幾課的內容，打造一個功能完整的系統。
+        </div>
+
+        <h2>教學目標</h2>
+        <ul>
+            <li>整合生成、儲存和展示選擇題的功能。</li>
+            <li>學會設計一個完整的命題系統流程。</li>
+            <li>了解如何設計可擴展的應用架構。</li>
+        </ul>
+
+        <h2>教學內容與操作步驟</h2>
+
+        <!-- 操作1 -->
+        <h3>1. 綜合生成與儲存功能</h3>
+        <pre>
+<code>
+const GEMINI_API_KEY = '你的API密鑰';
+
+function generateAndSaveQuiz() {
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY;
+    const payload = {
+        "prompt": "請生成一個關於基礎數學的選擇題，包括問題、四個選項及正確答案。"
+    };
+    const options = {
+        "method": "post",
+        "contentType": "application/json",
+        "payload": JSON.stringify(payload)
+    };
+
+    const response = UrlFetchApp.fetch(apiUrl, options);
+    const data = JSON.parse(response.getContentText());
+    const question = JSON.parse(data.candidates[0].content);
+
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    sheet.appendRow([
+        question.question,
+        ...question.options,
+        question.answer
+    ]);
+
+    Logger.log("題目已生成並儲存到試算表");
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將上述程式碼複製到 Apps Script 編輯器中。</li>
+            <li>執行程式，檢查試算表中是否儲存了生成的題目。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望生成題目時自動附加解釋，應該如何修改程式碼？
+            <textarea id="quizExplainAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkQuizExplainAnswer()">提交</button>
+            <button onclick="showQuizExplainAnswer()">顯示答案</button>
+            <p id="quizExplainFeedback"></p>
+        </div>
+
+        <!-- 操作2 -->
+        <h3>2. 展示已儲存的題目</h3>
+        <pre>
+<code>
+function displayQuizzes() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const data = sheet.getDataRange().getValues();
+    let quizzes = [];
+
+    for (let i = 1; i < data.length; i++) {
+        quizzes.push({
+            question: data[i][0],
+            options: data[i].slice(1, 5),
+            answer: data[i][5]
+        });
+    }
+
+    Logger.log(JSON.stringify(quizzes, null, 2));
+    return quizzes;
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼添加到 Apps Script 編輯器中。</li>
+            <li>執行程式，檢查日誌中是否正確顯示試算表內的所有題目。</li>
+        </ol>
+        <div class="question">
+            問題：如果試算表中有 10 個題目，如何修改程式僅顯示前 5 個？
+            <textarea id="displayAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkDisplayAnswer()">提交</button>
+            <button onclick="showDisplayAnswer()">顯示答案</button>
+            <p id="displayFeedback"></p>
+        </div>
+
+        <!-- 延伸挑戰 -->
+        <h2>課程延伸與挑戰</h2>
+        <ul>
+            <li>
+                <strong>挑戰1：</strong> 設計一個網頁介面，展示所有已儲存的題目，並附加答題功能。
+            </li>
+            <li>
+                <strong>挑戰2：</strong> 增加功能，讓使用者選擇主題並生成對應的題目。
+            </li>
+        </ul>
+
+       <a href="Lesson8.html" class="btn">上一節課</a><a href="Lesson10.html" class="btn">下一節課</a>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function checkQuizExplainAnswer() {
+            const answer = document.getElementById("quizExplainAnswer").value.trim();
+            const feedback = document.getElementById("quizExplainFeedback");
+            if (answer.includes("解釋")) {
+                feedback.textContent = "正確！你已成功添加生成解釋的功能。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showQuizExplainAnswer() {
+            const feedback = document.getElementById("quizExplainFeedback");
+            feedback.textContent = "正確答案是：在 prompt 中新增 '並附加正確答案的解釋'。";
+            feedback.style.color = "blue";
+        }
+
+        function checkDisplayAnswer() {
+            const answer = document.getElementById("displayAnswer").value.trim();
+            const feedback = document.getElementById("displayFeedback");
+            if (answer.includes("slice(0, 5)")) {
+                feedback.textContent = "正確！你已成功限制顯示題目的數量。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showDisplayAnswer() {
+            const feedback = document.getElementById("displayFeedback");
+            feedback.textContent = "正確答案是：使用 quizzes.slice(0, 5) 僅顯示前 5 個題目。";
+            feedback.style.color = "blue";
+        }
+    </script>
+</body>
+</html>

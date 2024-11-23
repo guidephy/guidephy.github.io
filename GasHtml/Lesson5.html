@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第五節課：Apps Script 與 HTML 的結合</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        h1 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-left: 4px solid #4CAF50;
+            margin: 10px 0;
+        }
+        code, pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: block;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .warm-up {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+        }
+        .question {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>第五節課：Apps Script 與 HTML 的結合</h1>
+
+        <!-- 暖身問題 -->
+        <div class="warm-up">
+            <strong>暖身問題：</strong>
+            想像你有一個可以顯示試算表數據的網頁應用，你希望點擊按鈕時能動態顯示內容。今天，我們將學習如何結合 Apps Script 與 HTML，實現這樣的功能！
+        </div>
+
+        <h2>教學目標</h2>
+        <ul>
+            <li>了解 Apps Script 與 HTML 結合的基本流程。</li>
+            <li>學會使用 Google Apps Script 提供動態數據給 HTML 網頁。</li>
+            <li>熟悉 Apps Script 中的 `doGet` 方法。</li>
+        </ul>
+
+        <h2>教學內容與操作步驟</h2>
+        <!-- 操作1 -->
+        <h3>1. 建立一個簡單的 Apps Script 項目</h3>
+        <pre>
+<code>
+function doGet() {
+    return HtmlService.createHtmlOutput(`
+        &lt;!DOCTYPE html&gt;
+        &lt;html&gt;
+        &lt;head&gt;
+            &lt;title&gt;Apps Script 與 HTML&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+            &lt;h1&gt;歡迎來到我的網頁！&lt;/h1&gt;
+            &lt;button onclick="google.script.run.showAlert()"&gt;點擊我&lt;/button&gt;
+            &lt;script&gt;
+                function showAlert() {
+                    alert("你好！這是一個動態訊息。");
+                }
+            &lt;/script&gt;
+        &lt;/body&gt;
+        &lt;/html&gt;
+    `);
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>打開 Google Apps Script，建立新項目。</li>
+            <li>將上方程式碼複製並貼上到 Apps Script 編輯器中。</li>
+            <li>點擊 <strong>部署</strong> &gt; <strong>作為 Web 應用發布</strong>。</li>
+            <li>檢查網頁是否成功顯示。</li>
+        </ol>
+        <div class="question">
+            問題：如果希望按鈕顯示的訊息為 "歡迎學習 Apps Script！"，應該修改哪部分程式碼？
+            <textarea id="htmlAnswer" placeholder="請輸入答案 (如：alert('歡迎學習 Apps Script！');"></textarea>
+            <button onclick="checkHtmlAnswer()">提交</button>
+            <button onclick="showHtmlAnswer()">顯示答案</button>
+            <p id="htmlFeedback"></p>
+        </div>
+
+        <!-- 操作2 -->
+        <h3>2. 動態顯示試算表數據</h3>
+        <pre>
+<code>
+function doGet() {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    const data = sheet.getRange(1, 1).getValue(); // 取得第一行第一列的值
+
+    return HtmlService.createHtmlOutput(`
+        &lt;!DOCTYPE html&gt;
+        &lt;html&gt;
+        &lt;head&gt;
+            &lt;title&gt;顯示試算表數據&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+            &lt;h1&gt;從試算表讀取的數據是：&lt;/h1&gt;
+            &lt;p&gt;` + data + `&lt;/p&gt;
+        &lt;/body&gt;
+        &lt;/html&gt;
+    `);
+}
+</code>
+        </pre>
+        <p>步驟：</p>
+        <ol>
+            <li>將程式碼修改為上述內容。</li>
+            <li>確保試算表中有內容（例如第一行第一列填入 "Hello, World!"）。</li>
+            <li>再次部署並檢查是否成功顯示試算表內容。</li>
+        </ol>
+        <div class="question">
+            問題：如果想要讀取第二行第一列的數據，應該修改哪部分程式碼？
+            <textarea id="spreadsheetAnswer" placeholder="請輸入答案"></textarea>
+            <button onclick="checkSpreadsheetAnswer()">提交</button>
+            <button onclick="showSpreadsheetAnswer()">顯示答案</button>
+            <p id="spreadsheetFeedback"></p>
+        </div>
+
+        <!-- 延伸挑戰 -->
+        <h2>課程延伸與挑戰</h2>
+        <ul>
+            <li>
+                <strong>挑戰1：</strong> 設計一個頁面，包含兩個按鈕，分別顯示試算表中的不同數據。
+            </li>
+            <li>
+                <strong>挑戰2：</strong> 使用 `google.script.run`，讓按鈕可以動態讀取試算表的數據並顯示。
+            </li>
+        </ul>
+
+        <a href="Lesson4.html" class="btn">上一節課</a><a href="Lesson6.html" class="btn">下一節課</a>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function checkHtmlAnswer() {
+            const answer = document.getElementById("htmlAnswer").value.trim();
+            const feedback = document.getElementById("htmlFeedback");
+            if (answer === "alert('歡迎學習 Apps Script！');") {
+                feedback.textContent = "正確！你成功修改了按鈕的訊息。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showHtmlAnswer() {
+            const feedback = document.getElementById("htmlFeedback");
+            feedback.textContent = "正確答案是：alert('歡迎學習 Apps Script！');";
+            feedback.style.color = "blue";
+        }
+
+        function checkSpreadsheetAnswer() {
+            const answer = document.getElementById("spreadsheetAnswer").value.trim();
+            const feedback = document.getElementById("spreadsheetFeedback");
+            if (answer === "sheet.getRange(2, 1).getValue();") {
+                feedback.textContent = "正確！你成功讀取了第二行第一列的數據。";
+                feedback.style.color = "green";
+            } else {
+                feedback.textContent = "答案不正確，請再試一次！";
+                feedback.style.color = "red";
+            }
+        }
+
+        function showSpreadsheetAnswer() {
+            const feedback = document.getElementById("spreadsheetFeedback");
+            feedback.textContent = "正確答案是：sheet.getRange(2, 1).getValue();";
+            feedback.style.color = "blue";
+        }
+    </script>
+</body>
+</html>
