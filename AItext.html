@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI素養題題目產生器</title>
+    <title>AI素養題產生器</title>
     <style>
         :root {
             --primary-color: #4a90e2;
@@ -180,7 +180,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>AI素養題題目產生器</h1>
+        <h1>AI素養題產生器</h1>
 
         <div class="form-group">
             <label for="topic">主題 (必填):</label>
@@ -188,7 +188,7 @@
         </div>
 
         <div class="form-group">
-            <label for="topicText">主題文本:</label>
+            <label for="topicText">補充提詞或學習內容(選填):</label>
             <textarea id="topicText"></textarea>
         </div>
 
@@ -252,7 +252,7 @@
             }
 
             const topicText = document.getElementById('topicText').value;
-            const conditions = "符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題";
+            const conditions = " 題目請符合下面條件:1、題目必須與指定主題高度相關，緊扣主題核心概念，並結合真實生活情境，讓學生能將學科知識應用於解決日常問題。2、每題必須只有一個明確的正確答案，並確保其他選項明確為錯誤，避免生成多個正確答案或模糊選項。3、題目條件必須完整，能讓學生根據提供的訊息進行解答，不得出現條件不足的情況。4、若題目涉及計算，需嚴格檢查公式應用及計算步驟，確保最終答案的數值正確無誤。5、每題需提供正確答案的詳細解釋，說明使用的知識背景或公式，並指出錯誤選項的常見誤解。";
             const grade = document.getElementById('grade').value;
             const questionCount = document.getElementById('questionCount').value;
 
@@ -268,10 +268,12 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `生成${questionCount}題${topic}相關的選擇題，年級為${grade}年級。
+                                text: `請以${topic}有關的相關學科領域的教育專家生成${questionCount}題主題為${topic}且具有效學習的選擇題，題目能力需符合年級為${grade}年級的學生。
                                 ${topicText ? `參考文本：${topicText}` : ''}
-                                附加條件：${conditions}
-                                請使用JSON格式回應，格式如下：
+                                ${conditions}
+                                完成題目後，請扮演三位主題相關領域的專家，每位專家獨立審視題目和答案，檢查是否存在以下問題：1、是否與主題核心概念相關；2、是否只有唯一正確答案；3、題目條件是否完整且足以作答；4、計算過程及邏輯是否正確。若任何一位專家發現題目存在上述任何一個問題，請重新出題並重新審視。
+                                修改後再次由三位專家審視，直至所有專家確認題目無誤。
+                                若修改無誤後，最後的題目請使用JSON格式回應，格式如下：
                                 {
                                     "questions": [
                                         {
