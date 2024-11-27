@@ -414,7 +414,8 @@ function copyContent() {
     questions.forEach((q, index) => {
         content += `${index + 1}. ${q.question}\n`;
         q.options.forEach((option, i) => {
-            content += `   ${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
+            // 直接使用字母標籤 A、B、C、D，避免多餘的標點符號
+            content += `   ${['A', 'B', 'C', 'D'][i]} ${option}\n`;
         });
     });
 
@@ -432,6 +433,8 @@ function copyContent() {
 }
 
 
+
     </script>
 </body>
 </html>
+
