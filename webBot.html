@@ -11,18 +11,18 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
-            background-color: #f7f6f2; /* 柔和背景 */
+            background-color: #f7f6f2;
         }
 
         .sidebar {
             width: 250px;
-            background-color: #f0f0f0; /* 淡灰色 */
-            color: #333; /* 深灰字體 */
+            background-color: #f0f0f0;
+            color: #333;
             display: flex;
             flex-direction: column;
             transition: transform 0.3s ease;
             z-index: 1000;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* 輕微陰影 */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar.hidden {
@@ -34,7 +34,7 @@
             text-align: center;
             font-size: 20px;
             font-weight: bold;
-            background-color: #f0f0f0; /* 統一背景色 */
+            background-color: #f0f0f0;
         }
 
         .sidebar-menu {
@@ -51,31 +51,23 @@
         }
 
         .menu-item:hover {
-            background-color: #d9d9d9; /* hover效果 */
-            color: #000; /* 深色字體 */
+            background-color: #d9d9d9;
+            color: #000;
         }
 
-        .menu-item.close-menu {
+        .menu-item.hidden {
             display: none;
-            background-color: #ff6666; /* 紅色 */
-            color: white;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .menu-item.close-menu:hover {
-            background-color: #cc0000;
         }
 
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: #fafafa; /* 主區域背景 */
+            background-color: #fafafa;
         }
 
         .header {
-            background-color: #8ab0ab; /* 文青綠 */
+            background-color: #8ab0ab;
             color: white;
             padding: 10px;
             display: flex;
@@ -98,6 +90,18 @@
             gap: 10px;
         }
 
+        .iframe-container {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         .message {
             max-width: 70%;
             padding: 10px;
@@ -109,13 +113,13 @@
 
         .user-message {
             align-self: flex-end;
-            background-color: #d9f2d9; /* 柔和綠 */
+            background-color: #d9f2d9;
             color: #333;
         }
 
         .bot-message {
             align-self: flex-start;
-            background-color: #e8e8e8; /* 柔和灰 */
+            background-color: #e8e8e8;
             color: #333;
         }
 
@@ -129,7 +133,7 @@
         }
 
         .upload-button {
-            background-color: #8ab0ab; /* 文青綠 */
+            background-color: #8ab0ab;
             color: white;
             border: none;
             border-radius: 20px;
@@ -151,7 +155,7 @@
 
         #send-button {
             padding: 10px 20px;
-            background-color: #8ab0ab; /* 文青綠 */
+            background-color: #8ab0ab;
             color: white;
             border: none;
             border-radius: 20px;
@@ -159,7 +163,7 @@
         }
 
         #send-button:hover {
-            background-color: #6e928b; /* hover顏色 */
+            background-color: #6e928b;
         }
 
         .image-preview {
@@ -204,10 +208,6 @@
                 display: block;
             }
 
-            .menu-item.close-menu {
-                display: block;
-            }
-
             .main-content {
                 flex: 1;
                 margin-left: 0;
@@ -230,8 +230,9 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">探索工具箱</div>
         <div class="sidebar-menu">
-            <div class="menu-item close-menu" id="close-menu">關閉選單</div>
             <div class="menu-item">回到主畫面</div>
+            <div class="menu-item" id="open-ai-generator">AI素養題產生器</div>
+            <div class="menu-item hidden" id="return-chat">返回聊天</div>
             <div class="menu-item" id="open-link">開啟物理導覽網站</div>
         </div>
     </div>
@@ -241,6 +242,9 @@
             隨身家教
         </div>
         <div class="chat-window" id="chat-window"></div>
+        <div class="iframe-container" id="iframe-container">
+            <iframe src="https://guidephy.github.io/AItest.html"></iframe>
+        </div>
         <div class="input-area">
             <label class="upload-button">
                 上傳照片
@@ -254,29 +258,31 @@
     <script>
         const sidebar = document.getElementById('sidebar');
         const menuToggle = document.getElementById('menu-toggle');
-        const closeMenu = document.getElementById('close-menu');
-        const openLink = document.getElementById('open-link');
+        const openAIGenerator = document.getElementById('open-ai-generator');
+        const returnChat = document.getElementById('return-chat');
+        const chatWindow = document.getElementById('chat-window');
+        const iframeContainer = document.getElementById('iframe-container');
         const uploadImage = document.getElementById('upload-image');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
         const sendButton = document.getElementById('send-button');
         const userInput = document.getElementById('user-input');
-        const chatWindow = document.getElementById('chat-window');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
 
         let selectedImage = null;
 
-        // 漢堡圖標控制選單顯示/隱藏
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.add('show');
+        // 切換到 AI 素養題產生器
+        openAIGenerator.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+            iframeContainer.style.display = 'block';
+            openAIGenerator.classList.add('hidden');
+            returnChat.classList.remove('hidden');
         });
 
-        // 手機模式下關閉選單按鈕
-        closeMenu.addEventListener('click', () => {
-            sidebar.classList.remove('show');
-        });
-
-        // 開啟外部連結
-        openLink.addEventListener('click', () => {
-            window.open('https://guidephy.github.io/', '_blank');
+        // 返回聊天
+        returnChat.addEventListener('click', () => {
+            chatWindow.style.display = 'flex';
+            iframeContainer.style.display = 'none';
+            returnChat.classList.add('hidden');
+            openAIGenerator.classList.remove('hidden');
         });
 
         // 照片上傳
@@ -295,13 +301,11 @@
             }
         });
 
-        // 清除圖片預覽
         function clearImage() {
             selectedImage = null;
             imagePreviewContainer.innerHTML = '';
         }
 
-        // 傳送訊息功能
         sendButton.addEventListener('click', () => {
             const message = userInput.value.trim();
             if (!message && !selectedImage) return;
