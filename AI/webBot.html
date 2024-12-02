@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨身家教</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column; /* 修改为列方向 */
+            min-height: 100vh; /* 使用最小高度代替固定高度 */
+            background-color: #f7f6f2;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 移动端初始隐藏侧边栏 */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                height: 100%;
+                top: 0;
+                left: 0;
+                transform: translateX(-250px);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .menu-item {
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            color: #333;
+        }
+
+        .menu-item:hover {
+            background-color: #d9d9d9;
+            color: #000;
+        }
+
+        .menu-item.hidden {
+            display: none;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fafafa;
+            overflow: hidden;
+        }
+
+        .header {
+            position: relative; /* 确保定位 */
+            z-index: 1001;      /* 确保在侧边栏之上 */
+            background-color: #8ab0ab;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header .menu-toggle {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .iframe-container {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in-out;
+            font-size: 14px;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #d9f2d9;
+            color: #333;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: #e8e8e8;
+            color: #333;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: white;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0; /* 防止输入区域被压缩 */
+        }
+
+        .upload-button {
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .upload-button:hover {
+            background-color: #6e928b;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #6e928b;
+        }
+
+        .image-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .image-preview img {
+            max-width: 50px;
+            border-radius: 10px;
+        }
+
+        .image-preview .delete-button {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .header .menu-toggle {
+                display: block;
+            }
+
+            .main-content {
+                flex: 1;
+                margin-left: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">探索工具箱</div>
+            <div class="sidebar-menu">
+                <div class="menu-item">回到主畫面</div>
+                <div class="menu-item" id="open-ai-generator">AI素養題產生器</div>
+                <div class="menu-item" id="open-phy-tour">開啟物理導覽網站</div> <!-- 新增 -->
+                <div class="menu-item hidden" id="return-chat">返回聊天</div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <span class="menu-toggle" id="menu-toggle">☰</span>
+                隨身家教
+            </div>
+            <div class="chat-window" id="chat-window"></div>
+            <div class="iframe-container" id="iframe-container">
+                <iframe id="tool-iframe" src=""></iframe> <!-- 修改，添加id -->
+            </div>
+            <div class="input-area">
+                <label class="upload-button">
+                    上傳照片
+                    <input type="file" id="upload-image" accept="image/*" style="display: none;">
+                </label>
+                <div id="image-preview-container" class="image-preview"></div>
+                <input type="text" id="user-input" placeholder="輸入訊息...">
+                <button id="send-button">傳送</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menu-toggle');
+        const openAIGenerator = document.getElementById('open-ai-generator');
+        const openPhyTour = document.getElementById('open-phy-tour'); // 新增
+        const returnChat = document.getElementById('return-chat');
+        const chatWindow = document.getElementById('chat-window');
+        const iframeContainer = document.getElementById('iframe-container');
+        const toolIframe = document.getElementById('tool-iframe'); // 新增
+        const uploadImage = document.getElementById('upload-image');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const sendButton = document.getElementById('send-button');
+        const userInput = document.getElementById('user-input');
+
+        let selectedImage = null;
+
+        // 切換到 AI 素養題產生器
+        openAIGenerator.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+            iframeContainer.style.display = 'block';
+            toolIframe.src = 'https://guidephy.github.io/AItest.html'; // 设置iframe的src
+            openAIGenerator.classList.add('hidden');
+            openPhyTour.classList.add('hidden'); // 隐藏物理導覽網站按钮
+            returnChat.classList.remove('hidden');
+            sidebar.classList.remove('show'); // 关闭侧边栏
+        });
+
+        // 切換到 物理導覽網站
+        openPhyTour.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+            iframeContainer.style.display = 'block';
+            toolIframe.src = 'https://guidephy.github.io/index.html'; // 设置iframe的src为物理導覽網站
+            openAIGenerator.classList.add('hidden');
+            openPhyTour.classList.add('hidden');
+            returnChat.classList.remove('hidden');
+            sidebar.classList.remove('show'); // 关闭侧边栏
+        });
+
+        // 返回聊天
+        returnChat.addEventListener('click', () => {
+            chatWindow.style.display = 'flex';
+            iframeContainer.style.display = 'none';
+            toolIframe.src = ''; // 清空iframe的src
+            returnChat.classList.add('hidden');
+            openAIGenerator.classList.remove('hidden');
+            openPhyTour.classList.remove('hidden');
+            sidebar.classList.remove('show'); // 关闭侧边栏
+        });
+
+        // 照片上傳
+        uploadImage.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImage = e.target.result;
+                    imagePreviewContainer.innerHTML = `
+                        <img src="${selectedImage}" alt="圖片預覽">
+                        <div class="delete-button" onclick="clearImage()">x</div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function clearImage() {
+            selectedImage = null;
+            imagePreviewContainer.innerHTML = '';
+        }
+
+        sendButton.addEventListener('click', () => {
+            const message = userInput.value.trim();
+            if (!message && !selectedImage) return;
+
+            if (selectedImage) {
+                appendMessage(selectedImage, 'user-message', true);
+                clearImage();
+            }
+
+            if (message) {
+                appendMessage(message, 'user-message');
+            }
+
+            userInput.value = '';
+
+            setTimeout(() => {
+                appendMessage('機器人回應：' + message, 'bot-message');
+            }, 500);
+        });
+
+        function appendMessage(content, className, isImage = false) {
+            const message = document.createElement('div');
+            message.classList.add('message', className);
+
+            if (isImage) {
+                const img = document.createElement('img');
+                img.src = content;
+                img.style.maxWidth = '150px';
+                img.style.borderRadius = '10px';
+                message.appendChild(img);
+            } else {
+                message.textContent = content;
+            }
+
+            chatWindow.appendChild(message);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // 添加汉堡菜单点击事件
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+        });
+
+        // 点击页面其他部分时，关闭侧边栏（可选）
+        document.addEventListener('click', (event) => {
+            if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // 根据当前时间获取问候语
+        function getGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            if (hour < 12) {
+                return '早安！';
+            } else if (hour < 18) {
+                return '午安！';
+            } else {
+                return '晚安！';
+            }
+        }
+
+        // 页面加载时向用户打招呼
+        document.addEventListener('DOMContentLoaded', () => {
+            const greeting = getGreeting();
+            appendMessage(`${greeting}今天想要討論什麼呢？`, 'bot-message');
+        });
+    </script>
+</body>
+</html>
+
