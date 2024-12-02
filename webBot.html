@@ -9,7 +9,7 @@
             margin: 0;
             font-family: 'Arial', sans-serif;
             display: flex;
-            flex-direction: column; /* 修改为列方向 */
+            flex-direction: column; 
             min-height: 100vh; /* 使用最小高度代替固定高度 */
             background-color: #f7f6f2;
         }
@@ -85,8 +85,8 @@
         }
 
         .header {
-            position: relative; /* 确保定位 */
-            z-index: 1001;      /* 确保在侧边栏之上 */
+            position: relative; 
+            z-index: 1001;     
             background-color: #8ab0ab;
             color: white;
             padding: 10px;
@@ -150,7 +150,7 @@
             background-color: white;
             align-items: center;
             gap: 10px;
-            flex-shrink: 0; /* 防止输入区域被压缩 */
+            flex-shrink: 0; 
         }
 
         .upload-button {
@@ -242,7 +242,7 @@
             <div class="sidebar-menu">
                 <div class="menu-item">回到主畫面</div>
                 <div class="menu-item" id="open-ai-generator">AI素養題產生器</div>
-                <div class="menu-item" id="open-phy-tour">開啟物理導覽網站</div> <!-- 新增 -->
+                <div class="menu-item" id="open-phy-tour">開啟物理導覽網站</div> 
                 <div class="menu-item hidden" id="return-chat">返回聊天</div>
             </div>
         </div>
@@ -270,11 +270,11 @@
         const sidebar = document.getElementById('sidebar');
         const menuToggle = document.getElementById('menu-toggle');
         const openAIGenerator = document.getElementById('open-ai-generator');
-        const openPhyTour = document.getElementById('open-phy-tour'); // 新增
+        const openPhyTour = document.getElementById('open-phy-tour'); 
         const returnChat = document.getElementById('return-chat');
         const chatWindow = document.getElementById('chat-window');
         const iframeContainer = document.getElementById('iframe-container');
-        const toolIframe = document.getElementById('tool-iframe'); // 新增
+        const toolIframe = document.getElementById('tool-iframe');
         const uploadImage = document.getElementById('upload-image');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const sendButton = document.getElementById('send-button');
@@ -286,22 +286,22 @@
         openAIGenerator.addEventListener('click', () => {
             chatWindow.style.display = 'none';
             iframeContainer.style.display = 'block';
-            toolIframe.src = 'https://guidephy.github.io/AItest.html'; // 设置iframe的src
+            toolIframe.src = 'https://guidephy.github.io/AItest.html'; 
             openAIGenerator.classList.add('hidden');
-            openPhyTour.classList.add('hidden'); // 隐藏物理導覽網站按钮
+            openPhyTour.classList.add('hidden'); 
             returnChat.classList.remove('hidden');
-            sidebar.classList.remove('show'); // 关闭侧边栏
+            sidebar.classList.remove('show'); 
         });
 
         // 切換到 物理導覽網站
         openPhyTour.addEventListener('click', () => {
             chatWindow.style.display = 'none';
             iframeContainer.style.display = 'block';
-            toolIframe.src = 'https://guidephy.github.io/index.html'; // 设置iframe的src为物理導覽網站
+            toolIframe.src = 'https://guidephy.github.io/AItest.html/AI/QA.html'; 
             openAIGenerator.classList.add('hidden');
             openPhyTour.classList.add('hidden');
             returnChat.classList.remove('hidden');
-            sidebar.classList.remove('show'); // 关闭侧边栏
+            sidebar.classList.remove('show'); 
         });
 
         // 返回聊天
@@ -312,7 +312,7 @@
             returnChat.classList.add('hidden');
             openAIGenerator.classList.remove('hidden');
             openPhyTour.classList.remove('hidden');
-            sidebar.classList.remove('show'); // 关闭侧边栏
+            sidebar.classList.remove('show'); 
         });
 
         // 照片上傳
