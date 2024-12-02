@@ -25,8 +25,19 @@
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
-        .sidebar.hidden {
-            transform: translateX(-250px);
+        /* 移动端初始隐藏侧边栏 */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                height: 100%;
+                top: 0;
+                left: 0;
+                transform: translateX(-250px);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
         }
 
         .sidebar-header {
@@ -67,6 +78,8 @@
         }
 
         .header {
+            position: relative; /* 确保定位 */
+            z-index: 1001;      /* 确保在侧边栏之上 */
             background-color: #8ab0ab;
             color: white;
             padding: 10px;
@@ -192,18 +205,6 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar {
-                position: absolute;
-                height: 100%;
-                top: 0;
-                left: 0;
-                transform: translateX(-250px);
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
             .header .menu-toggle {
                 display: block;
             }
@@ -275,6 +276,7 @@
             iframeContainer.style.display = 'block';
             openAIGenerator.classList.add('hidden');
             returnChat.classList.remove('hidden');
+            sidebar.classList.remove('show'); // 关闭侧边栏
         });
 
         // 返回聊天
@@ -283,6 +285,7 @@
             iframeContainer.style.display = 'none';
             returnChat.classList.add('hidden');
             openAIGenerator.classList.remove('hidden');
+            sidebar.classList.remove('show'); // 关闭侧边栏
         });
 
         // 照片上傳
@@ -343,6 +346,37 @@
             chatWindow.appendChild(message);
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
+
+        // 添加汉堡菜单点击事件
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+        });
+
+        // 点击页面其他部分时，关闭侧边栏（可选）
+        document.addEventListener('click', (event) => {
+            if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // 根据当前时间获取问候语
+        function getGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            if (hour < 12) {
+                return '早安！';
+            } else if (hour < 18) {
+                return '午安！';
+            } else {
+                return '晚安！';
+            }
+        }
+
+        // 页面加载时向用户打招呼
+        document.addEventListener('DOMContentLoaded', () => {
+            const greeting = getGreeting();
+            appendMessage(`${greeting}今天想要討論什麼呢？`, 'bot-message');
+        });
     </script>
 </body>
 </html>
