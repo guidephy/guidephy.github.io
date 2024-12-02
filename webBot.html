@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天機器人</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e5e5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+
+        .chat-header {
+            background-color: #0078ff;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: height 0.3s ease;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #dcf8c6;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: #f1f1f1;
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+            position: relative;
+        }
+
+        #other-functions {
+            background-color: #0078ff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        #other-functions:hover {
+            background-color: #005bb5;
+        }
+
+        .function-menu {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 10px;
+            width: calc(100% - 20px);
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .function-menu .function-button {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .function-menu .function-button:last-child {
+            border-bottom: none;
+        }
+
+        .function-menu .function-button:hover {
+            background-color: #f9f9f9;
+        }
+
+        .image-preview-container {
+            display: none;
+            position: absolute;
+            bottom: 120px;
+            left: 10px;
+            width: calc(100% - 20px);
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 15;
+        }
+
+        .image-preview-container img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .image-preview-container .delete-button {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 5px;
+            align-self: flex-end;
+        }
+
+        #user-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 10px;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+        }
+
+        #send-button {
+            margin-left: 10px;
+            background-color: #0078ff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #005bb5;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">聊天機器人</div>
+        <div id="chat-window" class="chat-window"></div>
+        <div id="image-preview-container" class="image-preview-container">
+            <img id="image-preview" src="" alt="Image Preview">
+            <div class="delete-button" onclick="clearImagePreview()">x</div>
+        </div>
+        <div class="input-area">
+            <button id="other-functions" title="其它功能">≡</button>
+            <div id="function-menu" class="function-menu">
+                <div id="history-toggle" class="function-button">顯示/隱藏歷史對話</div>
+                <label for="upload-button" class="function-button">上傳圖片</label>
+                <input type="file" id="upload-button" accept="image/*" style="display: none;">
+            </div>
+            <input type="text" id="user-input" placeholder="輸入訊息...">
+            <button id="send-button">傳送</button>
+        </div>
+    </div>
+    <script>
+        let selectedImage = null;
+
+        document.getElementById('other-functions').addEventListener('click', toggleFunctionMenu);
+        document.getElementById('upload-button').addEventListener('change', handleImageUpload);
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+
+        function toggleFunctionMenu() {
+            const menu = document.getElementById('function-menu');
+            const chatWindow = document.getElementById('chat-window');
+            if (menu.style.display === 'none' || menu.style.display === '') {
+                menu.style.display = 'flex';
+                chatWindow.style.height = 'calc(100vh - 160px)';
+            } else {
+                menu.style.display = 'none';
+                chatWindow.style.height = 'calc(100vh - 100px)';
+            }
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImage = e.target.result;
+                    document.getElementById('image-preview').src = selectedImage;
+                    document.getElementById('image-preview-container').style.display = 'block';
+                    document.getElementById('chat-window').style.height = 'calc(100vh - 240px)';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImagePreview() {
+            selectedImage = null;
+            document.getElementById('image-preview-container').style.display = 'none';
+            document.getElementById('chat-window').style.height = 'calc(100vh - 160px)';
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value.trim();
+            if (userInput || selectedImage) {
+                appendMessage(userInput, selectedImage);
+                clearImagePreview();
+                document.getElementById('user-input').value = '';
+            }
+        }
+
+        function appendMessage(text, image) {
+            const chatWindow = document.getElementById('chat-window');
+            const message = document.createElement('div');
+            message.classList.add('message', 'user-message');
+
+            if (image) {
+                const img = document.createElement('img');
+                img.src = image;
+                img.style.width = '150px';
+                img.style.borderRadius = '10px';
+                message.appendChild(img);
+            }
+
+            if (text) {
+                const textElement = document.createElement('div');
+                textElement.textContent = text;
+                message.appendChild(textElement);
+            }
+
+            chatWindow.appendChild(message);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            // 機器人回覆
+            setTimeout(() => {
+                const botReply = document.createElement('div');
+                botReply.classList.add('message', 'bot-message');
+                botReply.textContent = '機器人回應：' + (text || '圖片已收到！');
+                chatWindow.appendChild(botReply);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+
+
+
