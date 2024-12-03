@@ -102,6 +102,18 @@
             cursor: pointer;
         }
 
+        @media (max-width: 768px) {
+            .header .menu-toggle {
+                display: block;
+            }
+
+            .main-content {
+                flex: 1;
+                margin-left: 0;
+            }
+        }
+
+        /* 聊天窗口 */
         .chat-window {
             flex: 1;
             overflow-y: auto;
@@ -109,285 +121,60 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            background-color: white;
         }
 
-        .external-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: none;
-        }
-
-        /* 整合的外部頁面樣式 */
-        /* AI素養題產生器樣式 */
-        .ai-generator-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-            padding: 30px;
+        /* 聊天訊息的基礎樣式 */
+        .message {
+            display: flex;
+            max-width: 80%;
+            padding: 10px 15px;
             border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            margin: 5px 0;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
         }
 
-        .ai-generator-container h1 {
-            text-align: center;
-            color: #8ab0ab;
-            margin-bottom: 30px;
-            font-weight: bold;
+        /* 使用者訊息樣式（右側） */
+        .user-message {
+            align-self: flex-end;
+            background-color: #DCF8C6; /* 淺綠色背景 */
+            justify-content: flex-end;
         }
 
-        .ai-generator-container .form-group {
-            margin-bottom: 20px;
+        /* 機器人訊息樣式（左側） */
+        .bot-message {
+            align-self: flex-start;
+            background-color:   #ECF5FF; /* 白色背景 */
+            justify-content: flex-start;
         }
 
-        .ai-generator-container label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
+        /* 訊息內的圖片樣式 */
+        .message img {
+            max-width: 150px;
+            border-radius: 10px;
         }
 
-        .ai-generator-container input[type="text"],
-        .ai-generator-container textarea,
-        .ai-generator-container select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        /* 滾動條樣式（可選） */
+        .chat-window {
+            scrollbar-width: thin;
+            scrollbar-color: #ccc transparent;
         }
 
-        .ai-generator-container textarea {
-            min-height: 100px;
+        .chat-window::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .ai-generator-container .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
+        .chat-window::-webkit-scrollbar-track {
+            background: transparent;
         }
 
-        .ai-generator-container button {
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-            font-size: 18px;
-        }
-
-        .ai-generator-container button:hover {
-            background-color: #6e928b;
-            transform: scale(1.05);
-        }
-
-        .ai-generator-container .result-area {
-            display: none;
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .ai-generator-container .question-card {
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .ai-generator-container .question-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .ai-generator-container .question-options label {
-            display: block;
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .ai-generator-container .question-options label:hover {
-            background-color: #8ab0ab;
-            color: white;
-        }
-
-        .ai-generator-container .correct-answer {
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .ai-generator-container .wrong-answer {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .ai-generator-container .explanation {
-            margin-top: 10px;
-            font-style: italic;
-            color: #333;
-        }
-
-        .ai-generator-container .your-answer {
-            margin-top: 5px;
-        }
-
-        .ai-generator-container .submit-button {
-            display: block;
-            margin: 30px auto;
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .ai-generator-container .submit-button:hover {
-            background-color: #6e928b;
-            transform: scale(1.05);
-        }
-
-        .ai-generator-container .loading {
-            text-align: center;
-            color: #333;
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        /* 教我解題樣式 */
-        .solve-problem-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .solve-problem-container h1 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #8ab0ab;
-        }
-
-        .solve-problem-container .tab-switch {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-        }
-
-        .solve-problem-container .tab-button {
-            padding: 10px;
-            flex-grow: 1;
-            text-align: center;
-            cursor: pointer;
-            background-color: #e9e9e9;
-            border: 1px solid #ccc;
-            border-radius: 4px 4px 0 0;
-            transition: background-color 0.3s;
-        }
-
-        .solve-problem-container .tab-button.active {
-            background-color: #fff;
-            border-bottom: 2px solid #8ab0ab;
-        }
-
-        .solve-problem-container .tab-content {
-            display: none;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-        }
-
-        .solve-problem-container .tab-content.active {
-            display: block;
-        }
-
-        .solve-problem-container .form-group {
-            margin-bottom: 20px;
-        }
-
-        .solve-problem-container label {
-            display: block;
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-
-        .solve-problem-container input,
-        .solve-problem-container textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
+        .chat-window::-webkit-scrollbar-thumb {
+            background-color: #ccc;
             border-radius: 4px;
         }
 
-        .solve-problem-container .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .solve-problem-container button {
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .solve-problem-container button:hover {
-            background-color: #6e928b;
-            transform: scale(1.05);
-        }
-
-        .solve-problem-container .result-area {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .solve-problem-container .loading {
-            font-style: italic;
-            color: #888;
-        }
-
-        .solve-problem-container .question-card {
-            background-color: #f1f1f1;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
-
-        /* 其他樣式 */
-        .iframe-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
+        /* 輸入區域樣式 */
         .input-area {
             display: flex;
             padding: 10px;
@@ -405,10 +192,21 @@
             border-radius: 20px;
             padding: 10px 15px;
             cursor: pointer;
+            position: relative;
         }
 
         .upload-button:hover {
             background-color: #6e928b;
+        }
+
+        .upload-button input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
         }
 
         #user-input {
@@ -457,17 +255,6 @@
             cursor: pointer;
         }
 
-        @media (max-width: 768px) {
-            .header .menu-toggle {
-                display: block;
-            }
-
-            .main-content {
-                flex: 1;
-                margin-left: 0;
-            }
-        }
-
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -512,7 +299,7 @@
             <!-- 聊天窗口 -->
             <div class="chat-window" id="chat-window"></div>
             <!-- AI素養題產生器 -->
-            <div class="external-content" id="ai-generator-content">
+            <div class="external-content" id="ai-generator-content" style="display: none;">
                 <div class="ai-generator-container">
                     <h1>AI素養題產生器</h1>
 
@@ -541,8 +328,8 @@
                     </div>
 
                     <div class="button-group">
-                        <button id="generateButton" onclick="generateQuestions()">生成題目</button>
-                        <button id="copyContent" onclick="copyContent()" style="display:none;">複製題本</button>
+                        <button id="generateButton">生成題目</button>
+                        <button id="copyContent" style="display:none;">複製題本</button>
                     </div>
 
                     <form id="quizForm" class="result-area" onsubmit="checkAnswers(event)">
@@ -552,20 +339,20 @@
                 </div>
             </div>
             <!-- 教我解題 -->
-            <div class="external-content" id="solve-problem-content">
+            <div class="external-content" id="solve-problem-content" style="display: none;">
                 <div class="solve-problem-container">
                     <h1>教我解題</h1>
 
                     <div class="tab-switch">
-                        <div id="imageTab" class="tab-button active" onclick="switchTab('image')">圖片上傳</div>
-                        <div id="textTab" class="tab-button" onclick="switchTab('text')">文字輸入</div>
+                        <div id="imageTab" class="tab-button active">圖片上傳</div>
+                        <div id="textTab" class="tab-button">文字輸入</div>
                     </div>
 
                     <!-- 圖片上傳區域 -->
                     <div id="imageContent" class="tab-content active">
                         <div class="form-group">
                             <label for="uploadImage">上傳題目圖片：</label>
-                            <input type="file" id="uploadImage" accept="image/*" onchange="previewImage(event)">
+                            <input type="file" id="uploadImage" accept="image/*">
                             <div id="imagePreview" class="image-preview" style="margin-top: 15px; text-align: center;">
                                 <!-- 圖片預覽區 -->
                             </div>
@@ -581,21 +368,17 @@
                     </div>
 
                     <div class="button-group">
-                        <button id="analyzeButton" onclick="analyzeInput()">分析題目</button>
+                        <button id="analyzeButton">分析題目</button>
                     </div>
 
                     <div id="resultArea" class="result-area"></div>
                 </div>
             </div>
-            <!-- 嵌入的 iframe (已移除，因為整合後不再需要) -->
-            <!-- <div class="iframe-container" id="iframe-container">
-                <iframe id="tool-iframe" src=""></iframe>
-            </div> -->
             <!-- 輸入區域 -->
             <div class="input-area">
                 <label class="upload-button" style="display: none;">
                     上傳照片
-                    <input type="file" id="upload-image" accept="image/*" style="display: none;">
+                    <input type="file" id="upload-image" accept="image/*">
                 </label>
                 <div id="image-preview-container" class="image-preview"></div>
                 <input type="text" id="user-input" placeholder="輸入訊息...">
@@ -604,7 +387,6 @@
         </div>
     </div>
     <script>
-        // 主頁的 JavaScript
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
             const menuToggle = document.getElementById('menu-toggle');
@@ -620,6 +402,26 @@
             const userInput = document.getElementById('user-input');
 
             let selectedImage = null;
+
+            // 初始化年級和題數選項
+            function initializeAIOptions() {
+                const gradeSelect = document.getElementById('grade');
+                const questionCountSelect = document.getElementById('questionCount');
+
+                for (let i = 1; i <= 12; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.text = `${i}年級`;
+                    gradeSelect.appendChild(option);
+                }
+
+                for (let i = 1; i <= 10; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.text = `${i}題`;
+                    questionCountSelect.appendChild(option);
+                }
+            }
 
             // 切換到 AI 素養題產生器
             openAIGenerator.addEventListener('click', () => {
@@ -650,7 +452,20 @@
                 sidebar.classList.remove('show'); 
             });
 
-            // 照片上傳
+            // 漢堡菜單切換
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation(); // 防止事件冒泡
+                sidebar.classList.toggle('show');
+            });
+
+            // 點擊頁面其他部分時，關閉側邊欄
+            document.addEventListener('click', (event) => {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            });
+
+            // 照片上傳（聊天窗口）
             uploadImage.addEventListener('change', (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -672,6 +487,7 @@
                 uploadImage.value = '';
             }
 
+            // 聊天發送按鈕
             sendButton.addEventListener('click', () => {
                 const message = userInput.value.trim();
                 if (!message && !selectedImage) return;
@@ -699,29 +515,16 @@
                 if (isImage) {
                     const img = document.createElement('img');
                     img.src = content;
-                    img.style.maxWidth = '150px';
-                    img.style.borderRadius = '10px';
                     message.appendChild(img);
                 } else {
-                    message.textContent = content;
+                    const text = document.createElement('span');
+                    text.textContent = content;
+                    message.appendChild(text);
                 }
 
                 chatWindow.appendChild(message);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }
-
-            // 添加漢堡菜單點擊事件
-            menuToggle.addEventListener('click', (e) => {
-                e.stopPropagation(); // 防止事件冒泡
-                sidebar.classList.toggle('show');
-            });
-
-            // 點擊頁面其他部分時，關閉側邊欄（可選）
-            document.addEventListener('click', (event) => {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('show');
-                }
-            });
 
             // 根據當前時間獲取問候語
             function getGreeting() {
@@ -739,15 +542,22 @@
             // 頁面加載時向用戶打招呼
             const greeting = getGreeting();
             appendMessage(`${greeting}今天想要討論什麼呢？`, 'bot-message');
+
+            // 初始化 AI素養題產生器選項
+            initializeAIOptions();
         });
 
         // ----------- AI素養題產生器的 JavaScript -----------
-        // 將原本在 AI素養題產生器頁面的 JavaScript 移植到主頁中
-        // 為避免變數名稱衝突，使用命名空間
-        const aiGenerator = (function() {
+        (function() {
             let questions = [];
 
-            window.generateQuestions = async function() {
+            // 生成題目按鈕
+            document.getElementById('generateButton').addEventListener('click', generateQuestions);
+
+            // 複製內容按鈕
+            document.getElementById('copyContent').addEventListener('click', copyContent);
+
+            async function generateQuestions() {
                 const topic = document.getElementById('topic').value;
                 const button = document.getElementById('generateButton');
                 button.innerText = '生成題目中，請稍候...';
@@ -820,7 +630,7 @@
                 document.getElementById('copyContent').style.display = 'block';
             }
 
-            window.displayQuestions = function(questions) {
+            function displayQuestions(questions) {
                 const questionsDiv = document.getElementById('questions');
                 questionsDiv.innerHTML = '';
 
@@ -857,6 +667,7 @@
                 submitButton.style.display = 'block';
             }
 
+            // 檢查答案
             window.checkAnswers = function(event) {
                 event.preventDefault();
 
@@ -886,7 +697,7 @@
                 submitButton.style.display = 'none';
             }
 
-            window.displayResults = function(results) {
+            function displayResults(results) {
                 const questionsDiv = document.getElementById('questions');
                 questionsDiv.innerHTML = results.map((result, i) => `
                     <div class="question-card">
@@ -907,7 +718,8 @@
                 `).join('');
             }
 
-            window.copyContent = function() {
+            // 複製內容到剪貼簿
+            function copyContent() {
                 if (questions.length === 0) {
                     alert('請先生成題目！');
                     return;
@@ -955,24 +767,25 @@
                     questionCountSelect.appendChild(option);
                 }
             }
-
-            return {};
         })();
 
         // ----------- 教我解題的 JavaScript -----------
-        // 將原本在 教我解題 頁面的 JavaScript 移植到主頁中
-        // 使用命名空間避免衝突
-        const solveProblem = (function() {
+        (function() {
             // 切換標籤
-            window.switchTab = function(tab) {
+            document.getElementById('imageTab').addEventListener('click', () => switchTab('image'));
+            document.getElementById('textTab').addEventListener('click', () => switchTab('text'));
+
+            // 預覽圖片
+            document.getElementById('uploadImage').addEventListener('change', previewImage);
+
+            function switchTab(tab) {
                 document.getElementById('imageContent').classList.toggle('active', tab === 'image');
                 document.getElementById('textContent').classList.toggle('active', tab === 'text');
                 document.getElementById('imageTab').classList.toggle('active', tab === 'image');
                 document.getElementById('textTab').classList.toggle('active', tab === 'text');
             }
 
-            // 預覽圖片
-            window.previewImage = function(event) {
+            function previewImage(event) {
                 const file = event.target.files[0];
                 const preview = document.getElementById('imagePreview');
                 if (file) {
@@ -986,8 +799,10 @@
                 }
             }
 
-            // 分析輸入
-            window.analyzeInput = async function() {
+            // 分析輸入按鈕
+            document.getElementById('analyzeButton').addEventListener('click', analyzeInput);
+
+            async function analyzeInput() {
                 const imageInput = document.getElementById('uploadImage');
                 const textInput = document.getElementById('textInput');
                 const button = document.getElementById('analyzeButton');
@@ -1090,12 +905,7 @@
                     reader.readAsDataURL(imageFile);
                 });
             }
-
-            return {};
         })();
     </script>
 </body>
 </html>
-
-
-
