@@ -21,6 +21,7 @@ body {
     overflow: hidden;
 }
 
+
 .sidebar {
     width: 250px;
     background-color: #f0f0f0;
@@ -679,7 +680,7 @@ body {
                 </div>
             </div>
             <!-- 輸入區域 -->
-            <div class="input-area">
+            <div class="input-area" >
                 <label class="upload-button" style="display: none;">
                     上傳照片
                     <input type="file" id="upload-image" accept="image/*">
@@ -727,34 +728,36 @@ body {
                 }
             }
 
-            // 切換到 AI 素養題產生器
-            openAIGenerator.addEventListener('click', () => {
-                chatWindow.style.display = 'none';
-                aiGeneratorContent.style.display = 'block';
-                solveProblemContent.style.display = 'none';
-                returnChat.classList.remove('hidden');
-                sidebar.classList.remove('show'); 
-            });
+           // 切換到 AI 素養題產生器
+openAIGenerator.addEventListener('click', () => {
+    chatWindow.style.display = 'none';
+    aiGeneratorContent.style.display = 'block';
+    solveProblemContent.style.display = 'none';
+    returnChat.classList.remove('hidden');
+    document.querySelector('.input-area').style.display = 'none'; // 隱藏輸入框
+    sidebar.classList.remove('show'); 
+});
 
-            // 切換到 教我解題
-            openSolveProblem.addEventListener('click', () => {
-                chatWindow.style.display = 'none';
-                aiGeneratorContent.style.display = 'none';
-                solveProblemContent.style.display = 'block';
-                returnChat.classList.remove('hidden');
-                sidebar.classList.remove('show'); 
-            });
+// 切換到 教我解題
+openSolveProblem.addEventListener('click', () => {
+    chatWindow.style.display = 'none';
+    aiGeneratorContent.style.display = 'none';
+    solveProblemContent.style.display = 'block';
+    returnChat.classList.remove('hidden');
+    document.querySelector('.input-area').style.display = 'none'; // 隱藏輸入框
+});
 
-            // 返回聊天
-            returnChat.addEventListener('click', () => {
-                chatWindow.style.display = 'flex';
-                aiGeneratorContent.style.display = 'none';
-                solveProblemContent.style.display = 'none';
-                returnChat.classList.add('hidden');
-                openAIGenerator.classList.remove('hidden');
-                openSolveProblem.classList.remove('hidden');
-                sidebar.classList.remove('show'); 
-            });
+// 返回聊天
+returnChat.addEventListener('click', () => {
+    chatWindow.style.display = 'flex';
+    aiGeneratorContent.style.display = 'none';
+    solveProblemContent.style.display = 'none';
+    returnChat.classList.add('hidden');
+    openAIGenerator.classList.remove('hidden');
+    openSolveProblem.classList.remove('hidden');
+    document.querySelector('.input-area').style.display = 'flex'; // 顯示輸入框
+    sidebar.classList.remove('show'); 
+});
 
             // 漢堡菜單切換
             menuToggle.addEventListener('click', (e) => {
