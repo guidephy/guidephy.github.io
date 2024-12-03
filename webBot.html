@@ -255,7 +255,10 @@
                 <iframe id="tool-iframe" src=""></iframe> <!-- 修改，添加id -->
             </div>
             <div class="input-area">
-                
+                <label class="upload-button" style="display: none;">
+                    上傳照片
+                    <input type="file" id="upload-image" accept="image/*" style="display: none;">
+                </label>
                 <div id="image-preview-container" class="image-preview"></div>
                 <input type="text" id="user-input" placeholder="輸入訊息...">
                 <button id="send-button">傳送</button>
@@ -289,7 +292,7 @@
             sidebar.classList.remove('show'); 
         });
 
-        // 切換到 提問
+        // 切換到 物理導覽網站
         openPhyTour.addEventListener('click', () => {
             chatWindow.style.display = 'none';
             iframeContainer.style.display = 'block';
@@ -403,4 +406,5 @@
     </script>
 </body>
 </html>
+
 
