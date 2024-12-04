@@ -692,6 +692,15 @@
         #image-preview-container {
             display: none; /* 初始隱藏 */
         }
+
+        #loading-indicator {
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
     </style>
 </head>
 <body>
@@ -749,6 +758,7 @@
 
                     <div class="button-group">
                         <button id="generateButton">生成題目</button>
+                        <button id="chatGenerateButton">聊天出題</button>
                         <button id="copyContent" style="display:none;">複製題本</button>
                     </div>
 
@@ -813,6 +823,7 @@
         </div>
     </div>
     <script>
+        let thread = []; // 儲存聊天記錄
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
             const menuToggle = document.getElementById('menu-toggle');
@@ -830,8 +841,10 @@
             const userInput = document.getElementById('user-input');
             const overlay = document.getElementById('overlay'); // 新增
 
-            let selectedImage = null;
 
+
+            
+            let selectedImage = null;
             // 切換到 AI 素養題產生器
             openAIGenerator.addEventListener('click', () => {
                 chatWindow.style.display = 'none';
@@ -914,95 +927,157 @@
             });
 
             // 照片上傳（聊天窗口）
-            uploadImage.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        selectedImage = e.target.result;
-                        imagePreviewContainer.innerHTML = `
-                            <img src="${selectedImage}" alt="圖片預覽">
-                            <div class="delete-button" onclick="clearImage()">x</div>
-                        `;
-                        imagePreviewContainer.style.display = 'flex'; // 顯示圖片預覽
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    imagePreviewContainer.style.display = 'none'; // 隱藏圖片預覽
-                }
-            });
+            uploadImage.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedImage = e.target.result;
+                imagePreviewContainer.innerHTML = `
+                    <img src="${selectedImage}" alt="圖片預覽">
+                    <div class="delete-button" onclick="clearImage()">x</div>
+                `;
+                imagePreviewContainer.style.display = "flex"; // 顯示圖片預覽
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreviewContainer.style.display = "none"; // 隱藏圖片預覽
+        }
+    });
 
-            window.clearImage = function() {
-                selectedImage = null;
-                imagePreviewContainer.innerHTML = '';
-                imagePreviewContainer.style.display = 'none'; // 隱藏圖片預覽
-                uploadImage.value = '';
-            }
-
-            // 聊天發送按鈕
-            sendButton.addEventListener('click', async () => {
-    const message = userInput.value.trim();
-    if (!message) return;
-
-    // 顯示使用者的訊息
-    appendMessage(message, 'user-message');
-    userInput.value = '';
-
-    // 向 Gemini API 發送請求
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
-    const payload = {
-        contents: [
-            {
-                parts: [
-                    {
-                        text: message
-                    }
-                ]
-            }
-        ]
+             window.clearImage = function () {
+        selectedImage = null;
+        imagePreviewContainer.innerHTML = "";
+        imagePreviewContainer.style.display = "none";
+        uploadImage.value = "";
     };
 
-    try {
-        appendMessage("正在處理...", 'bot-message'); // 顯示等待訊息
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-        });
+ 
 
-        const data = await response.json();
-        const botReply = data.candidates && data.candidates[0].content.parts[0].text;
-        if (botReply) {
-            // 顯示 Gemini API 回應
-            appendMessage(botReply, 'bot-message');
-        } else {
-            appendMessage("未能獲得有效回應，請稍後再試。", 'bot-message');
+            // 聊天發送按鈕
+            sendButton.addEventListener("click", async () => {
+        const message = userInput.value.trim();
+        if (!message && !selectedImage) return;
+
+        if (selectedImage) {
+            appendMessage("（圖片已傳送）", "user-message");
+            thread.push({
+                role: "user",
+                parts: [{ text: "圖片訊息", image: selectedImage }],
+            });
+            clearImage();
         }
-    } catch (error) {
-        appendMessage(`錯誤：${error.message}`, 'bot-message');
+
+        if (message) {
+            appendMessage(message, "user-message");
+            thread.push({
+                role: "user",
+                parts: [{ text: message }],
+            });
+        }
+
+        userInput.value = "";
+        // 顯示「正在思考中...」
+    showLoadingIndicator();
+
+        
+        
+        try {
+            const botReply = await fetchBotReply(thread);
+             hideLoadingIndicator();
+            
+
+            
+
+            appendMessage(botReply, "bot-message");
+            thread.push({
+                role: "model",
+                parts: [{ text: botReply }],
+            });
+
+             
+        } catch (error) {
+              hideLoadingIndicator();
+            
+            appendMessage(`錯誤：${error.message}`, "bot-message");
+        }
+    });
+
+            // 顯示「正在思考中...」
+// 顯示「正在思考中...」
+function showLoadingIndicator() {
+    // 移除現有的提示
+    const existingIndicator = document.getElementById("loading-indicator");
+    if (existingIndicator) {
+        existingIndicator.remove();
     }
-});
 
-function appendMessage(content, className) {
-    const message = document.createElement('div');
-    message.classList.add('message', className);
+    // 新增新的提示
+    const loadingIndicator = document.createElement("div");
+    loadingIndicator.id = "loading-indicator";
+    loadingIndicator.textContent = "正在思考中...";
+    loadingIndicator.style.cssText = `
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        margin: 10px 0;
+        background-color: white;
+        border-radius: 15px;
+        font-style: italic;
+        color: #555;
+    `;
+    chatWindow.appendChild(loadingIndicator);
 
-    const text = document.createElement('span');
-    text.textContent = content;
-    message.appendChild(text);
-
-    chatWindow.appendChild(message);
-
-    // 自動滾動至最新訊息
-    setTimeout(() => {
-        chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: 'smooth',
-        });
-    }, 100);
+    // 滾動至底部
+    chatWindow.scrollTo({
+        top: chatWindow.scrollHeight,
+        behavior: "smooth",
+    });
 }
+
+// 隱藏「正在思考中...」
+function hideLoadingIndicator() {
+    const loadingIndicator = document.getElementById("loading-indicator");
+    if (loadingIndicator) {
+        loadingIndicator.remove(); // 確保提示被完整移除
+    }
+}
+
+              async function fetchBotReply(thread) {
+        const apiKey = "YOUR_API_KEY"; // 替換為你的實際 API Key
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                contents: thread,
+            }),
+        });
+        const data = await response.json();
+        return data.candidates[0]?.content.parts[0]?.text || "未能獲取有效回應";
+    }
+function appendMessage(content, className) {
+        const message = document.createElement("div");
+        message.classList.add("message", className);
+
+        const text = document.createElement("span");
+        text.textContent = content;
+        message.appendChild(text);
+
+        chatWindow.appendChild(message);
+
+        setTimeout(() => {
+            chatWindow.scrollTo({
+                top: chatWindow.scrollHeight,
+                behavior: "smooth",
+            });
+        }, 100);
+    }
+
+    
 
             // 根據當前時間獲取問候語
             function getGreeting() {
@@ -1026,6 +1101,8 @@ function appendMessage(content, className) {
         });
 
         // ----------- AI素養題產生器的 JavaScript -----------
+ 
+       
         (function() {
             let questions = [];
 
@@ -1035,7 +1112,31 @@ function appendMessage(content, className) {
             // 複製內容按鈕
             document.getElementById('copyContent').addEventListener('click', copyContent);
 
-            async function generateQuestions() {
+
+           document.getElementById('chatGenerateButton').addEventListener('click', generateQuestionsFromChat);
+
+
+             function generateQuestionsFromChat() {
+        if (thread.length === 0) {
+            alert('目前無聊天記錄，無法使用');
+            return;
+        }
+
+        const chatContent = thread.map(entry => {
+            const role = entry.role === 'user' ? '使用者' : '機器人';
+            const message = entry.parts.map(part => part.text).join('\n');
+            return `${role}: ${message}`;
+        }).join('\n');
+
+        document.getElementById('topic').value = '以聊天記錄生成題目';
+        //document.getElementById('topicText').value = chatContent;
+
+        // 然後調用生成題目的函數
+        generateQuestions(chatContent);
+    }
+
+
+            async function generateQuestions(chatContent = ''){
                 const topic = document.getElementById('topic').value;
                 const button = document.getElementById('generateButton');
                 button.innerText = '生成題目中，請稍候...';
@@ -1046,7 +1147,7 @@ function appendMessage(content, className) {
                     return;
                 }
 
-                const topicText = document.getElementById('topicText').value;
+                const topicText = chatContent || document.getElementById('topicText').value;
                 const conditions = "符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題";
                 const grade = document.getElementById('grade').value;
                 const questionCount = document.getElementById('questionCount').value;
