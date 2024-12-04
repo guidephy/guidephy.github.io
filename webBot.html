@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
     <title>隨身家教</title>
     <style>
        /* 主頁樣式 */
@@ -308,6 +309,15 @@ body {
     /* 確保 AI素養題產生器和教我解題區域不被覆蓋 */
     .external-content {
         padding-bottom: 70px; /* 同樣避免被固定的輸入區域覆蓋 */
+    }
+}
+
+@media (max-width: 768px) {
+    .ai-generator-container,
+    .solve-problem-container {
+        max-height: calc(100vh - 70px); /* 減去固定輸入區域高度 */
+        overflow-y: auto; /* 確保可以滾動 */
+        padding-bottom: 10px; /* 避免內容靠得太近 */
     }
 }
 
@@ -708,26 +718,7 @@ body {
 
             let selectedImage = null;
 
-            // 初始化年級和題數選項
-            function initializeAIOptions() {
-                const gradeSelect = document.getElementById('grade');
-                const questionCountSelect = document.getElementById('questionCount');
-
-                for (let i = 1; i <= 12; i++) {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.text = `${i}年級`;
-                    gradeSelect.appendChild(option);
-                }
-
-                for (let i = 1; i <= 10; i++) {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.text = `${i}題`;
-                    questionCountSelect.appendChild(option);
-                }
-            }
-
+            
            // 切換到 AI 素養題產生器
 openAIGenerator.addEventListener('click', () => {
     chatWindow.style.display = 'none';
@@ -745,6 +736,7 @@ openSolveProblem.addEventListener('click', () => {
     solveProblemContent.style.display = 'block';
     returnChat.classList.remove('hidden');
     document.querySelector('.input-area').style.display = 'none'; // 隱藏輸入框
+    sidebar.classList.remove('show');
 });
 
 // 返回聊天
@@ -837,12 +829,12 @@ returnChat.addEventListener('click', () => {
             function getGreeting() {
                 const now = new Date();
                 const hour = now.getHours();
-                if (hour < 12) {
+                if (6<hour < 12) {
                     return '早安！';
-                } else if (hour < 18) {
+                } else if (12<=hour < 14) {
                     return '午安！';
                 } else {
-                    return '晚安！';
+                    return 'Hello！';
                 }
             }
 
@@ -851,7 +843,7 @@ returnChat.addEventListener('click', () => {
             appendMessage(`${greeting}今天想要討論什麼呢？`, 'bot-message');
 
             // 初始化 AI素養題產生器選項
-            initializeAIOptions();
+            
         });
 
         // ----------- AI素養題產生器的 JavaScript -----------
