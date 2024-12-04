@@ -591,6 +591,26 @@ body {
     }
 }
 
+        #user-input {
+    font-size: 16px; /* 確保字體大小足夠 */
+}
+.input-area {
+    width: 100%; /* 確保輸入區域自適應 */
+    position: fixed; /* 固定到底部 */
+    bottom: 0;
+    z-index: 100;
+}
+
+#user-input {
+    flex: 1;
+    font-size: 16px; /* 防止 iOS 自動縮放 */
+    padding: 10px; /* 適當的間距，增加點擊區域 */
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    box-sizing: border-box;
+}
+
     </style>
 </head>
 <body>
