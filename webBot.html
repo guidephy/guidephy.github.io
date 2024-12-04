@@ -940,48 +940,66 @@
             }
 
             // 聊天發送按鈕
-            sendButton.addEventListener('click', () => {
-                const message = userInput.value.trim();
-                if (!message && !selectedImage) return;
+            sendButton.addEventListener('click', async () => {
+    const message = userInput.value.trim();
+    if (!message) return;
 
-                if (selectedImage) {
-                    appendMessage(selectedImage, 'user-message', true);
-                    clearImage();
-                }
+    // 顯示使用者的訊息
+    appendMessage(message, 'user-message');
+    userInput.value = '';
 
-                if (message) {
-                    appendMessage(message, 'user-message');
-                }
+    // 向 Gemini API 發送請求
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
+    const payload = {
+        contents: [
+            {
+                parts: [
+                    {
+                        text: message
+                    }
+                ]
+            }
+        ]
+    };
 
-                userInput.value = '';
+    try {
+        appendMessage("正在處理...", 'bot-message'); // 顯示等待訊息
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
 
-                setTimeout(() => {
-                    const botReply = message ? `機器人回應：${message}` : '機器人回應：收到圖片';
-                    appendMessage(botReply, 'bot-message');
-                }, 500);
-            });
+        const data = await response.json();
+        const botReply = data.candidates && data.candidates[0].content.parts[0].text;
+        if (botReply) {
+            // 顯示 Gemini API 回應
+            appendMessage(botReply, 'bot-message');
+        } else {
+            appendMessage("未能獲得有效回應，請稍後再試。", 'bot-message');
+        }
+    } catch (error) {
+        appendMessage(`錯誤：${error.message}`, 'bot-message');
+    }
+});
 
-            function appendMessage(content, className, isImage = false) {
+function appendMessage(content, className) {
     const message = document.createElement('div');
     message.classList.add('message', className);
 
-    if (isImage) {
-        const img = document.createElement('img');
-        img.src = content;
-        message.appendChild(img);
-    } else {
-        const text = document.createElement('span');
-        text.textContent = content;
-        message.appendChild(text);
-    }
+    const text = document.createElement('span');
+    text.textContent = content;
+    message.appendChild(text);
 
     chatWindow.appendChild(message);
 
-    // 強制滾動到最新訊息，使用更兼容的方式
+    // 自動滾動至最新訊息
     setTimeout(() => {
         chatWindow.scrollTo({
             top: chatWindow.scrollHeight,
-            behavior: 'smooth', // 添加平滑滾動
+            behavior: 'smooth',
         });
     }, 100);
 }
