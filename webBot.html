@@ -713,6 +713,44 @@
 .bot-message p {
     margin-bottom: 10px;
 }
+
+/* 請在您的CSS中加入標籤切換樣式 (可參考教我解題的結構) */
+.tab-switch {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+}
+
+.tab-button {
+    padding: 10px;
+    flex-grow: 1;
+    text-align: center;
+    cursor: pointer;
+    background-color: #e9e9e9;
+    border: 1px solid #ccc;
+    border-radius: 4px 4px 0 0;
+    transition: background-color 0.3s;
+}
+
+.tab-button.active {
+    background-color: #fff;
+    border-bottom: 2px solid #8ab0ab;
+}
+
+.tab-content {
+    display: none;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    margin-bottom: 20px; /* 在選單內容區塊下方增加距離 */
+}
+
+.tab-content.active {
+    display: block;
+}
+
+
     </style>
 </head>
 <body>
@@ -741,45 +779,58 @@
             <div class="chat-window" id="chat-window"></div>
             <!-- AI素養題產生器 -->
             <div class="external-content" id="ai-generator-content" style="display: none;">
-                <div class="ai-generator-container">
-                    <h1>AI素養題產生器</h1>
+    <div class="ai-generator-container">
+        <h1>AI素養題產生器</h1>
 
-                    <div class="form-group">
-                        <label for="topic">主題 (必填):</label>
-                        <input type="text" id="topic" required>
-                    </div>
+        <!-- 新增的Tab切換 -->
+        <div class="tab-switch">
+            <div id="customTopicTab" class="tab-button active">自訂主題</div>
+            <div id="chatTopicTab" class="tab-button">聊天內容</div>
+        </div>
 
-                    <div class="form-group">
-                        <label for="topicText">補充提詞或學習內容文本(選填):</label>
-                        <textarea id="topicText"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="grade">題目程度:</label>
-                        <select id="grade">
-                            <option value="">請選擇年級</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="questionCount">題目數量:</label>
-                        <select id="questionCount">
-                            <option value="">請選擇題數</option>
-                        </select>
-                    </div>
-
-                    <div class="button-group">
-                        <button id="generateButton">生成題目</button>
-                        <button id="chatGenerateButton">聊天出題</button>
-                        <button id="copyContent" style="display:none;">複製題本</button>
-                    </div>
-
-                    <form id="quizForm" class="result-area" onsubmit="checkAnswers(event)">
-                        <div id="questions"></div>
-                        <button type="submit" class="submit-button">提交答案</button>
-                    </form>
-                </div>
+        <!-- 自訂主題內容區 -->
+        <div id="customTopicContent" class="tab-content active">
+            <div class="form-group">
+                <label for="topic">主題 (必填):</label>
+                <input type="text" id="topic" required>
             </div>
+
+            <div class="form-group">
+                <label for="topicText">補充提詞或學習內容文本(選填):</label>
+                <textarea id="topicText"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="grade">題目程度:</label>
+                <select id="grade">
+                    <option value="">請選擇年級</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="questionCount">題目數量:</label>
+                <select id="questionCount">
+                    <option value="">請選擇題數</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 聊天內容區，無需填寫額外資訊 -->
+        <div id="chatTopicContent" class="tab-content">
+            <p>將根據目前的聊天紀錄生成相關題目。</p>
+        </div>
+
+        <div class="button-group">
+            <button id="generateButton">生成題目</button>
+            <button id="copyContent" style="display:none;">複製題本</button>
+        </div>
+
+        <form id="quizForm" class="result-area" onsubmit="checkAnswers(event)">
+            <div id="questions"></div>
+            <button type="submit" class="submit-button" style="display:none;">提交答案</button>
+        </form>
+    </div>
+</div>
             <!-- 教我解題 -->
             <div class="external-content" id="solve-problem-content" style="display: none;">
                 <div class="solve-problem-container">
@@ -834,544 +885,543 @@
             </div>
         </div>
     </div>
-    <script>
-        let thread = []; // 儲存聊天記錄
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.getElementById('menu-toggle');
-            const openAIGenerator = document.getElementById('open-ai-generator');
-            const openSolveProblem = document.getElementById('open-solve-problem'); 
-            const openPhysicsLecture = document.getElementById('open-physics-lecture'); // 新增
-            const returnChat = document.getElementById('return-chat');
-            const chatWindow = document.getElementById('chat-window');
-            const aiGeneratorContent = document.getElementById('ai-generator-content');
-            const solveProblemContent = document.getElementById('solve-problem-content');
-            const physicsLectureContent = document.getElementById('physics-lecture-content'); // 新增
-            const uploadImage = document.getElementById('upload-image');
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            const sendButton = document.getElementById('send-button');
-            const userInput = document.getElementById('user-input');
-            const overlay = document.getElementById('overlay'); // 新增
+<script>
+    let thread = []; // 儲存聊天記錄
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menu-toggle');
+        const openAIGenerator = document.getElementById('open-ai-generator');
+        const openSolveProblem = document.getElementById('open-solve-problem'); 
+        const openPhysicsLecture = document.getElementById('open-physics-lecture');
+        const returnChat = document.getElementById('return-chat');
+        const chatWindow = document.getElementById('chat-window');
+        const aiGeneratorContent = document.getElementById('ai-generator-content');
+        const solveProblemContent = document.getElementById('solve-problem-content');
+        const physicsLectureContent = document.getElementById('physics-lecture-content');
+        const uploadImage = document.getElementById('upload-image');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const sendButton = document.getElementById('send-button');
+        const userInput = document.getElementById('user-input');
+        const overlay = document.getElementById('overlay');
+        
+        // 新增的Tab元件 for AI素養題產生器
+        const customTopicTab = document.getElementById('customTopicTab');
+        const chatTopicTab = document.getElementById('chatTopicTab');
+        const customTopicContent = document.getElementById('customTopicContent');
+        const chatTopicContent = document.getElementById('chatTopicContent');
 
+        customTopicTab.addEventListener('click', () => {
+            customTopicTab.classList.add('active');
+            chatTopicTab.classList.remove('active');
+            customTopicContent.classList.add('active');
+            chatTopicContent.classList.remove('active');
+        });
 
+        chatTopicTab.addEventListener('click', () => {
+            chatTopicTab.classList.add('active');
+            customTopicTab.classList.remove('active');
+            chatTopicContent.classList.add('active');
+            customTopicContent.classList.remove('active');
+        });
 
-            
-            let selectedImage = null;
-            // 切換到 AI 素養題產生器
-            openAIGenerator.addEventListener('click', () => {
-                chatWindow.style.display = 'none';
-                aiGeneratorContent.style.display = 'block';
-                solveProblemContent.style.display = 'none';
-                physicsLectureContent.style.display = 'none'; // 隱藏其他內容
-                returnChat.classList.remove('hidden');
-                openAIGenerator.classList.add('hidden');
-                openSolveProblem.classList.add('hidden');
-                openPhysicsLecture.classList.add('hidden'); // 隱藏其他選單項目
-                document.querySelector('.input-area').style.display = 'none'; // 隱藏輸入框
-                sidebar.classList.remove('show'); 
-                overlay.classList.remove('show'); // 隱藏遮罩層
-            });
+        // 切換到 AI 素養題產生器
+        openAIGenerator.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+            aiGeneratorContent.style.display = 'block';
+            solveProblemContent.style.display = 'none';
+            physicsLectureContent.style.display = 'none'; 
+            returnChat.classList.remove('hidden');
+            openAIGenerator.classList.add('hidden');
+            openSolveProblem.classList.add('hidden');
+            openPhysicsLecture.classList.add('hidden'); 
+            document.querySelector('.input-area').style.display = 'none';
+            sidebar.classList.remove('show'); 
+            overlay.classList.remove('show'); 
+        });
 
-            // 切換到 教我解題
-            openSolveProblem.addEventListener('click', () => {
-                chatWindow.style.display = 'none';
-                aiGeneratorContent.style.display = 'none';
-                solveProblemContent.style.display = 'block';
-                physicsLectureContent.style.display = 'none'; // 隱藏其他內容
-                returnChat.classList.remove('hidden');
-                openAIGenerator.classList.add('hidden');
-                openSolveProblem.classList.add('hidden');
-                openPhysicsLecture.classList.add('hidden'); // 隱藏其他選單項目
-                document.querySelector('.input-area').style.display = 'none'; // 隱藏輸入框
-                sidebar.classList.remove('show');
-                overlay.classList.remove('show'); // 隱藏遮罩層
-            });
+        // 切換到 教我解題
+        openSolveProblem.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+            aiGeneratorContent.style.display = 'none';
+            solveProblemContent.style.display = 'block';
+            physicsLectureContent.style.display = 'none';
+            returnChat.classList.remove('hidden');
+            openAIGenerator.classList.add('hidden');
+            openSolveProblem.classList.add('hidden');
+            openPhysicsLecture.classList.add('hidden');
+            document.querySelector('.input-area').style.display = 'none'; 
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        });
 
-            // 切換到 物理講義
-            openPhysicsLecture.addEventListener('click', () => {
-                chatWindow.style.display = 'none';
-                aiGeneratorContent.style.display = 'none';
-                solveProblemContent.style.display = 'none';
-                physicsLectureContent.style.display = 'block';
-                returnChat.classList.remove('hidden');
-                openAIGenerator.classList.add('hidden');
-                openSolveProblem.classList.add('hidden');
-                openPhysicsLecture.classList.add('hidden'); // 隱藏其他選單項目
-                document.querySelector('.input-area').style.display = 'none'; // 隱藏輸入框
-                sidebar.classList.remove('show');
-                overlay.classList.remove('show'); // 隱藏遮罩層
-            });
+        // 切換到 物理講義
+        openPhysicsLecture.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+            aiGeneratorContent.style.display = 'none';
+            solveProblemContent.style.display = 'none';
+            physicsLectureContent.style.display = 'block';
+            returnChat.classList.remove('hidden');
+            openAIGenerator.classList.add('hidden');
+            openSolveProblem.classList.add('hidden');
+            openPhysicsLecture.classList.add('hidden');
+            document.querySelector('.input-area').style.display = 'none';
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        });
 
-            // 返回聊天
-            returnChat.addEventListener('click', () => {
-                chatWindow.style.display = 'flex';
-                aiGeneratorContent.style.display = 'none';
-                solveProblemContent.style.display = 'none';
-                physicsLectureContent.style.display = 'none'; // 隱藏所有外部內容
-                returnChat.classList.add('hidden');
-                openAIGenerator.classList.remove('hidden');
-                openSolveProblem.classList.remove('hidden');
-                openPhysicsLecture.classList.remove('hidden'); // 確保新選單項目顯示
-                document.querySelector('.input-area').style.display = 'flex'; // 顯示輸入框
-                sidebar.classList.remove('show'); 
-                overlay.classList.remove('show'); // 隱藏遮罩層
-            });
+        // 返回聊天
+        returnChat.addEventListener('click', () => {
+            chatWindow.style.display = 'flex';
+            aiGeneratorContent.style.display = 'none';
+            solveProblemContent.style.display = 'none';
+            physicsLectureContent.style.display = 'none';
+            returnChat.classList.add('hidden');
+            openAIGenerator.classList.remove('hidden');
+            openSolveProblem.classList.remove('hidden');
+            openPhysicsLecture.classList.remove('hidden'); 
+            document.querySelector('.input-area').style.display = 'flex';
+            sidebar.classList.remove('show'); 
+            overlay.classList.remove('show'); 
+        });
 
-            // 漢堡菜單切換
-            menuToggle.addEventListener('click', (e) => {
-                e.stopPropagation(); // 防止事件冒泡
-                sidebar.classList.toggle('show');
-                overlay.classList.toggle('show'); // 顯示/隱藏遮罩層
-            });
+        // 漢堡菜單切換
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show'); 
+        });
 
-            // 點擊遮罩層時，關閉側邊欄
-            overlay.addEventListener('click', () => {
+        // 點擊遮罩層時，關閉側邊欄
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        });
+
+        // 點擊頁面其他部分時，關閉側邊欄
+        document.addEventListener('click', (event) => {
+            if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
-            });
-
-            // 點擊頁面其他部分時，關閉側邊欄
-            document.addEventListener('click', (event) => {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('show');
-                    overlay.classList.remove('show'); // 隱藏遮罩層
-                }
-            });
-
-            // 照片上傳（聊天窗口）
-            uploadImage.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                selectedImage = e.target.result;
-                imagePreviewContainer.innerHTML = `
-                    <img src="${selectedImage}" alt="圖片預覽">
-                    <div class="delete-button" onclick="clearImage()">x</div>
-                `;
-                imagePreviewContainer.style.display = "flex"; // 顯示圖片預覽
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreviewContainer.style.display = "none"; // 隱藏圖片預覽
-        }
-    });
-
-             window.clearImage = function () {
-        selectedImage = null;
-        imagePreviewContainer.innerHTML = "";
-        imagePreviewContainer.style.display = "none";
-        uploadImage.value = "";
-    };
-
- 
-
-            // 聊天發送按鈕
-            sendButton.addEventListener("click", async () => {
-        const message = userInput.value.trim();
-        if (!message && !selectedImage) return;
-
-        if (selectedImage) {
-            appendMessage("（圖片已傳送）", "user-message");
-            thread.push({
-                role: "user",
-                parts: [{ text: "圖片訊息", image: selectedImage }],
-            });
-            clearImage();
-        }
-
-        if (message) {
-            appendMessage(message, "user-message");
-            thread.push({
-                role: "user",
-                parts: [{ text: message }],
-            });
-        }
-
-        userInput.value = "";
-        // 顯示「正在思考中...」
-    showLoadingIndicator();
-
-        
-        
-        try {
-            const botReply = await fetchBotReply(thread);
-             hideLoadingIndicator();
-            
-
-            
-
-            appendMessage(botReply, "bot-message");
-            thread.push({
-                role: "model",
-                parts: [{ text: botReply }],
-            });
-
-             
-        } catch (error) {
-              hideLoadingIndicator();
-            
-            appendMessage(`錯誤：${error.message}`, "bot-message");
-        }
-    });
-
-            // 顯示「正在思考中...」
-// 顯示「正在思考中...」
-function showLoadingIndicator() {
-    // 移除現有的提示
-    const existingIndicator = document.getElementById("loading-indicator");
-    if (existingIndicator) {
-        existingIndicator.remove();
-    }
-
-    // 新增新的提示
-    const loadingIndicator = document.createElement("div");
-    loadingIndicator.id = "loading-indicator";
-    loadingIndicator.textContent = "正在思考中...";
-    loadingIndicator.style.cssText = `
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-        margin: 10px 0;
-        background-color: white;
-        border-radius: 15px;
-        font-style: italic;
-        color: #555;
-    `;
-    chatWindow.appendChild(loadingIndicator);
-
-    // 滾動至底部
-    chatWindow.scrollTo({
-        top: chatWindow.scrollHeight,
-        behavior: "smooth",
-    });
-}
-
-// 隱藏「正在思考中...」
-function hideLoadingIndicator() {
-    const loadingIndicator = document.getElementById("loading-indicator");
-    if (loadingIndicator) {
-        loadingIndicator.remove(); // 確保提示被完整移除
-    }
-}
-async function fetchBotReply(thread) {
-    const apiKey = "YOUR_API_KEY"; 
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
-
-    // 在發送前，組合一則系統訊息
-    const systemMessage = {
-        role: "user",
-        parts: [{ text: "請以繁體中文回答，不得使用簡體字或英文，扮演了解有效學習的該領域專家回答問題。"}]
-    };
-
-    const newThread = [systemMessage, ...thread];
-
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            contents: newThread,
-        }),
-    });
-    const data = await response.json();
-    return data.candidates[0]?.content.parts[0]?.text || "未能獲取有效回應";
-}
-
-
-function appendMessage(content, className) {
-    const message = document.createElement("div");
-    message.classList.add("message", className);
-
-    // 將文字內容中的\n換行符號替換成<br>
-    const formattedContent = content.replace(/\n/g, '<br>');
-
-    const text = document.createElement("span");
-    text.innerHTML = formattedContent; // 使用innerHTML以顯示HTML標籤
-    message.appendChild(text);
-
-    chatWindow.appendChild(message);
-
-    setTimeout(() => {
-        chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: "smooth",
+            }
         });
-    }, 100);
-}
 
-    
+        // 照片上傳（聊天窗口）
+        uploadImage.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const selectedImage = e.target.result;
+                    imagePreviewContainer.innerHTML = `
+                        <img src="${selectedImage}" alt="圖片預覽">
+                        <div class="delete-button" onclick="clearImage()">x</div>
+                    `;
+                    imagePreviewContainer.style.display = "flex";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreviewContainer.style.display = "none";
+            }
+        });
 
-            // 根據當前時間獲取問候語
-            function getGreeting() {
-                const now = new Date();
-                const hour = now.getHours();
-                if (hour > 6 && hour < 12) {
-                    return '早安！';
-                } else if (hour >= 12 && hour < 14) {
-                    return '午安！';
-                } else {
-                    return 'Hello！';
-                }
+        window.clearImage = function () {
+            imagePreviewContainer.innerHTML = "";
+            imagePreviewContainer.style.display = "none";
+            uploadImage.value = "";
+        };
+
+        // 聊天發送按鈕
+        sendButton.addEventListener("click", async () => {
+            const message = userInput.value.trim();
+            if (!message && !uploadImage.value) return;
+
+            let selectedImageBase64 = null;
+            if (uploadImage.files && uploadImage.files[0]) {
+                const file = uploadImage.files[0];
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    selectedImageBase64 = e.target.result;
+                    appendMessage("（圖片已傳送）", "user-message");
+                    thread.push({
+                        role: "user",
+                        parts: [{ text: "圖片訊息", image: selectedImageBase64 }],
+                    });
+                    clearImage();
+                    await handleUserTextMessage(message);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                await handleUserTextMessage(message);
+            }
+        });
+
+        async function handleUserTextMessage(message) {
+            if (message) {
+                appendMessage(message, "user-message");
+                thread.push({
+                    role: "user",
+                    parts: [{ text: message }],
+                });
             }
 
-            // 頁面加載時向用戶打招呼
-            const greeting = getGreeting();
-            appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
+            userInput.value = "";
+            // 顯示「正在思考中...」
+            showLoadingIndicator();
 
-            // 初始化 AI素養題產生器選項
-            
-        });
-
-        // ----------- AI素養題產生器的 JavaScript -----------
- 
-       
-        (function() {
-            let questions = [];
-
-            // 生成題目按鈕
-            document.getElementById('generateButton').addEventListener('click', generateQuestions);
-
-            // 複製內容按鈕
-            document.getElementById('copyContent').addEventListener('click', copyContent);
-
-
-           document.getElementById('chatGenerateButton').addEventListener('click', generateQuestionsFromChat);
-
-
-             function generateQuestionsFromChat() {
-        if (thread.length === 0) {
-            alert('目前無聊天記錄，無法使用');
-            return;
+            try {
+                const botReply = await fetchBotReply(thread);
+                hideLoadingIndicator();
+                appendMessage(botReply, "bot-message");
+                thread.push({
+                    role: "model",
+                    parts: [{ text: botReply }],
+                });
+            } catch (error) {
+                hideLoadingIndicator();
+                appendMessage(`錯誤：${error.message}`, "bot-message");
+            }
         }
 
-        const chatContent = thread.map(entry => {
-            const role = entry.role === 'user' ? '使用者' : '機器人';
-            const message = entry.parts.map(part => part.text).join('\n');
-            return `${role}: ${message}`;
-        }).join('\n');
+        // 顯示「正在思考中...」
+        function showLoadingIndicator() {
+            const existingIndicator = document.getElementById("loading-indicator");
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
 
-        document.getElementById('topic').value = '以聊天記錄生成題目';
-        //document.getElementById('topicText').value = chatContent;
+            const loadingIndicator = document.createElement("div");
+            loadingIndicator.id = "loading-indicator";
+            loadingIndicator.textContent = "正在思考中...";
+            loadingIndicator.style.cssText = `
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 10px;
+                margin: 10px 0;
+                background-color: white;
+                border-radius: 15px;
+                font-style: italic;
+                color: #555;
+            `;
+            chatWindow.appendChild(loadingIndicator);
 
-        // 然後調用生成題目的函數
-        generateQuestions(chatContent);
-    }
+            chatWindow.scrollTo({
+                top: chatWindow.scrollHeight,
+                behavior: "smooth",
+            });
+        }
 
+        // 隱藏「正在思考中...」
+        function hideLoadingIndicator() {
+            const loadingIndicator = document.getElementById("loading-indicator");
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+        }
 
-            async function generateQuestions(chatContent = ''){
-                const topic = document.getElementById('topic').value;
-                const button = document.getElementById('generateButton');
-                button.innerText = '生成題目中，請稍候...';
+        async function fetchBotReply(thread) {
+            const apiKey = "YOUR_API_KEY";
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    contents: thread,
+                }),
+            });
+            const data = await response.json();
+            if (data.candidates && data.candidates.length > 0) {
+                return data.candidates[0].content.parts[0].text || "未能獲取有效回應";
+            } else {
+                return "未能獲取有效回應";
+            }
+        }
 
+        function appendMessage(content, className) {
+            const message = document.createElement("div");
+            message.classList.add("message", className);
+
+            // 將內容中的 \n 轉換成 <br>
+            const formattedContent = content.replace(/\n/g, '<br>');
+            const text = document.createElement("span");
+            text.innerHTML = formattedContent;
+            message.appendChild(text);
+
+            chatWindow.appendChild(message);
+
+            setTimeout(() => {
+                chatWindow.scrollTo({
+                    top: chatWindow.scrollHeight,
+                    behavior: "smooth",
+                });
+            }, 100);
+        }
+
+        // 根據當前時間獲取問候語
+        function getGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            if (hour > 6 && hour < 12) {
+                return '早安！';
+            } else if (hour >= 12 && hour < 14) {
+                return '午安！';
+            } else {
+                return 'Hello！';
+            }
+        }
+
+        // 頁面加載時向用戶打招呼
+        const greeting = getGreeting();
+        appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
+
+        // ----------- AI素養題產生器的 JavaScript -----------
+
+        let questions = [];
+
+        // 初始化年級和題數選項
+        window.onload = function() {
+            const gradeSelect = document.getElementById('grade');
+            const questionCountSelect = document.getElementById('questionCount');
+
+            for (let i = 1; i <= 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = `${i}年級`;
+                gradeSelect.appendChild(option);
+            }
+
+            for (let i = 1; i <= 10; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = `${i}題`;
+                questionCountSelect.appendChild(option);
+            }
+        }
+
+        const generateButton = document.getElementById('generateButton');
+        generateButton.addEventListener('click', () => {
+            // 根據目前的tab判斷要使用自訂主題或聊天內容
+            if (customTopicTab.classList.contains('active')) {
+                // 使用自訂主題生成題目
+                generateQuestions();
+            } else {
+                // 使用聊天內容生成題目
+                generateQuestionsFromChat();
+            }
+        });
+
+        async function generateQuestionsFromChat() {
+            if (thread.length === 0) {
+                alert('目前無聊天記錄，無法使用');
+                return;
+            }
+
+            const chatContent = thread.map(entry => {
+                const role = entry.role === 'user' ? '使用者' : '機器人';
+                const message = entry.parts.map(part => part.text).join('\n');
+                return `${role}: ${message}`;
+            }).join('\n');
+
+            generateQuestions(chatContent);
+        }
+
+        async function generateQuestions(chatContent = '') {
+            const button = document.getElementById('generateButton');
+            button.innerText = '生成題目中，請稍候...';
+
+            let topic = '';
+            let topicText = '';
+            let grade = '';
+            let questionCount = '';
+
+            if (customTopicTab.classList.contains('active')) {
+                topic = document.getElementById('topic').value;
                 if (!topic) {
                     alert('請填寫主題！');
                     button.innerText = '生成題目';
                     return;
                 }
+                topicText = document.getElementById('topicText').value;
+                grade = document.getElementById('grade').value;
+                questionCount = document.getElementById('questionCount').value;
+            } else {
+                // 若是聊天內容為來源，可設定預設值
+                topic = '以聊天記錄生成題目';
+                // 您可根據需求調整預設值
+                grade = '10';
+                questionCount = '5';
+            }
 
-                const topicText = chatContent || document.getElementById('topicText').value;
-                const conditions = "符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題";
-                const grade = document.getElementById('grade').value;
-                const questionCount = document.getElementById('questionCount').value;
+            const conditions = "符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題";
+            
+            const questionsDiv = document.getElementById('questions');
+            const quizForm = document.getElementById('quizForm');
+            quizForm.style.display = 'none';
+            questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
 
-                document.getElementById('questions').innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
-                document.getElementById('quizForm').style.display = 'none';
-
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`, { // 請替換 YOUR_API_KEY 為您的實際 API 密鑰
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: `請以繁體中文回答，生成${questionCount}題${topic}相關的選擇題，年級為${grade}年級。
-                                    ${topicText ? `參考文本：${topicText}` : ''}
-                                    附加條件：${conditions}
-                                    請使用JSON格式回應，格式如下：
-                                    {
-                                        "questions": [
-                                            {
-                                                "question": "題目",
-                                                "options": ["A選項", "B選項", "C選項", "D選項"],
-                                                "answer": 0,
-                                                "explanation": "解答說明"
-                                            }
-                                        ]
-                                    }`
-                                }]
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `請以繁體中文回答，不使用簡體字與英文詞彙。
+                                       生成${questionCount}題${topic}相關的選擇題，年級為${grade}年級。
+                                       ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `參考文本：${topicText}` : '')}
+                                       附加條件：${conditions}
+                                       請使用JSON格式回應，格式如下：
+                                       {
+                                           "questions": [
+                                               {
+                                                   "question": "題目",
+                                                   "options": ["A選項", "B選項", "C選項", "D選項"],
+                                                   "answer": 0,
+                                                   "explanation": "解答說明"
+                                               }
+                                           ]
+                                       }`
                             }]
-                        })
-                    });
+                        }]
+                    })
+                });
 
-                    const data = await response.json();
-                    if (data.candidates && data.candidates[0].content) {
-                        const textContent = data.candidates[0].content.parts[0].text;
-                        const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-                        if (jsonMatch) {
-                            const parsedData = JSON.parse(jsonMatch[0]);
-                            questions = parsedData.questions.map((q) => {
-                                q.options = [...new Set(q.options)]; // 去重
-                                return q;
-                            });
-                            displayQuestions(questions);
-                            document.getElementById('quizForm').style.display = 'block';
-                        } else {
-                            throw new Error('無法解析回應格式');
-                        }
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content) {
+                    const textContent = data.candidates[0].content.parts[0].text;
+                    const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const parsedData = JSON.parse(jsonMatch[0]);
+                        questions = parsedData.questions.map((q) => {
+                            q.options = [...new Set(q.options)];
+                            return q;
+                        });
+                        displayQuestions(questions);
+                        quizForm.style.display = 'block';
+                        document.querySelector('.submit-button').style.display = 'block';
+                        document.getElementById('copyContent').style.display = 'block';
                     } else {
-                        throw new Error('API 回應格式不正確');
+                        throw new Error('無法解析回應格式');
                     }
-                } catch (error) {
-                    document.getElementById('questions').innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+                } else {
+                    throw new Error('API 回應格式不正確');
                 }
-
-                button.innerText = '重新生成題目';
-                document.getElementById('copyContent').style.display = 'block';
+            } catch (error) {
+                questionsDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
             }
 
-            function displayQuestions(questions) {
-                const questionsDiv = document.getElementById('questions');
-                questionsDiv.innerHTML = '';
+            button.innerText = '重新生成題目';
+        }
 
-                questions.forEach((q, i) => {
-                    const uniqueOptions = [...new Set(q.options)]; // 去重
+        function displayQuestions(questions) {
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = '';
 
-                    // 檢查選項是否已包含標籤，例如 "A. " 開頭
-                    const formattedOptions = uniqueOptions.map((option, index) => {
-                        if (/^[A-D]\.\s/.test(option)) {
-                            // 選項已包含標籤，直接返回
-                            return option;
-                        }
-                        // 否則，添加標籤
-                        return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
-                    });
-
-                    const questionHtml = `
-                        <div class="question-card">
-                            <p><strong>${i + 1}. ${q.question}</strong></p>
-                            <div class="question-options">
-                                ${formattedOptions.map((option, j) => `
-                                    <label>
-                                        <input type="radio" name="question${i}" value="${j}" required>
-                                        ${option}
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                    questionsDiv.innerHTML += questionHtml;
+            questions.forEach((q, i) => {
+                const uniqueOptions = [...new Set(q.options)];
+                const formattedOptions = uniqueOptions.map((option, index) => {
+                    if (/^[A-D]\.\s/.test(option)) {
+                        return option;
+                    }
+                    return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
                 });
 
-                const submitButton = document.querySelector('.submit-button');
-                submitButton.style.display = 'block';
-            }
-
-            // 檢查答案
-            window.checkAnswers = function(event) {
-                event.preventDefault();
-
-                const formData = new FormData(document.getElementById('quizForm'));
-                const results = [];
-
-                questions.forEach((q, i) => {
-                    const userAnswer = formData.get(`question${i}`);
-                    const correctAnswer = q.answer;
-                    const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswer;
-
-                    console.log(`Question ${i + 1}: User Answer - ${userAnswer}, Correct Answer - ${correctAnswer}, Is Correct - ${isCorrect}`);
-
-                    results.push({
-                        question: q.question,
-                        options: q.options,
-                        correct: isCorrect,
-                        userAnswer: userAnswer !== null ? parseInt(userAnswer) : '未作答',
-                        correctAnswer,
-                        explanation: q.explanation
-                    });
-                });
-
-                displayResults(results);
-
-                const submitButton = document.querySelector('.submit-button');
-                submitButton.style.display = 'none';
-            }
-
-            function displayResults(results) {
-                const questionsDiv = document.getElementById('questions');
-                questionsDiv.innerHTML = results.map((result, i) => `
+                const questionHtml = `
                     <div class="question-card">
-                        <p><strong>${i + 1}. ${result.question}</strong></p>
+                        <p><strong>${i + 1}. ${q.question}</strong></p>
                         <div class="question-options">
-                            ${result.options.map((option, j) => `
-                                <label style="background-color: ${j === result.correctAnswer ? '#28a745' : 
-                                    (j === result.userAnswer ? '#dc3545' : '#ffffff')};
-                                    color: ${j === result.correctAnswer || j === result.userAnswer ? 'white' : '#333'};">
-                                    ${['A', 'B', 'C', 'D'][j]}. ${option}
+                            ${formattedOptions.map((option, j) => `
+                                <label>
+                                    <input type="radio" name="question${i}" value="${j}" required>
+                                    ${option}
                                 </label>
                             `).join('')}
                         </div>
-                        <p class="your-answer">您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]} ${result.correct ? '✔️' : '❌'}</p>
-                        ${!result.correct ? `<p class="correct-answer">正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}</p>` : ''}
-                        <p class="explanation">解答說明：${result.explanation}</p>
                     </div>
-                `).join('');
-            }
+                `;
+                questionsDiv.innerHTML += questionHtml;
+            });
+        }
 
-            // 複製內容到剪貼簿
-            function copyContent() {
-                if (questions.length === 0) {
-                    alert('請先生成題目！');
-                    return;
-                }
+        window.checkAnswers = function(event) {
+            event.preventDefault();
 
-                // 構造題目部分
-                let content = '題目列表:\n';
-                questions.forEach((q, index) => {
-                    content += `${index + 1}. ${q.question}\n`;
-                    q.options.forEach((option, i) => {
-                        // 直接使用字母標籤 A、B、C、D，避免多餘的標點符號
-                        content += `   ${['A', 'B', 'C', 'D'][i]} ${option}\n`;
-                    });
+            const formData = new FormData(document.getElementById('quizForm'));
+            const results = [];
+
+            questions.forEach((q, i) => {
+                const userAnswer = formData.get(`question${i}`);
+                const correctAnswer = q.answer;
+                const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswer;
+
+                results.push({
+                    question: q.question,
+                    options: q.options,
+                    correct: isCorrect,
+                    userAnswer: userAnswer !== null ? parseInt(userAnswer) : '未作答',
+                    correctAnswer,
+                    explanation: q.explanation
                 });
+            });
 
-                // 構造答案與解答部分
-                content += '\n正確答案與解答:\n';
-                questions.forEach((q, index) => {
-                    content += `${index + 1}. 正確答案: ${['A', 'B', 'C', 'D'][q.answer]}\n`;
-                    content += `   解答說明: ${q.explanation}\n\n`;
+            displayResults(results);
+
+            const submitButton = document.querySelector('.submit-button');
+            submitButton.style.display = 'none';
+        }
+
+        function displayResults(results) {
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = results.map((result, i) => `
+                <div class="question-card">
+                    <p><strong>${i + 1}. ${result.question}</strong></p>
+                    <div class="question-options">
+                        ${result.options.map((option, j) => `
+                            <label style="background-color: ${j === result.correctAnswer ? '#28a745' : 
+                                (j === result.userAnswer ? '#dc3545' : '#ffffff')};
+                                color: ${j === result.correctAnswer || j === result.userAnswer ? 'white' : '#333'};">
+                                ${['A', 'B', 'C', 'D'][j]}. ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                    <p class="your-answer">您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]} ${result.correct ? '✔️' : '❌'}</p>
+                    ${!result.correct ? `<p class="correct-answer">正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}</p>` : ''}
+                    <p class="explanation">解答說明：${result.explanation}</p>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('copyContent').addEventListener('click', copyContent);
+
+        function copyContent() {
+            if (questions.length === 0) {
+                alert('請先生成題目！');
+                return;
+            }
+
+            let content = '題目列表:\n';
+            questions.forEach((q, index) => {
+                content += `${index + 1}. ${q.question}\n`;
+                q.options.forEach((option, i) => {
+                    content += `   ${['A', 'B', 'C', 'D'][i]} ${option}\n`;
                 });
+            });
 
-                // 使用 Clipboard API 複製內容到剪貼簿
-                navigator.clipboard.writeText(content)
-                    .then(() => alert('內容已複製到剪貼簿！'))
-                    .catch(err => alert('複製失敗：' + err));
-            }
+            content += '\n正確答案與解答:\n';
+            questions.forEach((q, index) => {
+                content += `${index + 1}. 正確答案: ${['A', 'B', 'C', 'D'][q.answer]}\n`;
+                content += `   解答說明: ${q.explanation}\n\n`;
+            });
 
-            // 初始化年級和題數選項
-            window.onload = function() {
-                const gradeSelect = document.getElementById('grade');
-                const questionCountSelect = document.getElementById('questionCount');
-
-                for (let i = 1; i <= 12; i++) {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.text = `${i}年級`;
-                    gradeSelect.appendChild(option);
-                }
-
-                for (let i = 1; i <= 10; i++) {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.text = `${i}題`;
-                    questionCountSelect.appendChild(option);
-                }
-            }
-        })();
+            navigator.clipboard.writeText(content)
+                .then(() => alert('內容已複製到剪貼簿！'))
+                .catch(err => alert('複製失敗：' + err));
+        }
 
         // ----------- 教我解題的 JavaScript -----------
         (function() {
@@ -1379,7 +1429,6 @@ function appendMessage(content, className) {
             document.getElementById('imageTab').addEventListener('click', () => switchTab('image'));
             document.getElementById('textTab').addEventListener('click', () => switchTab('text'));
 
-            // 預覽圖片
             document.getElementById('uploadImage').addEventListener('change', previewImage);
 
             function switchTab(tab) {
@@ -1403,7 +1452,6 @@ function appendMessage(content, className) {
                 }
             }
 
-            // 分析輸入按鈕
             document.getElementById('analyzeButton').addEventListener('click', analyzeInput);
 
             async function analyzeInput() {
@@ -1426,7 +1474,7 @@ function appendMessage(content, className) {
                                 {
                                     parts: [
                                         {
-                                            text: '請以繁體中文回答，請勿使用簡體字回答，扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：\n1. 題意分析：\n[清楚描述題目內容，並標示關鍵資訊]\n2. 相關知識與理論：\n[說明解題需要的相關知識，包括定律、公式或理論]\n3. 解題流程：\n[逐步推導解答過程，分步驟詳細說明]\n4. 答案：\n[清晰呈現最終答案，並標註所用單位或條件]\n5.學習反思：\n[進一步對上述解題步驟和答案作教師回饋幫助學習]\n請按上述格式分段回應，確保清晰、條理分明。'
+                                            text: '請以繁體中文回答，不使用簡體字或英文。\n請扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：\n1. 題意分析：\n[描述題目內容]\n2. 相關知識與理論：\n[需用到的定律公式]\n3. 解題流程：\n[逐步推導過程]\n4. 答案：\n[清晰呈現最終答案]\n5.學習反思：\n[對解題過程做教師回饋]'
                                         },
                                         {
                                             inline_data: {
@@ -1444,7 +1492,15 @@ function appendMessage(content, className) {
                                 {
                                     parts: [
                                         {
-                                            text: `請以繁體中文回答，請勿使用簡體字回答，扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：\n1. 題意分析：\n[清楚描述題目內容，並標示關鍵資訊]\n2. 相關知識與理論：\n[說明解題需要的相關知識，包括定律、公式或理論]\n3. 解題流程：\n[逐步推導解答過程，分步驟詳細說明]\n4. 答案：\n[清晰呈現最終答案，並標註所用單位或條件]\n5. 學習反思：\n[進一步對上述解題步驟和答案作教師回饋幫助學習]\n\n題目內容：${textInput.value.trim()}`
+                                            text: `請以繁體中文回答，不使用簡體字或英文。
+                                            請扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：
+                                            1. 題意分析：
+                                            2. 相關知識與理論：
+                                            3. 解題流程：
+                                            4. 答案：
+                                            5. 學習反思：
+                                            
+                                            題目內容：${textInput.value.trim()}`
                                         }
                                     ]
                                 }
@@ -1458,7 +1514,7 @@ function appendMessage(content, className) {
                     }
 
                     const response = await fetch(
-                        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`, // 請替換 YOUR_API_KEY 為您的實際 API 密鑰
+                        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`,
                         {
                             method: 'POST',
                             headers: {
@@ -1471,10 +1527,9 @@ function appendMessage(content, className) {
                     const responseData = await response.json();
                     const answer = getNestedValue(responseData, 'text') || '無法獲取解答';
 
-                    // 格式化答案
                     const sections = answer.split(/\d\.\s/).filter((section) => section.trim() !== '');
                     const formattedAnswer = sections
-                        .map((section, index) => {
+                        .map((section) => {
                             return `<p>${section.trim().replace(/\n/g, '<br>')}</p>`;
                         })
                         .join('');
@@ -1488,7 +1543,6 @@ function appendMessage(content, className) {
                 }
             }
 
-            // 遞歸獲取 JSON 嵌套值
             function getNestedValue(data, key) {
                 if (typeof data === 'object') {
                     for (const [k, v] of Object.entries(data)) {
@@ -1500,16 +1554,17 @@ function appendMessage(content, className) {
                 return null;
             }
 
-            // 將圖片轉換為 Base64
             async function convertImageToBase64(imageFile) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result.split(',')[1]); // 返回Base64內容
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
                     reader.onerror = (error) => reject(error);
                     reader.readAsDataURL(imageFile);
                 });
             }
         })();
-    </script>
+    });
+</script>
+
 </body>
 </html>
