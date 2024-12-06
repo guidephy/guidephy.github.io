@@ -1105,21 +1105,32 @@
             }
 
             function appendMessage(content, className) {
-                const message = document.createElement("div");
-                message.classList.add("message", className);
-                const formattedContent = content.replace(/\n/g, '<br>');
-                const text = document.createElement("span");
-                text.innerHTML = formattedContent;
-                message.appendChild(text);
-                chatWindow.appendChild(message);
+    const message = document.createElement("div");
+    message.classList.add("message", className);
 
-                setTimeout(() => {
-                    chatWindow.scrollTo({
-                        top: chatWindow.scrollHeight,
-                        behavior: "smooth",
-                    });
-                }, 100);
-            }
+    let formattedContent = content;
+
+    // 將換行符號轉換為 <br>
+    formattedContent = formattedContent.replace(/\n/g, '<br>');
+
+    // 先嘗試將成對的 **文字** 改為 <strong>文字</strong>
+    formattedContent = formattedContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // 若還有未成對的 ** 殘留（例如只有一組 ** 開頭沒有結尾），則將所有 ** 去掉
+    formattedContent = formattedContent.replace(/\*\*/g, '');
+
+    const text = document.createElement("span");
+    text.innerHTML = formattedContent;
+    message.appendChild(text);
+    chatWindow.appendChild(message);
+
+    setTimeout(() => {
+        chatWindow.scrollTo({
+            top: chatWindow.scrollHeight,
+            behavior: "smooth",
+        });
+    }, 100);
+}
 
             function getGreeting() {
                 const now = new Date();
