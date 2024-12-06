@@ -254,6 +254,8 @@
             border-radius: 10px;
         }
 
+
+
         /* 滾動條樣式（可選） */
         .chat-window {
             scrollbar-width: thin;
@@ -701,6 +703,16 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
+
+.bot-message, .user-message {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.bot-message p {
+    margin-bottom: 10px;
+}
     </style>
 </head>
 <body>
@@ -1043,39 +1055,52 @@ function hideLoadingIndicator() {
         loadingIndicator.remove(); // 確保提示被完整移除
     }
 }
+async function fetchBotReply(thread) {
+    const apiKey = "YOUR_API_KEY"; 
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
 
-              async function fetchBotReply(thread) {
-        const apiKey = "YOUR_API_KEY"; // 替換為你的實際 API Key
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                contents: thread,
-            }),
-        });
-        const data = await response.json();
-        return data.candidates[0]?.content.parts[0]?.text || "未能獲取有效回應";
-    }
+    // 在發送前，組合一則系統訊息
+    const systemMessage = {
+        role: "user",
+        parts: [{ text: "請以繁體中文回答，不得使用簡體字或英文，扮演了解有效學習的該領域專家回答問題。"}]
+    };
+
+    const newThread = [systemMessage, ...thread];
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            contents: newThread,
+        }),
+    });
+    const data = await response.json();
+    return data.candidates[0]?.content.parts[0]?.text || "未能獲取有效回應";
+}
+
+
 function appendMessage(content, className) {
-        const message = document.createElement("div");
-        message.classList.add("message", className);
+    const message = document.createElement("div");
+    message.classList.add("message", className);
 
-        const text = document.createElement("span");
-        text.textContent = content;
-        message.appendChild(text);
+    // 將文字內容中的\n換行符號替換成<br>
+    const formattedContent = content.replace(/\n/g, '<br>');
 
-        chatWindow.appendChild(message);
+    const text = document.createElement("span");
+    text.innerHTML = formattedContent; // 使用innerHTML以顯示HTML標籤
+    message.appendChild(text);
 
-        setTimeout(() => {
-            chatWindow.scrollTo({
-                top: chatWindow.scrollHeight,
-                behavior: "smooth",
-            });
-        }, 100);
-    }
+    chatWindow.appendChild(message);
+
+    setTimeout(() => {
+        chatWindow.scrollTo({
+            top: chatWindow.scrollHeight,
+            behavior: "smooth",
+        });
+    }, 100);
+}
 
     
 
@@ -1164,7 +1189,7 @@ function appendMessage(content, className) {
                         body: JSON.stringify({
                             contents: [{
                                 parts: [{
-                                    text: `生成${questionCount}題${topic}相關的選擇題，年級為${grade}年級。
+                                    text: `請以繁體中文回答，生成${questionCount}題${topic}相關的選擇題，年級為${grade}年級。
                                     ${topicText ? `參考文本：${topicText}` : ''}
                                     附加條件：${conditions}
                                     請使用JSON格式回應，格式如下：
@@ -1401,7 +1426,7 @@ function appendMessage(content, className) {
                                 {
                                     parts: [
                                         {
-                                            text: '請扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：\n1. 題意分析：\n[清楚描述題目內容，並標示關鍵資訊]\n2. 相關知識與理論：\n[說明解題需要的相關知識，包括定律、公式或理論]\n3. 解題流程：\n[逐步推導解答過程，分步驟詳細說明]\n4. 答案：\n[清晰呈現最終答案，並標註所用單位或條件]\n5.學習反思：\n[進一步對上述解題步驟和答案作教師回饋幫助學習]\n請按上述格式分段回應，確保清晰、條理分明。'
+                                            text: '請以繁體中文回答，請勿使用簡體字回答，扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：\n1. 題意分析：\n[清楚描述題目內容，並標示關鍵資訊]\n2. 相關知識與理論：\n[說明解題需要的相關知識，包括定律、公式或理論]\n3. 解題流程：\n[逐步推導解答過程，分步驟詳細說明]\n4. 答案：\n[清晰呈現最終答案，並標註所用單位或條件]\n5.學習反思：\n[進一步對上述解題步驟和答案作教師回饋幫助學習]\n請按上述格式分段回應，確保清晰、條理分明。'
                                         },
                                         {
                                             inline_data: {
@@ -1419,7 +1444,7 @@ function appendMessage(content, className) {
                                 {
                                     parts: [
                                         {
-                                            text: `請扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：\n1. 題意分析：\n[清楚描述題目內容，並標示關鍵資訊]\n2. 相關知識與理論：\n[說明解題需要的相關知識，包括定律、公式或理論]\n3. 解題流程：\n[逐步推導解答過程，分步驟詳細說明]\n4. 答案：\n[清晰呈現最終答案，並標註所用單位或條件]\n5. 學習反思：\n[進一步對上述解題步驟和答案作教師回饋幫助學習]\n\n題目內容：${textInput.value.trim()}`
+                                            text: `請以繁體中文回答，請勿使用簡體字回答，扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：\n1. 題意分析：\n[清楚描述題目內容，並標示關鍵資訊]\n2. 相關知識與理論：\n[說明解題需要的相關知識，包括定律、公式或理論]\n3. 解題流程：\n[逐步推導解答過程，分步驟詳細說明]\n4. 答案：\n[清晰呈現最終答案，並標註所用單位或條件]\n5. 學習反思：\n[進一步對上述解題步驟和答案作教師回饋幫助學習]\n\n題目內容：${textInput.value.trim()}`
                                         }
                                     ]
                                 }
