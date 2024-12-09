@@ -736,6 +736,7 @@
                     <div class="tab-switch">
                         <div id="customTopicTab" class="tab-button active">自訂主題</div>
                         <div id="chatTopicTab" class="tab-button">聊天內容</div>
+                        <div id="questionTopicTab" class="tab-button">以題出題</div>
                     </div>
 
                     <div id="customTopicContent" class="tab-content active">
@@ -768,7 +769,38 @@
                         <p>將根據目前的聊天紀錄生成相關題目。</p>
                     </div>
 
-                    <div class="button-group">
+                    <!-- 新增的以題出題內容 -->
+                    <div id="questionTopicContent" class="tab-content">
+                        <p>上傳圖片或輸入文字題目，將生成一題AI素養題。</p>
+                        <div class="tab-switch" style="margin-top:10px;">
+                            <div id="imageQTab" class="tab-button active">圖片上傳</div>
+                            <div id="textQTab" class="tab-button">文字輸入</div>
+                        </div>
+                        <div id="imageQContent" class="tab-content active">
+                            <div class="form-group">
+                                <label for="uploadQImage">上傳題目圖片：</label>
+                                <input type="file" id="uploadQImage" accept="image/*">
+                                <div id="imageQPreview" class="image-preview" style="margin-top: 15px; text-align: center;">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="textQContent" class="tab-content">
+                            <div class="form-group">
+                                <label for="textQInput">輸入題目文字：</label>
+                                <textarea id="textQInput" rows="6" placeholder="請輸入題目內容"></textarea>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button id="generateFromQButton">生成題目</button>
+                            <button id="copyQContent" style="display:none;">複製題本</button>
+                        </div>
+                        <form id="singleQuizForm" class="result-area" onsubmit="checkSingleAnswer(event)">
+                            <div id="singleQuestion"></div>
+                            <button type="submit" class="submit-button">提交答案</button>
+                        </form>
+                    </div>
+
+                    <div class="button-group" id="mainGenerateGroup">
                         <button id="generateButton">生成題目</button>
                         <button id="copyContent" style="display:none;">複製題本</button>
                     </div>
@@ -847,6 +879,7 @@
     </div>
     <script>
         let thread = []; // 儲存聊天記錄
+        const geminiurl='https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ';
 
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
@@ -875,21 +908,63 @@
             // AI素養題產生器 Tab 切換
             const customTopicTab = document.getElementById('customTopicTab');
             const chatTopicTab = document.getElementById('chatTopicTab');
+            const questionTopicTab = document.getElementById('questionTopicTab');
+
             const customTopicContent = document.getElementById('customTopicContent');
             const chatTopicContent = document.getElementById('chatTopicContent');
+            const questionTopicContent = document.getElementById('questionTopicContent');
 
             customTopicTab.addEventListener('click', () => {
                 customTopicTab.classList.add('active');
                 chatTopicTab.classList.remove('active');
+                questionTopicTab.classList.remove('active');
                 customTopicContent.classList.add('active');
                 chatTopicContent.classList.remove('active');
+                questionTopicContent.classList.remove('active');
+                document.getElementById('mainGenerateGroup').style.display = 'flex';
+                document.getElementById('quizForm').style.display = 'none';
             });
 
             chatTopicTab.addEventListener('click', () => {
                 chatTopicTab.classList.add('active');
                 customTopicTab.classList.remove('active');
+                questionTopicTab.classList.remove('active');
                 chatTopicContent.classList.add('active');
                 customTopicContent.classList.remove('active');
+                questionTopicContent.classList.remove('active');
+                document.getElementById('mainGenerateGroup').style.display = 'flex';
+                document.getElementById('quizForm').style.display = 'none';
+            });
+
+            questionTopicTab.addEventListener('click', () => {
+                questionTopicTab.classList.add('active');
+                customTopicTab.classList.remove('active');
+                chatTopicTab.classList.remove('active');
+                questionTopicContent.classList.add('active');
+                customTopicContent.classList.remove('active');
+                chatTopicContent.classList.remove('active');
+                document.getElementById('mainGenerateGroup').style.display = 'none';
+                document.getElementById('quizForm').style.display = 'none';
+            });
+
+            // 以題出題的 Tab 切換
+            const imageQTab = document.getElementById('imageQTab');
+            const textQTab = document.getElementById('textQTab');
+            const imageQContent = document.getElementById('imageQContent');
+            const textQContent = document.getElementById('textQContent');
+
+            imageQTab.addEventListener('click', () => {
+                imageQTab.classList.add('active');
+                textQTab.classList.remove('active');
+                imageQContent.classList.add('active');
+                textQContent.classList.remove('active');
+            });
+
+            textQTab.addEventListener('click', () => {
+                textQTab.classList.add('active');
+                imageQTab.classList.remove('active');
+                textQContent.classList.add('active');
+                imageQContent.classList.remove('active');
             });
 
             // 側邊欄控制
@@ -1077,17 +1152,14 @@
             }
 
             async function fetchBotReply(thread) {
-                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`;
-
-
                 const systemMessage = {
                    role: "user",
                    parts: [{ text: "請以繁體中文回答，不得使用簡體字。"}]
                 };
 
-    const newThread = [systemMessage, ...thread];
+                const newThread = [systemMessage, ...thread];
 
-                const response = await fetch(url, {
+                const response = await fetch(geminiurl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -1104,36 +1176,37 @@
                 }
             }
 
-function formatText(text) {
-    let formatted = text;
-    // 將換行符號轉換為 <br>
-    formatted = formatted.replace(/\n/g, '<br>');
-    // 先將成對的 **文字** 改為 <strong>文字</strong>
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    // 移除未成對的 **
-    formatted = formatted.replace(/\*\*/g, '');
-    return formatted;
-}
+            function formatText(text) {
+                let formatted = text;
+                // 將換行符號轉換為 <br>
+                formatted = formatted.replace(/\n/g, '<br>');
+                // 先將成對的 **文字** 改為 <strong>文字</strong>
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                // 移除未成對的 **
+                formatted = formatted.replace(/\*\*/g, '');
+                return formatted;
+            }
 
-function appendMessage(content, className) {
-    const message = document.createElement("div");
-    message.classList.add("message", className);
+            function appendMessage(content, className) {
+                const message = document.createElement("div");
+                message.classList.add("message", className);
 
-    const formattedContent = formatText(content); 
-    
-    const text = document.createElement("span");
-    text.innerHTML = formattedContent;
-    message.appendChild(text);
+                const formattedContent = formatText(content); 
+                
+                const text = document.createElement("span");
+                text.innerHTML = formattedContent;
+                message.appendChild(text);
 
-    chatWindow.appendChild(message);
+                chatWindow.appendChild(message);
 
-    setTimeout(() => {
-        chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: "smooth",
-        });
-    }, 100);
-}
+                setTimeout(() => {
+                    chatWindow.scrollTo({
+                        top: chatWindow.scrollHeight,
+                        behavior: "smooth",
+                    });
+                }, 100);
+            }
+
             function getGreeting() {
                 const now = new Date();
                 const hour = now.getHours();
@@ -1220,14 +1293,14 @@ function appendMessage(content, className) {
                     questionCount = '5';
                 }
 
-                const conditions = "符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題";
+                const conditions = "符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。";
                 const questionsDiv = document.getElementById('questions');
                 const quizForm = document.getElementById('quizForm');
                 quizForm.style.display = 'none';
                 questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
 
                 try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`, {
+                    const response = await fetch(geminiurl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1235,21 +1308,36 @@ function appendMessage(content, className) {
                         body: JSON.stringify({
                             contents: [{
                                 parts: [{
-                                    text: `請以繁體中文回答，不使用簡體字與英文詞彙。
-                                           生成${questionCount}題${topic}相關的選擇題，年級為${grade}年級。
-                                           ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `參考文本：${topicText}` : '')}
-                                           附加條件：${conditions}
-                                           請使用JSON格式回應，格式如下：
-                                           {
-                                               "questions": [
-                                                   {
-                                                       "question": "題目",
-                                                       "options": ["A選項", "B選項", "C選項", "D選項"],
-                                                       "answer": 0,
-                                                       "explanation": "解答說明"
-                                                   }
-                                               ]
-                                           }`
+                                    text: `請以繁體中文回答，不得使用簡體字或英文詞彙。
+
+請根據下列資訊產生符合學科學習目標的素養題（選擇題）。  
+每題有四個選項 (A、B、C、D)，並結合生活情境。  
+年級：${grade} 年級  
+題目數量：${questionCount} 題  
+主題：${topic}  
+${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `參考文本：${topicText}` : '')}
+
+附加條件：${conditions}
+
+重要要求：  
+1. 請以自然、通順的繁體中文撰寫題目和選項。  
+2. 務必提供唯一正確的答案，以數字0,1,2,3分別對應A,B,C,D選項。  
+3. 請確保選項中的正確答案與解釋絕對一致，不得有不合理或矛盾的地方。  
+4. 解答說明需明確指出為何該選項正確，其他選項為何不正確，並不得有不合理的論述。  
+5. 若引用參考文本或聊天紀錄，需先理解再轉換為素養題，不可直接複製整段文字。  
+6. 請自行檢查，保證題目、選項、正確答案及解釋完全匹配且無誤。
+
+請用以下JSON格式回應（不得包含任何英文字詞在選項或題目中，但可保留JSON結構）：  
+{
+    "questions": [
+        {
+            "question": "題目",
+            "options": ["A選項", "B選項", "C選項", "D選項"],
+            "answer": 0,
+            "explanation": "解答說明"
+        }
+    ]
+}`
                                 }]
                             }]
                         })
@@ -1386,6 +1474,231 @@ function appendMessage(content, className) {
                     .catch(err => alert('複製失敗：' + err));
             }
 
+            // 以題出題生成
+            document.getElementById('uploadQImage').addEventListener('change', previewQImage);
+            function previewQImage(event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('imageQPreview');
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.innerHTML = '';
+                }
+            }
+
+            document.getElementById('generateFromQButton').addEventListener('click', generateSingleQuestion);
+
+            let singleQuestionData = null;
+
+            async function generateSingleQuestion() {
+                const button = document.getElementById('generateFromQButton');
+                const singleQuestionDiv = document.getElementById('singleQuestion');
+                const singleQuizForm = document.getElementById('singleQuizForm');
+                const copyQContent = document.getElementById('copyQContent');
+
+                button.innerText = '生成中，請稍候...';
+                button.disabled = true;
+                singleQuizForm.style.display = 'none';
+                singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
+                copyQContent.style.display = 'none';
+
+                const imageQInput = document.getElementById('uploadQImage');
+                const textQInput = document.getElementById('textQInput');
+
+                let payload = {};
+                let prompt = `請以繁體中文回答，不得使用簡體字或英文詞彙。
+
+請根據下列資訊產生符合學科學習目標的素養題（選擇題）。  
+每題有四個選項，並結合生活情境。  
+題目數量：1題  
+主題：請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供）解題作為出題靈感，重新設計題目。
+重要要求：  
+1. 請以自然、通順的繁體中文撰寫題目和選項。  
+2. 務必提供唯一正確的答案，以數字0,1,2,3分別對應A,B,C,D選項。  
+3. 請確保選項中的正確答案與解釋絕對一致，不得有不合理或矛盾的地方。  
+4. 解答說明需明確指出為何該選項正確，其他選項為何不正確，並不得有不合理的論述。  
+5. 若引用參考文本或聊天紀錄，需先理解再轉換為素養題，不可直接複製整段文字。  
+6. 請自行檢查，保證題目、選項、正確答案及解釋完全匹配且無誤。
+
+請用以下JSON格式回應（不得包含任何英文字詞在選項或題目中，但可保留JSON結構）：  
+{
+    "questions": [
+        {
+            "question": "題目",
+            "options": ["A選項", "B選項", "C選項", "D選項"],
+            "answer": 0,
+            "explanation": "解答說明"
+        }
+    ]
+}`;
+
+                try {
+                    if (imageQTab.classList.contains('active') && imageQInput.files.length > 0) {
+                        const base64Image = await convertImageToBase64(imageQInput.files[0]);
+                        payload = {
+                            contents: [
+                                {
+                                    parts: [
+                                        {
+                                            text: prompt
+                                        },
+                                        {
+                                            inline_data: {
+                                                mime_type: 'image/jpeg',
+                                                data: base64Image
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        };
+                    } else if (textQTab.classList.contains('active') && textQInput.value.trim()) {
+                        payload = {
+                            contents: [
+                                {
+                                    parts: [
+                                        {
+                                            text: `${prompt}
+                                            題目內容：${textQInput.value.trim()}`
+                                        }
+                                    ]
+                                }
+                            ]
+                        };
+                    } else {
+                        alert('請提供圖片或文字內容！');
+                        button.innerText = '生成題目';
+                        button.disabled = false;
+                        singleQuestionDiv.innerHTML = '';
+                        return;
+                    }
+
+                    const response = await fetch(geminiurl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0].content) {
+                        const textContent = data.candidates[0].content.parts[0].text;
+                        const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            const parsedData = JSON.parse(jsonMatch[0]);
+                            const qList = parsedData.questions.map((q) => {
+                                q.options = [...new Set(q.options)]; 
+                                return q;
+                            });
+                            if (qList.length > 0) {
+                                singleQuestionData = qList[0];
+                                displaySingleQuestion(singleQuestionData);
+                                singleQuizForm.style.display = 'block';
+                                document.querySelector('#singleQuizForm .submit-button').style.display = 'block';
+                                copyQContent.style.display = 'block';
+                            } else {
+                                throw new Error('沒有產生題目');
+                            }
+                        } else {
+                            throw new Error('無法解析回應格式');
+                        }
+                    } else {
+                        throw new Error('API 回應格式不正確');
+                    }
+
+                } catch (error) {
+                    singleQuestionDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+                }
+
+                button.innerText = '生成題目';
+                button.disabled = false;
+            }
+
+            function displaySingleQuestion(q) {
+                const singleQuestionDiv = document.getElementById('singleQuestion');
+                singleQuestionDiv.innerHTML = '';
+                const uniqueOptions = [...new Set(q.options)];
+                const formattedOptions = uniqueOptions.map((option, index) => {
+                    if (/^[A-D]\.\s/.test(option)) {
+                        return option;
+                    }
+                    return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
+                });
+
+                const questionHtml = `
+                    <div class="question-card">
+                        <p><strong>${q.question}</strong></p>
+                        <div class="question-options">
+                            ${formattedOptions.map((option, j) => `
+                                <label>
+                                    <input type="radio" name="singleQ" value="${j}" required>
+                                    ${option}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                singleQuestionDiv.innerHTML += questionHtml;
+            }
+
+            window.checkSingleAnswer = function(event) {
+                event.preventDefault();
+                if (!singleQuestionData) return;
+
+                const formData = new FormData(document.getElementById('singleQuizForm'));
+                const userAnswer = formData.get('singleQ');
+                const correctAnswer = singleQuestionData.answer;
+                const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswer;
+
+                const singleQuestionDiv = document.getElementById('singleQuestion');
+                singleQuestionDiv.innerHTML = `
+                    <div class="question-card">
+                        <p><strong>${singleQuestionData.question}</strong></p>
+                        <div class="question-options">
+                            ${singleQuestionData.options.map((option, j) => `
+                                <label style="background-color: ${j === correctAnswer ? '#28a745' : 
+                                    (j === parseInt(userAnswer) ? '#dc3545' : '#ffffff')};
+                                    color: ${j === correctAnswer || j === parseInt(userAnswer) ? 'white' : '#333'};">
+                                    ${['A', 'B', 'C', 'D'][j]}. ${option}
+                                </label>
+                            `).join('')}
+                        </div>
+                        <p class="your-answer">您的答案：${userAnswer === null ? '未作答' : ['A', 'B', 'C', 'D'][userAnswer]} ${isCorrect ? '✔️' : '❌'}</p>
+                        ${!isCorrect ? `<p class="correct-answer">正確答案：${['A', 'B', 'C', 'D'][correctAnswer]}</p>` : ''}
+                        <p class="explanation">解答說明：${singleQuestionData.explanation}</p>
+                    </div>
+                `;
+
+                document.querySelector('#singleQuizForm .submit-button').style.display = 'none';
+            }
+
+            document.getElementById('copyQContent').addEventListener('click', copySingleContent);
+            function copySingleContent() {
+                if (!singleQuestionData) {
+                    alert('請先生成題目！');
+                    return;
+                }
+
+                let content = '題目：\n';
+                content += `${singleQuestionData.question}\n`;
+                singleQuestionData.options.forEach((option, i) => {
+                    content += `   ${['A', 'B', 'C', 'D'][i]} ${option}\n`;
+                });
+
+                content += '\n正確答案與解答:\n';
+                content += `正確答案: ${['A', 'B', 'C', 'D'][singleQuestionData.answer]}\n`;
+                content += `解答說明: ${singleQuestionData.explanation}\n`;
+
+                navigator.clipboard.writeText(content)
+                    .then(() => alert('內容已複製到剪貼簿！'))
+                    .catch(err => alert('複製失敗：' + err));
+            }
+
             // 教我解題逐步提示
             document.getElementById('imageTab').addEventListener('click', () => switchTab('image'));
             document.getElementById('textTab').addEventListener('click', () => switchTab('text'));
@@ -1419,145 +1732,144 @@ function appendMessage(content, className) {
             let currentStepIndex = 0;
 
             async function analyzeInput() {
-    const imageInput = document.getElementById('uploadImage');
-    const textInput = document.getElementById('textInput');
-    const button = document.getElementById('analyzeButton');
-    const resultArea = document.getElementById('resultArea');
-    const hintArea = document.getElementById('hintArea');
-    const hintContent = document.getElementById('hintContent');
-    const showNextHintButton = document.getElementById('showNextHintButton');
-    const reflectionArea = document.getElementById('reflectionArea');
-    const reflectionContent = document.getElementById('reflectionContent');
+                const imageInput = document.getElementById('uploadImage');
+                const textInput = document.getElementById('textInput');
+                const button = document.getElementById('analyzeButton');
+                const resultArea = document.getElementById('resultArea');
+                const hintArea = document.getElementById('hintArea');
+                const hintContent = document.getElementById('hintContent');
+                const showNextHintButton = document.getElementById('showNextHintButton');
+                const reflectionArea = document.getElementById('reflectionArea');
+                const reflectionContent = document.getElementById('reflectionContent');
 
-    // 重新初始化顯示區塊
-    button.innerText = '分析中，請稍候...';
-    button.disabled = true;
-    resultArea.style.display = 'block';
-    resultArea.innerHTML = '<p class="loading">正在處理...</p>';
-    hintArea.style.display = 'none';
-    hintContent.innerHTML = '';
-    showNextHintButton.style.display = 'none';
-    reflectionArea.style.display = 'none';
-    reflectionContent.innerHTML = '';
-    solutionSteps = [];
-    currentStepIndex = 0;
-
-    try {
-        let payload = {};
-        if (imageInput.files.length > 0 && document.getElementById('imageContent').classList.contains('active')) {
-            const base64Image = await convertImageToBase64(imageInput.files[0]);
-            payload = {
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: `請以繁體中文回答，不使用簡體字或英文。
-                                請扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：
-                                1. 題意分析：
-                                2. 相關知識與理論：
-                                3. 解題流程：
-                                4. 答案：
-                                5. 學習反思：
-
-                                請詳細分述解題步驟並在最後給出學習反思與延伸建議。`
-                            },
-                            {
-                                inline_data: {
-                                    mime_type: 'image/jpeg',
-                                    data: base64Image
-                                }
-                            }
-                        ]
-                    }
-                ]
-            };
-        } else if (textInput.value.trim()) {
-            payload = {
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: `請以繁體中文回答，不使用簡體字或英文。
-                                請扮演該領域且懂得有效學習的教師，按照以下格式進行解題並回答：
-                                1. 題意分析：
-                                2. 相關知識與理論：
-                                3. 解題流程：
-                                4. 答案：
-                                5. 學習反思：
-
-                                題目內容：${textInput.value.trim()}
-
-                                請詳細分述解題步驟並在最後給出學習反思與延伸建議。`
-                            }
-                        ]
-                    }
-                ]
-            };
-        } else {
-            alert('請提供圖片或文字內容！');
-            button.innerText = '分析題目';
-            button.disabled = false;
-            return;
-        }
-
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=AIzaSyA5japu-01mqUn7EXxGDy1za098_leIxdQ`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            }
-        );
-
-        const responseData = await response.json();
-        const answer = getNestedValue(responseData, 'text') || '無法獲取解答';
-
-        // 將回應依序分段
-        const sections = answer.split(/\d\.\s/).filter((section) => section.trim() !== '');
-        // 最後一段視為學習反思
-        const reflectionStep = sections.pop();
-        const stepsWithoutReflection = sections;
-
-        solutionSteps = stepsWithoutReflection.map(s => s.trim());
-        resultArea.innerHTML = '';
-        hintArea.style.display = 'block';
-
-        // 顯示第一個提示(題意分析)
-        if (solutionSteps.length > 0) {
-            // 使用 formatText 格式化文字（將**變粗體，移除未成對的**）
-            hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
-            currentStepIndex = 0;
-        }
-
-        // 若有超過一個步驟，顯示「下一提示」按鈕
-        if (solutionSteps.length > 1) {
-            showNextHintButton.style.display = 'inline-block';
-        }
-
-        showNextHintButton.onclick = function() {
-            currentStepIndex++;
-            if (currentStepIndex < solutionSteps.length) {
-                hintContent.innerHTML += `<hr><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
-            }
-
-            // 所有步驟顯示完畢後，顯示學習反思
-            if (currentStepIndex === solutionSteps.length - 1) {
+                // 重新初始化顯示區塊
+                button.innerText = '分析中，請稍候...';
+                button.disabled = true;
+                resultArea.style.display = 'block';
+                resultArea.innerHTML = '<p class="loading">正在處理...</p>';
+                hintArea.style.display = 'none';
+                hintContent.innerHTML = '';
                 showNextHintButton.style.display = 'none';
-                reflectionArea.style.display = 'block';
-                reflectionContent.innerHTML = `<p>${formatText(reflectionStep)}</p>`;
+                reflectionArea.style.display = 'none';
+                reflectionContent.innerHTML = '';
+                solutionSteps = [];
+                currentStepIndex = 0;
+
+                try {
+                    let payload = {};
+                    if (imageInput.files.length > 0 && document.getElementById('imageContent').classList.contains('active')) {
+                        const base64Image = await convertImageToBase64(imageInput.files[0]);
+                        payload = {
+                            contents: [
+                                {
+                                    parts: [
+                                        {
+                                            text: `請以繁體中文回答，不得使用簡體字或英文詞彙。
+
+請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
+1. 題意分析：清楚解釋題目所問與重點。  
+2. 相關知識與理論：列出解題所需的正確理論或概念。  
+3. 解題流程：逐步邏輯推導，不得有不合理跳躍，確保每個步驟正確無誤。  
+4. 答案：給出唯一正確的答案，並保證答案絕對正確，與前面推導完全一致。  
+5. 學習反思：提供延伸思考方向或避免錯誤的建議。
+
+請務必謹慎檢查，不能有矛盾或錯誤的內容。所有論述必須合理、一致，並以自然流暢的繁體中文呈現。`
+                                        },
+                                        {
+                                            inline_data: {
+                                                mime_type: 'image/jpeg',
+                                                data: base64Image
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        };
+                    } else if (textInput.value.trim()) {
+                        payload = {
+                            contents: [
+                                {
+                                    parts: [
+                                        {
+                                            text: `請以繁體中文回答，不使用簡體字或英文。
+                                            請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
+                                            1. 題意分析：
+                                            2. 相關知識與理論：
+                                            3. 解題流程：
+                                            4. 答案：
+                                            5. 學習反思：
+
+                                            題目內容：${textInput.value.trim()}
+
+                                            請詳細分述解題步驟並在最後給出學習反思與延伸建議。`
+                                        }
+                                    ]
+                                }
+                            ]
+                        };
+                    } else {
+                        alert('請提供圖片或文字內容！');
+                        button.innerText = '分析題目';
+                        button.disabled = false;
+                        return;
+                    }
+
+                    const response = await fetch(
+                        geminiurl,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(payload),
+                        }
+                    );
+
+                    const responseData = await response.json();
+                    const answer = getNestedValue(responseData, 'text') || '無法獲取解答';
+
+                    // 將回應依序分段
+                    const sections = answer.split(/\d\.\s/).filter((section) => section.trim() !== '');
+                    // 最後一段視為學習反思
+                    const reflectionStep = sections.pop();
+                    const stepsWithoutReflection = sections;
+
+                    solutionSteps = stepsWithoutReflection.map(s => s.trim());
+                    resultArea.innerHTML = '';
+                    hintArea.style.display = 'block';
+
+                    // 顯示第一個提示(題意分析)
+                    if (solutionSteps.length > 0) {
+                        hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
+                        currentStepIndex = 0;
+                    }
+
+                    // 若有超過一個步驟，顯示「下一提示」按鈕
+                    if (solutionSteps.length > 1) {
+                        showNextHintButton.style.display = 'inline-block';
+                    }
+
+                    showNextHintButton.onclick = function() {
+                        currentStepIndex++;
+                        if (currentStepIndex < solutionSteps.length) {
+                            hintContent.innerHTML += `<hr><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+                        }
+
+                        // 所有步驟顯示完畢後，顯示學習反思
+                        if (currentStepIndex === solutionSteps.length - 1) {
+                            showNextHintButton.style.display = 'none';
+                            reflectionArea.style.display = 'block';
+                            reflectionContent.innerHTML = `<p>${formatText(reflectionStep)}</p>`;
+                        }
+                    };
+
+                } catch (error) {
+                    resultArea.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+                } finally {
+                    button.innerText = '分析題目';
+                    button.disabled = false;
+                }
             }
-        };
-
-    } catch (error) {
-        resultArea.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
-    } finally {
-        button.innerText = '分析題目';
-        button.disabled = false;
-    }
-}
-
 
             function getNestedValue(data, key) {
                 if (typeof data === 'object' && data !== null) {
