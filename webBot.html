@@ -1355,7 +1355,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                             });
                             displayQuestions(questions);
                             quizForm.style.display = 'block';
-                            document.querySelector('.submit-button').style.display = 'block';
+                            quizForm.querySelector('.submit-button').style.display = 'block';
                             document.getElementById('copyContent').style.display = 'block';
                         } else {
                             throw new Error('無法解析回應格式');
@@ -1422,7 +1422,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 });
 
                 displayResults(results);
-                const submitButton = document.querySelector('.submit-button');
+                const submitButton = document.querySelector('#quizForm .submit-button');
                 submitButton.style.display = 'none';
             }
 
@@ -1599,7 +1599,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                                 singleQuestionData = qList[0];
                                 displaySingleQuestion(singleQuestionData);
                                 singleQuizForm.style.display = 'block';
-                                document.querySelector('#singleQuizForm .submit-button').style.display = 'block';
+                                singleQuizForm.querySelector('.submit-button').style.display = 'block';
                                 copyQContent.style.display = 'block';
                             } else {
                                 throw new Error('沒有產生題目');
