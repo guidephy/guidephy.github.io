@@ -1,0 +1,178 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guidephy計算機</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: white; /* 白色背景 */
+    }
+
+    .calculator {
+      width: 350px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #e8e8e8; /* 淺灰色背景 */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+    .display {
+      width: 100%;
+      height: 50px;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      text-align: right;
+      padding: 10px;
+      border: 1px solid #bbb;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      height: 50px;
+      font-size: 1.2rem;
+      background-color: #a2d5a8; /* 奶綠色按鈕 */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #8dcf93; /* 深奶綠色 */
+    }
+
+    .operator {
+      background-color: #f2b880; /* 橙色 */
+    }
+
+    .operator:hover {
+      background-color: #e59e6f; /* 深橙色 */
+    }
+
+    .clear {
+      background-color: #e87474; /* 淺紅色 */
+    }
+
+    .clear:hover {
+      background-color: #d46060; /* 深紅色 */
+    }
+
+    .advanced {
+      background-color: #6fa8dc; /* 淺藍色 */
+    }
+
+    .advanced:hover {
+      background-color: #5a93cc; /* 深藍色 */
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <input type="text" id="display" class="display" disabled>
+    <div class="buttons">
+      <button onclick="appendToExpression('7')">7</button>
+      <button onclick="appendToExpression('8')">8</button>
+      <button onclick="appendToExpression('9')">9</button>
+      <button class="operator" onclick="appendToExpression('/')">&divide;</button>
+
+      <button onclick="appendToExpression('4')">4</button>
+      <button onclick="appendToExpression('5')">5</button>
+      <button onclick="appendToExpression('6')">6</button>
+      <button class="operator" onclick="appendToExpression('*')">&times;</button>
+
+      <button onclick="appendToExpression('1')">1</button>
+      <button onclick="appendToExpression('2')">2</button>
+      <button onclick="appendToExpression('3')">3</button>
+      <button class="operator" onclick="appendToExpression('-')">&minus;</button>
+
+      <button onclick="appendToExpression('0')">0</button>
+      <button onclick="appendToExpression('.')">.</button>
+      <button onclick="calculateExpression()">=</button>
+      <button class="operator" onclick="appendToExpression('+')">&plus;</button>
+
+      <button class="advanced" onclick="appendToExpression('(')">(</button>
+      <button class="advanced" onclick="appendToExpression(')')">)</button>
+      <button class="advanced" onclick="appendToExpression('sin(')">sin</button>
+      <button class="advanced" onclick="appendToExpression('cos(')">cos</button>
+      <button class="advanced" onclick="appendToExpression('tan(')">tan</button>
+      <button class="advanced" onclick="appendToExpression('log(')">log</button>
+      <button class="advanced" onclick="appendToExpression('√(')">√</button>
+      <!-- 這裡直接用 cbrt( 而非 ³√( -->
+      <button class="advanced" onclick="appendToExpression('cbrt(')">³√</button>
+      <button class="advanced" onclick="appendToExpression('^2')">x²</button>
+      <button class="advanced" onclick="appendToExpression('^3')">x³</button>
+      <button class="advanced" onclick="appendToExpression('!')">!</button>
+      <button class="clear" onclick="clearDisplay()">C</button>
+    </div>
+  </div>
+
+  <script>
+    let expression = '';
+
+    // 全域定義 cbrt 函式
+    function cbrt(value) {
+      return Math.cbrt(value);
+    }
+
+    function updateDisplay() {
+      document.getElementById('display').value = expression || '0';
+    }
+
+    function appendToExpression(value) {
+      expression += value;
+      updateDisplay();
+    }
+
+    function factorial(n) {
+      if (n < 0) return 'Error';
+      let result = 1;
+      for (let i = 1; i <= n; i++) {
+        result *= i;
+      }
+      return result;
+    }
+
+    function calculateExpression() {
+      try {
+        const sin = (deg) => Math.sin((deg * Math.PI) / 180);
+        const cos = (deg) => Math.cos((deg * Math.PI) / 180);
+        const tan = (deg) => Math.tan((deg * Math.PI) / 180);
+        const log = (value) => Math.log10(value);
+        const sqrt = (value) => Math.sqrt(value);
+
+        // 不再替換 ³√，因為我們已經直接在按鈕上放 cbrt(
+        const parsedExpression = expression
+          .replace(/\^2/g, '**2')
+          .replace(/\^3/g, '**3')
+          .replace(/√\(([^)]+)\)/g, 'sqrt($1)')
+          .replace(/(\d+)!/g, 'factorial($1)');
+
+        let result = eval(parsedExpression);
+        result = Math.round(result * 1e10) / 1e10;
+        expression = result.toString();
+      } catch (error) {
+        expression = 'Error';
+      }
+      updateDisplay();
+    }
+
+    function clearDisplay() {
+      expression = '';
+      updateDisplay();
+    }
+  </script>
+</body>
+</html>
