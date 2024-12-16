@@ -740,6 +740,7 @@
                 <div class="menu-item" id="open-ai-generator">AI素養題產生器</div>
                 <div class="menu-item" id="open-solve-problem">教我解題</div>
                 <div class="menu-item" id="open-physics-lecture">物理講義</div>
+                <div class="menu-item" id="open-calculator">計算機</div>
                 <div class="menu-item hidden" id="return-chat">返回聊天</div>
             </div>
         </div>
@@ -893,6 +894,13 @@
                     <iframe src="https://guidephy.github.io/guidephy/PhysicsForGSAT/tableOfContents.html" frameborder="0"></iframe>
                 </div>
             </div>
+            
+            <!-- 計算機 -->
+            <div class="external-content" id="calculator-content" style="display: none;">
+                <div class="physics-lecture-container">
+                    <iframe src="https://guidephy.github.io/AI/calculator.html" frameborder="0"></iframe>
+                </div>
+            </div>
 
             <!-- 輸入區域 -->
             <div class="input-area">
@@ -920,11 +928,13 @@
             const openAIGenerator = document.getElementById('open-ai-generator');
             const openSolveProblem = document.getElementById('open-solve-problem'); 
             const openPhysicsLecture = document.getElementById('open-physics-lecture'); 
+            const openCalculator = document.getElementById('open-calculator');
             const returnChat = document.getElementById('return-chat');
             const chatWindow = document.getElementById('chat-window');
             const aiGeneratorContent = document.getElementById('ai-generator-content');
             const solveProblemContent = document.getElementById('solve-problem-content');
             const physicsLectureContent = document.getElementById('physics-lecture-content');
+            const calculatorContent = document.getElementById('calculator-content');
             const uploadImage = document.getElementById('upload-image');
             const imagePreviewContainer = document.getElementById('image-preview-container');
             const sendButton = document.getElementById('send-button');
@@ -1005,6 +1015,7 @@
             aiGeneratorContent.style.display = 'none';
             solveProblemContent.style.display = 'none';
             physicsLectureContent.style.display = 'none';
+            calculatorContent.style.display = 'none';
             returnChat.classList.add('hidden');
 
             // 中英翻譯模式
@@ -1046,11 +1057,13 @@
                 aiGeneratorContent.style.display = 'block';
                 solveProblemContent.style.display = 'none';
                 physicsLectureContent.style.display = 'none';
+                calculatorContent.style.display = 'none';
                 toolbar.style.display = 'none';
                 returnChat.classList.remove('hidden');
                 openAIGenerator.classList.add('hidden');
                 openSolveProblem.classList.add('hidden');
                 openPhysicsLecture.classList.add('hidden');
+                openCalculator.classList.add('hidden');
                 document.querySelector('.input-area').style.display = 'none';
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
@@ -1061,11 +1074,13 @@
                 aiGeneratorContent.style.display = 'none';
                 solveProblemContent.style.display = 'block';
                 physicsLectureContent.style.display = 'none';
+                calculatorContent.style.display = 'none';
                 toolbar.style.display = 'none';
                 returnChat.classList.remove('hidden');
                 openAIGenerator.classList.add('hidden');
                 openSolveProblem.classList.add('hidden');
                 openPhysicsLecture.classList.add('hidden');
+                openCalculator.classList.add('hidden');
                 document.querySelector('.input-area').style.display = 'none';
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
@@ -1077,10 +1092,29 @@
                 solveProblemContent.style.display = 'none';
                 toolbar.style.display = 'none';
                 physicsLectureContent.style.display = 'block';
+                calculatorContent.style.display = 'none';
                 returnChat.classList.remove('hidden');
                 openAIGenerator.classList.add('hidden');
                 openSolveProblem.classList.add('hidden');
                 openPhysicsLecture.classList.add('hidden');
+                openCalculator.classList.add('hidden');
+                document.querySelector('.input-area').style.display = 'none';
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            });
+            
+            openCalculator.addEventListener('click', () => {
+                chatWindow.style.display = 'none';
+                aiGeneratorContent.style.display = 'none';
+                solveProblemContent.style.display = 'none';
+                physicsLectureContent.style.display = 'none';
+                calculatorContent.style.display = 'block';
+                toolbar.style.display = 'none';
+                returnChat.classList.remove('hidden');
+                openAIGenerator.classList.add('hidden');
+                openSolveProblem.classList.add('hidden');
+                openPhysicsLecture.classList.add('hidden');
+                openCalculator.classList.add('hidden');
                 document.querySelector('.input-area').style.display = 'none';
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
@@ -1091,11 +1125,13 @@
                 aiGeneratorContent.style.display = 'none';
                 solveProblemContent.style.display = 'none';
                 physicsLectureContent.style.display = 'none';
+                calculatorContent.style.display = 'none';
                 toolbar.style.display = 'block';
                 returnChat.classList.add('hidden');
                 openAIGenerator.classList.remove('hidden');
                 openSolveProblem.classList.remove('hidden');
                 openPhysicsLecture.classList.remove('hidden');
+                openCalculator.classList.remove('hidden');
                 document.querySelector('.input-area').style.display = 'flex';
                 sidebar.classList.remove('show');
                 overlay.classList.remove('show');
@@ -1334,7 +1370,6 @@
 請確保輸出簡潔、清晰，並保持條例清晰易讀。
 `;
 
-                // 為簡化，此處省略prompt詳細內容(保持一致即可)
                 const response = await fetch(geminiurl, {
                     method: "POST",
                     headers: {
