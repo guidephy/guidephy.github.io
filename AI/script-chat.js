@@ -1,16 +1,17 @@
 // script-chat.js (聊天功能)
 
 const chatModule = (() => {
-    // 獲取 DOM 元素
+    // 獲取 DOM 元素 (與之前相同)
     const uploadImage = document.getElementById('upload-image');
     const imagePreviewContainer = document.getElementById('image-preview-container');
     const sendButton = document.getElementById('send-button');
     const userInput = document.getElementById('user-input');
     const chatWindow = document.getElementById('chat-window');
-    const studyPlanButton = document.getElementById('study-plan-button'); // 新增：獲取按鈕
+    const studyPlanButton = document.getElementById('study-plan-button');
 
 
-    // 圖片上傳（聊天）
+    // 圖片上傳、清除圖片、聊天發送、處理使用者文字訊息、顯示/隱藏載入指示器、獲取機器人回覆、判斷文字類型、獲取翻譯、添加訊息到聊天視窗、取得現在時間給予的問候語 (這些函數都與之前相同，不做更動)
+      // 圖片上傳（聊天）
     uploadImage.addEventListener('change', (event) => {
         // ... (與之前相同)
         const file = event.target.files[0];
@@ -335,11 +336,12 @@ const chatModule = (() => {
     }
     const greeting = getGreeting();
     appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
-    
 
-    // --- 自主學習計畫相關程式碼 (新增) ---
-    let studyPlanStep = 0; // 追蹤目前在哪個步驟
-    let studyPlanData = {}; // 儲存使用者提供的資訊
+    // --- 自主學習計畫相關程式碼 (大幅修改) ---
+
+    let studyPlanStep = 0;
+    let studyPlanData = {};
+    let hasIdea = null; // 新增：追蹤使用者是否有想法
 
     studyPlanButton.addEventListener('click', () => {
         startStudyPlan();
@@ -347,37 +349,109 @@ const chatModule = (() => {
 
     async function startStudyPlan() {
         studyPlanStep = 1;
-        studyPlanData = {}; // 重置資料
-        appendMessage("好的，我們開始規劃你的自主學習計畫！首先，請告訴我你想要學習的主題或科目是什麼？", "bot-message");
+        studyPlanData = {};
+        hasIdea = null; // 重置
+        appendMessage("好的，我們開始規劃你的自主學習計畫！首先，請問你對學習主題是否已經有初步的想法？", "bot-message");
+
+        // 建立選項按鈕
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'message-options';
+        const optionYes = createOptionButton('已有想法', () => handleIdeaSelection(true));
+        const optionNo = createOptionButton('完全沒想法', () => handleIdeaSelection(false));
+        optionsDiv.appendChild(optionYes);
+        optionsDiv.appendChild(optionNo);
+        chatWindow.appendChild(optionsDiv);
+          // 自動滾動到最底部
+        chatWindow.scrollTo({
+            top: chatWindow.scrollHeight,
+            behavior: 'smooth',
+        });
+    }
+    // 建立選項按鈕的函數
+    function createOptionButton(text, clickHandler) {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.className = 'option-button'; // 新增樣式
+        button.addEventListener('click', () => {
+            clickHandler();
+            // 移除所有選項按鈕 (點擊後消失)
+            const options = document.querySelectorAll('.message-options');
+            options.forEach(option => option.remove());
+
+        });
+        return button;
     }
 
-    // 處理自主學習計畫的輸入
+    // 處理使用者選擇「已有想法」或「完全沒想法」
+    function handleIdeaSelection(idea) {
+        hasIdea = idea;
+        if (idea) {
+            studyPlanStep = 2; // 直接進入主題確認
+            appendMessage("太好了！請告訴我你感興趣的學習主題或科目。", "bot-message");
+        } else {
+            studyPlanStep = 'A1'; // 進入「完全沒想法」的引導流程
+            appendMessage("沒關係，我們一起來探索！首先，你平常對哪些事物比較感興趣？（例如：運動、音樂、科技、歷史...）", "bot-message");
+        }
+    }
+
+    // 處理自主學習計畫的輸入 (根據不同步驟)
     async function handleStudyPlanInput(message) {
-        switch (studyPlanStep) {
-            case 1:
-                studyPlanData.subject = message;
-                studyPlanStep = 2;
-                appendMessage(`瞭解了，你想學習 ${message}。那麼，你對 ${message} 目前的理解程度如何？（例如：完全不了解、稍微知道一些、已經有基礎）`, "bot-message");
-                break;
-            case 2:
-                studyPlanData.level = message;
-                studyPlanStep = 3;
-                appendMessage(`明白了。最後，你有沒有特別想在哪個時間點達成什麼學習目標？（例如：學期結束前掌握基本概念、三個月後能夠獨立解題）`, "bot-message");
-                break;
-            case 3:
-                studyPlanData.goal = message;
-                studyPlanStep = 0; // 重置步驟
-                const plan = await generateStudyPlan(studyPlanData);
-                appendMessage(plan, "bot-message");
-                // 清空先前的對話，只保留學習計畫
-                thread = [{ role: 'model', parts: [{ text: plan }] }];
-                break;
+        appendMessage(message, 'user-message'); // 顯示使用者的訊息。  所有地方都先顯示
+
+        if (hasIdea === false && studyPlanStep.startsWith('A')) {
+            // 「完全沒想法」的引導流程
+            switch (studyPlanStep) {
+                case 'A1':
+                    studyPlanData.interests = message;
+                    studyPlanStep = 'A2';
+                    appendMessage(`瞭解了，你對 ${message} 感興趣。在這些興趣中，有沒有哪個領域是你特別想深入了解的？`, "bot-message");
+                    break;
+                case 'A2':
+                    studyPlanData.field = message;
+                    studyPlanStep = 'A3';
+                    appendMessage(`很好！在 ${message} 這個領域中，有沒有哪個特定的主題或概念是你覺得特別有趣的？`, "bot-message");
+                    break;
+                case 'A3':
+                    studyPlanData.topic = message;
+                    studyPlanStep = 'A4';
+                    appendMessage(`不錯喔！那麼關於 ${message}，你有沒有想要進一步探索或研究的方向？`, "bot-message");
+                    break;
+                case 'A4':
+                    studyPlanData.direction = message;
+                    studyPlanStep = 2; // 過渡到「已有想法」的流程
+                    appendMessage(`太棒了！看來你對自主學習已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
+                    break;
+            }
+        } else {
+            // 「已有想法」或過渡後的流程
+            switch (studyPlanStep) {
+                case 2:
+                    studyPlanData.subject = message;
+                    studyPlanStep = 3;
+                    appendMessage(`瞭解了，你想以 ${message} 作為自主學習題目。你對 ${message} 目前的理解程度如何？（例如：完全不了解、稍微知道一些、已經有基礎）`, "bot-message");
+                    break;
+                case 3:
+                    studyPlanData.level = message;
+                    studyPlanStep = 4;
+                    appendMessage(`明白了。最後，你有沒有特別想在哪個時間點達成什麼學習目標？（例如：學期結束前掌握基本概念、三個月後能夠獨立解題）`, "bot-message");
+                    break;
+                case 4:
+                    studyPlanData.goal = message;
+                    studyPlanStep = 0; // 重置步驟
+                    hasIdea = null; // 重置
+                    const plan = await generateStudyPlan(studyPlanData);
+                    appendMessage(plan, "bot-message");
+                     // 清空先前的對話，只保留學習計畫
+                    thread = [{ role: 'model', parts: [{ text: plan }] }];
+                    break;
+            }
         }
     }
 
 
     // 生成學習計畫 (向 Gemini API 發送請求)
     async function generateStudyPlan(data) {
+         // ... (與之前相同, prompt 內容不變)
         showLoadingIndicator();
         const prompt = `請以繁體中文回答，不得使用簡體字。
 請扮演一位具有豐富教學經驗的老師，為學生制定一份為期18週的自主學習計畫。
@@ -416,7 +490,7 @@ const chatModule = (() => {
             return `生成學習計畫時發生錯誤：${error.message}`;
         }
     }
-    // 從巢狀物件中取得指定鍵的值
+// 從巢狀物件中取得指定鍵的值
     function getNestedValue(data, key) {
         // 如果 data 是物件且不為 null
         if (typeof data === 'object' && data !== null) {
@@ -428,16 +502,16 @@ const chatModule = (() => {
         }
         return null; // 如果找不到指定的鍵，則返回 null
     }
-
     // 覆寫 handleUserTextMessage，加入自主學習計畫的處理
     async function handleUserTextMessage(message) {
         if (studyPlanStep > 0) {
-            appendMessage(message, 'user-message'); // 顯示使用者的訊息
+            // appendMessage(message, 'user-message'); // 顯示使用者訊息, 統一在 handleStudyPlanInput 處理
             await handleStudyPlanInput(message);
             return;
         }
 
-         if (message) {
+        // ... (其他部分與之前相同)
+        if (message) {
             appendMessage(message, 'user-message');
             thread.push({
                 role: 'user',
@@ -467,9 +541,15 @@ const chatModule = (() => {
         }
     }
 
+      // 新增：startStudyPlan 函數 (供外部呼叫)
+    function startStudyPlanFn() {
+        startStudyPlan();
+    }
+
     // 暴露需要外部訪問的函數
     return {
         clearImage,
-        appendMessage
+        appendMessage,
+        startStudyPlan: startStudyPlanFn // 暴露 startStudyPlan
     };
 })();
