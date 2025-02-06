@@ -737,3 +737,25 @@
             border-radius: 8px;
             background-color: #fff;
         }
+/* 新增選項按鈕的樣式 */
+.option-button {
+    background-color: #4CAF50; /* 綠色背景 */
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.option-button:hover {
+    background-color: #3e8e41; /* 深綠色背景 (滑鼠懸停時) */
+}
+
+.message-options {
+    margin-bottom: 10px; /* 與下方訊息間隔 */
+}
