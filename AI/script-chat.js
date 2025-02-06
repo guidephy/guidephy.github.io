@@ -1,7 +1,7 @@
 // script-chat.js (聊天功能)
 
 const chatModule = (() => {
-    // 獲取 DOM 元素 (與之前相同)
+    // 獲取 DOM 元素
     const uploadImage = document.getElementById('upload-image');
     const imagePreviewContainer = document.getElementById('image-preview-container');
     const sendButton = document.getElementById('send-button');
@@ -10,10 +10,8 @@ const chatModule = (() => {
     const studyPlanButton = document.getElementById('study-plan-button');
 
 
-    // 圖片上傳、清除圖片、聊天發送、處理使用者文字訊息、顯示/隱藏載入指示器、獲取機器人回覆、判斷文字類型、獲取翻譯、添加訊息到聊天視窗、取得現在時間給予的問候語 (這些函數都與之前相同，不做更動)
-      // 圖片上傳（聊天）
+    // 圖片上傳（聊天）
     uploadImage.addEventListener('change', (event) => {
-        // ... (與之前相同)
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -33,7 +31,6 @@ const chatModule = (() => {
 
      // 清除圖片
     function clearImage() {
-         // ... (與之前相同)
         imagePreviewContainer.innerHTML = '';
         imagePreviewContainer.style.display = 'none';
         uploadImage.value = '';
@@ -41,8 +38,7 @@ const chatModule = (() => {
 
 
     // 聊天發送
-    sendButton.addEventListener('click', async () => {
-        // ... (與之前相同)
+    sendButton.addEventListener('click', async => {
         const message = userInput.value.trim();
         if (!message && !uploadImage.value) return;
 
@@ -65,43 +61,8 @@ const chatModule = (() => {
         }
     });
 
-    // 處理使用者文字訊息
-    async function handleUserTextMessage(message) {
-         // ... (與之前相同)
-        if (message) {
-            appendMessage(message, 'user-message');
-            thread.push({
-                role: 'user',
-                parts: [{ text: message }],
-            });
-        }
-
-        userInput.value = '';
-        showLoadingIndicator();
-
-        try {
-             let botReply;
-            if (translationMode) {
-                botReply = await fetchTranslation(message);
-            } else {
-                botReply = await fetchBotReply(thread);
-            }
-             hideLoadingIndicator();
-             appendMessage(botReply, 'bot-message');
-            thread.push({
-                role: 'model',
-                parts: [{ text: botReply }],
-            });
-        } catch (error) {
-             hideLoadingIndicator();
-             appendMessage(`錯誤：${error.message}`, 'bot-message');
-        }
-    }
-
-
-    // 顯示載入指示器
+      // 顯示載入指示器
     function showLoadingIndicator() {
-         // ... (與之前相同)
         const existingIndicator = document.getElementById('loading-indicator');
         if (existingIndicator) {
             existingIndicator.remove(); //如果指示器存在，則先移除
@@ -131,7 +92,6 @@ const chatModule = (() => {
 
     // 隱藏載入指示器
     function hideLoadingIndicator() {
-         // ... (與之前相同)
         const loadingIndicator = document.getElementById('loading-indicator');
         if (loadingIndicator) {
             loadingIndicator.remove(); //如果指示器存在，則移除
@@ -140,7 +100,6 @@ const chatModule = (() => {
 
     // 獲取機器人回覆
     async function fetchBotReply(thread) {
-         // ... (與之前相同)
         // 系統訊息：請 AI 以繁體中文回答，不得使用簡體字
         const systemMessage = {
             role: 'user',
@@ -171,7 +130,6 @@ const chatModule = (() => {
 
    // 判斷文字類型：中文短語、英文單字、句子、段落
    function determineTextType(inputText) {
-       // ... (與之前相同)
        const hasChinese = /[\u4E00-\u9FFF]/.test(inputText); // 檢查是否包含中文字符
        const words = inputText.trim().split(/\s+/); // 將輸入文字以空格分割成單詞陣列
 
@@ -193,7 +151,6 @@ const chatModule = (() => {
 
     // 獲取翻譯
     async function fetchTranslation(inputText) {
-        // ... (與之前相同)
         let prompt = `請以繁體中文回答，不得使用簡體字。`; // 系統提示，要求 AI 使用繁體中文
 
         prompt +=`現在你是中英翻譯助理。根據使用者輸入的內容進行如下處理：
@@ -211,16 +168,16 @@ const chatModule = (() => {
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-       
+
        2. 解釋2：...
           英文例句：...
           中文翻譯：...
-       
+
      - 詞性2：
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-       
+
    輸入: ${inputText}
 
 2. 如果輸入為英文單詞：
@@ -236,16 +193,16 @@ const chatModule = (() => {
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-       
+
        2. 解釋2：...
           英文例句：...
           中文翻譯：...
-       
+
      - 詞性2：
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-       
+
    輸入: ${inputText}
 
 3. 如果輸入為中文或英文句子：
@@ -302,7 +259,6 @@ const chatModule = (() => {
 
     // 添加訊息到聊天視窗
     function appendMessage(content, className) {
-         // ... (與之前相同)
         const message = document.createElement('div');
         message.classList.add('message', className);
         const formattedContent = formatText(content); // 使用 formatText 函數格式化內容
@@ -322,7 +278,6 @@ const chatModule = (() => {
 
      // 取得現在時間給予的問候語
     function getGreeting() {
-         // ... (與之前相同)
         const now = new Date();
         const hour = now.getHours();
 
@@ -394,9 +349,9 @@ const chatModule = (() => {
         }
     }
 
-    // 處理自主學習計畫的輸入 (根據不同步驟)
+   // 處理自主學習計畫的輸入 (根據不同步驟)
     async function handleStudyPlanInput(message) {
-        appendMessage(message, 'user-message'); // 顯示使用者的訊息。  所有地方都先顯示
+        appendMessage(message, 'user-message'); // 顯示使用者的訊息
 
         if (hasIdea === false && studyPlanStep.startsWith('A')) {
             // 「完全沒想法」的引導流程
@@ -428,7 +383,7 @@ const chatModule = (() => {
                 case 2:
                     studyPlanData.subject = message;
                     studyPlanStep = 3;
-                    appendMessage(`瞭解了，你想以 ${message} 作為自主學習題目。你對 ${message} 目前的理解程度如何？（例如：完全不了解、稍微知道一些、已經有基礎）`, "bot-message");
+                    appendMessage(`瞭解了，你想以 ${message} 作為專題題目。你對 ${message} 目前的理解程度如何？（例如：完全不了解、稍微知道一些、已經有基礎）`, "bot-message");
                     break;
                 case 3:
                     studyPlanData.level = message;
@@ -502,44 +457,44 @@ const chatModule = (() => {
         }
         return null; // 如果找不到指定的鍵，則返回 null
     }
-    // 覆寫 handleUserTextMessage，加入自主學習計畫的處理
-    async function handleUserTextMessage(message) {
-        if (studyPlanStep > 0) {
-            // appendMessage(message, 'user-message'); // 顯示使用者訊息, 統一在 handleStudyPlanInput 處理
-            await handleStudyPlanInput(message);
-            return;
-        }
-
-        // ... (其他部分與之前相同)
-        if (message) {
-            appendMessage(message, 'user-message');
-            thread.push({
-                role: 'user',
-                parts: [{ text: message }],
-            });
-        }
-
-        userInput.value = '';
-        showLoadingIndicator();
-
-        try {
-             let botReply;
-            if (translationMode) {
-                botReply = await fetchTranslation(message);
-            } else {
-                botReply = await fetchBotReply(thread);
-            }
-             hideLoadingIndicator();
-             appendMessage(botReply, 'bot-message');
-            thread.push({
-                role: 'model',
-                parts: [{ text: botReply }],
-            });
-        } catch (error) {
-             hideLoadingIndicator();
-             appendMessage(`錯誤：${error.message}`, 'bot-message');
-        }
+      // 覆寫 handleUserTextMessage，加入自主學習計畫的處理
+   async function handleUserTextMessage(message) {
+    if (studyPlanStep > 0) {
+        // 處於自主學習計畫流程中，直接處理輸入，不進行 సాధారణ 聊天
+        await handleStudyPlanInput(message);
+        return; // 重要：處理完自主學習計畫的輸入後，直接返回，不再執行後面的聊天邏輯
     }
+
+    // 原有的聊天邏輯 (非自主學習計畫模式)
+    if (message) {
+        appendMessage(message, 'user-message');
+        thread.push({
+            role: 'user',
+            parts: [{ text: message }],
+        });
+    }
+
+    userInput.value = '';
+    showLoadingIndicator();
+
+    try {
+        let botReply;
+        if (translationMode) {
+            botReply = await fetchTranslation(message);
+        } else {
+            botReply = await fetchBotReply(thread);
+        }
+        hideLoadingIndicator();
+        appendMessage(botReply, 'bot-message');
+        thread.push({
+            role: 'model',
+            parts: [{ text: botReply }],
+        });
+    } catch (error) {
+        hideLoadingIndicator();
+        appendMessage(`錯誤：${error.message}`, 'bot-message');
+    }
+}
 
       // 新增：startStudyPlan 函數 (供外部呼叫)
     function startStudyPlanFn() {
