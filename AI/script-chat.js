@@ -10,9 +10,10 @@ const chatModule = (() => {
     const studyPlanButton = document.getElementById('study-plan-button');
 
 
-    // 圖片上傳、清除圖片 (與之前相同)
-     // 圖片上傳（聊天）
+    // 圖片上傳、清除圖片、聊天發送、處理使用者文字訊息、顯示/隱藏載入指示器、獲取機器人回覆、判斷文字類型、獲取翻譯、添加訊息到聊天視窗、取得現在時間給予的問候語 (這些函數都與之前相同，不做更動)
+      // 圖片上傳（聊天）
     uploadImage.addEventListener('change', (event) => {
+        // ... (與之前相同)
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -32,50 +33,75 @@ const chatModule = (() => {
 
      // 清除圖片
     function clearImage() {
+         // ... (與之前相同)
         imagePreviewContainer.innerHTML = '';
         imagePreviewContainer.style.display = 'none';
         uploadImage.value = '';
     };
 
-    // 聊天發送 (修改：先處理圖片，再處理文字)
+
+    // 聊天發送
     sendButton.addEventListener('click', async () => {
+        // ... (與之前相同)
         const message = userInput.value.trim();
         if (!message && !uploadImage.value) return;
 
-        showLoadingIndicator(); // 在這裡顯示載入指示器
-
         if (uploadImage.files && uploadImage.files[0]) {
-            const file = uploadImage.files[0];
-            const reader = new FileReader();
-            reader.onload = async (e) => {
+             const file = uploadImage.files[0];
+             const reader = new FileReader();
+             reader.onload = async (e) => {
                 const selectedImageBase64 = e.target.result;
-                appendMessage('（圖片已傳送）', 'user-message');
-
-                // 先將圖片訊息加入 thread
+                 appendMessage('（圖片已傳送）', 'user-message');
                 thread.push({
                     role: 'user',
                     parts: [{ text: '圖片訊息', image: selectedImageBase64 }],
                 });
-                clearImage();
-
-                // 再處理文字訊息 (如果有的話)
-                if (message) {
-                    await handleUserTextMessage(message);
-                } else {
-                    // 如果沒有文字訊息，直接獲取機器人回覆
-                    await fetchAndAppendBotReply();
-                }
+                 clearImage();
+                await handleUserTextMessage(message);
             };
-            reader.readAsDataURL(file);
+             reader.readAsDataURL(file);
         } else {
-            // 沒有圖片，直接處理文字訊息
             await handleUserTextMessage(message);
         }
     });
 
-    // 顯示/隱藏載入指示器 (與之前相同)
-      // 顯示載入指示器
+    // 處理使用者文字訊息
+    async function handleUserTextMessage(message) {
+         // ... (與之前相同)
+        if (message) {
+            appendMessage(message, 'user-message');
+            thread.push({
+                role: 'user',
+                parts: [{ text: message }],
+            });
+        }
+
+        userInput.value = '';
+        showLoadingIndicator();
+
+        try {
+             let botReply;
+            if (translationMode) {
+                botReply = await fetchTranslation(message);
+            } else {
+                botReply = await fetchBotReply(thread);
+            }
+             hideLoadingIndicator();
+             appendMessage(botReply, 'bot-message');
+            thread.push({
+                role: 'model',
+                parts: [{ text: botReply }],
+            });
+        } catch (error) {
+             hideLoadingIndicator();
+             appendMessage(`錯誤：${error.message}`, 'bot-message');
+        }
+    }
+
+
+    // 顯示載入指示器
     function showLoadingIndicator() {
+         // ... (與之前相同)
         const existingIndicator = document.getElementById('loading-indicator');
         if (existingIndicator) {
             existingIndicator.remove(); //如果指示器存在，則先移除
@@ -105,42 +131,47 @@ const chatModule = (() => {
 
     // 隱藏載入指示器
     function hideLoadingIndicator() {
+         // ... (與之前相同)
         const loadingIndicator = document.getElementById('loading-indicator');
         if (loadingIndicator) {
             loadingIndicator.remove(); //如果指示器存在，則移除
         }
     }
 
-   // 獲取機器人回覆 (修改：加入系統訊息)
-async function fetchBotReply(thread) {
-    // 系統訊息：請 AI 以繁體中文回答，不得使用簡體字
-    const systemMessage = {
-        role: 'user',
-        parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }],
-    };
+    // 獲取機器人回覆
+    async function fetchBotReply(thread) {
+         // ... (與之前相同)
+        // 系統訊息：請 AI 以繁體中文回答，不得使用簡體字
+        const systemMessage = {
+            role: 'user',
+            parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }],
+        };
 
-    // 將系統訊息放在 thread 的開頭
-    const newThread = [systemMessage, ...thread];
+        const newThread = [systemMessage, ...thread];
 
-    const response = await fetch(geminiurl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            contents: newThread,
-        }),
-    });
-    const data = await response.json();
-    if (data.candidates && data.candidates.length > 0) {
-        return data.candidates[0].content.parts[0].text || '未能獲取有效回應';
-    } else {
-        return '未能獲取有效回應';
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: newThread, // 將系統訊息和對話紀錄一起發送
+            }),
+        });
+        const data = await response.json();
+        // 檢查回應中是否有 candidates，且 candidates 陣列長度大於 0
+        if (data.candidates && data.candidates.length > 0) {
+          // 嘗試取得第一個 candidate 的 content 中的 text
+          // 如果 text 不存在，則回傳一個預設訊息
+            return data.candidates[0].content.parts[0].text || '未能獲取有效回應';
+        } else {
+            return '未能獲取有效回應'; // 如果沒有 candidates 或陣列為空，回傳錯誤訊息
+        }
     }
-}
-   // 判斷文字類型、獲取翻譯 (與之前相同)
-     // 判斷文字類型：中文短語、英文單字、句子、段落
+
+   // 判斷文字類型：中文短語、英文單字、句子、段落
    function determineTextType(inputText) {
+       // ... (與之前相同)
        const hasChinese = /[\u4E00-\u9FFF]/.test(inputText); // 檢查是否包含中文字符
        const words = inputText.trim().split(/\s+/); // 將輸入文字以空格分割成單詞陣列
 
@@ -162,6 +193,7 @@ async function fetchBotReply(thread) {
 
     // 獲取翻譯
     async function fetchTranslation(inputText) {
+        // ... (與之前相同)
         let prompt = `請以繁體中文回答，不得使用簡體字。`; // 系統提示，要求 AI 使用繁體中文
 
         prompt +=`現在你是中英翻譯助理。根據使用者輸入的內容進行如下處理：
@@ -179,16 +211,16 @@ async function fetchBotReply(thread) {
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-
+       
        2. 解釋2：...
           英文例句：...
           中文翻譯：...
-
+       
      - 詞性2：
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-
+       
    輸入: ${inputText}
 
 2. 如果輸入為英文單詞：
@@ -204,16 +236,16 @@ async function fetchBotReply(thread) {
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-
+       
        2. 解釋2：...
           英文例句：...
           中文翻譯：...
-
+       
      - 詞性2：
        1. 解釋1：...
           英文例句：...
           中文翻譯：...
-
+       
    輸入: ${inputText}
 
 3. 如果輸入為中文或英文句子：
@@ -267,8 +299,10 @@ async function fetchBotReply(thread) {
             return '未能獲取有效回應'; // 如果任何檢查失敗，回傳錯誤訊息
         }
     }
-    // 添加訊息到聊天視窗 (與之前相同)
+
+    // 添加訊息到聊天視窗
     function appendMessage(content, className) {
+         // ... (與之前相同)
         const message = document.createElement('div');
         message.classList.add('message', className);
         const formattedContent = formatText(content); // 使用 formatText 函數格式化內容
@@ -286,8 +320,9 @@ async function fetchBotReply(thread) {
         }, 100);
     }
 
-    // 取得現在時間的問候語 (獨立出來)
+     // 取得現在時間給予的問候語
     function getGreeting() {
+         // ... (與之前相同)
         const now = new Date();
         const hour = now.getHours();
 
@@ -299,9 +334,10 @@ async function fetchBotReply(thread) {
             return 'Hello！';
         }
     }
+    const greeting = getGreeting();
+    appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
 
-    // --- 自主學習計畫相關程式碼 (與之前相同) ---
-  // --- 自主學習計畫相關程式碼 (大幅修改) ---
+    // --- 自主學習計畫相關程式碼 (大幅修改) ---
 
     let studyPlanStep = 0;
     let studyPlanData = {};
@@ -358,9 +394,9 @@ async function fetchBotReply(thread) {
         }
     }
 
-   // 處理自主學習計畫的輸入 (根據不同步驟)
+    // 處理自主學習計畫的輸入 (根據不同步驟)
     async function handleStudyPlanInput(message) {
-        appendMessage(message, 'user-message'); // 顯示使用者的訊息
+        appendMessage(message, 'user-message'); // 顯示使用者的訊息。  所有地方都先顯示
 
         if (hasIdea === false && studyPlanStep.startsWith('A')) {
             // 「完全沒想法」的引導流程
@@ -466,43 +502,42 @@ async function fetchBotReply(thread) {
         }
         return null; // 如果找不到指定的鍵，則返回 null
     }
-    // 處理使用者文字訊息 (最終修正版)
+    // 覆寫 handleUserTextMessage，加入自主學習計畫的處理
     async function handleUserTextMessage(message) {
         if (studyPlanStep > 0) {
-            // 處於自主學習計畫流程中
+            // appendMessage(message, 'user-message'); // 顯示使用者訊息, 統一在 handleStudyPlanInput 處理
             await handleStudyPlanInput(message);
             return;
         }
 
-        // 一般聊天模式
-        appendMessage(message, 'user-message');
-        thread.push({
-            role: 'user',
-            parts: [{ text: message }],
-        });
-        userInput.value = ''; // 清空輸入框
-        await fetchAndAppendBotReply(); // 獲取並顯示機器人回覆
-    }
+        // ... (其他部分與之前相同)
+        if (message) {
+            appendMessage(message, 'user-message');
+            thread.push({
+                role: 'user',
+                parts: [{ text: message }],
+            });
+        }
 
-    // 獲取並顯示機器人回覆 (獨立出來)
-    async function fetchAndAppendBotReply() {
+        userInput.value = '';
+        showLoadingIndicator();
+
         try {
-            let botReply;
+             let botReply;
             if (translationMode) {
-                botReply = await fetchTranslation(userInput.value);  // 翻譯模式
+                botReply = await fetchTranslation(message);
             } else {
-                    botReply = await fetchBotReply(thread); //一般對話
+                botReply = await fetchBotReply(thread);
             }
-            appendMessage(botReply, 'bot-message');
-                thread.push({
-                    role: 'model',
-                    parts: [{ text: botReply }],
-                });
-
+             hideLoadingIndicator();
+             appendMessage(botReply, 'bot-message');
+            thread.push({
+                role: 'model',
+                parts: [{ text: botReply }],
+            });
         } catch (error) {
-            appendMessage(`錯誤：${error.message}`, 'bot-message');
-        } finally {
-            hideLoadingIndicator(); // 無論成功或失敗都隱藏
+             hideLoadingIndicator();
+             appendMessage(`錯誤：${error.message}`, 'bot-message');
         }
     }
 
@@ -511,147 +546,10 @@ async function fetchBotReply(thread) {
         startStudyPlan();
     }
 
-      // 初始化函式 (新增)
-    function init() {
-        thread = []; // 清空對話歷史
-        const greeting = getGreeting();
-        appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
-    }
-
     // 暴露需要外部訪問的函數
     return {
         clearImage,
         appendMessage,
-        startStudyPlan: startStudyPlanFn, // 暴露 startStudyPlan
-        init  // 暴露 init 函數
+        startStudyPlan: startStudyPlanFn // 暴露 startStudyPlan
     };
 })();
-
-// 在 DOMContentLoaded 中呼叫 chatModule.init()
-document.addEventListener('DOMContentLoaded', () => {
-    // ... 其他的 DOMContentLoaded 程式碼 ...
-     // 獲取 DOM 元素
-    const sidebar = document.getElementById('sidebar');
-    const menuToggle = document.getElementById('menu-toggle');
-    const openAIGenerator = document.getElementById('open-ai-generator');
-    const openSolveProblem = document.getElementById('open-solve-problem');
-    const openPhysicsLecture = document.getElementById('open-physics-lecture');
-    const openCalculator = document.getElementById('open-calculator');
-    const openTomato = document.getElementById('open-tomato');
-    const returnChat = document.getElementById('return-chat');
-    const chatWindow = document.getElementById('chat-window');
-    const aiGeneratorContent = document.getElementById('ai-generator-content');
-    const solveProblemContent = document.getElementById('solve-problem-content');
-    const physicsLectureContent = document.getElementById('physics-lecture-content');
-    const calculatorContent = document.getElementById('calculator-content');
-    const tomatoContent = document.getElementById('tomato-content');
-    const toolbar = document.getElementById('toolbar');
-    const translateButton = document.getElementById('translate-button');
-    const studyPlanButton = document.getElementById('study-plan-button'); // 新增
-    const returnToChatButton = document.getElementById('return-to-chat-button');
-    const overlay = document.getElementById('overlay');
-
-
-    // 初始化顯示狀態
-    chatWindow.style.display = 'flex';
-    aiGeneratorContent.style.display = 'none';
-    solveProblemContent.style.display = 'none';
-    physicsLectureContent.style.display = 'none';
-     calculatorContent.style.display = 'none';
-    tomatoContent.style.display = 'none';
-    returnChat.classList.add('hidden');
-
-
-    // 側邊欄控制
-    menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation(); // 阻止事件冒泡到 document
-        sidebar.classList.toggle('show');
-        overlay.classList.toggle('show');
-    });
-
-    overlay.addEventListener('click', () => {
-        sidebar.classList.remove('show');
-        overlay.classList.remove('show');
-    });
-
-    document.addEventListener('click', (event) => {
-        // 檢查點擊事件是否發生在 sidebar 或 menuToggle 之外
-        if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-        }
-    });
-
-    // 工具切換事件監聽器
-    openAIGenerator.addEventListener('click', () => toggleTool('ai-generator'));
-    openSolveProblem.addEventListener('click', () => toggleTool('solve-problem'));
-    openPhysicsLecture.addEventListener('click', () => toggleTool('physics-lecture'));
-    openCalculator.addEventListener('click', () => toggleTool('calculator'));
-    openTomato.addEventListener('click', () => toggleTool('tomato'));
-    returnChat.addEventListener('click', () => toggleTool('chat'));
-
-     // 中英翻譯模式
-    translateButton.addEventListener("click", () => {
-        translationMode = true;
-        returnToChatButton.style.display = "inline-block";
-        translateButton.style.display = "none";
-        chatModule.appendMessage("請輸入想查的中文或英文", "bot-message"); // 使用 chatModule
-    });
-
-    returnToChatButton.addEventListener("click", () => {
-        translationMode = false;
-        returnToChatButton.style.display = "none";
-        translateButton.style.display = "inline-block";
-        chatModule.appendMessage("已返回聊天模式。", "bot-message"); // 使用 chatModule
-    });
-      studyPlanButton.addEventListener('click', () => {
-        translationMode = false;
-        returnToChatButton.style.display = 'none';
-        translateButton.style.display = 'inline-block';
-        chatModule.startStudyPlan(); // 呼叫 chatModule 內的 startStudyPlan 函數
-    });
-
-
-    // 切換工具的函數
-    function toggleTool(tool) {
-        const tools = ['chat', 'ai-generator', 'solve-problem', 'physics-lecture', 'calculator', 'tomato'];
-        const contentElements = {
-            'chat': chatWindow,
-            'ai-generator': aiGeneratorContent,
-            'solve-problem': solveProblemContent,
-            'physics-lecture': physicsLectureContent,
-            'calculator': calculatorContent,
-            'tomato': tomatoContent
-        };
-        const menuItems = {
-            'chat': returnChat,
-            'ai-generator': openAIGenerator,
-            'solve-problem': openSolveProblem,
-            'physics-lecture': openPhysicsLecture,
-            'calculator': openCalculator,
-            'tomato': openTomato
-        };
-
-        // 隱藏所有工具內容和顯示所有選單項目
-        tools.forEach(t => {
-            if (contentElements[t]) contentElements[t].style.display = 'none';
-            if (menuItems[t]) menuItems[t].classList.remove('hidden');
-        });
-
-        // 顯示選定的工具內容，並隱藏對應的選單項目
-        if (contentElements[tool]) contentElements[tool].style.display = tool.includes('lecture') || tool.includes('calculator') || tool.includes('tomato')  ? 'block' : (tool === 'chat' ? 'flex' : 'block');
-        if (menuItems[tool]) menuItems[tool].classList.add('hidden');
-
-        // 根據是否為聊天模式調整輸入區域和工具列的顯示
-        document.querySelector('.input-area').style.display = (tool === 'chat') ? 'flex' : 'none';
-        toolbar.style.display = (tool === 'chat') ? 'block' : 'none';
-          // 如果切換到聊天模式，重新初始化
-        if (tool === 'chat') {
-            chatModule.init();
-        }
-        // 隱藏側邊欄和遮罩
-        sidebar.classList.remove('show');
-        overlay.classList.remove('show');
-    }
-     chatModule.init(); // 初始化聊天模組
-});
