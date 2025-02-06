@@ -457,44 +457,49 @@ const chatModule = (() => {
         }
         return null; // 如果找不到指定的鍵，則返回 null
     }
-      // 覆寫 handleUserTextMessage，加入自主學習計畫的處理
-   async function handleUserTextMessage(message) {
-    if (studyPlanStep > 0) {
-        // 處於自主學習計畫流程中，直接處理輸入，不進行 సాధారణ 聊天
-        await handleStudyPlanInput(message);
-        return; // 重要：處理完自主學習計畫的輸入後，直接返回，不再執行後面的聊天邏輯
-    }
-
-    // 原有的聊天邏輯 (非自主學習計畫模式)
-    if (message) {
-        appendMessage(message, 'user-message');
-        thread.push({
-            role: 'user',
-            parts: [{ text: message }],
-        });
-    }
-
-    userInput.value = '';
-    showLoadingIndicator();
-
-    try {
-        let botReply;
-        if (translationMode) {
-            botReply = await fetchTranslation(message);
-        } else {
-            botReply = await fetchBotReply(thread);
+    // 處理使用者文字訊息 (修正版)
+    async function handleUserTextMessage(message) {
+        if (studyPlanStep > 0) {
+            // 處於自主學習計畫流程中，直接處理輸入
+            await handleStudyPlanInput(message);
+            return; // 處理完自主學習計畫的輸入後，直接返回
         }
-        hideLoadingIndicator();
-        appendMessage(botReply, 'bot-message');
-        thread.push({
-            role: 'model',
-            parts: [{ text: botReply }],
-        });
-    } catch (error) {
-        hideLoadingIndicator();
-        appendMessage(`錯誤：${error.message}`, 'bot-message');
+
+        // *** 原有的聊天邏輯 (非自主學習計畫模式) ***
+        if (message) {
+            appendMessage(message, 'user-message');
+            thread.push({
+                role: 'user',
+                parts: [{ text: message }],
+            });
+        }
+
+        userInput.value = '';
+        showLoadingIndicator();
+
+        try {
+            let botReply;
+            if (translationMode) {
+                botReply = await fetchTranslation(message);
+            } else {
+                // 檢查 thread 是否為空。如果為空，則給予初始提示。
+                if (thread.length === 0) {
+                    botReply = "你好，我可以協助你翻譯、解題、產生題目或規劃學習計畫。請告訴我你需要什麼協助。";
+                } else {
+                    botReply = await fetchBotReply(thread);
+                }
+            }
+            hideLoadingIndicator();
+            appendMessage(botReply, 'bot-message');
+            thread.push({
+                role: 'model',
+                parts: [{ text: botReply }],
+            });
+        } catch (error) {
+            hideLoadingIndicator();
+            appendMessage(`錯誤：${error.message}`, 'bot-message');
+        }
     }
-}
 
       // 新增：startStudyPlan 函數 (供外部呼叫)
     function startStudyPlanFn() {
