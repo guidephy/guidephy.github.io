@@ -1,6 +1,4 @@
 let thread = []; // 儲存聊天記錄
-        const geminiurl='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=AIzaSyA2AoyuEsDitjNZvcxWoTfuNPOdQQ8hw68';
-
         let translationMode = false; // 新增翻譯模式變數
 
         document.addEventListener('DOMContentLoaded', () => {
