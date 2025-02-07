@@ -553,7 +553,7 @@ const chatModule = (() => {
 
         try {
             // 修改這裡，使用新的 Google Apps Script 網路應用程式的 URL
-            const url = 'https://script.google.com/macros/s/[YOUR_NEW_DEPLOYMENT_ID]/exec'; // 替換為你的 Apps Script 發布後的 URL
+            const url = 'https://script.google.com/macros/s/AKfycbxJ9vuMgGGPfn_274JdefvOiAdKGSgqwnuiVoKDc_dL8-VUq2SLCJc27Jc1tiSEfr9I/exec'; // 替換為你的 Apps Script 發布後的 URL
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
