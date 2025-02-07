@@ -1,4 +1,9 @@
 // script-chat.js (聊天功能)
+// 宣告全域變數
+let thread = []; // 儲存聊天記錄
+const geminiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-pro-exp:generateContent?key=YOUR_API_KEY'; // 請替換為您的 Gemini API URL
+let translationMode = false; // 是否為翻譯模式
+
 const chatModule = (() => {
     // 獲取 DOM 元素
     const uploadImage = document.getElementById('upload-image');
@@ -390,7 +395,7 @@ const chatModule = (() => {
             button.textContent = direction;
             button.className = 'option-button';
             button.addEventListener('click', () => {
-                handleStudyPlanInput(direction);
+                handleStudyPlanInput(topic);
                 const options = document.querySelectorAll('.message-options');
                 options.forEach(option => option.remove());
             });
@@ -431,7 +436,7 @@ const chatModule = (() => {
                     studyPlanData.direction = selectedOption;
                     hasIdea = true;
                     studyPlanStep = 2;
-                    appendMessage(`太棒了！看來你對自主學習已經已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
+                    appendMessage(`太棒了！看來你對自主學習已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
                     break;
             }
         } else {
@@ -553,7 +558,7 @@ const chatModule = (() => {
 
         try {
             // 修改這裡，使用新的 Google Apps Script 網路應用程式的 URL
-            const url = 'https://script.google.com/macros/s/AKfycbxJ9vuMgGGPfn_274JdefvOiAdKGSgqwnuiVoKDc_dL8-VUq2SLCJc27Jc1tiSEfr9I/exec'; // 替換為你的 Apps Script 發布後的 URL
+            const url = 'https://script.google.com/macros/s/[YOUR_NEW_DEPLOYMENT_ID]/exec'; // 替換為你的 Apps Script 發布後的 URL
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -721,6 +726,15 @@ ${text}
         generateNotes // 導出函數
     };
 })();
+
+// 格式化文字的函數 (例如，處理換行和粗體)
+function formatText(text) {
+    let formatted = text;
+    formatted = formatted.replace(/\n/g, '<br>'); // 將換行符號 \n 轉換為 HTML 的 <br> 標籤
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // 將 **包圍的文字** 轉換為 HTML 的 <strong> 標籤
+    formatted = formatted.replace(/\*\*/g, '');  // 移除多餘的 ** 符號
+    return formatted; // 最終返回格式化後的文字
+}
 
 // 初始化
 chatModule.init();
