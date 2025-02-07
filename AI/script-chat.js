@@ -1,793 +1,218 @@
- /* 主頁樣式 */
-        body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column; 
-            min-height: 100vh;
-            background-color: #f7f6f2;
-        }
+// script-solve-problem.js (教我解題)
 
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-        }
+const solveProblemModule = (() => {
+    // 獲取 DOM 元素
+    const imageTab = document.getElementById('imageTab');
+    const textTab = document.getElementById('textTab');
+    const imageContent = document.getElementById('imageContent');
+    const textContent = document.getElementById('textContent');
+    const uploadImage = document.getElementById('uploadImage');
+    const imagePreview = document.getElementById('imagePreview');
+    const textInput = document.getElementById('textInput');
+    const analyzeButton = document.getElementById('analyzeButton');
+    const resultArea = document.getElementById('resultArea');
+    const hintArea = document.getElementById('hintArea');
+    const hintContent = document.getElementById('hintContent');
+    const showNextHintButton = document.getElementById('showNextHintButton');
+    const reflectionArea = document.getElementById('reflectionArea');
+    const reflectionContent = document.getElementById('reflectionContent');
 
-        .overlay.show {
-            display: block;
-        }
+    let solutionSteps = []; // 儲存解題步驟
+    let currentStepIndex = 0; // 目前步驟的索引
 
-        .container {
-            flex: 1;
-            display: flex;
-        }
+     // 切換分頁
+    function switchTab(tab) {
+        // 切換 active 狀態，並根據 tab 參數顯示或隱藏對應的內容
+        imageContent.classList.toggle('active', tab === 'image');
+        textContent.classList.toggle('active', tab === 'text');
+        imageTab.classList.toggle('active', tab === 'image');
+        textTab.classList.toggle('active', tab === 'text');
+    }
 
-        .sidebar {
-            width: 250px;
-            background-color: #f0f0f0;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    // 預覽圖片
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+             reader.onload = function (e) {
+                 imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.innerHTML = '';
         }
+    }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed; 
-                height: 100%;
-                top: 0;
-                left: 0;
-                transform: translateX(-250px);
+    // 分析輸入 (主要函數)
+    async function analyzeInput() {
+        const button = document.getElementById('analyzeButton');
+
+         // 重新初始化顯示區塊
+        button.innerText = '分析中，請稍候...'; // 更改按鈕文字為「分析中，請稍候...」
+        button.disabled = true;  // 禁用按鈕，防止重複點擊
+        resultArea.style.display = 'block'; // 顯示結果區域
+        resultArea.innerHTML = '<p class="loading">正在處理...</p>'; // 顯示載入提示
+        hintArea.style.display = 'none';  // 隱藏提示區域
+        hintContent.innerHTML = ''; // 清空提示內容
+        showNextHintButton.style.display = 'none';  // 隱藏「顯示下一提示」按鈕
+        reflectionArea.style.display = 'none';  // 隱藏學習反思區域
+        reflectionContent.innerHTML = '';  // 清空學習反思內容
+        solutionSteps = []; // 清空解題步驟
+        currentStepIndex = 0; // 重置目前步驟索引
+
+        try {
+             let payload = {}; // 請求的資料
+             if (uploadImage.files.length > 0 && document.getElementById('imageContent').classList.contains('active')) {
+                // 圖片模式
+                const base64Image = await convertImageToBase64(uploadImage.files[0]);
+                payload = {
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: `請以繁體中文回答，不得使用簡體字或英文詞彙。
+
+請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
+1. 題意分析：清楚解釋題目所問與重點。
+2. 相關知識與理論：列出解題所需的正確理論或概念。
+3. 解題流程：逐步邏輯推導，不得有不合理跳躍，確保每個步驟正確無誤。
+4. 答案：給出唯一正確的答案，並保證答案絕對正確，與前面推導完全一致。
+5. 學習反思：提供延伸思考方向或避免錯誤的建議。
+
+請務必謹慎檢查，不能有矛盾或錯誤的內容。所有論述必須合理、一致，並以自然流暢的繁體中文呈現。`
+                                },
+                                {
+                                     inline_data: {
+                                        mime_type: 'image/jpeg',
+                                        data: base64Image
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                };
+            } else if (textInput.value.trim()) {
+                 // 文字模式
+                payload = {
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: `請以繁體中文回答，不使用簡體字或英文。
+                                    請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
+                                    1. 題意分析：
+                                    2. 相關知識與理論：
+                                    3. 解題流程：
+                                    4. 答案：
+                                    5. 學習反思：
+
+                                    題目內容：${textInput.value.trim()}
+
+                                    請詳細分述解題步驟並在最後給出學習反思與延伸建議。`
+                                }
+                            ]
+                        }
+                    ]
+                };
+            } else {
+                alert('請提供圖片或文字內容！');
+                 button.innerText = '分析題目';
+                 button.disabled = false;
+                return;
             }
 
-            .sidebar.show {
-                transform: translateX(0);
+
+            const response = await fetch(
+                geminiurl,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            const responseData = await response.json();
+            const answer = getNestedValue(responseData, 'text') || '無法獲取解答';  // 獲取解答文字
+
+            // 將回應依序分段
+            const sections = answer.split(/\d\.\s/).filter((section) => section.trim() !== '');
+             // 最後一段視為學習反思
+            const reflectionStep = sections.pop();
+            const stepsWithoutReflection = sections;
+
+            solutionSteps = stepsWithoutReflection.map(s => s.trim()); // 儲存解題步驟
+            resultArea.innerHTML = ''; // 清空結果區域
+            hintArea.style.display = 'block'; // 顯示提示區域
+
+            // 顯示第一個提示 (題意分析)
+            if (solutionSteps.length > 0) {
+                hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
+                currentStepIndex = 0; // 設定目前步驟索引為 0
             }
 
-            .input-area {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                z-index: 1002; 
-                padding: 10px;
-                background-color: white;
-                border-top: 1px solid #ddd;
-                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            // 若有超過一個步驟，顯示「下一提示」按鈕
+            if (solutionSteps.length > 1) {
+                 showNextHintButton.style.display = 'inline-block'; // 顯示「下一提示」按鈕
             }
 
-            .chat-window, .external-content {
-                flex: 1;
-                overflow-y: auto;
-                padding-bottom: 70px; 
-            }
+             showNextHintButton.onclick = function() {
+                currentStepIndex++;
+                if (currentStepIndex < solutionSteps.length) {
+                    // 顯示下一個步驟，並加上分隔線
+                    hintContent.innerHTML += `<hr><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+                }
 
-            .main-content {
-                margin-top: 50px; 
-                display: flex;
-                flex-direction: column;
-                overflow-y: auto; 
-                padding-bottom: 70px;
-            }
+                 // 所有步驟顯示完畢後，顯示學習反思
+                if (currentStepIndex === solutionSteps.length - 1) {
+                     showNextHintButton.style.display = 'none'; // 隱藏「下一提示」按鈕
+                     reflectionArea.style.display = 'block';  // 顯示學習反思區域
+                    reflectionContent.innerHTML = `<p>${formatText(reflectionStep)}</p>`; // 顯示學習反思內容
+                }
+            };
+
+        } catch (error) {
+            resultArea.innerHTML = `<p class="loading">錯誤：${error.message}</p>`; // 顯示錯誤訊息
+        } finally {
+            button.innerText = '分析題目'; // 恢復按鈕文字
+            button.disabled = false;  // 啟用按鈕
         }
+    }
 
-        @media (min-width: 769px) {
-            .sidebar {
-                position: fixed;
-                top: 50px; 
-                left: 0;
-                height: calc(100vh - 50px);
-                width: 250px;
-                overflow-y: auto;
-                transform: translateX(0);
-            }
 
-            .main-content {
-                margin-left: 250px; 
-                padding-top: 50px; 
-                display: flex;
-                flex-direction: column;
-                height: calc(100vh - 50px);
-            }
-
-            .chat-window {
-                flex: 1;
-                overflow-y: auto;
-                max-height: calc(100vh - 150px); 
-            }
-
-            .input-area {
-                position: relative; 
-                width: 100%;
-                margin-top: auto; 
-                padding: 10px;
-                background-color: white;
-                border-top: 1px solid #ddd;
-                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-            }
-
-            .external-content {
-                flex: 1;
-                overflow-y: auto;
+     // 從巢狀物件中取得指定鍵的值
+    function getNestedValue(data, key) {
+        // 如果 data 是物件且不為 null
+        if (typeof data === 'object' && data !== null) {
+             for (const [k, v] of Object.entries(data)) {  // 遍歷物件的鍵值對
+                if (k === key) return v; // 如果找到指定的鍵，則返回對應的值
+                 const nestedValue = getNestedValue(v, key); // 遞迴尋找巢狀物件
+                if (nestedValue) return nestedValue;  // 如果找到值，則返回
             }
         }
-
-        .sidebar-header {
-            padding: 20px;
-            text-align: center;
-            font-size: 18px; 
-            font-weight: bold;
-            background-color: #f0f0f0;
-        }
-
-        .sidebar-menu {
-            flex: 1;
-            padding: 10px;
-        }
-
-        .menu-item {
-            padding: 15px; 
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.2s ease, color 0.2s ease;
-            color: #333;
-            font-size: 16px; 
-        }
-
-        .menu-item:hover {
-            background-color: #d9d9d9;
-            color: #000;
-        }
-
-        .menu-item.hidden {
-            display: none;
-        }
-
-        .header {
-            position: fixed; 
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1001; 
-            background-color: #8ab0ab;
-            color: white;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-            font-size: 20px; 
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #fafafa;
-            overflow: hidden;
-            padding-top: 50px; 
-        }
-
-        .header .menu-toggle {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .header .menu-toggle {
-                display: block;
-            }
-
-            .main-content {
-                flex: 1;
-                margin-left: 0;
-            }
-        }
-
-        /* 聊天窗口 */
-        .chat-window {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background-color: white;
-            max-height: calc(100vh - 100px);
-        }
-
-        .message {
-            display: flex;
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            margin: 5px 0;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease-in;
-            line-height: 1.6;
-            font-size: 16px;
-        }
-
-        .user-message {
-            align-self: flex-end;
-            background-color: #DCF8C6; 
-            justify-content: flex-end;
-        }
-
-        .bot-message {
-            align-self: flex-start;
-            background-color: #ECF5FF; 
-            justify-content: flex-start;
-        }
-
-        .message img {
-            max-width: 150px;
-            border-radius: 10px;
-        }
-
-        .chat-window {
-            scrollbar-width: thin;
-            scrollbar-color: #ccc transparent;
-        }
-
-        .chat-window::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .chat-window::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .chat-window::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 4px;
-        }
-
-        /* 新增工具列(toolbar)放置中英翻譯和返回聊天按鈕 */
-        .toolbar {
-            display: flex;
-            align-items: center;
-            padding: 5px 10px;
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
-            background-color: #f7f7f7;
-            gap: 10px;
-        }
-
-        .feature-button {
-            padding: 8px 15px;
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            white-space: nowrap;
-            font-size: 14px;
-        }
-
-        .feature-button:hover {
-            background-color: #6e928b;
-        }
-
-        .input-area {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            background-color: white;
-            gap: 10px;
-            flex-shrink: 0;
-            box-sizing: border-box;
-            width: 100%;
-        }
-
-        .upload-button {
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 15px;
-            cursor: pointer;
-            position: relative;
-            flex-shrink: 0; 
-        }
-
-        .upload-button:hover {
-            background-color: #6e928b;
-        }
-
-        .upload-button input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        #user-input {
-            flex: 1 1 auto; 
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-            box-sizing: border-box;
-            font-size: 16px; 
-        }
-
-        #send-button {
-            flex-shrink: 0; 
-            padding: 10px 20px;
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            white-space: nowrap; 
-            max-width: 100px; 
-        }
-
-        #send-button:hover {
-            background-color: #6e928b;
-        }
-
-        .image-preview {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-        }
-
-        .image-preview img {
-            max-width: 50px;
-            border-radius: 10px;
-        }
-
-        .image-preview .delete-button {
-            background-color: red;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* AI素養題產生器 */
-        .ai-generator-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom:20px;
-        }
-
-        .ai-generator-container h1 {
-            text-align: center;
-            color: #8ab0ab;
-            margin-bottom: 30px;
-            font-weight: bold;
-        }
-
-        .ai-generator-container .form-group {
-            margin-bottom: 20px;
-        }
-
-        .ai-generator-container label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .ai-generator-container input[type="text"],
-        .ai-generator-container textarea,
-        .ai-generator-container select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .ai-generator-container textarea {
-            min-height: 100px;
-        }
-
-        .ai-generator-container .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
-            margin-top:20px;
-        }
-
-        .ai-generator-container button {
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-            font-size: 18px;
-        }
-
-        .ai-generator-container button:hover {
-            background-color: #6e928b;
-            transform: scale(1.05);
-        }
-
-        .ai-generator-container .result-area {
-            display: none;
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .ai-generator-container .question-card {
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .ai-generator-container .question-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .ai-generator-container .question-options label {
-            display: block;
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .ai-generator-container .question-options label:hover {
-            background-color: #8ab0ab;
-            color: white;
-        }
-
-        .ai-generator-container .correct-answer {
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .ai-generator-container .wrong-answer {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .ai-generator-container .explanation {
-            margin-top: 10px;
-            font-style: italic;
-            color: #333;
-        }
-
-        .ai-generator-container .your-answer {
-            margin-top: 5px;
-        }
-
-        .ai-generator-container .submit-button {
-            display: none;
-            margin: 30px auto 0 auto;
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .ai-generator-container .submit-button:hover {
-            background-color: #6e928b;
-            transform: scale(1.05);
-        }
-
-        .ai-generator-container .loading {
-            text-align: center;
-            color: #333;
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-
-        /* 標籤切換 */
-        .tab-switch {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-        }
-
-        .tab-button {
-            padding: 10px;
-            flex-grow: 1;
-            text-align: center;
-            cursor: pointer;
-            background-color: #e9e9e9;
-            border: 1px solid #ccc;
-            border-radius: 4px 4px 0 0;
-            transition: background-color 0.3s;
-        }
-
-        .tab-button.active {
-            background-color: #fff;
-            border-bottom: 2px solid #8ab0ab;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* 教我解題 */
-        .solve-problem-container {
-            max-width: 800px;
-            margin: 0 auto 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .solve-problem-container h1 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #8ab0ab;
-        }
-
-        .solve-problem-container .tab-switch {
-            margin-bottom: 10px;
-        }
-
-        .solve-problem-container .tab-button {
-            font-size:16px;
-        }
-
-        .solve-problem-container .form-group {
-            margin-bottom: 20px;
-        }
-
-        .solve-problem-container label {
-            display: block;
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-
-        .solve-problem-container input,
-        .solve-problem-container textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .solve-problem-container .button-group {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .solve-problem-container button {
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .solve-problem-container button:hover {
-            background-color: #6e928b;
-            transform: scale(1.05);
-        }
-
-        .solve-problem-container .result-area {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .solve-problem-container .loading {
-            font-style: italic;
-            color: #888;
-        }
-
-        .solve-problem-container .question-card {
-            background-color: #f1f1f1;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
-
-        /* 新增提示顯示區塊 */
-        #hintArea {
-            display: none;
-            margin-top: 20px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        #reflectionArea {
-            display: none;
-            margin-top: 20px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        #hintContent, #reflectionContent {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        #showNextHintButton {
-            background-color: #8ab0ab;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            margin-top: 10px;
-        }
-
-        #showNextHintButton:hover {
-            background-color: #6e928b;
-            transform: scale(1.05);
-        }
-
-        /* 物理講義 */
-        .physics-lecture-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0; 
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .physics-lecture-container iframe {
-            width: 100%;
-            height: 100vh;
-            border: none;
-            border-radius: 8px;
-            background-color: #fff;
-        }
-
-        #loading-indicator {
-            animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* 計算機、蕃茄鐘 共用樣式 */
-        .physics-lecture-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0; 
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .physics-lecture-container iframe {
-            width: 100%;
-            height: 100vh;
-            border: none;
-            border-radius: 8px;
-            background-color: #fff;
-        }
-/* 新增選項按鈕的樣式 */
-.option-button {
-    background-color: #4CAF50; /* 綠色背景 */
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.option-button:hover {
-    background-color: #3e8e41; /* 深綠色背景 (滑鼠懸停時) */
-}
-
-.message-options {
-    margin-bottom: 10px; /* 與下方訊息間隔 */
-}
-
-#loading-indicator {
-            animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-/* 新增選項按鈕的樣式 */
-.option-button {
-    background-color: #4CAF50; /* 綠色背景 */
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.option-button:hover {
-    background-color: #3e8e41; /* 深綠色背景 (滑鼠懸停時) */
-}
-
-.message-options {
-    margin-bottom: 10px; /* 與下方訊息間隔 */
-}
+        return null; // 如果找不到指定的鍵，則返回 null
+    }
+
+
+    // 將圖片轉換為 Base64
+    async function convertImageToBase64(imageFile) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(imageFile);
+        });
+    }
+
+    // 事件監聽器綁定
+    imageTab.addEventListener('click', () => switchTab('image'));
+    textTab.addEventListener('click', () => switchTab('text'));
+    uploadImage.addEventListener('change', previewImage);
+    analyzeButton.addEventListener('click', analyzeInput);
+
+    // 暴露需要外部訪問的函數 (如果有的話)
+    return {
+        // ...
+    };
+})();
