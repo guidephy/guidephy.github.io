@@ -531,71 +531,98 @@ const chatModule = (() => {
     }
 
     // 生成筆記
-    async function generateNotes() {
-        if (thread.length === 0) {
-            alert('目前無聊天記錄，無法生成筆記。');
-            return;
-        }
-
-        // 要求用戶輸入帳號
-        const username = prompt('請輸入您的帳號：');
-        if (!username) {
-            alert('必須輸入帳號才能生成筆記。');
-            return;
-        }
-
-        // 獲取聊天記錄 (去除系統訊息)
-        const chatLog = thread
-            .filter(msg => msg.role !== 'system')
-            .map(entry => `${entry.role}: ${entry.parts[0].text}`)
-            .join('\n');
-
-        // 顯示載入指示器
-        appendMessage('正在生成筆記...', 'bot-message');
-
-        try {
-            // 發送到後端 Apps Script 函數
-            const response = await google.script.run
-                .withSuccessHandler(function(result) {
-                    // 移除載入指示器
-                    removeLastBotMessage();
-                    
-                    if (result.status === 'success') {
-                        appendMessage('筆記生成成功！已儲存至 Google 試算表。', 'bot-message');
-                        
-                        // 顯示檢視筆記選項
-                        const viewNotesButton = document.createElement('button');
-                        viewNotesButton.textContent = '檢視我的筆記';
-                        viewNotesButton.className = 'option-button';
-                        viewNotesButton.onclick = () => viewNotes(username);
-                        
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'message bot-message';
-                        messageDiv.appendChild(viewNotesButton);
-                        chatWindow.appendChild(messageDiv);
-                    } else {
-                        appendMessage(`筆記生成失敗：${result.error}`, 'bot-message');
-                    }
-                })
-                .withFailureHandler(function(error) {
-                    removeLastBotMessage();
-                    appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
-                })
-                .doPost({
-                    postData: {
-                        contents: JSON.stringify({ 
-                            chatLog: chatLog,
-                            username: username 
-                        })
-                    }
-                });
-
-        } catch (error) {
-            removeLastBotMessage();
-            appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
-        }
+  async function generateNotes() {
+    if (thread.length === 0) {
+        alert('目前無聊天記錄，無法生成筆記。');
+        return;
     }
 
+    // 要求用戶輸入帳號
+    const username = prompt('請輸入您的帳號：');
+    if (!username) {
+        alert('必須輸入帳號才能生成筆記。');
+        return;
+    }
+
+    // 獲取聊天記錄 (去除系統訊息)
+    const chatLog = thread
+        .filter(msg => msg.role !== 'system')
+        .map(entry => `${entry.role}: ${entry.parts[0].text}`)
+        .join('\n');
+
+    // 顯示載入指示器
+    appendMessage('正在生成筆記...', 'bot-message');
+
+    try {
+        // 生成摘要
+        const summaryResponse = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `請以繁體中文回答，不得使用簡體字。
+請將以下對話內容做重點摘要，並以條列方式呈現主要討論內容和結論：
+
+${chatLog}
+
+請用以下格式回應：
+主要討論主題：
+1. 
+2. 
+3. 
+
+重要結論：
+1. 
+2. 
+3. `
+                    }]
+                }]
+            })
+        });
+
+        const summaryData = await summaryResponse.json();
+        const summary = summaryData.candidates[0].content.parts[0].text;
+
+        // 儲存到 Google Apps Script
+        google.script.run
+            .withSuccessHandler(function(result) {
+                // 移除載入指示器
+                removeLastBotMessage();
+                
+                if (result && result.status === 'success') {
+                    appendMessage('筆記生成成功！已儲存至 Google 試算表。', 'bot-message');
+                    
+                    // 顯示檢視筆記選項
+                    const viewNotesButton = document.createElement('button');
+                    viewNotesButton.textContent = '檢視我的筆記';
+                    viewNotesButton.className = 'option-button';
+                    viewNotesButton.onclick = () => viewNotes(username);
+                    
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message bot-message';
+                    messageDiv.appendChild(viewNotesButton);
+                    chatWindow.appendChild(messageDiv);
+                } else {
+                    appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
+                }
+            })
+            .withFailureHandler(function(error) {
+                removeLastBotMessage();
+                appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+            })
+            .doPost({
+                chatLog: summary,
+                username: username
+            });
+
+    } catch (error) {
+        removeLastBotMessage();
+        appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+    }
+}
     // 檢視筆記函數
     async function viewNotes(username) {
         appendMessage('正在載入筆記...', 'bot-message');
