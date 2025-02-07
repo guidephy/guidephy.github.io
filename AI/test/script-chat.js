@@ -552,7 +552,7 @@ const chatModule = (() => {
         try {
             // 發送到後端 Apps Script 函數
             const response = await fetch(
-                'https://script.google.com/macros/s/AKfycbw9WL-oXUkVS_jCuIw_7ROPuVqrAyrOD4GkaJWkakxsjp0dDWN1l0L_oaXjqjb5haw/exec', // 替換為你的 Apps Script 發布後的 URL
+                'https://script.google.com/macros/s/AKfycbxCOESVV6Bs1IIwNZ3ch3tIqP3M9J8ehgdYmlBvdZNwoLL9er_MqP6i4cGvh94AvmdJ/exec', // 替換為你的 Apps Script 發布後的 URL
                 {
                     method: 'POST',
                     headers: {
