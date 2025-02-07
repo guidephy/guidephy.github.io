@@ -1,555 +1,793 @@
-// script-chat.js (聊天功能)
-
-const chatModule = (() => {
-    // 獲取 DOM 元素 (與之前相同)
-    const uploadImage = document.getElementById('upload-image');
-    const imagePreviewContainer = document.getElementById('image-preview-container');
-    const sendButton = document.getElementById('send-button');
-    const userInput = document.getElementById('user-input');
-    const chatWindow = document.getElementById('chat-window');
-    const studyPlanButton = document.getElementById('study-plan-button');
-
-
-    // 圖片上傳、清除圖片、聊天發送、處理使用者文字訊息、顯示/隱藏載入指示器、獲取機器人回覆、判斷文字類型、獲取翻譯、添加訊息到聊天視窗、取得現在時間給予的問候語 (這些函數都與之前相同，不做更動)
-      // 圖片上傳（聊天）
-    uploadImage.addEventListener('change', (event) => {
-        // ... (與之前相同)
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const selectedImage = e.target.result;
-                imagePreviewContainer.innerHTML = `
-                    <img src="${selectedImage}" alt="圖片預覽">
-                    <div class="delete-button" onclick="chatModule.clearImage()">x</div>
-                `;
-                imagePreviewContainer.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreviewContainer.style.display = 'none';
-        }
-    });
-
-     // 清除圖片
-    function clearImage() {
-         // ... (與之前相同)
-        imagePreviewContainer.innerHTML = '';
-        imagePreviewContainer.style.display = 'none';
-        uploadImage.value = '';
-    };
-
-
-    // 聊天發送
-    sendButton.addEventListener('click', async () => {
-        // ... (與之前相同)
-        const message = userInput.value.trim();
-        if (!message && !uploadImage.value) return;
-
-        if (uploadImage.files && uploadImage.files[0]) {
-             const file = uploadImage.files[0];
-             const reader = new FileReader();
-             reader.onload = async (e) => {
-                const selectedImageBase64 = e.target.result;
-                 appendMessage('（圖片已傳送）', 'user-message');
-                thread.push({
-                    role: 'user',
-                    parts: [{ text: '圖片訊息', image: selectedImageBase64 }],
-                });
-                 clearImage();
-                await handleUserTextMessage(message);
-            };
-             reader.readAsDataURL(file);
-        } else {
-            await handleUserTextMessage(message);
-        }
-    });
-
-    // 處理使用者文字訊息
-    async function handleUserTextMessage(message) {
-         // ... (與之前相同)
-        if (message) {
-            appendMessage(message, 'user-message');
-            thread.push({
-                role: 'user',
-                parts: [{ text: message }],
-            });
+ /* 主頁樣式 */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column; 
+            min-height: 100vh;
+            background-color: #f7f6f2;
         }
 
-        userInput.value = '';
-        showLoadingIndicator();
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
 
-        try {
-             let botReply;
-            if (translationMode) {
-                botReply = await fetchTranslation(message);
-            } else {
-                botReply = await fetchBotReply(thread);
+        .overlay.show {
+            display: block;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed; 
+                height: 100%;
+                top: 0;
+                left: 0;
+                transform: translateX(-250px);
             }
-             hideLoadingIndicator();
-             appendMessage(botReply, 'bot-message');
-            thread.push({
-                role: 'model',
-                parts: [{ text: botReply }],
-            });
-        } catch (error) {
-             hideLoadingIndicator();
-             appendMessage(`錯誤：${error.message}`, 'bot-message');
-        }
-    }
 
+            .sidebar.show {
+                transform: translateX(0);
+            }
 
-    // 顯示載入指示器
-    function showLoadingIndicator() {
-         // ... (與之前相同)
-        const existingIndicator = document.getElementById('loading-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove(); //如果指示器存在，則先移除
+            .input-area {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1002; 
+                padding: 10px;
+                background-color: white;
+                border-top: 1px solid #ddd;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .chat-window, .external-content {
+                flex: 1;
+                overflow-y: auto;
+                padding-bottom: 70px; 
+            }
+
+            .main-content {
+                margin-top: 50px; 
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto; 
+                padding-bottom: 70px;
+            }
         }
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.id = 'loading-indicator';
-        loadingIndicator.textContent = '正在思考中...';
-        loadingIndicator.style.cssText = `
+
+        @media (min-width: 769px) {
+            .sidebar {
+                position: fixed;
+                top: 50px; 
+                left: 0;
+                height: calc(100vh - 50px);
+                width: 250px;
+                overflow-y: auto;
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 250px; 
+                padding-top: 50px; 
+                display: flex;
+                flex-direction: column;
+                height: calc(100vh - 50px);
+            }
+
+            .chat-window {
+                flex: 1;
+                overflow-y: auto;
+                max-height: calc(100vh - 150px); 
+            }
+
+            .input-area {
+                position: relative; 
+                width: 100%;
+                margin-top: auto; 
+                padding: 10px;
+                background-color: white;
+                border-top: 1px solid #ddd;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .external-content {
+                flex: 1;
+                overflow-y: auto;
+            }
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            font-size: 18px; 
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .menu-item {
+            padding: 15px; 
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            color: #333;
+            font-size: 16px; 
+        }
+
+        .menu-item:hover {
+            background-color: #d9d9d9;
+            color: #000;
+        }
+
+        .menu-item.hidden {
+            display: none;
+        }
+
+        .header {
+            position: fixed; 
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001; 
+            background-color: #8ab0ab;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+            font-size: 20px; 
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fafafa;
+            overflow: hidden;
+            padding-top: 50px; 
+        }
+
+        .header .menu-toggle {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .header .menu-toggle {
+                display: block;
+            }
+
+            .main-content {
+                flex: 1;
+                margin-left: 0;
+            }
+        }
+
+        /* 聊天窗口 */
+        .chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: white;
+            max-height: calc(100vh - 100px);
+        }
+
+        .message {
+            display: flex;
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 5px 0;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #DCF8C6; 
+            justify-content: flex-end;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: #ECF5FF; 
+            justify-content: flex-start;
+        }
+
+        .message img {
+            max-width: 150px;
+            border-radius: 10px;
+        }
+
+        .chat-window {
+            scrollbar-width: thin;
+            scrollbar-color: #ccc transparent;
+        }
+
+        .chat-window::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-window::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-window::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 4px;
+        }
+
+        /* 新增工具列(toolbar)放置中英翻譯和返回聊天按鈕 */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            background-color: #f7f7f7;
+            gap: 10px;
+        }
+
+        .feature-button {
+            padding: 8px 15px;
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .feature-button:hover {
+            background-color: #6e928b;
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background-color: white;
+            gap: 10px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .upload-button {
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0; 
+        }
+
+        .upload-button:hover {
+            background-color: #6e928b;
+        }
+
+        .upload-button input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        #user-input {
+            flex: 1 1 auto; 
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            box-sizing: border-box;
+            font-size: 16px; 
+        }
+
+        #send-button {
+            flex-shrink: 0; 
+            padding: 10px 20px;
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap; 
+            max-width: 100px; 
+        }
+
+        #send-button:hover {
+            background-color: #6e928b;
+        }
+
+        .image-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .image-preview img {
+            max-width: 50px;
+            border-radius: 10px;
+        }
+
+        .image-preview .delete-button {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* AI素養題產生器 */
+        .ai-generator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
+            padding: 30px;
             border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom:20px;
+        }
+
+        .ai-generator-container h1 {
+            text-align: center;
+            color: #8ab0ab;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .ai-generator-container .form-group {
+            margin-bottom: 20px;
+        }
+
+        .ai-generator-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .ai-generator-container input[type="text"],
+        .ai-generator-container textarea,
+        .ai-generator-container select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-generator-container textarea {
+            min-height: 100px;
+        }
+
+        .ai-generator-container .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            margin-top:20px;
+        }
+
+        .ai-generator-container button {
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 18px;
+        }
+
+        .ai-generator-container button:hover {
+            background-color: #6e928b;
+            transform: scale(1.05);
+        }
+
+        .ai-generator-container .result-area {
+            display: none;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-generator-container .question-card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .ai-generator-container .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-generator-container .question-options label {
+            display: block;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .ai-generator-container .question-options label:hover {
+            background-color: #8ab0ab;
+            color: white;
+        }
+
+        .ai-generator-container .correct-answer {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .ai-generator-container .wrong-answer {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .ai-generator-container .explanation {
+            margin-top: 10px;
             font-style: italic;
-            color: #555;
-        `;
-        chatWindow.appendChild(loadingIndicator);
-
-        // 自動滾動到最底部
-        chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: 'smooth',
-        });
-    }
-
-    // 隱藏載入指示器
-    function hideLoadingIndicator() {
-         // ... (與之前相同)
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) {
-            loadingIndicator.remove(); //如果指示器存在，則移除
-        }
-    }
-
-    // 獲取機器人回覆
-    async function fetchBotReply(thread) {
-         // ... (與之前相同)
-        // 系統訊息：請 AI 以繁體中文回答，不得使用簡體字
-        const systemMessage = {
-            role: 'user',
-            parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }],
-        };
-
-        const newThread = [systemMessage, ...thread];
-
-        const response = await fetch(geminiurl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: newThread, // 將系統訊息和對話紀錄一起發送
-            }),
-        });
-        const data = await response.json();
-        // 檢查回應中是否有 candidates，且 candidates 陣列長度大於 0
-        if (data.candidates && data.candidates.length > 0) {
-          // 嘗試取得第一個 candidate 的 content 中的 text
-          // 如果 text 不存在，則回傳一個預設訊息
-            return data.candidates[0].content.parts[0].text || '未能獲取有效回應';
-        } else {
-            return '未能獲取有效回應'; // 如果沒有 candidates 或陣列為空，回傳錯誤訊息
-        }
-    }
-
-   // 判斷文字類型：中文短語、英文單字、句子、段落
-   function determineTextType(inputText) {
-       // ... (與之前相同)
-       const hasChinese = /[\u4E00-\u9FFF]/.test(inputText); // 檢查是否包含中文字符
-       const words = inputText.trim().split(/\s+/); // 將輸入文字以空格分割成單詞陣列
-
-        if (hasChinese) {
-            if (words.length < 5) {
-                return "chinese_word"; // 如果包含中文且單詞數量少於 5，則為中文短語
-            } else {
-                return "paragraph"; // 否則為段落
-            }
-        } else {
-            if (words.length <= 2) {
-                return "english_word"; // 如果不包含中文且單詞數量不超過 2，則為英文單字
-            } else {
-                return "paragraph"; // 否則為段落
-            }
-        }
-    }
-
-
-    // 獲取翻譯
-    async function fetchTranslation(inputText) {
-        // ... (與之前相同)
-        let prompt = `請以繁體中文回答，不得使用簡體字。`; // 系統提示，要求 AI 使用繁體中文
-
-        prompt +=`現在你是中英翻譯助理。根據使用者輸入的內容進行如下處理：
-
-1. 如果輸入為中文短語或單詞：
-   - 請提供該中文的對應英文翻譯。
-   - 列出該英文翻譯所有可能的詞性。
-   - 對於每個詞性，詳細列出該詞性的所有可能解釋。
-   - 為每個解釋提供一個單獨的英文例句，並附上該例句的中文翻譯（中文翻譯:...在英文例句的下一行顯示，並在每個解釋之間增加空行）。
-
-   格式：
-   英文翻譯：...
-   詞性與解釋：
-     - 詞性1：
-       1. 解釋1：...
-          英文例句：...
-          中文翻譯：...
-       
-       2. 解釋2：...
-          英文例句：...
-          中文翻譯：...
-       
-     - 詞性2：
-       1. 解釋1：...
-          英文例句：...
-          中文翻譯：...
-       
-   輸入: ${inputText}
-
-2. 如果輸入為英文單詞：
-   - 請提供該英文的中文翻譯。
-   - 列出該單詞所有可能的詞性。
-   - 對於每個詞性，詳細列出該詞性的所有可能解釋。
-   - 為每個解釋提供一個單獨的英文例句，並附上該例句的中文翻譯（中文翻譯:...在英文例句的下一行顯示，並在每個解釋之間增加空行）。
-
-   格式：
-   中文翻譯：...
-   詞性與解釋：
-     - 詞性1：
-       1. 解釋1：...
-          英文例句：...
-          中文翻譯：...
-       
-       2. 解釋2：...
-          英文例句：...
-          中文翻譯：...
-       
-     - 詞性2：
-       1. 解釋1：...
-          英文例句：...
-          中文翻譯：...
-       
-   輸入: ${inputText}
-
-3. 如果輸入為中文或英文句子：
-   - 將其翻譯為對應的另一種語言（英文或中文）。
-   - 提供翻譯後的每個句子的文法結構與用途說明（如時態、語態）。
-
-   格式：
-   翻譯結果：...
-   文法說明：...
-
-4. 如果輸入為一段較長的文章：
-   - 將其翻譯為對應的另一種語言（英文或中文）。
-   - 提供整段文章的文法重點和寫作風格分析。
-
-   格式：
-   翻譯結果：...
-   文法重點：...
-   寫作風格分析：...
-
-請確保輸出簡潔、清晰，並保持條例清晰易讀。`;
-
-
-        const response = await fetch(geminiurl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }], // 使用 prompt 作為請求內容
-            }),
-        });
-
-        let data;
-        try {
-            data = await response.json(); // 嘗試解析回應為 JSON
-        } catch (e) {
-            return '未能獲取有效回應'; // 如果解析失敗，則回傳錯誤訊息
+            color: #333;
         }
 
-        // 檢查 data 是否有效，以及 candidates 陣列和其中的 text 是否存在
-        if (
-            data &&
-            data.candidates &&
-            data.candidates.length > 0 &&
-            data.candidates[0].content &&
-            data.candidates[0].content.parts &&
-            data.candidates[0].content.parts[0].text
-        ) {
-            return data.candidates[0].content.parts[0].text; // 如果一切正常，返回翻譯結果
-        } else {
-            return '未能獲取有效回應'; // 如果任何檢查失敗，回傳錯誤訊息
-        }
-    }
-
-    // 添加訊息到聊天視窗
-    function appendMessage(content, className) {
-         // ... (與之前相同)
-        const message = document.createElement('div');
-        message.classList.add('message', className);
-        const formattedContent = formatText(content); // 使用 formatText 函數格式化內容
-        const text = document.createElement('span');
-        text.innerHTML = formattedContent; // 設定 innerHTML，允許 HTML 標籤生效
-        message.appendChild(text);
-        chatWindow.appendChild(message);
-
-        // 延遲滾動，確保內容加載完成
-        setTimeout(() => {
-            chatWindow.scrollTo({
-                top: chatWindow.scrollHeight,
-                behavior: 'smooth',
-            });
-        }, 100);
-    }
-
-     // 取得現在時間給予的問候語
-    function getGreeting() {
-         // ... (與之前相同)
-        const now = new Date();
-        const hour = now.getHours();
-
-        if (hour > 6 && hour < 12) {
-            return '早安！';
-        } else if (hour >= 12 && hour < 14) {
-            return '午安！';
-        } else {
-            return 'Hello！';
-        }
-    }
-    const greeting = getGreeting();
-    appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
-
-    // --- 自主學習計畫相關程式碼 (大幅修改) ---
-
-    let studyPlanStep = 0;
-    let studyPlanData = {};
-    let hasIdea = null; // 新增：追蹤使用者是否有想法
-
-    studyPlanButton.addEventListener('click', () => {
-        startStudyPlan();
-    });
-
-    async function startStudyPlan() {
-        studyPlanStep = 1;
-        studyPlanData = {};
-        hasIdea = null; // 重置
-        appendMessage("好的，我們開始規劃你的自主學習計畫！首先，請問你對學習主題是否已經有初步的想法？", "bot-message");
-
-        // 建立選項按鈕
-        const optionsDiv = document.createElement('div');
-        optionsDiv.className = 'message-options';
-        const optionYes = createOptionButton('已有想法', () => handleIdeaSelection(true));
-        const optionNo = createOptionButton('完全沒想法', () => handleIdeaSelection(false));
-        optionsDiv.appendChild(optionYes);
-        optionsDiv.appendChild(optionNo);
-        chatWindow.appendChild(optionsDiv);
-          // 自動滾動到最底部
-        chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: 'smooth',
-        });
-    }
-    // 建立選項按鈕的函數
-    function createOptionButton(text, clickHandler) {
-        const button = document.createElement('button');
-        button.textContent = text;
-        button.className = 'option-button'; // 新增樣式
-        button.addEventListener('click', () => {
-            clickHandler();
-            // 移除所有選項按鈕 (點擊後消失)
-            const options = document.querySelectorAll('.message-options');
-            options.forEach(option => option.remove());
-
-        });
-        return button;
-    }
-
-    // 處理使用者選擇「已有想法」或「完全沒想法」
-    function handleIdeaSelection(idea) {
-        hasIdea = idea;
-        if (idea) {
-            studyPlanStep = 2; // 直接進入主題確認
-            appendMessage("太好了！請告訴我你感興趣的學習主題或科目。", "bot-message");
-        } else {
-            studyPlanStep = 'A1'; // 進入「完全沒想法」的引導流程
-            appendMessage("沒關係，我們一起來探索！首先，你平常對哪些事物比較感興趣？（例如：運動、音樂、科技、歷史...）", "bot-message");
-        }
-    }
-
-    // 處理自主學習計畫的輸入 (根據不同步驟)
-    async function handleStudyPlanInput(message) {
-        appendMessage(message, 'user-message'); // 顯示使用者的訊息。  所有地方都先顯示
-
-        if (hasIdea === false && studyPlanStep.startsWith('A')) {
-            // 「完全沒想法」的引導流程
-            switch (studyPlanStep) {
-                case 'A1':
-                    studyPlanData.interests = message;
-                    studyPlanStep = 'A2';
-                    appendMessage(`瞭解了，你對 ${message} 感興趣。在這些興趣中，有沒有哪個領域是你特別想深入了解的？`, "bot-message");
-                    break;
-                case 'A2':
-                    studyPlanData.field = message;
-                    studyPlanStep = 'A3';
-                    appendMessage(`很好！在 ${message} 這個領域中，有沒有哪個特定的主題或概念是你覺得特別有趣的？`, "bot-message");
-                    break;
-                case 'A3':
-                    studyPlanData.topic = message;
-                    studyPlanStep = 'A4';
-                    appendMessage(`不錯喔！那麼關於 ${message}，你有沒有想要進一步探索或研究的方向？`, "bot-message");
-                    break;
-                case 'A4':
-                    studyPlanData.direction = message;
-                    studyPlanStep = 2; // 過渡到「已有想法」的流程
-                    appendMessage(`太棒了！看來你對自主學習已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
-                    break;
-            }
-        } else {
-            // 「已有想法」或過渡後的流程
-            switch (studyPlanStep) {
-                case 2:
-                    studyPlanData.subject = message;
-                    studyPlanStep = 3;
-                    appendMessage(`瞭解了，你想以 ${message} 作為專題題目。你對 ${message} 目前的理解程度如何？（例如：完全不了解、稍微知道一些、已經有基礎）`, "bot-message");
-                    break;
-                case 3:
-                    studyPlanData.level = message;
-                    studyPlanStep = 4;
-                    appendMessage(`明白了。最後，你有沒有特別想在哪個時間點達成什麼學習目標？（例如：學期結束前掌握基本概念、三個月後能夠獨立解題）`, "bot-message");
-                    break;
-                case 4:
-                    studyPlanData.goal = message;
-                    studyPlanStep = 0; // 重置步驟
-                    hasIdea = null; // 重置
-                    const plan = await generateStudyPlan(studyPlanData);
-                    appendMessage(plan, "bot-message");
-                     // 清空先前的對話，只保留學習計畫
-                    thread = [{ role: 'model', parts: [{ text: plan }] }];
-                    break;
-            }
-        }
-    }
-
-
-    // 生成學習計畫 (向 Gemini API 發送請求)
-    async function generateStudyPlan(data) {
-         // ... (與之前相同, prompt 內容不變)
-        showLoadingIndicator();
-        const prompt = `請以繁體中文回答，不得使用簡體字。
-請扮演一位具有豐富教學經驗的老師，為學生制定一份為期18週的自主學習計畫。
-
-學生提供的資訊如下：
-* 學習主題/科目：${data.subject}
-* 目前理解程度：${data.level}
-* 學習目標：${data.goal}
-
-請根據這些資訊，設計一份詳細的學習計畫，包含：
-1. **每週的學習主題**：清楚列出每週要學習的具體內容。
-2. **學習活動建議**：提供多樣化的學習活動（例如：閱讀教材、觀看影片、做練習題、實作 প্রকল্প、小考）。
-3. **學習資源**：推薦相關的學習資源（例如：教科書章節、網站、影片）。
-4. **進度評估方式**：建議學生如何評估自己的學習進度（例如：每週自我測驗、與朋友討論）。
-5. 總體學習目標回顧: 計畫最後再次強調整體18週的學習目標。
-
-請以條列式、清晰易懂的方式呈現學習計畫，並在適當的地方加入鼓勵的話語。
-`;
-
-        try {
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                }),
-            });
-            const responseData = await response.json();
-            hideLoadingIndicator();
-            return getNestedValue(responseData, 'text') || '無法生成學習計畫，請再試一次。';
-
-        } catch (error) {
-            hideLoadingIndicator();
-            return `生成學習計畫時發生錯誤：${error.message}`;
-        }
-    }
-// 從巢狀物件中取得指定鍵的值
-    function getNestedValue(data, key) {
-        // 如果 data 是物件且不為 null
-        if (typeof data === 'object' && data !== null) {
-             for (const [k, v] of Object.entries(data)) {  // 遍歷物件的鍵值對
-                if (k === key) return v; // 如果找到指定的鍵，則返回對應的值
-                 const nestedValue = getNestedValue(v, key); // 遞迴尋找巢狀物件
-                if (nestedValue) return nestedValue;  // 如果找到值，則返回
-            }
-        }
-        return null; // 如果找不到指定的鍵，則返回 null
-    }
-    // 覆寫 handleUserTextMessage，加入自主學習計畫的處理
-    async function handleUserTextMessage(message) {
-        if (studyPlanStep > 0) {
-            // appendMessage(message, 'user-message'); // 顯示使用者訊息, 統一在 handleStudyPlanInput 處理
-            await handleStudyPlanInput(message);
-            return;
+        .ai-generator-container .your-answer {
+            margin-top: 5px;
         }
 
-        // ... (其他部分與之前相同)
-        if (message) {
-            appendMessage(message, 'user-message');
-            thread.push({
-                role: 'user',
-                parts: [{ text: message }],
-            });
+        .ai-generator-container .submit-button {
+            display: none;
+            margin: 30px auto 0 auto;
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
-        userInput.value = '';
-        showLoadingIndicator();
-
-        try {
-             let botReply;
-            if (translationMode) {
-                botReply = await fetchTranslation(message);
-            } else {
-                botReply = await fetchBotReply(thread);
-            }
-             hideLoadingIndicator();
-             appendMessage(botReply, 'bot-message');
-            thread.push({
-                role: 'model',
-                parts: [{ text: botReply }],
-            });
-        } catch (error) {
-             hideLoadingIndicator();
-             appendMessage(`錯誤：${error.message}`, 'bot-message');
+        .ai-generator-container .submit-button:hover {
+            background-color: #6e928b;
+            transform: scale(1.05);
         }
-    }
 
-      // 新增：startStudyPlan 函數 (供外部呼叫)
-    function startStudyPlanFn() {
-        startStudyPlan();
-    }
+        .ai-generator-container .loading {
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 20px;
+        }
 
-    // 暴露需要外部訪問的函數
-    return {
-        clearImage,
-        appendMessage,
-        startStudyPlan: startStudyPlanFn // 暴露 startStudyPlan
-    };
-})();
+        /* 標籤切換 */
+        .tab-switch {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+
+        .tab-button {
+            padding: 10px;
+            flex-grow: 1;
+            text-align: center;
+            cursor: pointer;
+            background-color: #e9e9e9;
+            border: 1px solid #ccc;
+            border-radius: 4px 4px 0 0;
+            transition: background-color 0.3s;
+        }
+
+        .tab-button.active {
+            background-color: #fff;
+            border-bottom: 2px solid #8ab0ab;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 教我解題 */
+        .solve-problem-container {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .solve-problem-container h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #8ab0ab;
+        }
+
+        .solve-problem-container .tab-switch {
+            margin-bottom: 10px;
+        }
+
+        .solve-problem-container .tab-button {
+            font-size:16px;
+        }
+
+        .solve-problem-container .form-group {
+            margin-bottom: 20px;
+        }
+
+        .solve-problem-container label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .solve-problem-container input,
+        .solve-problem-container textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .solve-problem-container .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .solve-problem-container button {
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .solve-problem-container button:hover {
+            background-color: #6e928b;
+            transform: scale(1.05);
+        }
+
+        .solve-problem-container .result-area {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .solve-problem-container .loading {
+            font-style: italic;
+            color: #888;
+        }
+
+        .solve-problem-container .question-card {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        /* 新增提示顯示區塊 */
+        #hintArea {
+            display: none;
+            margin-top: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #reflectionArea {
+            display: none;
+            margin-top: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #hintContent, #reflectionContent {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        #showNextHintButton {
+            background-color: #8ab0ab;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 10px;
+        }
+
+        #showNextHintButton:hover {
+            background-color: #6e928b;
+            transform: scale(1.05);
+        }
+
+        /* 物理講義 */
+        .physics-lecture-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0; 
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .physics-lecture-container iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        #loading-indicator {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 計算機、蕃茄鐘 共用樣式 */
+        .physics-lecture-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0; 
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .physics-lecture-container iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+/* 新增選項按鈕的樣式 */
+.option-button {
+    background-color: #4CAF50; /* 綠色背景 */
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.option-button:hover {
+    background-color: #3e8e41; /* 深綠色背景 (滑鼠懸停時) */
+}
+
+.message-options {
+    margin-bottom: 10px; /* 與下方訊息間隔 */
+}
+
+#loading-indicator {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+/* 新增選項按鈕的樣式 */
+.option-button {
+    background-color: #4CAF50; /* 綠色背景 */
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.option-button:hover {
+    background-color: #3e8e41; /* 深綠色背景 (滑鼠懸停時) */
+}
+
+.message-options {
+    margin-bottom: 10px; /* 與下方訊息間隔 */
+}
