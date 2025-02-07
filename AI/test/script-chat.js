@@ -531,7 +531,7 @@ const chatModule = (() => {
     }
 
     // 生成筆記
-  async function generateNotes() {
+async function generateNotes() {
     if (thread.length === 0) {
         alert('目前無聊天記錄，無法生成筆記。');
         return;
@@ -614,8 +614,8 @@ ${chatLog}
                 appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
             })
             .doPost({
-                chatLog: summary,
-                username: username
+                username: username,  // 直接傳遞參數，不需要包在 postData 中
+                chatLog: summary
             });
 
     } catch (error) {
@@ -623,6 +623,7 @@ ${chatLog}
         appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
     }
 }
+    
     // 檢視筆記函數
     async function viewNotes(username) {
         appendMessage('正在載入筆記...', 'bot-message');
