@@ -469,7 +469,7 @@ const chatModule = (() => {
                 case 3:
                     studyPlanData.level = selectedOption;
                     studyPlanStep = 4;
-                    appendMessage(`明白了。最後，你有沒有特別想在哪個時間點達成什麼學習目標？（例如：學期結束前掌握基本概念、三個月後能夠獨立解題）`, "bot-message");
+                    appendMessage(`明白了。最後，你有沒有特別想在哪個時間點達成什麼學習目標？（例如：學期結束前掌握基本概念、半年後能參加科展比賽、高二投稿小論文…等）`, "bot-message");
                     break;
                 case 4:
                     studyPlanData.goal = selectedOption;
