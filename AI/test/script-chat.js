@@ -431,7 +431,7 @@ const chatModule = (() => {
                     studyPlanData.direction = selectedOption;
                     hasIdea = true;
                     studyPlanStep = 2;
-                    appendMessage(`太棒了！看來你對自主學習已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
+                    appendMessage(`太棒了！看來你對自主學習已經已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
                     break;
             }
         } else {
@@ -549,20 +549,30 @@ const chatModule = (() => {
         // 顯示載入指示器
         appendMessage('正在生成筆記...', 'bot-message');
 
+        console.log('要發送到後端的聊天記錄：', chatText);
+
         try {
-            // 發送到後端 Apps Script 函數
-            const response = await fetch(
-                'https://script.google.com/macros/s/AKfycbxCOESVV6Bs1IIwNZ3ch3tIqP3M9J8ehgdYmlBvdZNwoLL9er_MqP6i4cGvh94AvmdJ/exec', // 替換為你的 Apps Script 發布後的 URL
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ chatLog: chatText }),
-                }
-            );
+            // 修改這裡，使用新的 Google Apps Script 網路應用程式的 URL
+            const url = 'https://script.google.com/macros/s/[YOUR_NEW_DEPLOYMENT_ID]/exec'; // 替換為你的 Apps Script 發布後的 URL
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ chatLog: chatText }),
+            });
+
+            console.log('fetch() 的回應物件：', response); // 檢查回應物件
+
+            if (!response.ok) {
+                // 檢查 HTTP 狀態碼
+                console.error('HTTP 錯誤：', response.status);
+                throw new Error(`HTTP 錯誤！狀態：${response.status}`);
+            }
 
             const data = await response.json();
+
+            console.log('從後端收到的 JSON 資料：', data);
 
             // 移除載入指示器
             removeLastBotMessage();
@@ -574,6 +584,7 @@ const chatModule = (() => {
             }
         } catch (error) {
             removeLastBotMessage();
+            console.error('發生 fetch 錯誤：', error);
             appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
         }
     }
