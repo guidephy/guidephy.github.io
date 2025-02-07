@@ -1,9 +1,4 @@
 // script-chat.js (聊天功能)
-// 宣告全域變數
-let thread = []; // 儲存聊天記錄
-const geminiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-pro-exp:generateContent?key=YOUR_API_KEY'; // 請替換為您的 Gemini API URL
-let translationMode = false; // 是否為翻譯模式
-
 const chatModule = (() => {
     // 獲取 DOM 元素
     const uploadImage = document.getElementById('upload-image');
@@ -14,7 +9,7 @@ const chatModule = (() => {
     const studyPlanButton = document.getElementById('study-plan-button');
     const translateButton = document.getElementById('translate-button');
     const returnToChatButton = document.getElementById('return-to-chat-button');
-    const generateNotesButton = document.getElementById('generate-notes-button'); // 新增
+    const generateNotesButton = document.getElementById('generate-notes-button');
 
     // 學習計畫相關變數
     let studyPlanStep = 0;
@@ -209,7 +204,7 @@ const chatModule = (() => {
         studyPlanStep = 1;
         studyPlanData = {};
         hasIdea = null;
-        setInputState(false);  // 確保輸入被啟用
+        setInputState(false);
         appendMessage("好的，我們開始規劃你的自主學習計畫！首先，請問你對學習主題是否已經有初步的想法？", "bot-message");
 
         const optionsDiv = document.createElement('div');
@@ -395,7 +390,7 @@ const chatModule = (() => {
             button.textContent = direction;
             button.className = 'option-button';
             button.addEventListener('click', () => {
-                handleStudyPlanInput(topic);
+                handleStudyPlanInput(direction);
                 const options = document.querySelectorAll('.message-options');
                 options.forEach(option => option.remove());
             });
@@ -446,18 +441,15 @@ const chatModule = (() => {
                     studyPlanStep = 3;
                     appendMessage(`瞭解了，你想以${selectedOption}作為專題題目。你對${selectedOption}目前的理解程度如何？`, "bot-message");
 
-                    // 創建理解程度選項按鈕
                     const understandingOptionsDiv = document.createElement('div');
                     understandingOptionsDiv.className = 'message-options';
 
-                    // 定義理解程度選項
                     const understandingLevels = [
                         "完全不了解",
                         "稍微知道一些",
                         "已經有基礎"
                     ];
 
-                    // 為每個理解程度創建按鈕
                     understandingLevels.forEach(level => {
                         const button = document.createElement('button');
                         button.textContent = level;
@@ -485,12 +477,10 @@ const chatModule = (() => {
                     studyPlanData.goal = selectedOption;
                     const plan = await generateStudyPlan(studyPlanData);
                     appendMessage(plan, "bot-message");
-                    // 重置狀態
                     isStudyPlanActive = false;
                     studyPlanStep = 0;
                     hasIdea = null;
                     thread = [{ role: 'model', parts: [{ text: plan }] }];
-                    // 禁用輸入
                     setInputState(true);
                     break;
             }
@@ -540,7 +530,7 @@ const chatModule = (() => {
         }
     }
 
-    // 生成摘要筆記
+    // 生成筆記
     async function generateNotes() {
         if (thread.length === 0) {
             alert('目前無聊天記錄，無法生成筆記。');
@@ -548,48 +538,39 @@ const chatModule = (() => {
         }
 
         // 獲取聊天記錄 (去除系統訊息)
-        const chatLog = thread.filter(msg => msg.role !== 'system');
-        const chatText = chatLog.map(entry => `${entry.role}: ${entry.parts[0].text}`).join('\n');
+        const chatLog = thread
+            .filter(msg => msg.role !== 'system')
+            .map(entry => `${entry.role}: ${entry.parts[0].text}`)
+            .join('\n');
 
         // 顯示載入指示器
         appendMessage('正在生成筆記...', 'bot-message');
 
-        console.log('要發送到後端的聊天記錄：', chatText);
-
         try {
-            // 修改這裡，使用新的 Google Apps Script 網路應用程式的 URL
-            const url = 'https://script.google.com/macros/s/[YOUR_NEW_DEPLOYMENT_ID]/exec'; // 替換為你的 Apps Script 發布後的 URL
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ chatLog: chatText }),
-            });
+            // 發送到後端 Apps Script 函數
+            const response = await google.script.run
+                .withSuccessHandler(function(result) {
+                    // 移除載入指示器
+                    removeLastBotMessage();
+                    
+                    if (result.status === 'success') {
+                        appendMessage('筆記生成成功！已儲存至 Google 試算表。', 'bot-message');
+                    } else {
+                        appendMessage(`筆記生成失敗：${result.error}`, 'bot-message');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    removeLastBotMessage();
+                    appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+                })
+                .doPost({
+                    postData: {
+                        contents: JSON.stringify({ chatLog: chatLog })
+                    }
+                });
 
-            console.log('fetch() 的回應物件：', response); // 檢查回應物件
-
-            if (!response.ok) {
-                // 檢查 HTTP 狀態碼
-                console.error('HTTP 錯誤：', response.status);
-                throw new Error(`HTTP 錯誤！狀態：${response.status}`);
-            }
-
-            const data = await response.json();
-
-            console.log('從後端收到的 JSON 資料：', data);
-
-            // 移除載入指示器
-            removeLastBotMessage();
-
-            if (data.status === 'success') {
-                appendMessage('筆記生成成功！已儲存至 Google 試算表。', 'bot-message');
-            } else {
-                appendMessage(`筆記生成失敗：${data.error}`, 'bot-message');
-            }
         } catch (error) {
             removeLastBotMessage();
-            console.error('發生 fetch 錯誤：', error);
             appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
         }
     }
@@ -603,57 +584,7 @@ const chatModule = (() => {
         }
     }
 
-    // 初始化
-    function init() {
-        thread = [];
-        const greeting = getGreeting();
-        appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
-        setInputState(false);
-
-        // 初始化按鈕事件監聽
-        translateButton.addEventListener("click", () => {
-            translationMode = true;
-            returnToChatButton.style.display = "inline-block";
-            translateButton.style.display = "none";
-            setInputState(false);  // 啟用輸入
-            appendMessage("請輸入想查的中文或英文", "bot-message");
-        });
-
-        returnToChatButton.addEventListener("click", () => {
-            translationMode = false;
-            returnToChatButton.style.display = "none";
-            translateButton.style.display = "inline-block";
-            setInputState(false);  // 啟用輸入
-            appendMessage("已返回聊天模式。", "bot-message");
-        });
-
-        studyPlanButton.addEventListener('click', () => {
-            translationMode = false;
-            returnToChatButton.style.display = 'none';
-            translateButton.style.display = 'inline-block';
-            setInputState(false);  // 啟用輸入
-            startStudyPlan();
-        });
-
-        // 新增事件監聽器
-        generateNotesButton.addEventListener('click', generateNotes);
-    }
-
-    // 取得問候語
-    function getGreeting() {
-        const now = new Date();
-        const hour = now.getHours();
-
-        if (hour >= 6 && hour < 12) {
-            return '早安！';
-        } else if (hour >= 12 && hour < 14) {
-            return '午安！';
-        } else {
-            return 'Hello！';
-        }
-    }
-
-    // 翻译功能
+    // 翻譯功能
     async function fetchTranslation(text) {
         if (!text) return '請輸入要翻譯的內容';
 
@@ -715,6 +646,56 @@ ${text}
         }
     }
 
+    // 初始化
+    function init() {
+        thread = [];
+        const greeting = getGreeting();
+        appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
+        setInputState(false);
+
+        // 初始化按鈕事件監聽
+        translateButton.addEventListener("click", () => {
+            translationMode = true;
+            returnToChatButton.style.display = "inline-block";
+            translateButton.style.display = "none";
+            setInputState(false);
+            appendMessage("請輸入想查的中文或英文", "bot-message");
+        });
+
+        returnToChatButton.addEventListener("click", () => {
+            translationMode = false;
+            returnToChatButton.style.display = "none";
+            translateButton.style.display = "inline-block";
+            setInputState(false);
+            appendMessage("已返回聊天模式。", "bot-message");
+        });
+
+        studyPlanButton.addEventListener('click', () => {
+            translationMode = false;
+            returnToChatButton.style.display = 'none';
+            translateButton.style.display = 'inline-block';
+            setInputState(false);
+            startStudyPlan();
+        });
+
+        // 新增事件監聽器
+        generateNotesButton.addEventListener('click', generateNotes);
+    }
+
+    // 取得問候語
+    function getGreeting() {
+        const now = new Date();
+        const hour = now.getHours();
+
+        if (hour >= 6 && hour < 12) {
+            return '早安！';
+        } else if (hour >= 12 && hour < 14) {
+            return '午安！';
+        } else {
+            return 'Hello！';
+        }
+    }
+
     // 暴露公共接口
     return {
         clearImage,
@@ -723,18 +704,9 @@ ${text}
         init,
         handleStudyPlanInput,
         setInputState,
-        generateNotes // 導出函數
+        generateNotes
     };
 })();
-
-// 格式化文字的函數 (例如，處理換行和粗體)
-function formatText(text) {
-    let formatted = text;
-    formatted = formatted.replace(/\n/g, '<br>'); // 將換行符號 \n 轉換為 HTML 的 <br> 標籤
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // 將 **包圍的文字** 轉換為 HTML 的 <strong> 標籤
-    formatted = formatted.replace(/\*\*/g, '');  // 移除多餘的 ** 符號
-    return formatted; // 最終返回格式化後的文字
-}
 
 // 初始化
 chatModule.init();
