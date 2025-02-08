@@ -62,6 +62,20 @@ const myRecordsModule = (() => {
 
                 recordsOptionsDiv.style.display = 'block';
                 recordsQuizArea.innerHTML = '';
+
+                // 顯示測驗統計資訊
+                const totalQuestions = allQuestions.length;
+                const totalWrong = wrongQuestions.length;
+                const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
+
+                recordsQuizArea.innerHTML = `
+                    <div style="text-align: center; margin: 20px 0;">
+                        <p>總題數：${totalQuestions} 題</p>
+                        <p>答對題數：${totalQuestions - totalWrong} 題</p>
+                        <p>答錯題數：${totalWrong} 題</p>
+                        <p>正確率：${correctRate}%</p>
+                    </div>
+                `;
             } else {
                 recordsQuizArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${result.error}</p>`;
             }
@@ -78,23 +92,32 @@ const myRecordsModule = (() => {
 
     // 顯示測驗題目
     function displayQuiz(questions) {
+        if (!questions || questions.length === 0) {
+            recordsQuizArea.innerHTML = '<p style="text-align: center;">沒有可用的題目。</p>';
+            return;
+        }
+
         currentQuestions = questions;
         
         const quizHtml = `
             <form id="retryQuizForm" class="result-area">
-                ${questions.map((q, i) => `
-                    <div class="question-card">
-                        <p><strong>${i + 1}. ${q.question}</strong></p>
-                        <div class="question-options">
-                            ${q.options.map((option, j) => `
-                                <label>
-                                    <input type="radio" name="question${i}" value="${j}" required>
-                                    ${option}
-                                </label>
-                            `).join('')}
+                ${questions.map((q, i) => {
+                    // 確保選項存在且為陣列
+                    const options = Array.isArray(q.options) ? q.options : [];
+                    return `
+                        <div class="question-card">
+                            <p><strong>${i + 1}. ${q.question || '無題目'}</strong></p>
+                            <div class="question-options">
+                                ${options.map((option, j) => `
+                                    <label>
+                                        <input type="radio" name="question${i}" value="${j}" required>
+                                        ${option}
+                                    </label>
+                                `).join('')}
+                            </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
                 <button type="submit" class="submit-button">提交答案</button>
             </form>
         `;
@@ -113,13 +136,17 @@ const myRecordsModule = (() => {
         const formData = new FormData(document.getElementById('retryQuizForm'));
         const results = currentQuestions.map((q, i) => {
             const userAnswer = formData.get(`question${i}`);
-            const correctAnswerIndex = q.options.findIndex(opt => opt.startsWith(q.correctAnswer));
-            const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex;
+            const options = Array.isArray(q.options) ? q.options : [];
+            const correctAnswerIndex = options.findIndex(opt => 
+                opt.startsWith(q.correctAnswer));
 
             return {
-                ...q,
+                question: q.question || '無題目',
+                options: options,
                 userAnswer: userAnswer === null ? '未作答' : userAnswer,
-                correct: isCorrect
+                correctAnswer: q.correctAnswer || '無答案',
+                correct: userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex,
+                explanation: q.explanation || '無解說'
             };
         });
 
@@ -128,24 +155,67 @@ const myRecordsModule = (() => {
 
     // 顯示結果
     function displayRetryResults(results) {
-        recordsQuizArea.innerHTML = results.map((result, i) => `
-            <div class="question-card">
-                <p><strong>${i + 1}. ${result.question}</strong></p>
-                <div class="question-options">
-                    ${result.options.map((option, j) => `
-                        <label style="background-color: ${option.startsWith(result.correctAnswer) ? '#28a745' : 
-                            (j === parseInt(result.userAnswer) ? '#dc3545' : '#ffffff')};
-                            color: ${option.startsWith(result.correctAnswer) || j === parseInt(result.userAnswer) ? 'white' : '#333'};">
-                            ${option}
-                        </label>
-                    `).join('')}
+        let correctCount = 0;
+        
+        recordsQuizArea.innerHTML = results.map((result, i) => {
+            // 統計正確題數
+            if (result.correct) correctCount++;
+
+            // 確保選項存在且為陣列
+            const options = Array.isArray(result.options) ? result.options : [];
+            
+            // 找出正確答案選項的索引
+            const correctAnswerIndex = options.findIndex(opt => 
+                opt.startsWith(result.correctAnswer));
+            
+            // 確保 userAnswer 為有效值
+            const userAnswerIndex = parseInt(result.userAnswer);
+            const validUserAnswer = !isNaN(userAnswerIndex) ? userAnswerIndex : -1;
+
+            return `
+                <div class="question-card">
+                    <p><strong>${i + 1}. ${result.question}</strong></p>
+                    <div class="question-options">
+                        ${options.map((option, j) => `
+                            <label style="background-color: ${j === correctAnswerIndex ? '#28a745' : 
+                                (j === validUserAnswer && j !== correctAnswerIndex ? '#dc3545' : '#ffffff')};
+                                color: ${(j === correctAnswerIndex || j === validUserAnswer) ? 'white' : '#333'};">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                    <p class="your-answer">您的答案：${result.userAnswer === '未作答' ? '未作答' : 
+                        (validUserAnswer >= 0 && options[validUserAnswer] ? 
+                        options[validUserAnswer].match(/^[A-D]/)[0] : '無效答案')} 
+                        ${result.correct ? '✔️' : '❌'}</p>
+                    ${!result.correct ? `<p class="correct-answer">正確答案：${result.correctAnswer}</p>` : ''}
+                    <p class="explanation">解答說明：${result.explanation}</p>
                 </div>
-                <p class="your-answer">您的答案：${result.userAnswer === '未作答' ? result.userAnswer : 
-                    result.options[result.userAnswer].match(/^[A-D]/)[0]} ${result.correct ? '✔️' : '❌'}</p>
-                ${!result.correct ? `<p class="correct-answer">正確答案：${result.correctAnswer}</p>` : ''}
-                <p class="explanation">解答說明：${result.explanation}</p>
+            `;
+        }).join('');
+
+        // 添加測驗結果摘要
+        recordsQuizArea.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3>測驗結果</h3>
+                <p>共 ${results.length} 題，答對 ${correctCount} 題</p>
+                <p>正確率：${((correctCount / results.length) * 100).toFixed(1)}%</p>
             </div>
-        `).join('');
+        ` + recordsQuizArea.innerHTML;
+
+        // 添加重新測驗按鈕
+        recordsQuizArea.innerHTML += `
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="myRecordsModule.retryQuiz()" class="feature-button">重新測驗</button>
+            </div>
+        `;
+    }
+
+    // 重新測驗
+    function retryQuiz() {
+        if (currentQuestions.length > 0) {
+            displayQuiz(getRandomQuestions(currentQuestions, currentQuestions.length));
+        }
     }
 
     // 事件監聽器綁定
@@ -162,7 +232,7 @@ const myRecordsModule = (() => {
                 alert('沒有錯題記錄！');
                 return;
             }
-            const selectedQuestions = getRandomQuestions(wrongQuestions, 5);
+            const selectedQuestions = getRandomQuestions(wrongQuestions, Math.min(5, wrongQuestions.length));
             displayQuiz(selectedQuestions);
         });
     }
@@ -175,7 +245,8 @@ const myRecordsModule = (() => {
 
     // 公開的介面
     return {
-        init
+        init,
+        retryQuiz // 將重新測驗函數公開，供按鈕調用
     };
 })();
 
