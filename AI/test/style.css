@@ -1,4 +1,4 @@
- /* 主頁樣式 */
+  /* 主頁樣式 */
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
@@ -790,4 +790,75 @@
 
 .message-options {
     margin-bottom: 10px; /* 與下方訊息間隔 */
+}
+
+/* 我的筆記樣式 */
+.my-notes-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.my-notes-container h1 {
+    color: #8ab0ab;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.notes-input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+#notes-username {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#load-notes-button {
+    padding: 10px 20px;
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#load-notes-button:hover {
+    background-color: #6e928b;
+}
+
+#notes-display-area {
+    margin-top: 20px;
+}
+
+.note-card {
+    background: #f9f9f9;
+    border-left: 4px solid #8ab0ab;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.note-time {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.note-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
 }
