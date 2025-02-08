@@ -10,6 +10,7 @@ const myRecordsModule = (() => {
     const retryWrongButton = document.getElementById('retry-wrong');
     const recordsOptionsDiv = document.getElementById('records-options');
     const recordsQuizArea = document.getElementById('records-quiz-area');
+    const notesDisplayArea = document.getElementById('notes-display-area');
 
     let allQuestions = [];
     let wrongQuestions = [];
@@ -32,6 +33,50 @@ const myRecordsModule = (() => {
         });
     }
 
+    // 載入筆記
+    async function loadNotes() {
+        const username = document.getElementById('notes-username').value.trim();
+        if (!username) {
+            alert('請輸入帳號');
+            return;
+        }
+
+        notesDisplayArea.innerHTML = `
+            <div style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <p>載入中...</p>
+            </div>
+        `;
+
+        try {
+            const result = await new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(resolve)
+                    .withFailureHandler(reject)
+                    .getNotes(username);
+            });
+
+            if (result.status === 'success') {
+                const notes = result.notes;
+                if (notes.length === 0) {
+                    notesDisplayArea.innerHTML = '<p style="text-align: center;">目前還沒有任何筆記。</p>';
+                    return;
+                }
+
+                // 顯示筆記
+                notesDisplayArea.innerHTML = notes.map((note, index) => `
+                    <div class="note-card">
+                        <div class="note-content">${formatText(note)}</div>
+                    </div>
+                `).join('');
+            } else {
+                notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${result.error}</p>`;
+            }
+        } catch (error) {
+            notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
+        }
+    }
+
     // 載入測驗記錄
     async function loadTestRecords() {
         const username = document.getElementById('records-username').value.trim();
@@ -40,7 +85,12 @@ const myRecordsModule = (() => {
             return;
         }
 
-        recordsQuizArea.innerHTML = '<p style="text-align: center;">載入中...</p>';
+        recordsQuizArea.innerHTML = `
+            <div style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <p>載入中...</p>
+            </div>
+        `;
         recordsOptionsDiv.style.display = 'none';
 
         try {
@@ -60,8 +110,31 @@ const myRecordsModule = (() => {
                     return;
                 }
 
-                recordsOptionsDiv.style.display = 'block';
-                recordsQuizArea.innerHTML = '';
+                recordsOptionsDiv.style.display = 'flex';
+                
+                // 顯示測驗統計資訊
+                const totalQuestions = allQuestions.length;
+                const totalWrong = wrongQuestions.length;
+                const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
+
+                recordsQuizArea.innerHTML = `
+                    <div class="statistics-card">
+                        <div class="row" style="display: flex; justify-content: space-around;">
+                            <div class="col" style="text-align: center; padding: 10px;">
+                                <div class="statistics-number">${totalQuestions}</div>
+                                <div class="statistics-label">總題數</div>
+                            </div>
+                            <div class="col" style="text-align: center; padding: 10px;">
+                                <div class="statistics-number">${totalQuestions - totalWrong}</div>
+                                <div class="statistics-label">答對題數</div>
+                            </div>
+                            <div class="col" style="text-align: center; padding: 10px;">
+                                <div class="statistics-number">${correctRate}%</div>
+                                <div class="statistics-label">正確率</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             } else {
                 recordsQuizArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${result.error}</p>`;
             }
@@ -78,6 +151,11 @@ const myRecordsModule = (() => {
 
     // 顯示測驗題目
     function displayQuiz(questions) {
+        if (!questions || questions.length === 0) {
+            recordsQuizArea.innerHTML = '<p style="text-align: center;">沒有可用的題目。</p>';
+            return;
+        }
+
         currentQuestions = questions;
         
         const quizHtml = `
@@ -87,7 +165,7 @@ const myRecordsModule = (() => {
                         <p><strong>${i + 1}. ${q.question}</strong></p>
                         <div class="question-options">
                             ${q.options.map((option, j) => `
-                                <label>
+                                <label style="display: block; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
                                     <input type="radio" name="question${i}" value="${j}" required>
                                     ${option}
                                 </label>
@@ -95,13 +173,14 @@ const myRecordsModule = (() => {
                         </div>
                     </div>
                 `).join('')}
-                <button type="submit" class="submit-button">提交答案</button>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="submit" class="feature-button">提交答案</button>
+                </div>
             </form>
         `;
 
         recordsQuizArea.innerHTML = quizHtml;
 
-        // 綁定提交事件
         document.getElementById('retryQuizForm').addEventListener('submit', (event) => {
             event.preventDefault();
             checkRetryAnswers();
@@ -113,13 +192,17 @@ const myRecordsModule = (() => {
         const formData = new FormData(document.getElementById('retryQuizForm'));
         const results = currentQuestions.map((q, i) => {
             const userAnswer = formData.get(`question${i}`);
-            const correctAnswerIndex = q.options.findIndex(opt => opt.startsWith(q.correctAnswer));
-            const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex;
+            const options = Array.isArray(q.options) ? q.options : [];
+            const correctAnswerIndex = options.findIndex(opt => 
+                opt.startsWith(q.correctAnswer));
 
             return {
-                ...q,
+                question: q.question || '無題目',
+                options: options,
                 userAnswer: userAnswer === null ? '未作答' : userAnswer,
-                correct: isCorrect
+                correctAnswer: q.correctAnswer || '無答案',
+                correct: userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex,
+                explanation: q.explanation || '無解說'
             };
         });
 
@@ -128,28 +211,79 @@ const myRecordsModule = (() => {
 
     // 顯示結果
     function displayRetryResults(results) {
-        recordsQuizArea.innerHTML = results.map((result, i) => `
-            <div class="question-card">
-                <p><strong>${i + 1}. ${result.question}</strong></p>
-                <div class="question-options">
-                    ${result.options.map((option, j) => `
-                        <label style="background-color: ${option.startsWith(result.correctAnswer) ? '#28a745' : 
-                            (j === parseInt(result.userAnswer) ? '#dc3545' : '#ffffff')};
-                            color: ${option.startsWith(result.correctAnswer) || j === parseInt(result.userAnswer) ? 'white' : '#333'};">
-                            ${option}
-                        </label>
-                    `).join('')}
+        let correctCount = 0;
+        
+        const resultsHtml = results.map((result, i) => {
+            if (result.correct) correctCount++;
+
+            const options = Array.isArray(result.options) ? result.options : [];
+            const correctAnswerIndex = options.findIndex(opt => 
+                opt.startsWith(result.correctAnswer));
+            const userAnswerIndex = parseInt(result.userAnswer);
+
+            return `
+                <div class="question-card">
+                    <p><strong>${i + 1}. ${result.question}</strong></p>
+                    <div class="question-options">
+                        ${options.map((option, j) => `
+                            <label style="display: block; margin: 10px 0; padding: 10px; border-radius: 4px; cursor: default;
+                                background-color: ${j === correctAnswerIndex ? '#28a745' : 
+                                    (j === userAnswerIndex && j !== correctAnswerIndex ? '#dc3545' : '#ffffff')};
+                                color: ${(j === correctAnswerIndex || j === userAnswerIndex) ? 'white' : '#333'};">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                    <p class="your-answer" style="margin-top: 10px;">
+                        您的答案：${result.userAnswer === '未作答' ? '未作答' : 
+                            options[userAnswerIndex]?.match(/^[A-D]/)?.[0] || '無效答案'} 
+                        ${result.correct ? '✔️' : '❌'}
+                    </p>
+                    ${!result.correct ? `
+                        <p class="correct-answer" style="color: #28a745; margin-top: 5px;">
+                            正確答案：${result.correctAnswer}
+                        </p>` : ''}
+                    <p class="explanation" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        <strong>解答說明：</strong>${result.explanation}
+                    </p>
                 </div>
-                <p class="your-answer">您的答案：${result.userAnswer === '未作答' ? result.userAnswer : 
-                    result.options[result.userAnswer].match(/^[A-D]/)[0]} ${result.correct ? '✔️' : '❌'}</p>
-                ${!result.correct ? `<p class="correct-answer">正確答案：${result.correctAnswer}</p>` : ''}
-                <p class="explanation">解答說明：${result.explanation}</p>
+            `;
+        }).join('');
+
+        recordsQuizArea.innerHTML = `
+            <div class="statistics-card">
+                <div class="row" style="display: flex; justify-content: space-around;">
+                    <div class="col" style="text-align: center; padding: 10px;">
+                        <div class="statistics-number">${results.length}</div>
+                        <div class="statistics-label">總題數</div>
+                    </div>
+                    <div class="col" style="text-align: center; padding: 10px;">
+                        <div class="statistics-number">${correctCount}</div>
+                        <div class="statistics-label">答對題數</div>
+                    </div>
+                    <div class="col" style="text-align: center; padding: 10px;">
+                        <div class="statistics-number">${((correctCount / results.length) * 100).toFixed(1)}%</div>
+                        <div class="statistics-label">正確率</div>
+                    </div>
+                </div>
             </div>
-        `).join('');
+            ${resultsHtml}
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="myRecordsModule.retryQuiz()" class="feature-button">重新測驗</button>
+            </div>
+        `;
+    }
+
+    // 重新測驗
+    function retryQuiz() {
+        if (currentQuestions.length > 0) {
+            displayQuiz(getRandomQuestions(currentQuestions, currentQuestions.length));
+        }
     }
 
     // 事件監聽器綁定
     function initializeEventListeners() {
+        document.getElementById('load-notes-button').addEventListener('click', loadNotes);
         loadRecordsButton.addEventListener('click', loadTestRecords);
         
         retryHistoryButton.addEventListener('click', () => {
@@ -162,7 +296,7 @@ const myRecordsModule = (() => {
                 alert('沒有錯題記錄！');
                 return;
             }
-            const selectedQuestions = getRandomQuestions(wrongQuestions, 5);
+            const selectedQuestions = getRandomQuestions(wrongQuestions, Math.min(5, wrongQuestions.length));
             displayQuiz(selectedQuestions);
         });
     }
@@ -175,7 +309,8 @@ const myRecordsModule = (() => {
 
     // 公開的介面
     return {
-        init
+        init,
+        retryQuiz // 將重新測驗函數公開，供按鈕調用
     };
 })();
 
