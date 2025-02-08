@@ -78,83 +78,84 @@ const myRecordsModule = (() => {
     }
 
     // 載入測驗記錄
-async function loadTestRecords() {
-    const username = document.getElementById('records-username').value.trim();
-    if (!username) {
-        alert('請輸入帳號');
-        return;
-    }
+    async function loadTestRecords() {
+        const username = document.getElementById('records-username').value.trim();
+        if (!username) {
+            alert('請輸入帳號');
+            return;
+        }
 
-    // 添加載入提示
-    recordsQuizArea.innerHTML = `
-        <div style="text-align: center;">
-            <div class="loading-spinner"></div>
-            <p>載入中...</p>
-        </div>
-    `;
-    recordsOptionsDiv.style.display = 'none';
+        recordsQuizArea.innerHTML = `
+            <div style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <p>載入中...</p>
+            </div>
+        `;
+        recordsOptionsDiv.style.display = 'none';
 
-    try {
-        // 添加日誌輸出
-        console.log('正在讀取用戶:', username);
-        
-        const result = await new Promise((resolve, reject) => {
-            google.script.run
-                .withSuccessHandler(result => {
-                    console.log('收到測驗記錄:', result);
-                    resolve(result);
-                })
-                .withFailureHandler(error => {
-                    console.error('載入失敗:', error);
-                    reject(error);
-                })
-                .getTestRecords(username);
-        });
+        try {
+            console.log('開始載入用戶測驗記錄:', username);
+            const result = await new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(resolve)
+                    .withFailureHandler(reject)
+                    .getTestRecords(username);
+            });
 
-        if (result.status === 'success') {
-            allQuestions = result.allQuestions;
-            wrongQuestions = result.wrongQuestions;
-            
-            if (!allQuestions || allQuestions.length === 0) {
-                recordsQuizArea.innerHTML = '<p style="text-align: center;">尚無測驗記錄。</p>';
-                return;
-            }
+            console.log('獲取的測驗記錄:', result);
 
-            recordsOptionsDiv.style.display = 'flex';
-            
-            // 顯示測驗統計資訊
-            const totalQuestions = allQuestions.length;
-            const totalWrong = wrongQuestions.length;
-            const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
+            if (result.status === 'success') {
+                allQuestions = result.allQuestions;
+                wrongQuestions = result.wrongQuestions;
+                
+                console.log('解析後的題目:', allQuestions);
+                console.log('錯題:', wrongQuestions);
 
-            recordsQuizArea.innerHTML = `
-                <div class="statistics-card">
-                    <div class="row" style="display: flex; justify-content: space-around;">
-                        <div class="col" style="text-align: center; padding: 10px;">
-                            <div class="statistics-number">${totalQuestions}</div>
-                            <div class="statistics-label">總題數</div>
-                        </div>
-                        <div class="col" style="text-align: center; padding: 10px;">
-                            <div class="statistics-number">${totalQuestions - totalWrong}</div>
-                            <div class="statistics-label">答對題數</div>
-                        </div>
-                        <div class="col" style="text-align: center; padding: 10px;">
-                            <div class="statistics-number">${correctRate}%</div>
-                            <div class="statistics-label">正確率</div>
+                if (allQuestions.length === 0) {
+                    recordsQuizArea.innerHTML = '<p style="text-align: center;">尚無測驗記錄。</p>';
+                    return;
+                }
+
+                recordsOptionsDiv.style.display = 'flex';
+                
+                // 顯示測驗統計資訊
+                const totalQuestions = allQuestions.length;
+                const totalWrong = wrongQuestions.length;
+                const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
+
+                recordsQuizArea.innerHTML = `
+                    <div class="statistics-card">
+                        <div class="row" style="display: flex; justify-content: space-around;">
+                            <div class="col" style="text-align: center; padding: 10px;">
+                                <div class="statistics-number">${totalQuestions}</div>
+                                <div class="statistics-label">總題數</div>
+                            </div>
+                            <div class="col" style="text-align: center; padding: 10px;">
+                                <div class="statistics-number">${totalQuestions - totalWrong}</div>
+                                <div class="statistics-label">答對題數</div>
+                            </div>
+                            <div class="col" style="text-align: center; padding: 10px;">
+                                <div class="statistics-number">${correctRate}%</div>
+                                <div class="statistics-label">正確率</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        } else {
-            recordsQuizArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${result.error}</p>`;
+                `;
+            } else {
+                recordsQuizArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${result.error}</p>`;
+            }
+        } catch (error) {
+            console.error('處理測驗記錄時出錯：', error);
+            recordsQuizArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
         }
-    } catch (error) {
-        console.error('處理測驗記錄時出錯：', error);
-        recordsQuizArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
     }
-}
+
     // 隨機選取題目
     function getRandomQuestions(questions, count) {
+        if (!Array.isArray(questions) || questions.length === 0) {
+            console.log('沒有可用的題目');
+            return [];
+        }
         const shuffled = [...questions].sort(() => 0.5 - Math.random());
         return shuffled.slice(0, Math.min(count, questions.length));
     }
@@ -167,6 +168,7 @@ async function loadTestRecords() {
         }
 
         currentQuestions = questions;
+        console.log('準備顯示的題目:', questions);
         
         const quizHtml = `
             <form id="retryQuizForm" class="result-area">
@@ -297,16 +299,24 @@ async function loadTestRecords() {
         loadRecordsButton.addEventListener('click', loadTestRecords);
         
         retryHistoryButton.addEventListener('click', () => {
+            console.log('點擊重作歷史題，可用題目:', allQuestions);
+            if (!allQuestions || allQuestions.length === 0) {
+                alert('沒有歷史題目記錄！');
+                return;
+            }
             const selectedQuestions = getRandomQuestions(allQuestions, 5);
+            console.log('選取的題目:', selectedQuestions);
             displayQuiz(selectedQuestions);
         });
 
         retryWrongButton.addEventListener('click', () => {
-            if (wrongQuestions.length === 0) {
+            console.log('點擊錯題重作，可用錯題:', wrongQuestions);
+            if (!wrongQuestions || wrongQuestions.length === 0) {
                 alert('沒有錯題記錄！');
                 return;
             }
             const selectedQuestions = getRandomQuestions(wrongQuestions, Math.min(5, wrongQuestions.length));
+            console.log('選取的錯題:', selectedQuestions);
             displayQuiz(selectedQuestions);
         });
     }
