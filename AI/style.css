@@ -763,48 +763,28 @@ body {
 }
 
 /* 學習記錄頁面的表單樣式 */
-/* 學習記錄頁面的整體容器樣式 */
-.ai-generator-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-/* 輸入區域容器樣式 */
-.input-area-container {
+.notes-input-area,
+.records-input-area {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
+    justify-content: center;
+    gap: 10px;
     margin-bottom: 20px;
     padding: 15px;
     background: #f5f5f5;
     border-radius: 8px;
 }
 
-/* 輸入框樣式 */
-.input-field {
-    width: 100%;
-    max-width: 300px;
+#notes-username,
+#records-username {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+    width: 300px;
 }
 
-/* 按鈕容器樣式 */
-.button-container {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
-/* 按鈕樣式 */
-.feature-button {
+#load-notes-button,
+#load-records-button {
     padding: 10px 20px;
     background-color: #8ab0ab;
     color: white;
@@ -812,24 +792,34 @@ body {
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
 }
 
-.feature-button:hover {
+#load-notes-button:hover,
+#load-records-button:hover {
     background-color: #6e928b;
 }
 
-/* 筆記和測驗區域容器樣式 */
-.notes-container,
-.quiz-container {
-    max-width: 100%;
+.notes-container {
+    max-width: 800px;
     margin: 20px auto;
 }
 
-/* 選項按鈕組樣式 */
-.button-group {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 20px 0;
+.note-card {
+    background: #fff;
+    border-left: 4px solid #8ab0ab;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.note-time {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.note-content {
+    line-height: 1.6;
+    color: #333;
 }
