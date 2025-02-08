@@ -150,64 +150,82 @@ const myRecordsModule = (() => {
     }
 
     // 顯示測驗題目
-    function displayQuiz(questions) {
-        if (!questions || questions.length === 0) {
-            recordsQuizArea.innerHTML = '<p style="text-align: center;">沒有可用的題目。</p>';
-            return;
-        }
-
-        currentQuestions = questions;
-        
-        const quizHtml = `
-            <form id="retryQuizForm" class="result-area">
-                ${questions.map((q, i) => `
-                    <div class="question-card">
-                        <p><strong>${i + 1}. ${q.question}</strong></p>
-                        <div class="question-options">
-                            ${q.options.map((option, j) => `
-                                <label style="display: block; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
-                                    <input type="radio" name="question${i}" value="${j}" required>
-                                    ${option}
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                `).join('')}
-                <div style="text-align: center; margin-top: 20px;">
-                    <button type="submit" class="feature-button">提交答案</button>
-                </div>
-            </form>
-        `;
-
-        recordsQuizArea.innerHTML = quizHtml;
-
-        document.getElementById('retryQuizForm').addEventListener('submit', (event) => {
-            event.preventDefault();
-            checkRetryAnswers();
-        });
+  // 修改 displayQuiz 函數
+function displayQuiz(questions) {
+    if (!questions || questions.length === 0) {
+        recordsQuizArea.innerHTML = '<p style="text-align: center;">沒有可用的題目。</p>';
+        return;
     }
+
+    currentQuestions = questions;
+    
+    // 處理每個題目的選項格式
+    const processedQuestions = questions.map(q => {
+        // 確保選項是正確的格式
+        const options = q.options.map(opt => opt.trim());
+        
+        // 找出正確答案的索引
+        const correctAnswerIndex = options.findIndex(opt => 
+            opt.startsWith(q.correctAnswer));
+
+        return {
+            ...q,
+            options,
+            answer: correctAnswerIndex !== -1 ? correctAnswerIndex : 0
+        };
+    });
+
+    const quizHtml = `
+        <form id="retryQuizForm" class="result-area">
+            ${processedQuestions.map((q, i) => `
+                <div class="question-card">
+                    <p><strong>${i + 1}. ${q.question}</strong></p>
+                    <div class="question-options">
+                        ${q.options.map((option, j) => `
+                            <label>
+                                <input type="radio" name="question${i}" value="${j}" required>
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('')}
+            <div style="text-align: center; margin-top: 20px;">
+                <button type="submit" class="feature-button">提交答案</button>
+            </div>
+        </form>
+    `;
+
+    recordsQuizArea.innerHTML = quizHtml;
+
+    document.getElementById('retryQuizForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        checkRetryAnswers();
+    });
+}
 
     // 檢查答案
-    function checkRetryAnswers() {
-        const formData = new FormData(document.getElementById('retryQuizForm'));
-        const results = currentQuestions.map((q, i) => {
-            const userAnswer = formData.get(`question${i}`);
-            const options = Array.isArray(q.options) ? q.options : [];
-            const correctAnswerIndex = options.findIndex(opt => 
-                opt.startsWith(q.correctAnswer));
+function checkRetryAnswers() {
+    const formData = new FormData(document.getElementById('retryQuizForm'));
+    const results = currentQuestions.map((q, i) => {
+        const userAnswer = formData.get(`question${i}`);
+        const options = Array.isArray(q.options) ? q.options : [];
+        // 找出正確答案的索引
+        const correctAnswerIndex = options.findIndex(opt => 
+            opt.startsWith(q.correctAnswer));
 
-            return {
-                question: q.question || '無題目',
-                options: options,
-                userAnswer: userAnswer === null ? '未作答' : userAnswer,
-                correctAnswer: q.correctAnswer || '無答案',
-                correct: userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex,
-                explanation: q.explanation || '無解說'
-            };
-        });
+        return {
+            question: q.question || '無題目',
+            options: options,
+            userAnswer: userAnswer === null ? '未作答' : userAnswer,
+            correctAnswer: q.correctAnswer || '無答案',
+            correct: userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex,
+            explanation: q.explanation || '無解說'
+        };
+    });
 
-        displayRetryResults(results);
-    }
+    displayRetryResults(results);
+}
 
     // 顯示結果
     function displayRetryResults(results) {
