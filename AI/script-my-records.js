@@ -161,22 +161,28 @@ const myRecordsModule = (() => {
     }
 
     // 顯示測驗題目
-    function displayQuiz(questions) {
-        if (!questions || questions.length === 0) {
-            recordsQuizArea.innerHTML = '<p style="text-align: center;">沒有可用的題目。</p>';
-            return;
-        }
+function displayQuiz(questions) {
+    console.log('準備顯示題目:', questions); // 添加日誌
 
-        currentQuestions = questions;
-        console.log('準備顯示的題目:', questions);
-        
-        const quizHtml = `
-            <form id="retryQuizForm" class="result-area">
-                ${questions.map((q, i) => `
+    if (!questions || questions.length === 0) {
+        recordsQuizArea.innerHTML = '<p style="text-align: center;">沒有可用的題目。</p>';
+        return;
+    }
+
+    currentQuestions = questions;
+    
+    const quizHtml = `
+        <form id="retryQuizForm" class="result-area">
+            ${questions.map((q, i) => {
+                // 確保 options 是陣列且不為空
+                const options = Array.isArray(q.options) ? q.options : [];
+                console.log(`題目 ${i + 1} 的選項:`, options); // 添加日誌
+                
+                return `
                     <div class="question-card">
                         <p><strong>${i + 1}. ${q.question}</strong></p>
                         <div class="question-options">
-                            ${q.options.map((option, j) => `
+                            ${options.map((option, j) => `
                                 <label style="display: block; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
                                     <input type="radio" name="question${i}" value="${j}" required>
                                     ${option}
@@ -184,21 +190,22 @@ const myRecordsModule = (() => {
                             `).join('')}
                         </div>
                     </div>
-                `).join('')}
-                <div style="text-align: center; margin-top: 20px;">
-                    <button type="submit" class="feature-button">提交答案</button>
-                </div>
-            </form>
-        `;
+                `;
+            }).join('')}
+            <div style="text-align: center; margin-top: 20px;">
+                <button type="submit" class="feature-button">提交答案</button>
+            </div>
+        </form>
+    `;
 
-        recordsQuizArea.innerHTML = quizHtml;
+    recordsQuizArea.innerHTML = quizHtml;
 
-        document.getElementById('retryQuizForm').addEventListener('submit', (event) => {
-            event.preventDefault();
-            checkRetryAnswers();
-        });
-    }
-
+    // 綁定表單提交事件
+    document.getElementById('retryQuizForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        checkRetryAnswers();
+    });
+}
     // 檢查答案
     function checkRetryAnswers() {
         const formData = new FormData(document.getElementById('retryQuizForm'));
