@@ -310,13 +310,15 @@ function checkRetryAnswers() {
         });
 
         retryWrongButton.addEventListener('click', () => {
-            if (wrongQuestions.length === 0) {
-                alert('沒有錯題記錄！');
-                return;
-            }
-            const selectedQuestions = getRandomQuestions(wrongQuestions, Math.min(5, wrongQuestions.length));
-            displayQuiz(selectedQuestions);
-        });
+    if (wrongQuestions.length === 0) {
+        alert('沒有錯題記錄！');
+        return;
+    }
+    console.log('錯題：', wrongQuestions); // 加入這行來檢查錯題資料
+    const selectedQuestions = getRandomQuestions(wrongQuestions, Math.min(5, wrongQuestions.length));
+    console.log('選中的題目：', selectedQuestions); // 加入這行來檢查選中的題目
+    displayQuiz(selectedQuestions);
+});
     }
 
     // 初始化
