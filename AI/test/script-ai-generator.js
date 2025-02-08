@@ -48,7 +48,7 @@ const aiGeneratorModule = (() => {
         }
     }
 
-    // AI素養題產生器 Tab 切換
+    // 切換分頁的事件監聽
     customTopicTab.addEventListener('click', () => {
         customTopicTab.classList.add('active');
         chatTopicTab.classList.remove('active');
@@ -97,6 +97,23 @@ const aiGeneratorModule = (() => {
         imageQContent.classList.remove('active');
     });
 
+    // 格式化測驗結果以供儲存
+    function formatTestDataForStorage(results) {
+        let testData = '測驗結果：\n\n';
+        results.forEach((result, index) => {
+            testData += `題目：${result.question}\n`;
+            // 儲存所有選項
+            result.options.forEach((option, i) => {
+                testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
+            });
+            testData += `您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]}\n`;
+            testData += `正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}\n`;
+            testData += `結果：${result.correct ? '正確' : '錯誤'}\n`;
+            testData += `解釋：${result.explanation}\n\n`;
+        });
+        return testData;
+    }
+
     // 根據聊天記錄產生題目
     async function generateQuestionsFromChat() {
         if (thread.length === 0) {
@@ -133,6 +150,7 @@ const aiGeneratorModule = (() => {
             topicText = document.getElementById('topicText').value;
             grade = document.getElementById('grade').value;
             questionCount = document.getElementById('questionCount').value;
+
         } else {
             topic = '以聊天記錄生成題目';
             grade = '10';  //預設十年級
@@ -296,7 +314,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 ${!result.correct ? `<p class="correct-answer">正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}</p>` : ''}
                 <p class="explanation">解答說明：${result.explanation}</p>
             </div>
-        `).join(''); // 將結果 HTML 添加到頁面
+        `).join('');
 
         // 新增儲存測驗結果按鈕
         questionsDiv.innerHTML += `
@@ -313,18 +331,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 return;
             }
 
-            // 格式化測驗結果
-            let testData = '測驗結果：\n\n';
-            results.forEach((result, index) => {
-                testData += `第${index + 1}題：${result.question}\n`;
-                testData += `您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]}\n`;
-                testData += `正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}\n`;
-                testData += `結果：${result.correct ? '正確' : '錯誤'}\n`;
-                if (!result.correct) {
-                    testData += `解釋：${result.explanation}\n`;
-                }
-                testData += '\n';
-            });
+            const testData = formatTestDataForStorage(results);
 
             try {
                 await new Promise((resolve, reject) => {
@@ -363,7 +370,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         questions.forEach((q, index) => {
             content += `${index + 1}. ${q.question}\n`; // 題目標題
             q.options.forEach((option, i) => {
-                content += `   ${['A', 'B', 'C', 'D'][i]} ${option}\n`; // 選項
+                content += `   ${['A', 'B', 'C', 'D'][i]}. ${option}\n`; // 選項
             });
         });
 
@@ -540,7 +547,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         singleQuestionDiv.innerHTML += questionHtml;  //顯示題目
     }
 
-    // 檢查單一題目的答案
+    // 檢查單一題目的答案並顯示結果
     function checkSingleAnswer(event) {
         event.preventDefault();
         if (!singleQuestionData) return;
@@ -587,14 +594,15 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             }
 
             // 格式化測驗結果
-            let testData = '單題測驗結果：\n\n';
+            let testData = '測驗結果：\n\n';
             testData += `題目：${singleQuestionData.question}\n`;
+            singleQuestionData.options.forEach((option, i) => {
+                testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
+            });
             testData += `您的答案：${userAnswer === null ? '未作答' : ['A', 'B', 'C', 'D'][userAnswer]}\n`;
             testData += `正確答案：${['A', 'B', 'C', 'D'][correctAnswer]}\n`;
             testData += `結果：${isCorrect ? '正確' : '錯誤'}\n`;
-            if (!isCorrect) {
-                testData += `解釋：${singleQuestionData.explanation}\n`;
-            }
+            testData += `解釋：${singleQuestionData.explanation}\n`;
 
             try {
                 await new Promise((resolve, reject) => {
@@ -632,7 +640,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         let content = '題目：\n';
         content += `${singleQuestionData.question}\n`;  // 題目標題
         singleQuestionData.options.forEach((option, i) => {
-            content += `   ${['A', 'B', 'C', 'D'][i]} ${option}\n`;  // 選項
+            content += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;  // 選項
         });
 
         content += '\n正確答案與解答:\n';
@@ -671,7 +679,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
     // 暴露需要外部訪問的函數
     return {
-        init: initOptions, // 初始化函數
+        init: initOptions // 初始化函數
     };
 })();
 
