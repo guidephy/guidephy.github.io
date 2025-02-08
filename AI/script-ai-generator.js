@@ -98,21 +98,20 @@ const aiGeneratorModule = (() => {
     });
 
     // 格式化測驗結果以供儲存
-    function formatTestDataForStorage(results) {
-        let testData = '測驗結果：\n\n';
-        results.forEach((result, index) => {
-            testData += `題目：${result.question}\n`;
-            // 儲存所有選項
-            result.options.forEach((option, i) => {
-                testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
-            });
-            testData += `您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]}\n`;
-            testData += `正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}\n`;
-            testData += `結果：${result.correct ? '正確' : '錯誤'}\n`;
-            testData += `解釋：${result.explanation}\n\n`;
+function formatTestDataForStorage(results) {
+    let testData = '測驗結果：\n\n';
+    results.forEach((result, index) => {
+        testData += `題目：${result.question}\n`;
+        result.options.forEach((option, i) => {
+            testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
         });
-        return testData;
-    }
+        testData += `您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]}\n`;
+        testData += `正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}\n`;
+        testData += `結果：${result.correct ? '正確' : '錯誤'}\n`;
+        testData += `解釋：${result.explanation}\n\n`;
+    });
+    return testData;
+}
 
     // 根據聊天記錄產生題目
     async function generateQuestionsFromChat() {
