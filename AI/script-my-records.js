@@ -78,7 +78,6 @@ const myRecordsModule = (() => {
     }
 
     // 載入測驗記錄
-   // 在 script-my-records.js 中修改 loadTestRecords 函數
 async function loadTestRecords() {
     const username = document.getElementById('records-username').value.trim();
     if (!username) {
