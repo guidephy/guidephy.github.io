@@ -864,19 +864,24 @@
 }
 
 /* 學習記錄頁面樣式 */
-.form-group {
+form-group {
     margin-bottom: 20px;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* 設定輸入框和按鈕之間的間距 */
+    align-items: center;
 }
 
+/* 調整輸入框的樣式 */
 .input-field {
     width: 300px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
-    margin-right: 10px;
     transition: border-color 0.3s;
+    margin: 0; /* 移除預設的 margin */
 }
 
 .input-field:focus {
@@ -893,6 +898,8 @@
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s, transform 0.2s;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .feature-button:hover {
