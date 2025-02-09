@@ -302,7 +302,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             <div class="question-card">
                 <p><strong>${i + 1}. ${result.question}</strong></p>
                 <div class="question-options">
-                    ${result.options.map((option,j) => `
+                    ${result.options.map((option, j) => `
                         <label style="background-color: ${j === result.correctAnswer ? '#28a745' : 
                             (j === result.userAnswer ? '#dc3545' : '#ffffff')};
                             color: ${j === result.correctAnswer || j === result.userAnswer ? 'white' : '#333'};">
@@ -325,7 +325,11 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
         // 綁定儲存測驗結果的事件
         document.getElementById('saveTestButton').addEventListener('click', async () => {
-            if (!checkLogin()) return;  // 檢查登入狀態
+            const username = prompt('請輸入您的帳號：');
+            if (!username) {
+                alert('必須輸入帳號才能儲存測驗結果。');
+                return;
+            }
 
             const testData = formatTestDataForStorage(results);
 
@@ -345,7 +349,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                             reject(error);
                         })
                         .saveTestResult({
-                            username: currentUser,  // 使用當前登入用戶
+                            username: username,
                             testData: testData
                         });
                 });
@@ -583,7 +587,11 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
         // 綁定儲存單一題目測驗結果的事件
         document.getElementById('saveSingleTestButton').addEventListener('click', async () => {
-            if (!checkLogin()) return;  // 檢查登入狀態
+            const username = prompt('請輸入您的帳號：');
+            if (!username) {
+                alert('必須輸入帳號才能儲存測驗結果。');
+                return;
+            }
 
             // 格式化測驗結果
             let testData = '測驗結果：\n\n';
@@ -612,7 +620,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                             reject(error);
                         })
                         .saveTestResult({
-                            username: currentUser,  // 使用當前登入用戶
+                            username: username,
                             testData: testData
                         });
                 });
