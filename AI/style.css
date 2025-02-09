@@ -936,3 +936,156 @@ body {
         width: 100%;
     }
 }
+/* 測驗區域的整體樣式 */
+#records-quiz-area {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 問題卡片樣式 */
+.question-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* 題目文字樣式 */
+.question-card strong {
+    display: block;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* 選項容器樣式 */
+.question-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* 選項標籤樣式 */
+.question-options label {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.question-options label:hover {
+    background-color: #e9ecef;
+    border-color: #8ab0ab;
+}
+
+/* 單選框樣式 */
+.question-options input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #8ab0ab;
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+    cursor: pointer;
+}
+
+.question-options input[type="radio"]:checked {
+    background-color: #8ab0ab;
+    border-color: #8ab0ab;
+}
+
+.question-options input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+/* 選項文字樣式 */
+.question-options label span {
+    flex: 1;
+    margin-left: 8px;
+    color: #444;
+}
+
+/* 提交按鈕容器 */
+.submit-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    padding: 20px 0;
+}
+
+/* 提交按鈕樣式 */
+.submit-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(138, 176, 171, 0.3);
+}
+
+.submit-button:hover {
+    background-color: #6e928b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(138, 176, 171, 0.4);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(138, 176, 171, 0.2);
+}
+
+/* 答題結果樣式 */
+.your-answer {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    color: #666;
+}
+
+.correct-answer {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #d4edda;
+    border-radius: 6px;
+    color: #155724;
+}
+
+.explanation {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #fff9db;
+    border-radius: 6px;
+    color: #856404;
+    line-height: 1.6;
+}
