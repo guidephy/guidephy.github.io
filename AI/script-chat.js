@@ -270,10 +270,14 @@ const chatModule = (() => {
 
     // 載入用戶筆記
     async function loadUserNotes() {
-if (!checkLogin()) return;  // 檢查登入狀態
+        const username = document.getElementById('notes-username').value.trim();
+        if (!username) {
+            alert('請輸入帳號');
+            return;
+        }
 
-    const notesDisplay = document.getElementById('notes-display-area');
-    notesDisplay.innerHTML = '<p style="text-align: center;">載入中...</p>';
+        const notesDisplay = document.getElementById('notes-display-area');
+        notesDisplay.innerHTML = '<p style="text-align: center;">載入中...</p>';
 
         try {
             await new Promise((resolve, reject) => {
@@ -443,26 +447,32 @@ if (!checkLogin()) return;  // 檢查登入狀態
             behavior: 'smooth'
         });
     }
-//生成筆記
-async function generateNotes() {
-    if (thread.length === 0) {
-        alert('目前無聊天記錄，無法生成筆記。');
-        return;
-    }
 
-    if (!checkLogin()) return;  // 檢查登入狀態
+    // 生成筆記
+    async function generateNotes() {
+        if (thread.length === 0) {
+            alert('目前無聊天記錄，無法生成筆記。');
+            return;
+        }
 
-    // 獲取聊天記錄 (去除系統訊息)
-    const chatLog = thread
-        .filter(msg => msg.role !== 'system')
-        .map(entry => `${entry.role}: ${entry.parts[0].text}`)
-        .join('\n');
+        // 要求用戶輸入帳號
+        const username = prompt('請輸入您的帳號：');
+        if (!username) {
+            alert('必須輸入帳號才能生成筆記。');
+            return;
+        }
 
-    // 顯示載入指示器
-    appendMessage('正在生成筆記...', 'bot-message');
+        // 獲取聊天記錄 (去除系統訊息)
+        const chatLog = thread
+            .filter(msg => msg.role !== 'system')
+            .map(entry => `${entry.role}: ${entry.parts[0].text}`)
+            .join('\n');
 
-    try {
-                    // 生成摘要
+        // 顯示載入指示器
+        appendMessage('正在生成筆記...', 'bot-message');
+
+        try {
+            // 生成摘要
             const summaryResponse = await fetch(geminiurl, {
                 method: 'POST',
                 headers: {
@@ -491,37 +501,38 @@ ${chatLog}
                 })
             });
 
-        // 儲存到 Google Apps Script
-        await new Promise((resolve, reject) => {
-            google.script.run
-                .withSuccessHandler(result => {
-                      removeLastBotMessage();
+            const summaryData = await summaryResponse.json();
+            const summary = summaryData.candidates[0].content.parts[0].text;
+
+            // 儲存到 Google Apps Script
+            await new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(result => {
+                        removeLastBotMessage();
                         if (result && result.status === 'success') {
                             appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
                         } else {
                             appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
                         }
                         resolve(result);
-                })
-                .withFailureHandler(error => {
-                      removeLastBotMessage();
+                    })
+                    .withFailureHandler(error => {
+                        removeLastBotMessage();
                         appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
                         reject(error);
-                })
-                .doPost({
-                    username: currentUser,  // 使用當前登入用戶
-                    chatLog: summary
-                });
-        });
+                    })
+                    .doPost({
+                        username: username,
+                        chatLog: summary
+                    });
+            });
 
-    } catch (error) {
-        removeLastBotMessage();
+        } catch (error) {
+            removeLastBotMessage();
             appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+        }
     }
-}
 
-
-  
     // 移除最後一條 bot 訊息
     function removeLastBotMessage() {
         const messages = chatWindow.querySelectorAll('.bot-message');
