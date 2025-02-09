@@ -355,8 +355,7 @@ const myRecordsModule = (() => {
     });
 
     window.addEventListener('userLoggedOut', () => {
-        //
-// 清空顯示區域
+      // 清空顯示區域
         notesDisplayArea.innerHTML = '<p style="text-align: center;">請先登入以查看筆記</p>';
         recordsQuizArea.innerHTML = '<p style="text-align: center;">請先登入以查看測驗記錄</p>';
         recordsOptionsDiv.style.display = 'none';
