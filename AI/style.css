@@ -1089,3 +1089,122 @@ body {
     color: #856404;
     line-height: 1.6;
 }
+
+/* 頭部右側區域 */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 登入按鈕樣式 */
+.login-button,
+.logout-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.login-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.logout-button {
+    background-color: #f44336;
+    color: white;
+    display: none;
+}
+
+.login-button:hover {
+    background-color: #45a049;
+}
+
+.logout-button:hover {
+    background-color: #da190b;
+}
+
+/* 用戶信息容器 */
+.user-info-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info {
+    color: white;
+    font-size: 14px;
+    display: none;
+}
+
+/* 登入模態框 */
+.login-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.login-form input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.login-form button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.login-form button:hover {
+    background-color: #45a049;
+}
+
+/* 圖標樣式 */
+.login-icon,
+.logout-icon {
+    font-size: 16px;
+}
