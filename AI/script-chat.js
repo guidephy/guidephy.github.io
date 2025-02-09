@@ -270,14 +270,10 @@ const chatModule = (() => {
 
     // 載入用戶筆記
     async function loadUserNotes() {
-        const username = document.getElementById('notes-username').value.trim();
-        if (!username) {
-            alert('請輸入帳號');
-            return;
-        }
+if (!checkLogin()) return;  // 檢查登入狀態
 
-        const notesDisplay = document.getElementById('notes-display-area');
-        notesDisplay.innerHTML = '<p style="text-align: center;">載入中...</p>';
+    const notesDisplay = document.getElementById('notes-display-area');
+    notesDisplay.innerHTML = '<p style="text-align: center;">載入中...</p>';
 
         try {
             await new Promise((resolve, reject) => {
