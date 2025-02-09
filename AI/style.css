@@ -1089,3 +1089,13 @@ body {
     color: #856404;
     line-height: 1.6;
 }
+
+#login-button {
+    background-color: #8ab0ab;
+    color: white;
+    margin-bottom: 20px;
+}
+
+#login-button:hover {
+    background-color: #6e928b;
+}
