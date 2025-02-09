@@ -34,18 +34,22 @@ const myRecordsModule = (() => {
 
     // 載入測驗記錄
     async function loadTestRecords() {
-    if (!checkLogin()) return;  // 檢查登入狀態
-    
-    recordsQuizArea.innerHTML = '<p style="text-align: center;">載入中...</p>';
-    recordsOptionsDiv.style.display = 'none';
+        const username = document.getElementById('records-username').value.trim();
+        if (!username) {
+            alert('請輸入帳號');
+            return;
+        }
+
+        recordsQuizArea.innerHTML = '<p style="text-align: center;">載入中...</p>';
+        recordsOptionsDiv.style.display = 'none';
 
         try {
-        const result = await new Promise((resolve, reject) => {
-            google.script.run
-                .withSuccessHandler(resolve)
-                .withFailureHandler(reject)
-                .getTestRecords(currentUser);  // 使用當前登入用戶
-        });
+            const result = await new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(resolve)
+                    .withFailureHandler(reject)
+                    .getTestRecords(username);
+            });
 
             if (result.status === 'success') {
                 allQuestions = result.allQuestions;
