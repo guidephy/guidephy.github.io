@@ -198,6 +198,183 @@ const chatModule = (() => {
         }
     }
 
+    // 生成筆記
+    async function generateNotes() {
+        if (thread.length === 0) {
+            alert('目前無聊天記錄，無法生成筆記。');
+            return;
+        }
+
+        // 要求用戶輸入帳號
+        const username = prompt('請輸入您的帳號：');
+        if (!username) {
+            alert('必須輸入帳號才能生成筆記。');
+            return;
+        }
+
+        // 獲取聊天記錄 (去除系統訊息)
+        const chatLog = thread
+            .filter(msg => msg.role !== 'system')
+            .map(entry => `${entry.role}: ${entry.parts[0].text}`)
+            .join('\n');
+
+        // 顯示載入指示器
+        appendMessage('正在生成筆記...', 'bot-message');
+
+        try {
+            // 生成摘要
+            const summaryResponse = await fetch(geminiurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `請以繁體中文回答，不得使用簡體字。作為一位專業的教學助理，請仔細閱讀以下的對話內容，並將其整理成完整的學習筆記。
+
+對話內容：
+${chatLog}
+
+請依照以下結構製作筆記：
+
+【討論主題分類】
+請列出所有討論的主題（不限數量），並為每個主題加上簡短說明。
+
+【各主題重點整理】
+針對每個主題，請詳細整理：
+1. 主要概念和定義
+2. 重要的討論內容
+3. 相關的例子或應用
+4. 特別的見解或觀點
+
+【學習重點歸納】
+為每個主題提供：
+1. 核心重點摘要
+2. 重要公式或方法（如果有）
+3. 解題技巧或注意事項（如果有）
+4. 實際應用場景
+
+【延伸思考】
+1. 與其他概念的關聯
+2. 可能的應用範圍
+3. 需要進一步探討的方向
+
+【總結與反思】
+1. 對每個主題的綜合理解
+2. 學習過程中的重要發現
+3. 未來可以深入研究的方向
+
+請用清楚的標題和段落分隔，確保內容完整且易於閱讀。對於每個主題都要給予同等的重視，不要因為內容太多而簡化任何一個主題。`
+                        }]
+                    }]
+                })
+            });
+
+            const summaryData = await summaryResponse.json();
+            const summary = summaryData.candidates[0].content.parts[0].text;
+
+            // 儲存到 Google Apps Script
+            await new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(result => {
+                        removeLastBotMessage();
+                        if (result && result.status === 'success') {
+                            appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
+                            // 清空聊天記錄
+                            thread = [];
+                        } else {
+                            appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
+                        }
+                        resolve(result);
+                    })
+                    .withFailureHandler(error => {
+                        removeLastBotMessage();
+                        appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+                        reject(error);
+                    })
+                    .doPost({
+                        username: username,
+                        chatLog: summary
+                    });
+            });
+
+        } catch (error) {
+            removeLastBotMessage();
+            appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+        }
+    }
+
+    // 移除最後一條 bot 訊息
+    function removeLastBotMessage() {
+        const messages = chatWindow.querySelectorAll('.bot-message');
+        if (messages.length > 0) {
+            chatWindow.removeChild(messages[messages.length - 1]);
+        }
+    }
+
+    // 翻譯功能
+    async function fetchTranslation(text) {
+        if (!text) return '請輸入要翻譯的內容';
+
+        const systemMessage = {
+            role: 'user',
+            parts: [{ text: `請以繁體中文回答。你現在是一位專業的英語教師，請依照以下格式提供翻譯和學習資訊：
+
+1. 判斷輸入的是中文還是英文，並翻譯成另一種語言
+2. 列出這個字/詞/句子的其他常見用法或相關詞組（至少3個）
+3. 提供2個相關的例句（請包含中英對照）
+4. 如果是句子，請說明當中的文法重點
+5. 補充學習重點或記憶技巧
+
+請用這種方式分析以下內容：
+${text}
+
+請用以下格式回答：
+🔄 翻譯：
+[翻譯內容]
+
+📚 相關用法：
+• [用法1]
+• [用法2]
+• [用法3]
+
+🌟 例句：
+1. [英文例句1]
+   [中文翻譯1]
+2. [英文例句2]
+   [中文翻譯2]
+
+📖 文法重點：
+[相關文法說明]
+
+💡 學習提示：
+[實用的學習建議或記憶技巧]` }]
+        };
+
+        try {
+            const response = await fetch(geminiurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [systemMessage]
+                })
+            });
+
+            const data = await response.json();
+            if (data.candidates && data.candidates.length > 0) {
+                return data.candidates[0].content.parts[0].text || '翻譯失敗，請重試';
+            } else {
+                return '翻譯失敗，請重試';
+            }
+        } catch (error) {
+            console.error('Translation error:', error);
+            return `翻譯過程中發生錯誤：${error.message}`;
+        }
+    }
+
     // 啟動自主學習計畫
     function startStudyPlan() {
         isStudyPlanActive = true;
@@ -218,7 +395,7 @@ const chatModule = (() => {
         chatWindow.scrollTo({
             top: chatWindow.scrollHeight,
             behavior: 'smooth'
-        });
+            });
     }
 
     // 創建選項按鈕
@@ -448,101 +625,6 @@ const chatModule = (() => {
         });
     }
 
-    // 生成筆記
-    async function generateNotes() {
-        if (thread.length === 0) {
-            alert('目前無聊天記錄，無法生成筆記。');
-            return;
-        }
-
-        // 要求用戶輸入帳號
-        const username = prompt('請輸入您的帳號：');
-        if (!username) {
-            alert('必須輸入帳號才能生成筆記。');
-            return;
-        }
-
-        // 獲取聊天記錄 (去除系統訊息)
-        const chatLog = thread
-            .filter(msg => msg.role !== 'system')
-            .map(entry => `${entry.role}: ${entry.parts[0].text}`)
-            .join('\n');
-
-        // 顯示載入指示器
-        appendMessage('正在生成筆記...', 'bot-message');
-
-        try {
-            // 生成摘要
-            const summaryResponse = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `請以繁體中文回答，不得使用簡體字。
-請將以下對話內容做重點摘要，並以條列方式呈現主要討論內容和結論：
-
-${chatLog}
-
-請用以下格式回應：
-主要討論主題：
-1. 
-2. 
-3. 
-
-重要結論：
-1. 
-2. 
-3. `
-                        }]
-                    }]
-                })
-            });
-
-            const summaryData = await summaryResponse.json();
-            const summary = summaryData.candidates[0].content.parts[0].text;
-
-            // 儲存到 Google Apps Script
-            await new Promise((resolve, reject) => {
-                google.script.run
-                    .withSuccessHandler(result => {
-                        removeLastBotMessage();
-                        if (result && result.status === 'success') {
-                            appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
-                            // 清空聊天記錄
-                            thread = [];
-                        } else {
-                            appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
-                        }
-                        resolve(result);
-                    })
-                    .withFailureHandler(error => {
-                        removeLastBotMessage();
-                        appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
-                        reject(error);
-                    })
-                    .doPost({
-                        username: username,
-                        chatLog: summary
-                    });
-            });
-
-        } catch (error) {
-            removeLastBotMessage();
-            appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
-        }
-    }
-
-    // 移除最後一條 bot 訊息
-    function removeLastBotMessage() {
-        const messages = chatWindow.querySelectorAll('.bot-message');
-        if (messages.length > 0) {
-            chatWindow.removeChild(messages[messages.length - 1]);
-        }
-    }
-
     // 處理學習計畫輸入
     async function handleStudyPlanInput(selectedOption) {
         if (!selectedOption) return;
@@ -669,68 +751,6 @@ ${chatLog}
         }
     }
 
-    // 翻譯功能
-    async function fetchTranslation(text) {
-        if (!text) return '請輸入要翻譯的內容';
-
-        const systemMessage = {
-            role: 'user',
-            parts: [{ text: `請以繁體中文回答。你現在是一位專業的英語教師，請依照以下格式提供翻譯和學習資訊：
-
-1. 判斷輸入的是中文還是英文，並翻譯成另一種語言
-2. 列出這個字/詞/句子的其他常見用法或相關詞組（至少3個）
-3. 提供2個相關的例句（請包含中英對照）
-4. 如果是句子，請說明當中的文法重點
-5. 補充學習重點或記憶技巧
-
-請用這種方式分析以下內容：
-${text}
-
-請用以下格式回答：
-🔄 翻譯：
-[翻譯內容]
-
-📚 相關用法：
-• [用法1]
-• [用法2]
-• [用法3]
-
-🌟 例句：
-1. [英文例句1]
-   [中文翻譯1]
-2. [英文例句2]
-   [中文翻譯2]
-
-📖 文法重點：
-[相關文法說明]
-
-💡 學習提示：
-[實用的學習建議或記憶技巧]` }]
-        };
-
-        try {
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [systemMessage]
-                })
-            });
-
-            const data = await response.json();
-            if (data.candidates && data.candidates.length > 0) {
-                return data.candidates[0].content.parts[0].text || '翻譯失敗，請重試';
-            } else {
-                return '翻譯失敗，請重試';
-            }
-        } catch (error) {
-            console.error('Translation error:', error);
-            return `翻譯過程中發生錯誤：${error.message}`;
-        }
-    }
-
     // 初始化
     function init() {
         thread = [];
@@ -753,7 +773,7 @@ ${text}
             studyPlanData = {};
             hasIdea = null;
             thread = []; // 清空聊天記錄
-     appendMessage("請輸入想查的中文或英文", "bot-message");
+            appendMessage("請輸入想查的中文或英文", "bot-message");
         });
 
         returnToChatButton.addEventListener("click", () => {
