@@ -15,50 +15,20 @@ const loginModule = (() => {
         return JSON.parse(jsonPayload);
     }
 
-    // 初始化 Google Sign-In
-    function initializeGoogleSignIn() {
-        google.accounts.id.initialize({
-            client_id: CLIENT_ID,
-            callback: handleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true
-        });
-    }
-
-    // 處理 Google 登入回應
-    function handleCredentialResponse(response) {
-        try {
-            const decoded = decodeJWT(response.credential);
-            isLoggedIn = true;
-            userEmail = decoded.email;
-            
-            // 儲存登入狀態和使用者資訊
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userEmail', userEmail);
-            localStorage.setItem('userToken', response.credential);
-
-            updateLoginStatus();
-            updateUsernameInputs();
-        } catch (error) {
-            console.error('登入處理失敗:', error);
-            handleSignOut();
-        }
-    }
-
     // 更新登入狀態顯示
     function updateLoginStatus() {
         const loginStatus = document.getElementById('login-status');
-        const loginButton = document.getElementById('login-button');
+        const googleSignInDiv = document.querySelector('.g_id_signin');
         const logoutButton = document.getElementById('logout-button');
 
         if (isLoggedIn && userEmail) {
             loginStatus.textContent = `已登入: ${userEmail}`;
-            loginButton.style.display = 'none';
-            logoutButton.style.display = 'block';
+            if (googleSignInDiv) googleSignInDiv.style.display = 'none';
+            if (logoutButton) logoutButton.style.display = 'block';
         } else {
             loginStatus.textContent = '未登入';
-            loginButton.style.display = 'block';
-            logoutButton.style.display = 'none';
+            if (googleSignInDiv) googleSignInDiv.style.display = 'block';
+            if (logoutButton) logoutButton.style.display = 'none';
         }
     }
 
@@ -74,7 +44,6 @@ const loginModule = (() => {
 
     // 處理登出
     function handleSignOut() {
-        google.accounts.id.disableAutoSelect();
         isLoggedIn = false;
         userEmail = '';
         
@@ -85,6 +54,9 @@ const loginModule = (() => {
         
         updateLoginStatus();
         updateUsernameInputs();
+
+        // 重新初始化 Google 登入按鈕
+        initializeGoogleSignIn();
     }
 
     // 顯示登入提示
@@ -93,15 +65,16 @@ const loginModule = (() => {
         prompt.className = 'login-prompt';
         prompt.innerHTML = `
             <p>此功能需要先登入才能使用</p>
-            <button id="prompt-login" class="login-button">立即登入</button>
+            <div id="prompt-login-button"></div>
             <button id="prompt-cancel" class="login-button">取消</button>
         `;
         document.body.appendChild(prompt);
 
-        document.getElementById('prompt-login').onclick = () => {
-            document.body.removeChild(prompt);
-            google.accounts.id.prompt();
-        };
+        // 在提示視窗中渲染 Google 登入按鈕
+        google.accounts.id.renderButton(
+            document.getElementById('prompt-login-button'),
+            { theme: "outline", size: "large" }
+        );
 
         document.getElementById('prompt-cancel').onclick = () => {
             document.body.removeChild(prompt);
@@ -115,6 +88,54 @@ const loginModule = (() => {
             return false;
         }
         return true;
+    }
+
+    // 初始化 Google Sign-In
+    function initializeGoogleSignIn() {
+        google.accounts.id.initialize({
+            client_id: CLIENT_ID,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true
+        });
+
+        // 渲染登入按鈕
+        const loginButtonContainer = document.getElementById('g_id_signin');
+        if (loginButtonContainer) {
+            google.accounts.id.renderButton(
+                loginButtonContainer,
+                { theme: "outline", size: "large", width: "100%" }
+            );
+        }
+    }
+
+    // 處理 Google 登入回應
+    function handleCredentialResponse(response) {
+        console.log('Received Google response:', response);
+        try {
+            const decoded = decodeJWT(response.credential);
+            console.log('Decoded token:', decoded);
+            
+            isLoggedIn = true;
+            userEmail = decoded.email;
+            
+            // 儲存登入狀態和使用者資訊
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userEmail', userEmail);
+            localStorage.setItem('userToken', response.credential);
+
+            updateLoginStatus();
+            updateUsernameInputs();
+
+            // 如果有登入提示視窗，關閉它
+            const loginPrompt = document.querySelector('.login-prompt');
+            if (loginPrompt) {
+                loginPrompt.remove();
+            }
+        } catch (error) {
+            console.error('Login processing failed:', error);
+            handleSignOut();
+        }
     }
 
     // 檢查本地儲存的登入狀態
@@ -138,7 +159,7 @@ const loginModule = (() => {
                     handleSignOut();
                 }
             } catch (error) {
-                console.error('Token 驗證失敗:', error);
+                console.error('Token verification failed:', error);
                 handleSignOut();
             }
         }
@@ -146,18 +167,24 @@ const loginModule = (() => {
 
     // 初始化功能
     function init() {
-        // 初始化 Google Sign-In
-        initializeGoogleSignIn();
-        
-        // 設置登入按鈕
-        const loginButton = document.getElementById('login-button');
-        loginButton.addEventListener('click', () => {
-            google.accounts.id.prompt();
-        });
+        // 延遲初始化，確保 Google API 已加載
+        if (typeof google !== 'undefined' && google.accounts) {
+            initializeGoogleSignIn();
+        } else {
+            // 如果 API 還沒加載完成，等待它加載
+            const checkGoogleApi = setInterval(() => {
+                if (typeof google !== 'undefined' && google.accounts) {
+                    clearInterval(checkGoogleApi);
+                    initializeGoogleSignIn();
+                }
+            }, 100);
+        }
 
         // 設置登出按鈕
         const logoutButton = document.getElementById('logout-button');
-        logoutButton.addEventListener('click', handleSignOut);
+        if (logoutButton) {
+            logoutButton.addEventListener('click', handleSignOut);
+        }
 
         // 檢查儲存的登入狀態
         checkStoredLoginState();
@@ -167,7 +194,6 @@ const loginModule = (() => {
         const loadRecordsButton = document.getElementById('load-records-button');
         const generateNotesButton = document.getElementById('generate-notes-button');
 
-        // 包裝需要登入的按鈕事件
         if (loadNotesButton) {
             const originalLoadNotes = loadNotesButton.onclick;
             loadNotesButton.onclick = function(e) {
@@ -175,7 +201,9 @@ const loginModule = (() => {
                     if (!this.value && isLoggedIn) {
                         document.getElementById('notes-username').value = userEmail;
                     }
-                    originalLoadNotes.call(this, e);
+                    if (typeof originalLoadNotes === 'function') {
+                        originalLoadNotes.call(this, e);
+                    }
                 }
             };
         }
@@ -187,7 +215,9 @@ const loginModule = (() => {
                     if (!this.value && isLoggedIn) {
                         document.getElementById('records-username').value = userEmail;
                     }
-                    originalLoadRecords.call(this, e);
+                    if (typeof originalLoadRecords === 'function') {
+                        originalLoadRecords.call(this, e);
+                    }
                 }
             };
         }
@@ -196,11 +226,23 @@ const loginModule = (() => {
             const originalGenerateNotes = generateNotesButton.onclick;
             generateNotesButton.onclick = function(e) {
                 if (checkLoginRequired('generateNotes')) {
-                    originalGenerateNotes.call(this, e);
+                    if (typeof originalGenerateNotes === 'function') {
+                        originalGenerateNotes.call(this, e);
+                    }
                 }
             };
         }
     }
+
+    // 監控 Google API 載入狀態
+    window.onload = () => {
+        console.log('Page loaded');
+        if (window.google) {
+            console.log('Google API loaded');
+        } else {
+            console.log('Google API not loaded');
+        }
+    };
 
     // 公開的介面
     return {
