@@ -3,7 +3,7 @@ const loginModule = (() => {
     // 模組私有變數
     let isLoggedIn = false;
     let userEmail = '';
-    const CLIENT_ID = '495434298150-k5jc3vcri0g9jt5bs11bja3qe89kh2nf'; // 替換為你的 Google OAuth Client ID
+    const CLIENT_ID = '619176008397-nq6aehvssq4gcpif488d9ctnkdcofv9r.apps.googleusercontent.com'; // 替換為你的 Google OAuth Client ID
 
     // JWT 解碼函數
     function decodeJWT(token) {
