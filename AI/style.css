@@ -1102,19 +1102,30 @@ body {
 
 .mode-indicator {
     background-color: #f0f0f0;
-    padding: 8px 15px;
+    padding: 6px 12px;
     border-radius: 20px;
     font-size: 14px;
     color: #333;
     display: flex;
     align-items: center;
     margin-right: 10px;
+    white-space: nowrap;  /* 防止文字換行 */
+}
+
+.mode-label {
+    margin-right: 4px;
+}
+
+/* 在手機版隱藏"目前模式："文字 */
+@media (max-width: 768px) {
+    .mode-label {
+        display: none;  /* 隱藏 "目前模式：" 文字 */
+    }
 }
 
 #current-mode {
     font-weight: bold;
     color: #8ab0ab;
-    margin-left: 5px;
 }
 
 .mode-transition {
