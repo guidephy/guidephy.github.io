@@ -11,6 +11,18 @@ const chatModule = (() => {
     const returnToChatButton = document.getElementById('return-to-chat-button');
     const generateNotesButton = document.getElementById('generate-notes-button');
 
+    // 新增 formatText 函數
+      function formatText(text) {
+        let formatted = text;
+        // 移除 Markdown 標題標記 (移除所有的 # 符號和後面的空格)
+        formatted = formatted.replace(/^#+\s*/gm, '');
+        // 轉換換行符
+        formatted = formatted.replace(/\n/g, '<br>');
+        // 轉換粗體
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return formatted;
+    }
+
     // 學習計畫相關變數
     let studyPlanStep = 0;
     let studyPlanData = {};
