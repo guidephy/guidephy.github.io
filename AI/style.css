@@ -317,7 +317,7 @@ body {
 #send-button {
     flex-shrink: 0; 
     padding: 10px 20px;
-    background-color: #4a7899;
+    background-color: #46A3FF;
     color: white;
     border: none;
     border-radius: 20px;
@@ -325,12 +325,11 @@ body {
     white-space: nowrap; 
     max-width: 100px; 
     transition: background-color 0.3s ease;
-    font-size: 17px;
     font-weight: 500;
 }
 
 #send-button:hover {
-    background-color: #386380;
+    background-color: #0072E3;
 }
 
 .image-preview {
