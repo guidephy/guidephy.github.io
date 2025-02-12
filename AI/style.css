@@ -256,11 +256,64 @@ body {
 .toolbar {
     display: flex;
     align-items: center;
-    padding: 5px 10px;
+    padding: 5px;
+    gap: 5px;
+    background-color: #f7f7f7;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
-    background-color: #f7f7f7;
-    gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+/* 隱藏滾動條 */
+.toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+.mode-indicator {
+    background-color: #f0f0f0;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.mode-label {
+    margin-right: 4px;
+}
+
+@media (max-width: 768px) {
+    .mode-label {
+        display: none;
+    }
+    
+    .toolbar {
+        padding: 5px 8px;
+    }
+
+    .feature-button {
+        padding: 6px 10px;
+    }
+}
+
+#current-mode {
+    font-weight: bold;
+    color: #8ab0ab;
+}
+
+.mode-transition {
+    animation: fadeInOut 0.3s ease;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
 .feature-button {
@@ -268,10 +321,12 @@ body {
     color: white;
     border: none;
     border-radius: 20px;
-    padding: 10px 15px;
+    padding: 8px 12px;
     cursor: pointer;
     white-space: nowrap;
-    font-size: 14px;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-right: 2px;
 }
 
 .feature-button:hover {
@@ -509,6 +564,9 @@ body {
 .ai-generator-container .submit-button {
     display: none;
     margin: 30px auto 0 auto;
+.ai-generator-container .submit-button {
+    display: none;
+    margin: 30px auto 0 auto;
     background-color: #8ab0ab;
     color: white;
     border: none;
@@ -694,24 +752,6 @@ body {
 }
 
 /* 物理講義 */
-.physics-lecture-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0; 
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
-
-.physics-lecture-container iframe {
-    width: 100%;
-    height: 100vh;
-    border: none;
-    border-radius: 8px;
-    background-color: #fff;
-}
-
-/* 物理講義、計算機、蕃茄鐘 共用樣式 */
 .physics-lecture-container {
     max-width: 800px;
     margin: 0 auto;
@@ -936,6 +976,7 @@ body {
         width: 100%;
     }
 }
+
 /* 測驗區域的整體樣式 */
 #records-quiz-area {
     max-width: 800px;
@@ -1046,6 +1087,13 @@ body {
     border: none;
     padding: 14px 40px;
     font-size: 1.1rem;
+/* 提交按鈕樣式 */
+.submit-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    font-size: 1.1rem;
     font-weight: 600;
     border-radius: 8px;
     cursor: pointer;
@@ -1088,51 +1136,4 @@ body {
     border-radius: 6px;
     color: #856404;
     line-height: 1.6;
-}
-
-#login-button {
-    background-color: #8ab0ab;
-    color: white;
-    margin-bottom: 20px;
-}
-
-#login-button:hover {
-    background-color: #6e928b;
-}
-
-.mode-indicator {
-    background-color: #f0f0f0;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    color: #333;
-    display: flex;
-    align-items: center;
-    margin-right: 10px;
-    white-space: nowrap;  /* 防止文字換行 */
-}
-
-.mode-label {
-    margin-right: 4px;
-}
-
-/* 在手機版隱藏"目前模式："文字 */
-@media (max-width: 768px) {
-    .mode-label {
-        display: none;  /* 隱藏 "目前模式：" 文字 */
-    }
-}
-
-#current-mode {
-    font-weight: bold;
-    color: #8ab0ab;
-}
-
-.mode-transition {
-    animation: fadeInOut 0.3s ease;
-}
-
-@keyframes fadeInOut {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
 }
