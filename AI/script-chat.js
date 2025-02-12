@@ -796,15 +796,16 @@ ${chatLog}
         });
 
         studyPlanButton.addEventListener('click', () => {
-            translationMode = false;
-            returnToChatButton.style.display = 'none';
-            translateButton.style.display = 'inline-block';
-            setInputState(false);
-            thread = [];
-            updateModeDisplay('自主學習計畫');
-            userInput.placeholder = "請依照指示回答...";
-            startStudyPlan();
-        });
+    translationMode = false;
+    returnToChatButton.style.display = 'inline-block';
+    translateButton.style.display = 'inline-block';
+    studyPlanButton.style.display = 'none';
+    setInputState(false);
+    thread = [];
+    updateModeDisplay('自主學習計畫');
+    userInput.placeholder = "請依照指示回答...";
+    startStudyPlan();
+});
     }
 
     // 取得問候語
