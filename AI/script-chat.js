@@ -511,6 +511,8 @@ ${chatLog}
                         removeLastBotMessage();
                         if (result && result.status === 'success') {
                             appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
+                            // 清空聊天記錄
+                            thread = [];
                         } else {
                             appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
                         }
@@ -617,8 +619,8 @@ ${chatLog}
                     isStudyPlanActive = false;
                     studyPlanStep = 0;
                     hasIdea = null;
-                    thread = [{ role: 'model', parts: [{ text: plan }] }];
-                    setInputState(true);
+                    thread = []; // 清空聊天記錄
+                    setInputState(false);
                     break;
             }
         }
@@ -740,13 +742,18 @@ ${text}
         document.getElementById('load-notes-button').addEventListener('click', loadUserNotes);
         generateNotesButton.addEventListener('click', generateNotes);
 
-        // 其他按鈕事件監聽
+        // 按鈕事件監聽
         translateButton.addEventListener("click", () => {
             translationMode = true;
             returnToChatButton.style.display = "inline-block";
             translateButton.style.display = "none";
             setInputState(false);
-            appendMessage("請輸入想查的中文或英文", "bot-message");
+            isStudyPlanActive = false;
+            studyPlanStep = 0;
+            studyPlanData = {};
+            hasIdea = null;
+            thread = []; // 清空聊天記錄
+     appendMessage("請輸入想查的中文或英文", "bot-message");
         });
 
         returnToChatButton.addEventListener("click", () => {
@@ -754,6 +761,11 @@ ${text}
             returnToChatButton.style.display = "none";
             translateButton.style.display = "inline-block";
             setInputState(false);
+            isStudyPlanActive = false;
+            studyPlanStep = 0;
+            studyPlanData = {};
+            hasIdea = null;
+            thread = []; // 清空聊天記錄
             appendMessage("已返回聊天模式。", "bot-message");
         });
 
@@ -762,6 +774,7 @@ ${text}
             returnToChatButton.style.display = 'none';
             translateButton.style.display = 'inline-block';
             setInputState(false);
+            thread = []; // 清空之前的聊天記錄
             startStudyPlan();
         });
     }
