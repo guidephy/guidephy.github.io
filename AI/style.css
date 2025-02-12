@@ -141,6 +141,7 @@ body {
     font-size: 24px;
     cursor: pointer;
 }
+
 /* 聊天窗口 */
 .chat-window {
     flex: 1;
@@ -316,7 +317,7 @@ body {
 #send-button {
     flex-shrink: 0; 
     padding: 10px 20px;
-    background-color: #84C1FF;  /* 改為偏藍色 */
+    background-color: #4a7899;
     color: white;
     border: none;
     border-radius: 20px;
@@ -324,12 +325,12 @@ body {
     white-space: nowrap; 
     max-width: 100px; 
     transition: background-color 0.3s ease;
-    font-size: 17px;  /* 加大文字大小 */
-    font-weight: 500;  /* 稍微加粗 */
+    font-size: 17px;
+    font-weight: 500;
 }
 
 #send-button:hover {
-    background-color: #0080FF;  /* hover 時的顏色也相應調整 */
+    background-color: #386380;
 }
 
 .image-preview {
@@ -639,6 +640,144 @@ body {
     padding: 15px;
     border-radius: 4px;
     margin-top: 10px;
+}
+
+/* 學習記錄樣式 */
+.my-records-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.my-records-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* 統計卡片區域 */
+.statistics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.statistic-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.statistic-card:hover {
+    transform: translateY(-2px);
+}
+
+.statistic-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #8ab0ab;
+    margin-bottom: 5px;
+}
+
+.statistic-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* 筆記卡片樣式 */
+.note-card {
+    background: white;
+    border-left: 4px solid #8ab0ab;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.note-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.note-time {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.note-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 輸入區域樣式 */
+.notes-input-area,
+.records-input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.notes-input-area input,
+.records-input-area input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.notes-input-area input:focus,
+.records-input-area input:focus {
+    outline: none;
+    border-color: #8ab0ab;
+    box-shadow: 0 0 0 3px rgba(138, 176, 171, 0.2);
+}
+
+.notes-input-area button,
+.records-input-area button,
+#retry-history,
+#retry-wrong {
+    background: #8ab0ab;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.notes-input-area button:hover,
+.records-input-area button:hover,
+#retry-history:hover,
+#retry-wrong:hover {
+    background: #6e928b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 測驗記錄選項區域 */
+#records-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
 }
 
 /* 提示顯示區塊 */
