@@ -1099,3 +1099,29 @@ body {
 #login-button:hover {
     background-color: #6e928b;
 }
+
+.mode-indicator {
+    background-color: #f0f0f0;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+#current-mode {
+    font-weight: bold;
+    color: #8ab0ab;
+    margin-left: 5px;
+}
+
+.mode-transition {
+    animation: fadeInOut 0.3s ease;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
