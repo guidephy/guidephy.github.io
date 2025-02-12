@@ -808,7 +808,7 @@ ${chatLog}
         startStudyPlan();
     });
 }
-    }
+    
 
     // 取得問候語
     function getGreeting() {
