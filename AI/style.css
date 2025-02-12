@@ -316,18 +316,20 @@ body {
 #send-button {
     flex-shrink: 0; 
     padding: 10px 20px;
-    background-color: #8ab0ab;
+    background-color: #5d7f89;  /* 改為較深的藍綠色 */
     color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     white-space: nowrap; 
     max-width: 100px; 
+    transition: background-color 0.3s ease;  /* 添加過渡效果 */
 }
 
 #send-button:hover {
-    background-color: #6e928b;
+    background-color: #496873;  /* hover 時的顏色也相應調整 */
 }
+
 .image-preview {
     display: flex;
     align-items: center;
