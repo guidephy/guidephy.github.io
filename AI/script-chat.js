@@ -765,47 +765,49 @@ ${chatLog}
         generateNotesButton.addEventListener('click', generateNotes);
 
         // 按鈕事件監聽
-        translateButton.addEventListener("click", () => {
-            translationMode = true;
-    returnToChatButton.style.display = "inline-block";
-            translateButton.style.display = "none";
-            setInputState(false);
-            isStudyPlanActive = false;
-            studyPlanStep = 0;
-            studyPlanData = {};
-            hasIdea = null;
-            thread = []; 
-            updateModeDisplay('中英翻譯');
-            userInput.placeholder = "請輸入要翻譯的內容...";
-            appendMessage("請輸入想查的中文或英文", "bot-message");
-        });
+          translateButton.addEventListener("click", () => {
+        translationMode = true;
+        returnToChatButton.style.display = "inline-block";
+        translateButton.style.display = "none";
+        setInputState(false);
+        isStudyPlanActive = false;
+        studyPlanStep = 0;
+        studyPlanData = {};
+        hasIdea = null;
+        thread = []; 
+        updateModeDisplay('中英翻譯');
+        userInput.placeholder = "請輸入要翻譯的內容...";
+        appendMessage("請輸入想查的中文或英文", "bot-message");
+    });
 
-        returnToChatButton.addEventListener("click", () => {
-            translationMode = false;
-            returnToChatButton.style.display = "none";
-            translateButton.style.display = "inline-block";
-            setInputState(false);
-            isStudyPlanActive = false;
-            studyPlanStep = 0;
-            studyPlanData = {};
-            hasIdea = null;
-            thread = [];
-            updateModeDisplay('聊天');
-            userInput.placeholder = "輸入訊息...";
-            appendMessage("已返回聊天模式。", "bot-message");
-        });
+       returnToChatButton.addEventListener("click", () => {
+        translationMode = false;
+        returnToChatButton.style.display = "none";
+        translateButton.style.display = "inline-block";
+        studyPlanButton.style.display = "inline-block";  // 使用原本的 studyPlanButton 變數
+        setInputState(false);
+        isStudyPlanActive = false;
+        studyPlanStep = 0;
+        studyPlanData = {};
+        hasIdea = null;
+        thread = [];
+        updateModeDisplay('聊天');
+        userInput.placeholder = "輸入訊息...";
+        appendMessage("已返回聊天模式。", "bot-message");
+    });
 
-        studyPlanButton.addEventListener('click', () => {
-    translationMode = false;
-    returnToChatButton.style.display = 'inline-block';
-    translateButton.style.display = 'inline-block';
-    studyPlanButton.style.display = 'none';
-    setInputState(false);
-    thread = [];
-    updateModeDisplay('自主學習計畫');
-    userInput.placeholder = "請依照指示回答...";
-    startStudyPlan();
-});
+           studyPlanButton.addEventListener('click', () => {
+        translationMode = false;
+        returnToChatButton.style.display = 'inline-block';
+        translateButton.style.display = 'inline-block';
+        studyPlanButton.style.display = 'none';  
+        setInputState(false);
+        thread = [];
+        updateModeDisplay('自主學習計畫');
+        userInput.placeholder = "請依照指示回答...";
+        startStudyPlan();
+    });
+}
     }
 
     // 取得問候語
