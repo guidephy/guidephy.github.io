@@ -39,46 +39,7 @@ body {
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed; 
-        height: 100%;
-        top: 0;
-        left: 0;
-        transform: translateX(-250px);
-    }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .input-area {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 1002; 
-        padding: 10px;
-        background-color: white;
-        border-top: 1px solid #ddd;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .chat-window, .external-content {
-        flex: 1;
-        overflow-y: auto;
-        padding-bottom: 70px; 
-    }
-
-    .main-content {
-        margin-top: 50px; 
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto; 
-        padding-bottom: 70px;
-    }
-}
-
+/* 桌面版樣式 */
 @media (min-width: 769px) {
     .sidebar {
         position: fixed;
@@ -173,7 +134,6 @@ body {
     flex-direction: column;
     background-color: #fafafa;
     overflow: hidden;
-    padding-top: 50px; 
 }
 
 .header .menu-toggle {
@@ -181,18 +141,6 @@ body {
     font-size: 24px;
     cursor: pointer;
 }
-
-@media (max-width: 768px) {
-    .header .menu-toggle {
-        display: block;
-    }
-
-    .main-content {
-        flex: 1;
-        margin-left: 0;
-    }
-}
-
 /* 聊天窗口 */
 .chat-window {
     flex: 1;
@@ -266,7 +214,6 @@ body {
     scrollbar-width: none;
 }
 
-/* 隱藏滾動條 */
 .toolbar::-webkit-scrollbar {
     display: none;
 }
@@ -286,20 +233,6 @@ body {
 
 .mode-label {
     margin-right: 4px;
-}
-
-@media (max-width: 768px) {
-    .mode-label {
-        display: none;
-    }
-    
-    .toolbar {
-        padding: 5px 8px;
-    }
-
-    .feature-button {
-        padding: 6px 10px;
-    }
 }
 
 #current-mode {
@@ -395,7 +328,6 @@ body {
 #send-button:hover {
     background-color: #6e928b;
 }
-
 .image-preview {
     display: flex;
     align-items: center;
@@ -561,9 +493,6 @@ body {
     margin-top: 5px;
 }
 
-.ai-generator-container .submit-button {
-    display: none;
-    margin: 30px auto 0 auto;
 .ai-generator-container .submit-button {
     display: none;
     margin: 30px auto 0 auto;
@@ -769,7 +698,7 @@ body {
     background-color: #fff;
 }
 
-/* 新增選項按鈕的樣式 */
+/* 選項按鈕相關 */
 .option-button {
     background-color: #4CAF50;
     border: none;
@@ -801,162 +730,77 @@ body {
     50% { opacity: 0.5; }
 }
 
-/* 學習記錄新樣式 */
-.my-records-container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 30px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.my-records-container h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-/* 統計卡片區域 */
-.statistics-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.statistic-card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s;
-}
-
-.statistic-card:hover {
-    transform: translateY(-2px);
-}
-
-.statistic-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #8ab0ab;
-    margin-bottom: 5px;
-}
-
-.statistic-label {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* 筆記卡片樣式 */
-.note-card {
-    background: white;
-    border-left: 4px solid #8ab0ab;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-
-.note-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
-
-.note-time {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-}
-
-.note-content {
-    color: #333;
-    line-height: 1.6;
-}
-
-/* 輸入區域樣式 */
-.notes-input-area,
-.records-input-area {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-.notes-input-area input,
-.records-input-area input {
-    flex: 1;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.notes-input-area input:focus,
-.records-input-area input:focus {
-    outline: none;
-    border-color: #8ab0ab;
-    box-shadow: 0 0 0 3px rgba(138, 176, 171, 0.2);
-}
-
-.notes-input-area button,
-.records-input-area button,
-#retry-history,
-#retry-wrong {
-    background: #8ab0ab;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.notes-input-area button:hover,
-.records-input-area button:hover,
-#retry-history:hover,
-#retry-wrong:hover {
-    background: #6e928b;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* 測驗記錄選項區域 */
-#records-options {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-/* 載入動畫 */
-.loading-spinner {
-    width: 40px;
-    height: 40px;
-    margin: 20px auto;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #8ab0ab;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* 響應式設計調整 */
+/* 手機版樣式 */
 @media (max-width: 768px) {
+    /* 側邊欄相關 */
+    .sidebar {
+        position: fixed; 
+        height: 100%;
+        top: 0;
+        left: 0;
+        transform: translateX(-250px);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    /* 主要內容區域相關 */
+    .main-content {
+        margin-left: 0;
+        margin-top: 0;
+        padding-top: 50px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto; 
+        padding-bottom: 70px;
+    }
+
+    /* 聊天視窗相關 */
+    .chat-window, .external-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 70px; 
+    }
+
+    .chat-window {
+        margin-top: 0;
+        padding-top: 5px;
+    }
+
+    /* 輸入區域相關 */
+    .input-area {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1002; 
+        padding: 10px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 選單按鈕相關 */
+    .header .menu-toggle {
+        display: block;
+    }
+
+    /* 工具列相關 */
+    .toolbar {
+        padding: 5px 8px;
+    }
+
+    .feature-button {
+        padding: 6px 10px;
+    }
+
+    /* 模式標籤相關 */
+    .mode-label {
+        display: none;
+    }
+
+    /* 學習記錄相關 */
     .my-records-container {
         margin: 10px;
         padding: 15px;
@@ -975,165 +819,4 @@ body {
     .records-input-area button {
         width: 100%;
     }
-}
-
-/* 測驗區域的整體樣式 */
-#records-quiz-area {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-/* 問題卡片樣式 */
-.question-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.question-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-
-/* 題目文字樣式 */
-.question-card strong {
-    display: block;
-    font-size: 1.1rem;
-    color: #2c3e50;
-    margin-bottom: 20px;
-    line-height: 1.5;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-/* 選項容器樣式 */
-.question-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-/* 選項標籤樣式 */
-.question-options label {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    background-color: #f8f9fa;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.question-options label:hover {
-    background-color: #e9ecef;
-    border-color: #8ab0ab;
-}
-
-/* 單選框樣式 */
-.question-options input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #8ab0ab;
-    border-radius: 50%;
-    margin-right: 12px;
-    position: relative;
-    cursor: pointer;
-}
-
-.question-options input[type="radio"]:checked {
-    background-color: #8ab0ab;
-    border-color: #8ab0ab;
-}
-
-.question-options input[type="radio"]:checked::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    background-color: white;
-    border-radius: 50%;
-}
-
-/* 選項文字樣式 */
-.question-options label span {
-    flex: 1;
-    margin-left: 8px;
-    color: #444;
-}
-
-/* 提交按鈕容器 */
-.submit-button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-    padding: 20px 0;
-}
-
-/* 提交按鈕樣式 */
-.submit-button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    padding: 14px 40px;
-    font-size: 1.1rem;
-/* 提交按鈕樣式 */
-.submit-button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    padding: 14px 40px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 6px rgba(138, 176, 171, 0.3);
-}
-
-.submit-button:hover {
-    background-color: #6e928b;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(138, 176, 171, 0.4);
-}
-
-.submit-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(138, 176, 171, 0.2);
-}
-
-/* 答題結果樣式 */
-.your-answer {
-    margin-top: 15px;
-    padding: 10px 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    color: #666;
-}
-
-.correct-answer {
-    margin-top: 10px;
-    padding: 10px 15px;
-    background-color: #d4edda;
-    border-radius: 6px;
-    color: #155724;
-}
-
-.explanation {
-    margin-top: 15px;
-    padding: 15px;
-    background-color: #fff9db;
-    border-radius: 6px;
-    color: #856404;
-    line-height: 1.6;
 }
