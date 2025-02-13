@@ -442,6 +442,14 @@ body {
 /* 統一表單組件樣式 */
 .form-group {
     margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group input[type="file"] {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 .form-group label {
