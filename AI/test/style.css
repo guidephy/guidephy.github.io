@@ -1,9 +1,9 @@
-/* 主页基础样式 */
+/* 主頁樣式 */
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; 
     min-height: 100vh;
     background-color: #f7f6f2;
 }
@@ -28,7 +28,6 @@ body {
     display: flex;
 }
 
-/* 侧边栏样式 */
 .sidebar {
     width: 250px;
     background-color: #f0f0f0;
@@ -40,10 +39,52 @@ body {
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
+/* 桌面版樣式 */
+@media (min-width: 769px) {
+    .sidebar {
+        position: fixed;
+        top: 50px; 
+        left: 0;
+        height: calc(100vh - 50px);
+        width: 250px;
+        overflow-y: auto;
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 250px; 
+        padding-top: 50px; 
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 50px);
+    }
+
+    .chat-window {
+        flex: 1;
+        overflow-y: auto;
+        max-height: calc(100vh - 150px); 
+    }
+
+    .input-area {
+        position: relative; 
+        width: 100%;
+        margin-top: auto; 
+        padding: 10px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .external-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+}
+
 .sidebar-header {
     padding: 20px;
     text-align: center;
-    font-size: 18px;
+    font-size: 18px; 
     font-weight: bold;
     background-color: #f0f0f0;
 }
@@ -54,12 +95,12 @@ body {
 }
 
 .menu-item {
-    padding: 15px;
+    padding: 15px; 
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.2s ease, color 0.2s ease;
     color: #333;
-    font-size: 16px;
+    font-size: 16px; 
 }
 
 .menu-item:hover {
@@ -71,30 +112,22 @@ body {
     display: none;
 }
 
-/* 页首样式 */
 .header {
-    position: fixed;
+    position: fixed; 
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1001;
+    z-index: 1001; 
     background-color: #8ab0ab;
     color: white;
     padding: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    font-size: 20px; 
 }
 
-.header .menu-toggle {
-    display: none;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-/* 主内容区域样式 */
 .main-content {
     flex: 1;
     display: flex;
@@ -103,7 +136,13 @@ body {
     overflow: hidden;
 }
 
-/* 聊天窗口样式 */
+.header .menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* 聊天窗口 */
 .chat-window {
     flex: 1;
     overflow-y: auto;
@@ -129,17 +168,40 @@ body {
 
 .user-message {
     align-self: flex-end;
-    background-color: #DCF8C6;
+    background-color: #DCF8C6; 
     justify-content: flex-end;
 }
 
 .bot-message {
     align-self: flex-start;
-    background-color: #ECF5FF;
+    background-color: #ECF5FF; 
     justify-content: flex-start;
 }
 
-/* 工具栏样式 */
+.message img {
+    max-width: 150px;
+    border-radius: 10px;
+}
+
+.chat-window {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.chat-window::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+/* 工具列(toolbar) */
 .toolbar {
     display: flex;
     align-items: center;
@@ -150,6 +212,11 @@ body {
     border-bottom: 1px solid #ddd;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.toolbar::-webkit-scrollbar {
+    display: none;
 }
 
 .mode-indicator {
@@ -178,7 +245,28 @@ body {
     animation: fadeInOut 0.3s ease;
 }
 
-/* 输入区域样式 */
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.feature-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-right: 2px;
+}
+
+.feature-button:hover {
+    background-color: #6e928b;
+}
+
 .input-area {
     display: flex;
     align-items: center;
@@ -186,6 +274,7 @@ body {
     border-top: 1px solid #ddd;
     background-color: white;
     gap: 10px;
+    flex-shrink: 0;
     box-sizing: border-box;
     width: 100%;
 }
@@ -198,7 +287,7 @@ body {
     padding: 10px 15px;
     cursor: pointer;
     position: relative;
-    flex-shrink: 0;
+    flex-shrink: 0; 
 }
 
 .upload-button:hover {
@@ -216,395 +305,33 @@ body {
 }
 
 #user-input {
-    flex: 1;
+    flex: 1 1 auto; 
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 20px;
     outline: none;
-    font-size: 16px;
+    box-sizing: border-box;
+    font-size: 16px; 
 }
 
 #send-button {
+    flex-shrink: 0; 
     padding: 10px 20px;
     background-color: #46A3FF;
     color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
+    white-space: nowrap; 
+    max-width: 100px; 
     transition: background-color 0.3s ease;
+    font-weight: 500;
 }
 
 #send-button:hover {
     background-color: #0072E3;
 }
 
-/* AI素养题生成器样式 */
-.ai-generator-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-.ai-generator-container h1 {
-    text-align: center;
-    color: #8ab0ab;
-    margin-bottom: 30px;
-    font-weight: bold;
-}
-
-.ai-generator-container .form-group {
-    margin-bottom: 20px;
-}
-
-.ai-generator-container label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
-}
-
-.ai-generator-container input[type="text"],
-.ai-generator-container textarea,
-.ai-generator-container select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.ai-generator-container textarea {
-    min-height: 100px;
-}
-
-.ai-generator-container .button-group {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.ai-generator-container button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    font-size: 18px;
-}
-
-.ai-generator-container button:hover {
-    background-color: #6e928b;
-    transform: scale(1.05);
-}
-
-/* 教我解题样式 */
-.solve-problem-container {
-    max-width: 800px;
-    margin: 0 auto 20px auto;
-    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-}
-
-.solve-problem-container h1 {
-    text-align: center;
-    color: #8ab0ab;
-    margin-bottom: 30px;
-    font-size: 1.8rem;
-    font-weight: bold;
-}
-
-/* 学习记录样式 */
-.my-records-container {
-    max-width: 800px;
-    margin: 20px auto;
-    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-}
-
-.my-records-container h1 {
-    text-align: center;
-    color: #8ab0ab;
-    margin-bottom: 30px;
-    font-size: 1.8rem;
-    font-weight: bold;
-}
-
-/* Tab切换样式 */
-.tab-switch {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
-    background: #f5f5f5;
-    padding: 4px;
-    border-radius: 8px;
-}
-
-.tab-button {
-    flex: 1;
-    padding: 12px;
-    text-align: center;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    color: #666;
-    transition: all 0.3s ease;
-}
-
-.tab-button.active {
-    background: #8ab0ab;
-    color: white;
-    font-weight: 500;
-}
-
-.tab-content {
-    display: none;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-}
-
-.tab-content.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-/* 问题卡片样式 */
-.question-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.question-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.question-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 15px 0;
-}
-
-.question-options label {
-    display: block;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.question-options label:hover {
-    background: #f5f5f5;
-    border-color: #8ab0ab;
-}
-
-/* 统计卡片样式 */
-.statistics-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin: 20px 0;
-}
-
-.statistic-card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-}
-
-.statistic-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.statistic-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #8ab0ab;
-    margin-bottom: 5px;
-}
-
-.statistic-label {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* 提示和反思区域样式 */
-.hint-area,
-.reflection-area {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* 物理讲义样式 */
-.physics-lecture-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
-
-.physics-lecture-container iframe {
-    width: 100%;
-    height: 100vh;
-    border: none;
-    border-radius: 8px;
-}
-
-/* 动画效果 */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInOut {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-/* 响应式设计 */
-@media (min-width: 769px) {
-    .sidebar {
-        position: fixed;
-        top: 50px;
-        left: 0;
-        height: calc(100vh - 50px);
-        width: 250px;
-        overflow-y: auto;
-    }
-
-    .main-content {
-        margin-left: 250px;
-        padding-top: 50px;
-        height: calc(100vh - 50px);
-    }
-
-    .chat-window {
-        max-height: calc(100vh - 150px);
-    }
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        height: 100%;
-        top: 0;
-        left: 0;
-        transform: translateX(-250px);
-    }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .header .menu-toggle {
-        display: block;
-    }
-
-    .main-content {
-        margin-left: 0;
-        margin-top: 0;
-        padding-top: 50px;
-        padding-bottom: 70px;
-    }
-
-    .chat-window {
-        margin-top: 0;
-        padding-top: 5px;
-    }
-
-    .input-area {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 1002;
-        padding: 10px;
-        background-color: white;
-        border-top: 1px solid #ddd;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .toolbar {
-        padding: 5px 8px;
-    }
-
-    .feature-button {
-        padding: 6px 10px;
-        font-size: 13px;
-    }
-
-    .mode-label {
-        display: none;
-    }
-
-    .ai-generator-container,
-    .solve-problem-container,
-    .my-records-container {
-        margin: 10px;
-        padding: 15px;
-    }
-
-    .button-group {
-        flex-direction: column;
-    }
-
-    .statistics-cards {
-        grid-template-columns: 1fr;
-    }
-
-    .question-options label {
-        font-size: 14px;
-        padding: 10px;
-    }
-
-    .tab-switch {
-        flex-wrap: wrap;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-        font-size: 14px;
-        padding: 10px;
-    }
-}
-
-/* 图片预览样式 */
 .image-preview {
     display: flex;
     align-items: center;
@@ -630,60 +357,225 @@ body {
     cursor: pointer;
 }
 
-/* 加载动画样式 */
-.loading {
-    text-align: center;
-    color: #666;
-    padding: 20px;
-    font-style: italic;
-    animation: pulse 1.5s infinite;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-@keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
-}
-
-/* 按钮和输入框的额外样式 */
-.feature-button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 12px;
-    cursor: pointer;
-    white-space: nowrap;
-    font-size: 13px;
-    flex-shrink: 0;
-    margin-right: 2px;
-    transition: background-color 0.3s ease;
-}
-
-.feature-button:hover {
-    background-color: #6e928b;
-}
-
-.submit-button {
-    display: none;
-    margin: 30px auto 0 auto;
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    padding: 14px 28px;
+/* 統一容器樣式 */
+.ai-generator-container,
+.solve-problem-container,
+.my-records-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #fff;
     border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* 統一標題樣式 */
+.ai-generator-container h1,
+.solve-problem-container h1,
+.my-records-container h1 {
+    font-size: 1.8rem;
+    text-align: center;
+    color: #8ab0ab;
+    margin-bottom: 30px;
+}
+
+/* 統一分頁切換樣式 */
+.tab-switch {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
     cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 16px;
+    color: #666;
     transition: all 0.3s ease;
 }
 
-.submit-button:hover {
-    background-color: #6e928b;
-    transform: scale(1.05);
+.tab-button.active {
+    color: #8ab0ab;
+    border-bottom: 2px solid #8ab0ab;
+    font-weight: bold;
 }
 
-/* 笔记相关样式 */
+/* 統一表單組件樣式 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #8ab0ab;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(138, 176, 171, 0.2);
+}
+
+/* 統一按鈕樣式 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.button-group button,
+.submit-button,
+#retry-history,
+#retry-wrong,
+#load-notes-button,
+#load-records-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.button-group button:hover,
+.submit-button:hover,
+#retry-history:hover,
+#retry-wrong:hover,
+#load-notes-button:hover,
+#load-records-button:hover {
+    background-color: #6e928b;
+    transform: translateY(-2px);
+}
+
+/* 統一結果區域樣式 */
+.result-area,
+#resultArea,
+#hintArea,
+#reflectionArea {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 統一問題卡片樣式 */
+.question-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.question-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 統一選項樣式 */
+.question-options label {
+    display: block;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.question-options label:hover {
+    background-color: #f5f5f5;
+}
+
+
+/* 統一圖片預覽區域樣式 */
+.image-preview {
+    margin-top: 15px;
+    text-align: center;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+}
+
+.image-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* 統計卡片區域 */
+.statistics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.statistic-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.statistic-card:hover {
+    transform: translateY(-2px);
+}
+
+.statistic-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #8ab0ab;
+    margin-bottom: 5px;
+}
+
+.statistic-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* 筆記卡片樣式 */
 .note-card {
     background: white;
     border-left: 4px solid #8ab0ab;
@@ -691,7 +583,7 @@ body {
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .note-card:hover {
@@ -699,6 +591,18 @@ body {
     transform: translateY(-2px);
 }
 
+.note-time {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.note-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 輸入區域樣式 */
 .notes-input-area,
 .records-input-area {
     display: flex;
@@ -709,45 +613,160 @@ body {
     border-radius: 8px;
 }
 
-/* 修复滚动条样式 */
-.chat-window {
-    scrollbar-width: thin;
-    scrollbar-color: #ccc transparent;
+/* 物理講義 */
+.physics-lecture-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0; 
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
-.chat-window::-webkit-scrollbar {
-    width: 8px;
+.physics-lecture-container iframe {
+    width: 100%;
+    height: 100vh;
+    border: none;
+    border-radius: 8px;
+    background-color: #fff;
 }
 
-.chat-window::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.chat-window::-webkit-scrollbar-thumb {
-    background-color: #ccc;
+/* 選項按鈕相關 */
+.option-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
     border-radius: 4px;
 }
 
-/* 其他功能性样式 */
-.your-answer {
-    margin-top: 5px;
-    color: #666;
+.option-button:hover {
+    background-color: #3e8e41;
 }
 
-.correct-answer {
-    margin-top: 5px;
-    color: #28a745;
-    font-weight: bold;
+.message-options {
+    margin-bottom: 10px;
 }
 
-.explanation {
-    margin-top: 10px;
-    font-style: italic;
-    color: #333;
-    line-height: 1.6;
+#loading-indicator {
+    animation: blink 1.5s infinite;
 }
 
-.message img {
-    max-width: 150px;
-    border-radius: 10px;
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* 手機版樣式 */
+@media (max-width: 768px) {
+    /* 側邊欄相關 */
+    .sidebar {
+        position: fixed; 
+        height: 100%;
+        top: 0;
+        left: 0;
+        transform: translateX(-250px);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    /* 主要內容區域相關 */
+    .main-content {
+        margin-left: 0;
+        margin-top: 0;
+        padding-top: 50px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto; 
+        padding-bottom: 70px;
+    }
+
+    /* 聊天視窗相關 */
+    .chat-window, .external-content {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 70px; 
+    }
+
+    .chat-window {
+        margin-top: 0;
+        padding-top: 5px;
+    }
+
+    /* 輸入區域相關 */
+    .input-area {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1002; 
+        padding: 10px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 選單按鈕相關 */
+    .header .menu-toggle {
+        display: block;
+    }
+
+    /* 工具列相關 */
+    .toolbar {
+        padding: 5px 8px;
+    }
+
+    .feature-button {
+        padding: 6px 10px;
+    }
+
+    /* 模式標籤相關 */
+    .mode-label {
+        display: none;
+    }
+
+    /* 學習記錄相關 */
+    .my-records-container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .statistics-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .notes-input-area,
+    .records-input-area {
+        flex-direction: column;
+    }
+
+    .notes-input-area button,
+    .records-input-area button {
+        width: 100%;
+    }
+    
+    /* 容器樣式調整 */
+    .ai-generator-container,
+    .solve-problem-container,
+    .my-records-container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    /* 按鈕組樣式調整 */
+    .button-group {
+        flex-direction: column;
+    }
+
+    .button-group button {
+        width: 100%;
+    }
 }
