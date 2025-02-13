@@ -50,37 +50,37 @@ const aiGeneratorModule = (() => {
 
     // 切換分頁的事件監聽
     customTopicTab.addEventListener('click', () => {
-        customTopicTab.classList.add('active');
-        chatTopicTab.classList.remove('active');
-        questionTopicTab.classList.remove('active');
-        customTopicContent.classList.add('active');
-        chatTopicContent.classList.remove('active');
-        questionTopicContent.classList.remove('active');
-        document.getElementById('mainGenerateGroup').style.display = 'flex';
-        document.getElementById('quizForm').style.display = 'none';
+        switchTab('customTopic');
     });
 
     chatTopicTab.addEventListener('click', () => {
-        chatTopicTab.classList.add('active');
-        customTopicTab.classList.remove('active');
-        questionTopicTab.classList.remove('active');
-        chatTopicContent.classList.add('active');
-        customTopicContent.classList.remove('active');
-        questionTopicContent.classList.remove('active');
-        document.getElementById('mainGenerateGroup').style.display = 'flex';
-        document.getElementById('quizForm').style.display = 'none';
+        switchTab('chatTopic');
     });
 
     questionTopicTab.addEventListener('click', () => {
-        questionTopicTab.classList.add('active');
+        switchTab('questionTopic');
+    });
+
+    function switchTab(tabId) {
+        // 移除所有 Tab 的 active 狀態
         customTopicTab.classList.remove('active');
         chatTopicTab.classList.remove('active');
-        questionTopicContent.classList.add('active');
+        questionTopicTab.classList.remove('active');
+
+        // 隱藏所有 Tab 內容
         customTopicContent.classList.remove('active');
         chatTopicContent.classList.remove('active');
-        document.getElementById('mainGenerateGroup').style.display = 'none';
-        document.getElementById('quizForm').style.display = 'none';
-    });
+        questionTopicContent.classList.remove('active');
+
+        // 根據點擊的 Tab，設定對應的 active 狀態和內容顯示
+        document.getElementById(tabId + 'Tab').classList.add('active');
+        document.getElementById(tabId + 'Content').classList.add('active');
+
+        // 根據 Tab 決定是否顯示主要生成按鈕
+        mainGenerateGroup.style.display = (tabId === 'questionTopic') ? 'none' : 'flex';
+        quizForm.style.display = 'none'; // 切換 Tab 時隱藏測驗表單
+    }
+
 
     // 以題出題的 Tab 切換
     imageQTab.addEventListener('click', () => {
@@ -303,7 +303,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 <p><strong>${i + 1}. ${result.question}</strong></p>
                 <div class="question-options">
                     ${result.options.map((option, j) => `
-                        <label style="background-color: ${j === result.correctAnswer ? '#28a745' : 
+                        <label style="background-color: ${j === result.correctAnswer ? '#28a745' :
                             (j === result.userAnswer ? '#dc3545' : '#ffffff')};
                             color: ${j === result.correctAnswer || j === result.userAnswer ? 'white' : '#333'};">
                             ${['A', 'B', 'C', 'D'][j]}. ${option}
@@ -390,7 +390,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 imageQPreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
             };
             reader.readAsDataURL(file);
@@ -405,7 +405,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
         button.innerText = '生成中，請稍候...'; // 修改按鈕文字
         button.disabled = true; // 禁用按鈕
-        singleQuizForm.style.display = 'none';   //隱藏單題測驗
+        singleQuizForm.style.display = 'none'; //隱藏單題測驗
         singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>'; // 顯示載入提示
         copyQContent.style.display = 'none';  //隱藏複製按鈕
 
@@ -500,7 +500,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                     if (qList.length > 0) {
                         singleQuestionData = qList[0]; // 儲存單一題目資料
                         displaySingleQuestion(singleQuestionData); // 顯示單一題目
-                        singleQuizForm.style.display = 'block';   // 顯示提交答案的表單
+                        singleQuizForm.style.display = 'block'; // 顯示提交答案的表單
                         singleQuizForm.querySelector('.submit-button').style.display = 'block'; // 顯示提交按鈕
                         copyQContent.style.display = 'block'; //顯示複製按鈕
                     } else {
@@ -544,7 +544,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 </div>
             </div>
         `;
-        singleQuestionDiv.innerHTML += questionHtml;  //顯示題目
+        singleQuestionDiv.innerHTML += questionHtml; //顯示題目
     }
 
     // 檢查單一題目的答案並顯示結果
@@ -638,13 +638,13 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         }
 
         let content = '題目：\n';
-        content += `${singleQuestionData.question}\n`;  // 題目標題
+        content += `${singleQuestionData.question}\n`; // 題目標題
         singleQuestionData.options.forEach((option, i) => {
-            content += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;  // 選項
+            content += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`; // 選項
         });
 
         content += '\n正確答案與解答:\n';
-        content += `正確答案: ${['A', 'B', 'C', 'D'][singleQuestionData.answer]}\n`;  // 正確答案
+        content += `正確答案: ${['A', 'B', 'C', 'D'][singleQuestionData.answer]}\n`; // 正確答案
         content += `解答說明: ${singleQuestionData.explanation}\n`; // 解答說明
 
         navigator.clipboard.writeText(content)
@@ -675,7 +675,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
     uploadQImage.addEventListener('change', previewQImage); // 預覽圖片
     generateFromQButton.addEventListener('click', generateSingleQuestion); // 生成單一題目
     singleQuizForm.addEventListener('submit', checkSingleAnswer); // 檢查單一題目的答案
-    copyQContent.addEventListener('click', copySingleContent);  //複製單一題目
+    copyQContent.addEventListener('click', copySingleContent); //複製單一題目
 
     // 暴露需要外部訪問的函數
     return {
