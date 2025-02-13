@@ -379,12 +379,6 @@ body {
     margin-bottom: 20px;
 }
 
-.ai-generator-container h1 {
-    text-align: center;
-    color: #8ab0ab;
-    margin-bottom: 30px;
-    font-weight: bold;
-}
 
 .ai-generator-container .form-group {
     margin-bottom: 20px;
@@ -570,12 +564,6 @@ body {
     border-radius: 8px;
 }
 
-.solve-problem-container h1 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #8ab0ab;
-}
 
 .solve-problem-container .tab-switch {
     margin-bottom: 10px;
