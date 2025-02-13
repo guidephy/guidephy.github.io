@@ -406,7 +406,8 @@ label {
 }
 
 input[type="text"],
-textarea {
+textarea,
+select {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
@@ -420,16 +421,6 @@ textarea {
 textarea {
     min-height: 100px;
     resize: vertical;
-}
-
-//此為 Style.css第二部分 請複製到style.css並確保第一部分已經存在
-select {
-    appearance: none;
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%238ab0ab"><path d="M7 10l5 5 5-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1.25rem 1.25rem;
-    padding-right: 2.5rem;
 }
 
 button,
@@ -465,52 +456,43 @@ button:hover,
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Tabs */
+/* 重新設計的 Tab 切換 */
 .tab-switch {
     display: flex;
     justify-content: space-around;
     margin-bottom: 20px;
-    border-bottom: 2px solid #8ab0ab;
 }
 
 .tab-button {
-    padding: 12px 24px;
-    background: none;
-    border: none;
-    color: #666;
-    font-weight: 500;
-    cursor: pointer;
-    position: relative;
-    transition: color 0.3s;
-    flex: 1;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px 20px;
     text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    margin: 0 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #666;
+}
+
+.tab-button:hover {
+    background: #f0f0f0;
+    transform: translateY(-3px);
 }
 
 .tab-button.active {
-    color: #8ab0ab;
-    font-weight: bold;
+    background: #8ab0ab;
+    color: #fff;
 }
 
-.tab-button.active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background-color: #8ab0ab;
-}
-
-.tab-content {
-    display: none;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 0 0 8px 8px;
-    box-sizing: border-box;
-}
-
-.tab-content.active {
-    display: block;
+.tab-button i {
+    font-size: 24px;
+    margin-bottom: 5px;
 }
 
 /* Question Card */
@@ -794,4 +776,86 @@ button:hover,
 .option-button:hover {
     background-color: #6e928b;
     transform: scale(1.05);
+}
+
+/* Loading indicator */
+#loading-indicator {
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* 手機版樣式 */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        height: 100%;
+        top: 0;
+        left: 0;
+        transform: translateX(-250px);
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-top: 50px;
+    }
+
+    .header .menu-toggle {
+        display: block;
+    }
+
+    .toolbar {
+        padding: 5px 8px;
+    }
+
+    .feature-button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .mode-label {
+        display: none;
+    }
+
+    .ai-generator-container,
+    .solve-problem-container,
+    .my-records-container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .notes-input-area,
+    .records-input-area {
+        flex-direction: column;
+    }
+
+    .message {
+        max-width: 90%;
+    }
+
+    .statistics-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .tab-button {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
 }
