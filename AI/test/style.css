@@ -306,13 +306,12 @@ body {
 
 #user-input {
     flex: 1 1 auto; 
-    padding: 10px 15px;  /* 修改內邊距 */
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 20px;
     outline: none;
     box-sizing: border-box;
-    font-size: 16px;
-    margin: 0;  /* 確保沒有額外的邊距 */
+    font-size: 16px; 
 }
 
 #send-button {
@@ -430,31 +429,10 @@ body {
     display: block;
 }
 
-/* 確保表單元素在容器內正確對齊 */
+/* 表單控件樣式 */
 .form-group {
     margin-bottom: 20px;
     width: 100%;
-}
-
-.form-group input[type="text"],
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    box-sizing: border-box;
-    margin: 0;
-}
-
-/* 統一表單組件樣式 */
-.form-group {
-    margin-bottom: 20px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.form-group input[type="file"] {
-    width: 100%;
-    box-sizing: border-box;
-    max-width: 100%;
 }
 
 .form-group label {
@@ -484,7 +462,7 @@ body {
     box-shadow: 0 0 0 2px rgba(138, 176, 171, 0.2);
 }
 
-/* 統一按鈕樣式 */
+/* 按鈕組樣式 */
 .button-group {
     display: flex;
     gap: 10px;
@@ -492,6 +470,7 @@ body {
     margin: 20px 0;
 }
 
+/* 提交按鈕和其他功能按鈕 */
 .button-group button,
 .submit-button,
 #retry-history,
@@ -519,7 +498,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* 統一結果區域樣式 */
+/* 結果區域樣式 */
 .result-area,
 #resultArea,
 #hintArea,
@@ -532,7 +511,7 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 統一問題卡片樣式 */
+/* 問題卡片樣式 */
 .question-card {
     background: #fff;
     border: 1px solid #ddd;
@@ -546,12 +525,9 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* 選項樣式 */
 
-/* 統一選項樣式 */
 .question-options label {
-    display: block;
-    padding: 12px;
-    margin-bottom: 8px;
     border: 1px solid #ddd;
     border-radius: 8px;
     cursor: pointer;
@@ -738,15 +714,17 @@ body {
     }
 
     /* 輸入區域相關 */
-.input-area {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;  /* 統一內邊距 */
-    gap: 10px;
-    background-color: white;
-    border-top: 1px solid #ddd;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-}
+    .input-area {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1002; 
+        padding: 10px;
+        background-color: white;
+        border-top: 1px solid #ddd;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
 
     /* 選單按鈕相關 */
     .header .menu-toggle {
@@ -802,5 +780,19 @@ body {
 
     .button-group button {
         width: 100%;
+    }
+
+    /* 輸入框樣式調整 */
+    .input-area {
+        padding: 8px;
+    }
+
+    #user-input {
+        font-size: 14px;
+    }
+
+    #send-button {
+        padding: 8px 16px;
+        font-size: 14px;
     }
 }
