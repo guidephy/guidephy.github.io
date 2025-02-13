@@ -715,3 +715,152 @@ select {
         border-radius: 0;
     }
 }
+
+/* 上傳區域樣式 */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.upload-area:hover {
+    border-color: #8ab0ab;
+    background-color: #f8fafc;
+}
+
+.upload-icon {
+    font-size: 48px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+/* 選項按鈕相關 */
+.message-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+    justify-content: flex-start;
+}
+
+.option-button {
+    background-color: #8ab0ab;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.option-button:hover {
+    background-color: #6e928b;
+    transform: scale(1.05);
+}
+
+/* 提示區域樣式 */
+#hintArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#reflectionArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#hintContent,
+#reflectionContent {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* 現代化輸入區域 */
+.notes-input-area,
+.records-input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* 現代化按鈕組 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+/* 現代化兩列布局 */
+.modern-two-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 640px) {
+    .modern-two-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 滾動條樣式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+/* 工具提示 */
+.tooltip {
+    position: relative;
+}
+
+.tooltip:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background-color: #1f2937;
+    color: white;
+    font-size: 14px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 10;
+}
