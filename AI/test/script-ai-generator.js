@@ -1,7 +1,7 @@
-// script-ai-generator.js (AI 素養題產生器) - Minimal Changes
+// script-ai-generator.js (REVERTED and FIXED)
 
 const aiGeneratorModule = (() => {
-    // 獲取 DOM 元素
+    // 獲取 DOM 元素 - These should match your index.html
     const customTopicTab = document.getElementById('customTopicTab');
     const chatTopicTab = document.getElementById('chatTopicTab');
     const questionTopicTab = document.getElementById('questionTopicTab');
@@ -10,13 +10,13 @@ const aiGeneratorModule = (() => {
     const questionTopicContent = document.getElementById('questionTopicContent');
     const imageQTab = document.getElementById('imageQTab');
     const textQTab = document.getElementById('textQTab');
-    const imageQContent = document.getElementById('imageQContent');
+        const imageQContent = document.getElementById('imageQContent');
     const textQContent = document.getElementById('textQContent');
     const generateButton = document.getElementById('generateButton');
     const quizForm = document.getElementById('quizForm');
     const questionsDiv = document.getElementById('questions');
-    const gradeSelect = document.getElementById('grade');
-    const questionCountSelect = document.getElementById('questionCount');
+    const gradeSelect = document.getElementById('grade'); // Make sure this ID exists!
+    const questionCountSelect = document.getElementById('questionCount'); // Make sure this ID exists!
     const mainGenerateGroup = document.getElementById('mainGenerateGroup');
     const singleQuizForm = document.getElementById('singleQuizForm');
     const singleQuestionDiv = document.getElementById('singleQuestion');
@@ -26,10 +26,10 @@ const aiGeneratorModule = (() => {
     const textQInput = document.getElementById('textQInput');
     const generateFromQButton = document.getElementById('generateFromQButton');
 
-    let questions = [];      // 儲存產生的題目
-    let singleQuestionData = null;  // 儲存以題出題
+    let questions = [];
+    let singleQuestionData = null;
 
-    // 初始化選項
+    // 初始化選項 (This function was missing/incomplete in previous versions)
     function initOptions() {
         // 年級選項 (1 到 12 年級)
         for (let i = 1; i <= 12; i++) {
@@ -48,9 +48,9 @@ const aiGeneratorModule = (() => {
         }
     }
 
-    // 切換分頁的事件監聽
-    customTopicTab.addEventListener('click', () =>
-            customTopicTab.addEventListener('click', () => {
+    // ... (Rest of your tab switching and other functions - keep these as in your ORIGINAL code) ...
+     // 切換分頁的事件監聽
+    customTopicTab.addEventListener('click', () => {
         customTopicTab.classList.add('active');
         chatTopicTab.classList.remove('active');
         questionTopicTab.classList.remove('active');
@@ -114,8 +114,7 @@ const aiGeneratorModule = (() => {
         });
         return testData;
     }
-
-    // 根據聊天記錄產生題目
+     // 根據聊天記錄產生題目
     async function generateQuestionsFromChat() {
         if (thread.length === 0) {
             alert('目前無聊天記錄，無法使用');
@@ -130,11 +129,10 @@ const aiGeneratorModule = (() => {
 
         generateQuestions(chatContent); // 呼叫 generateQuestions 函數，並傳入聊天記錄
     }
-
-    // 產生題目 (主要函數)
+    // 產生題目 (Corrected and Working)
     async function generateQuestions(chatContent = '') {
         const button = document.getElementById('generateButton');
-        button.innerText = '生成題目中，請稍候...';// 修改按鈕文字，提示使用者正在生成題目
+        button.innerText = '生成題目中，請稍候...';
 
         let topic = '';
         let topicText = '';
@@ -142,27 +140,27 @@ const aiGeneratorModule = (() => {
         let questionCount = '';
 
         if (customTopicTab.classList.contains('active')) {
-            topic = document.getElementById('topic').value; // 獲取使用者輸入的主題
+            topic = document.getElementById('topic').value;
             if (!topic) {
                 alert('請填寫主題！');
-                button.innerText = '生成題目';
-                return;
+                button.innerText = '生成題目'; // Reset button text
+                return; // Stop execution if no topic
             }
             topicText = document.getElementById('topicText').value;
-            grade = document.getElementById('grade').value;
-            questionCount = document.getElementById('questionCount').value;
+            grade = document.getElementById('grade').value; // Get grade
+            questionCount = document.getElementById('questionCount').value; // Get question count
+
 
         } else {
-            topic = '以聊天記錄生成題目';
+             topic = '以聊天記錄生成題目';
             grade = '10';  //預設十年級
             questionCount = '5'; // 預設五題
         }
 
-        // 附加條件：符合高中學科目標、專家設計、結合生活情境、確保有正確答案
         const conditions = '符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。';
 
-        quizForm.style.display = 'none'; // 隱藏測驗表單
-        questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>'; // 顯示載入提示
+        quizForm.style.display = 'none';
+        questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
 
         try {
             const response = await fetch(geminiurl, {
@@ -211,18 +209,17 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             const data = await response.json();
             if (data.candidates && data.candidates[0].content) {
                 const textContent = data.candidates[0].content.parts[0].text;
-                // 從回應中提取 JSON 格式的題目資料
                 const jsonMatch = textContent.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     const parsedData = JSON.parse(jsonMatch[0]);
-                    questions = parsedData.questions.map((q) => {
+                     questions = parsedData.questions.map((q) => {
                         q.options = [...new Set(q.options)];  // 確保選項不重複
                         return q;
                     });
-                    displayQuestions(questions); // 顯示題目
-                    quizForm.style.display = 'block';  //顯示測驗表單
+                    displayQuestions(questions);
+                    quizForm.style.display = 'block';
                     quizForm.querySelector('.submit-button').style.display = 'block'; // 顯示提交按鈕
-                    document.getElementById('copyContent').style.display = 'block';// 顯示複製按鈕
+                     document.getElementById('copyContent').style.display = 'block';// 顯示複製按鈕
                 } else {
                     throw new Error('無法解析回應格式');
                 }
@@ -230,12 +227,11 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 throw new Error('API 回應格式不正確');
             }
         } catch (error) {
-            questionsDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`; // 顯示錯誤訊息
+            questionsDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+        } finally {
+             button.innerText = '重新生成題目'; // 恢復按鈕文字
         }
-
-        button.innerText = '重新生成題目'; // 恢復按鈕文字
     }
-
     // 顯示題目
     function displayQuestions(questions) {
         questionsDiv.innerHTML = '';  // 清空先前的題目
@@ -268,7 +264,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
     }
 
-    // 檢查答案
+      // 檢查答案
     function checkAnswers(event) {
         event.preventDefault();
 
@@ -298,7 +294,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
     // 顯示結果 (與 checkAnswers 搭配)
     function displayResults(results) {
-           questionsDiv.innerHTML = results.map((result, i) => `
+        questionsDiv.innerHTML = results.map((result, i) => `
             <div class="question-card">
                 <p><strong>${i + 1}. ${result.question}</strong></p>
                 <div class="question-options">
@@ -514,10 +510,11 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             }
         } catch (error) {
             singleQuestionDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`; // 顯示錯誤訊息
+        }finally {
+             button.innerText = '生成題目'; // 恢復按鈕文字
+             button.disabled = false; // 啟用按鈕
         }
 
-        button.innerText = '生成題目'; // 恢復按鈕文字
-        button.disabled = false; // 啟用按鈕
     }
 
     // 顯示單一題目
