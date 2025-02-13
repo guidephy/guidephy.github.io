@@ -752,39 +752,65 @@ ${chatLog}
     }
 
     // 初始化
-    function init() {
-        thread = [];
-        const greeting = getGreeting();
-        updateModeDisplay('聊天');
-        userInput.placeholder = "輸入訊息...";
+// 初始化
+function init() {
+    thread = [];
+    const greeting = getGreeting();
+    updateModeDisplay('聊天');
+    userInput.placeholder = "輸入訊息...";
+    
+    // 檢查聊天窗口是否已經有內容
+    if (chatWindow.children.length === 0) {
         appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
-        setInputState(false);
+    }
+    
+    setInputState(false);
 
-        // 綁定事件監聽器
-        document.getElementById('load-notes-button').addEventListener('click', loadUserNotes);
-        generateNotesButton.addEventListener('click', generateNotes);
+    // 移除所有已存在的事件監聽器
+    const cloneLoadNotesButton = document.getElementById('load-notes-button').cloneNode(true);
+    document.getElementById('load-notes-button').parentNode.replaceChild(cloneLoadNotesButton, document.getElementById('load-notes-button'));
+    
+    const cloneGenerateNotesButton = generateNotesButton.cloneNode(true);
+    generateNotesButton.parentNode.replaceChild(cloneGenerateNotesButton, generateNotesButton);
+    
+    const cloneTranslateButton = translateButton.cloneNode(true);
+    translateButton.parentNode.replaceChild(cloneTranslateButton, translateButton);
+    
+    const cloneReturnToChatButton = returnToChatButton.cloneNode(true);
+    returnToChatButton.parentNode.replaceChild(cloneReturnToChatButton, returnToChatButton);
+    
+    const cloneStudyPlanButton = studyPlanButton.cloneNode(true);
+    studyPlanButton.parentNode.replaceChild(cloneStudyPlanButton, studyPlanButton);
 
-        // 按鈕事件監聽
-          translateButton.addEventListener("click", () => {
+    // 重新綁定事件監聽器
+    cloneLoadNotesButton.addEventListener('click', loadUserNotes);
+    cloneGenerateNotesButton.addEventListener('click', generateNotes);
+
+    // 翻譯按鈕事件
+    cloneTranslateButton.addEventListener("click", () => {
         translationMode = true;
-        returnToChatButton.style.display = "inline-block";
-        translateButton.style.display = "none";
+        cloneReturnToChatButton.style.display = "inline-block";
+        cloneTranslateButton.style.display = "none";
         setInputState(false);
         isStudyPlanActive = false;
         studyPlanStep = 0;
         studyPlanData = {};
         hasIdea = null;
-        thread = []; 
+        thread = [];
         updateModeDisplay('中英翻譯');
         userInput.placeholder = "請輸入要翻譯的內容...";
+        
+        // 清空聊天窗口後再添加消息
+        chatWindow.innerHTML = '';
         appendMessage("請輸入想查的中文或英文", "bot-message");
     });
 
-       returnToChatButton.addEventListener("click", () => {
+    // 返回聊天按鈕事件
+    cloneReturnToChatButton.addEventListener("click", () => {
         translationMode = false;
-        returnToChatButton.style.display = "none";
-        translateButton.style.display = "inline-block";
-        studyPlanButton.style.display = "inline-block";  // 使用原本的 studyPlanButton 變數
+        cloneReturnToChatButton.style.display = "none";
+        cloneTranslateButton.style.display = "inline-block";
+        cloneStudyPlanButton.style.display = "inline-block";
         setInputState(false);
         isStudyPlanActive = false;
         studyPlanStep = 0;
@@ -793,20 +819,33 @@ ${chatLog}
         thread = [];
         updateModeDisplay('聊天');
         userInput.placeholder = "輸入訊息...";
+        
+        // 清空聊天窗口後再添加消息
+        chatWindow.innerHTML = '';
         appendMessage("已返回聊天模式。", "bot-message");
     });
 
-           studyPlanButton.addEventListener('click', () => {
+    // 學習計畫按鈕事件
+    cloneStudyPlanButton.addEventListener('click', () => {
         translationMode = false;
-        returnToChatButton.style.display = 'inline-block';
-        translateButton.style.display = 'inline-block';
-        studyPlanButton.style.display = 'none';  
+        cloneReturnToChatButton.style.display = 'inline-block';
+        cloneTranslateButton.style.display = 'inline-block';
+        cloneStudyPlanButton.style.display = 'none';
         setInputState(false);
         thread = [];
         updateModeDisplay('自主學習計畫');
         userInput.placeholder = "請依照指示回答...";
+        
+        // 清空聊天窗口後再開始學習計畫
+        chatWindow.innerHTML = '';
         startStudyPlan();
     });
+
+    // 更新按鈕引用
+    translateButton = cloneTranslateButton;
+    returnToChatButton = cloneReturnToChatButton;
+    studyPlanButton = cloneStudyPlanButton;
+    generateNotesButton = cloneGenerateNotesButton;
 }
     
 
