@@ -154,7 +154,7 @@ const solveProblemModule = (() => {
             if (solutionSteps.length > 1) {
                 showNextHintButton.style.display = 'inline-block'; // 顯示「下一提示」按鈕
             }
-
+            // script-solve-problem.js (繼續)
             showNextHintButton.onclick = function() {
                 currentStepIndex++;
                 if (currentStepIndex < solutionSteps.length) {
@@ -211,7 +211,7 @@ const solveProblemModule = (() => {
 
     // 暴露需要外部訪問的函數 (如果有的話)
     return {
-        // ...
+        init: () => {} // 添加一個空的 init 函數，避免 TypeError
     };
 })();
 
