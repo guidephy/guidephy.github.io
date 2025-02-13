@@ -963,3 +963,13 @@ body {
         width: 100%;
     }
 }
+
+.page-title {
+    text-align: center;
+    color: #8ab0ab; /* 或你喜歡的顏色 */
+    margin-bottom: 30px; /* 或你喜歡的間距 */
+    font-size: 2rem; /* 或你喜歡的大小 */
+    font-weight: bold;
+    /* 可以添加其他樣式，例如字型 */
+    font-family: 'Arial', sans-serif; /* 例如，使用 Arial 字型 */
+}
