@@ -40,7 +40,7 @@ const solveProblemModule = (() => {
         textContent.classList.toggle('active', tab === 'text');
         imageTab.classList.toggle('active', tab === 'image');
         textTab.classList.toggle('active', tab === 'text');
-
+        
         // 切換分頁時重置所有狀態
         initializeAnalysisArea();
         imagePreview.style.display = 'none';
@@ -54,7 +54,7 @@ const solveProblemModule = (() => {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" class="image-preview-img">`;
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border-radius: 8px;">`;
                 imagePreview.style.display = 'block';
             };
             reader.readAsDataURL(file);
