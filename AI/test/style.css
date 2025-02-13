@@ -114,20 +114,8 @@ body {
     flex-direction: column;
     gap: 10px;
     background-color: white;
-    max-height: calc(100vh - 100px);
-}
-
-.chat-window::-webkit-scrollbar {
-    width: 8px;
-}
-
-.chat-window::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.chat-window::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
+    max-height: calc(100vh - 180px);
+    margin-top: 50px;
 }
 
 .message {
@@ -157,70 +145,6 @@ body {
 .message img {
     max-width: 150px;
     border-radius: 10px;
-}
-
-/* 輸入區域樣式 */
-.input-area {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-    background-color: white;
-    gap: 10px;
-    flex-shrink: 0;
-    box-sizing: border-box;
-    width: 100%;
-    position: relative;
-}
-
-.upload-button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 15px;
-    cursor: pointer;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.upload-button:hover {
-    background-color: #6e928b;
-}
-
-.upload-button input[type="file"] {
-    position: absolute;
-    left: 0;
-    top: 0;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-}
-
-#user-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
-#send-button {
-    background-color: #46A3FF;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-}
-
-#send-button:hover {
-    background-color: #0072E3;
 }
 
 /* 工具列樣式 */
@@ -267,6 +191,69 @@ body {
     animation: fadeInOut 0.3s ease;
 }
 
+/* 輸入區域樣式 */
+.input-area {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    border-top: 1px solid #ddd;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.upload-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.upload-button:hover {
+    background-color: #6e928b;
+}
+
+.upload-button input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#user-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    font-size: 16px;
+}
+
+#send-button {
+    background-color: #46A3FF;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+#send-button:hover {
+    background-color: #0072E3;
+}
+
 /* 功能按鈕樣式 */
 .feature-button {
     background-color: #8ab0ab;
@@ -279,14 +266,13 @@ body {
     font-size: 13px;
     flex-shrink: 0;
     margin-right: 2px;
-    transition: background-color 0.3s ease;
 }
 
 .feature-button:hover {
     background-color: #6e928b;
 }
 
-/* 統一特性容器樣式 */
+/* 統一容器樣式 */
 .feature-container {
     max-width: 800px;
     margin: 0 auto 20px auto;
@@ -399,32 +385,6 @@ body {
     display: block;
 }
 
-/* 按鈕組統一樣式 */
-.button-group {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-    width: 100%;
-}
-
-.feature-container button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
-    font-size: 16px;
-}
-
-.feature-container button:hover {
-    background-color: #6e928b;
-    transform: scale(1.05);
-}
-
 /* 圖片預覽統一樣式 */
 .image-preview {
     width: 100%;
@@ -446,7 +406,40 @@ body {
     border-radius: 4px;
 }
 
-/* 結果區域統一樣式 */
+#image-preview-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#image-preview-container img {
+    max-width: 50px;
+    border-radius: 10px;
+}
+
+.image-preview .delete-button {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* 按鈕組統一樣式 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* 結果區域樣式 */
 .result-area {
     display: none;
     border: 1px solid #ddd;
@@ -457,38 +450,7 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 問題卡片樣式 */
-.question-card {
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.question-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.question-options label {
-    display: block;
-    padding: 12px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.question-options label:hover {
-    background-color: #8ab0ab;
-    color: white;
-}
-
-/* 提示區域統一樣式 */
+/* 提示區域樣式 */
 #hintArea,
 #reflectionArea {
     display: none;
@@ -507,61 +469,7 @@ body {
     color: #333;
 }
 
-/* 統計卡片樣式 */
-.statistics-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.statistic-card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s;
-}
-
-.statistic-card:hover {
-    transform: translateY(-2px);
-}
-
-.statistic-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #8ab0ab;
-    margin-bottom: 5px;
-}
-
-.statistic-label {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* 筆記卡片樣式 */
-.note-card {
-    background: white;
-    border-left: 4px solid #8ab0ab;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-
-.note-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
-
-.note-content {
-    color: #333;
-    line-height: 1.6;
-}
-
-/* 輸入區域樣式 */
+/* 筆記和記錄輸入區域 */
 .notes-input-area,
 .records-input-area {
     display: flex;
@@ -572,77 +480,20 @@ body {
     border-radius: 8px;
 }
 
-.notes-input-area input,
-.records-input-area input {
-    flex: 1;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+/* iframe 容器樣式 */
+.feature-container.physics-lecture,
+.feature-container.calculator,
+.feature-container.tomato {
+    padding: 0;
+    height: calc(100vh - 100px);
+    overflow: hidden;
 }
 
-.notes-input-area input:focus,
-.records-input-area input:focus {
-    outline: none;
-    border-color: #8ab0ab;
-    box-shadow: 0 0 0 3px rgba(138, 176, 171, 0.2);
-}
-
-/* 正確答案和錯誤答案樣式 */
-.correct-answer {
-    color: #28a745;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.wrong-answer {
-    color: #dc3545;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.explanation {
-    margin-top: 10px;
-    font-style: italic;
-    color: #333;
-    line-height: 1.6;
-}
-
-/* 選項按鈕相關 */
-.message-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 10px 0;
-    justify-content: flex-start;
-}
-
-.option-button {
-    background-color: #8ab0ab;
+.feature-container iframe {
+    width: 100%;
+    height: 100%;
     border: none;
-    color: white;
-    padding: 8px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-.option-button:hover {
-    background-color: #6e928b;
-    transform: scale(1.05);
-}
-
-/* Loading indicator */
-#loading-indicator {
-    animation: blink 1.5s infinite;
-    text-align: center;
-    color: #666;
-    padding: 10px;
+    border-radius: 8px;
 }
 
 /* 動畫效果 */
@@ -667,20 +518,12 @@ body {
     50% { opacity: 0.5; }
 }
 
-/* iframe 容器樣式 */
-.feature-container.physics-lecture,
-.feature-container.calculator,
-.feature-container.tomato {
-    padding: 0;
-    height: calc(100vh - 100px);
-    overflow: hidden;
-}
-
-.feature-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 8px;
+/* Loading indicator */
+#loading-indicator {
+    animation: blink 1.5s infinite;
+    text-align: center;
+    color: #666;
+    padding: 10px;
 }
 
 /* 桌面版特定樣式 */
@@ -706,17 +549,13 @@ body {
     .chat-window {
         flex: 1;
         overflow-y: auto;
-        max-height: calc(100vh - 150px);
     }
 
     .input-area {
-        position: relative;
-        width: 100%;
-        margin-top: auto;
-        padding: 10px;
-        background-color: white;
-        border-top: 1px solid #ddd;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        width: calc(100% - 250px);
+        position: fixed;
+        bottom: 0;
+        right: 0;
     }
 
     .external-content {
@@ -788,6 +627,13 @@ body {
         flex-direction: column;
     }
 
+    .input-area {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+    }
+
     .feature-container input[type="text"],
     .feature-container textarea,
     .feature-container select {
@@ -804,4 +650,22 @@ body {
 .disabled {
     opacity: 0.6;
     pointer-events: none;
+}
+
+/* 滾動條樣式 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
 }
