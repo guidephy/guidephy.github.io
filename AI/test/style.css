@@ -652,13 +652,6 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.my-records-container h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-    font-size: 2rem;
-    font-weight: bold;
-}
 
 /* 統計卡片區域 */
 .statistics-cards {
