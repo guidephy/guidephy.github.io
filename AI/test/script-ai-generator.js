@@ -1,4 +1,4 @@
-// script-ai-generator.js (AI 素養題產生器)
+// script-ai-generator.js (AI 素養題產生器) - Minimal Changes
 
 const aiGeneratorModule = (() => {
     // 獲取 DOM 元素
@@ -49,7 +49,8 @@ const aiGeneratorModule = (() => {
     }
 
     // 切換分頁的事件監聽
-    customTopicTab.addEventListener('click', () => {
+    customTopicTab.addEventListener('click', () =>
+            customTopicTab.addEventListener('click', () => {
         customTopicTab.classList.add('active');
         chatTopicTab.classList.remove('active');
         questionTopicTab.classList.remove('active');
@@ -267,7 +268,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
     }
 
-   // 檢查答案 (Revised to match new CSS)
+    // 檢查答案
     function checkAnswers(event) {
         event.preventDefault();
 
@@ -290,12 +291,14 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
 
         displayResults(results);
-        const submitButton = document.querySelector('#quizForm .submit-button');
-        submitButton.style.display = 'none';
+        const submitButton = document.querySelector('#quizForm .submit-button'); // 更精確的選擇器
+        submitButton.style.display = 'none'; // 隱藏提交按鈕
+
     }
-      // 顯示結果 (Revised to match new CSS)
+
+    // 顯示結果 (與 checkAnswers 搭配)
     function displayResults(results) {
-        questionsDiv.innerHTML = results.map((result, i) => `
+           questionsDiv.innerHTML = results.map((result, i) => `
             <div class="question-card">
                 <p><strong>${i + 1}. ${result.question}</strong></p>
                 <div class="question-options">
@@ -517,7 +520,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         button.disabled = false; // 啟用按鈕
     }
 
-      // 顯示單一題目 (Revised for new CSS)
+    // 顯示單一題目
     function displaySingleQuestion(q) {
         singleQuestionDiv.innerHTML = '';
         const uniqueOptions = [...new Set(q.options)];
@@ -541,10 +544,10 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 </div>
             </div>
         `;
-        singleQuestionDiv.innerHTML += questionHtml;  //顯示題目
+        singleQuestionDiv.innerHTML += questionHtml;
     }
 
-    // 檢查單一題目的答案並顯示結果 (Revised for new CSS)
+    // 檢查單一題目的答案並顯示結果
     function checkSingleAnswer(event) {
         event.preventDefault();
         if (!singleQuestionData) return;
@@ -572,59 +575,8 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 <p class="explanation">解答說明：${singleQuestionData.explanation}</p>
             </div>
         `;
+         document.querySelector('#singleQuizForm .submit-button').style.display = 'none'; // 更精確的選擇器
 
-        document.querySelector('#singleQuizForm .submit-button').style.display = 'none'; // 隱藏提交按鈕
-
-        // 新增儲存測驗結果按鈕
-        singleQuestionDiv.innerHTML += `
-            <div style="text-align: center; margin-top: 20px;">
-                <button id="saveSingleTestButton" class="feature-button">儲存測驗結果</button>
-            </div>
-        `;
-
-        // 綁定儲存單一題目測驗結果的事件
-        document.getElementById('saveSingleTestButton').addEventListener('click', async () => {
-            const username = prompt('請輸入您的帳號：');
-            if (!username) {
-                alert('必須輸入帳號才能儲存測驗結果。');
-                return;
-            }
-
-            // 格式化測驗結果
-            let testData = '測驗結果：\n\n';
-            testData += `題目：${singleQuestionData.question}\n`;
-            singleQuestionData.options.forEach((option, i) => {
-                testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
-            });
-            testData += `您的答案：${userAnswer === null ? '未作答' : ['A', 'B', 'C', 'D'][userAnswer]}\n`;
-            testData += `正確答案：${['A', 'B', 'C', 'D'][correctAnswer]}\n`;
-            testData += `結果：${isCorrect ? '正確' : '錯誤'}\n`;
-            testData += `解釋：${singleQuestionData.explanation}\n`;
-
-            try {
-                await new Promise((resolve, reject) => {
-                    google.script.run
-                        .withSuccessHandler(result => {
-                            if (result.status === 'success') {
-                                alert('測驗結果已成功儲存！');
-                            } else {
-                                alert(`儲存失敗：${result.error}`);
-                            }
-                            resolve(result);
-                        })
-                        .withFailureHandler(error => {
-                            alert(`儲存失敗：${error.message}`);
-                            reject(error);
-                        })
-                        .saveTestResult({
-                            username: username,
-                            testData: testData
-                        });
-                });
-            } catch (error) {
-                console.error('儲存測驗結果時發生錯誤：', error);
-            }
-        });
     }
 
     // 複製單一題目的內容
