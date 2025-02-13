@@ -17,7 +17,7 @@
             <div class="sidebar-menu">
                 <div class="menu-item" id="open-ai-generator">AI素養題產生器</div>
                 <div class="menu-item" id="open-solve-problem">教我解題</div>
-                <div class="menu-item" id="open-my-notes">我的筆記</div>
+                <div class="menu-item" id="open-my-records">我的學習記錄</div>
                 <div class="menu-item" id="open-physics-lecture">物理講義</div>
                 <div class="menu-item" id="open-calculator">計算機</div>
                 <div class="menu-item" id="open-tomato">蕃茄鐘</div>
@@ -36,11 +36,15 @@
 
             <!-- 工具列(中英翻譯與返回聊天) -->
             <div class="toolbar" id="toolbar">
-                <button id="translate-button" class="feature-button">中英翻譯</button>
-                <button id="study-plan-button" class="feature-button">自主學習計畫</button>
-                <button id="generate-notes-button" class="feature-button">生成筆記</button> 
-                <button id="return-to-chat-button" class="feature-button" style="display:none;">返回聊天</button>
-            </div>
+    <div class="mode-indicator">
+        <span class="mode-label">目前模式：</span>
+        <span id="current-mode">聊天</span>
+    </div>
+    <button id="translate-button" class="feature-button">中英翻譯</button>
+    <button id="study-plan-button" class="feature-button">自主學習計畫</button>
+    <button id="generate-notes-button" class="feature-button">生成筆記</button> 
+    <button id="return-to-chat-button" class="feature-button" style="display:none;">返回聊天</button>
+</div>
 
             <!-- AI素養題產生器 -->
             <div class="external-content" id="ai-generator-content" style="display: none;">
@@ -170,17 +174,40 @@
                 </div>
             </div>
 
-            <!-- 我的筆記 -->
-            <div class="external-content" id="my-notes-content" style="display: none;">
-                <div class="my-notes-container">
-                    <h1>我的筆記</h1>
-                    <div class="notes-input-area">
-                        <input type="text" id="notes-username" placeholder="請輸入您的帳號">
-                        <button id="load-notes-button">載入筆記</button>
-                    </div>
-                    <div id="notes-display-area"></div>
-                </div>
+
+<!-- 我的學習記錄 -->
+<div class="external-content" id="my-records-content" style="display: none;">
+    <div class="my-records-container">
+        <h1>我的學習記錄</h1>
+        
+        <div class="tab-switch">
+            <div id="notesTab" class="tab-button active">我的筆記</div>
+            <div id="testRecordsTab" class="tab-button">測驗記錄</div>
+        </div>
+
+        <!-- 筆記內容區塊 -->
+        <div id="notesContent" class="tab-content active">
+            <div class="notes-input-area">
+                <input type="text" id="notes-username" placeholder="請輸入您的帳號">
+                <button id="load-notes-button">載入筆記</button>
             </div>
+            <div id="notes-display-area"></div>
+        </div>
+
+        <!-- 測驗記錄區塊 -->
+        <div id="testRecordsContent" class="tab-content">
+            <div class="records-input-area">
+                <input type="text" id="records-username" placeholder="請輸入您的帳號">
+                <button id="load-records-button">載入測驗記錄</button>
+            </div>
+            <div id="records-options" style="display: none; text-align: center; margin-top: 20px;">
+                <button id="retry-history" class="feature-button">重作歷史題</button>
+                <button id="retry-wrong" class="feature-button">錯題重作</button>
+            </div>
+            <div id="records-quiz-area"></div>
+        </div>
+    </div>
+</div>
 
             <!-- 物理講義 -->
             <div class="external-content" id="physics-lecture-content" style="display: none;">
@@ -220,7 +247,7 @@
     <script>
         // 宣告全域變數
 let thread = []; // 儲存聊天記錄
-const geminiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=AIzaSyA2AoyuEsDitjNZvcxWoTfuNPOdQQ8hw68'; // 請替換為您的 Gemini API URL
+const geminiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key='; // 請替換為您的 Gemini API URL
 let translationMode = false; // 是否為翻譯模式
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -229,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.getElementById('menu-toggle');
     const openAIGenerator = document.getElementById('open-ai-generator');
     const openSolveProblem = document.getElementById('open-solve-problem');
-    const openMyNotes = document.getElementById('open-my-notes');
+    const openMyRecords = document.getElementById('open-my-records');
     const openPhysicsLecture = document.getElementById('open-physics-lecture');
     const openCalculator = document.getElementById('open-calculator');
     const openTomato = document.getElementById('open-tomato');
@@ -237,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatWindow = document.getElementById('chat-window');
     const aiGeneratorContent = document.getElementById('ai-generator-content');
     const solveProblemContent = document.getElementById('solve-problem-content');
-    const myNotesContent = document.getElementById('my-notes-content');
+    const myRecordsContent = document.getElementById('my-records-content');
     const physicsLectureContent = document.getElementById('physics-lecture-content');
     const calculatorContent = document.getElementById('calculator-content');
     const tomatoContent = document.getElementById('tomato-content');
@@ -252,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatWindow.style.display = 'flex';
     aiGeneratorContent.style.display = 'none';
     solveProblemContent.style.display = 'none';
-    myNotesContent.style.display = 'none';
+    myRecordsContent.style.display = 'none';
     physicsLectureContent.style.display = 'none';
     calculatorContent.style.display = 'none';
     tomatoContent.style.display = 'none';
@@ -281,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 工具切換事件監聽器
     openAIGenerator.addEventListener('click', () => toggleTool('ai-generator'));
     openSolveProblem.addEventListener('click', () => toggleTool('solve-problem'));
-    openMyNotes.addEventListener('click', () => toggleTool('my-notes'));
+    openMyRecords.addEventListener('click', () => toggleTool('my-records'));
     openPhysicsLecture.addEventListener('click', () => toggleTool('physics-lecture'));
     openCalculator.addEventListener('click', () => toggleTool('calculator'));
     openTomato.addEventListener('click', () => toggleTool('tomato'));
@@ -289,12 +316,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 切換工具的函數
     function toggleTool(tool) {
-        const tools = ['chat', 'ai-generator', 'solve-problem', 'my-notes', 'physics-lecture', 'calculator', 'tomato'];
+        const tools = ['chat', 'ai-generator', 'solve-problem', 'my-records', 'physics-lecture', 'calculator', 'tomato'];
         const contentElements = {
             'chat': chatWindow,
             'ai-generator': aiGeneratorContent,
             'solve-problem': solveProblemContent,
-            'my-notes': myNotesContent,
+            'my-records': myRecordsContent,
             'physics-lecture': physicsLectureContent,
             'calculator': calculatorContent,
             'tomato': tomatoContent
@@ -303,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'chat': returnChat,
             'ai-generator': openAIGenerator,
             'solve-problem': openSolveProblem,
-            'my-notes': openMyNotes,
+            'my-records': openMyRecords,
             'physics-lecture': openPhysicsLecture,
             'calculator': openCalculator,
             'tomato': openTomato
@@ -338,9 +365,11 @@ function formatText(text) {
     return formatted; // 最終返回格式化後的文字
 }
     </script>
-  <script src="https://guidephy.github.io/AI/script-ai-generator.js"></script>
-  <script src="https://guidephy.github.io/AI/script-chat.js"></script>
-  <script src="https://guidephy.github.io/AI/script-solve-problem.js"></script>
+    <!-- 引入其他 JavaScript 檔案 -->
+    <script src="https://guidephy.github.io/AI/script-ai-generator.js"></script>
+    <script src="https://guidephy.github.io/AI/script-chat.js"></script>
+    <script src="https://guidephy.github.io/AI/script-solve-problem.js"></script>
+    <script src="https://guidephy.github.io/AI/script-my-records.js"></script>
 
 </body>
 </html>

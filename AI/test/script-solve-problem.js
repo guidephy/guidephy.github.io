@@ -19,33 +19,14 @@ const solveProblemModule = (() => {
 
     let solutionSteps = []; // 儲存解題步驟
     let currentStepIndex = 0; // 目前步驟的索引
-    let reflectionStep = ''; // 儲存學習反思內容
 
-    // 初始化分析區域
-    function initializeAnalysisArea() {
-        resultArea.style.display = 'none';
-        hintArea.style.display = 'none';
-        reflectionArea.style.display = 'none';
-        hintContent.innerHTML = '';
-        showNextHintButton.style.display = 'none';
-        reflectionContent.innerHTML = '';
-        solutionSteps = [];
-        currentStepIndex = 0;
-        reflectionStep = '';
-    }
-
-    // 切換分頁
+     // 切換分頁
     function switchTab(tab) {
+        // 切換 active 狀態，並根據 tab 參數顯示或隱藏對應的內容
         imageContent.classList.toggle('active', tab === 'image');
         textContent.classList.toggle('active', tab === 'text');
         imageTab.classList.toggle('active', tab === 'image');
         textTab.classList.toggle('active', tab === 'text');
-        
-        // 切換分頁時重置所有狀態
-        initializeAnalysisArea();
-        imagePreview.style.display = 'none';
-        imagePreview.innerHTML = '';
-        textInput.value = '';
     }
 
     // 預覽圖片
@@ -53,35 +34,43 @@ const solveProblemModule = (() => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border-radius: 8px;">`;
-                imagePreview.style.display = 'block';
+             reader.onload = function (e) {
+                 imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
             };
             reader.readAsDataURL(file);
         } else {
             imagePreview.innerHTML = '';
-            imagePreview.style.display = 'none';
         }
     }
 
     // 分析輸入 (主要函數)
     async function analyzeInput() {
-        // 重置所有顯示狀態
-        initializeAnalysisArea();
-
         const button = document.getElementById('analyzeButton');
-        button.innerText = '分析中，請稍候...';
-        button.disabled = true;
+
+         // 重新初始化顯示區塊
+        button.innerText = '分析中，請稍候...'; // 更改按鈕文字為「分析中，請稍候...」
+        button.disabled = true;  // 禁用按鈕，防止重複點擊
+        resultArea.style.display = 'block'; // 顯示結果區域
+        resultArea.innerHTML = '<p class="loading">正在處理...</p>'; // 顯示載入提示
+        hintArea.style.display = 'none';  // 隱藏提示區域
+        hintContent.innerHTML = ''; // 清空提示內容
+        showNextHintButton.style.display = 'none';  // 隱藏「顯示下一提示」按鈕
+        reflectionArea.style.display = 'none';  // 隱藏學習反思區域
+        reflectionContent.innerHTML = '';  // 清空學習反思內容
+        solutionSteps = []; // 清空解題步驟
+        currentStepIndex = 0; // 重置目前步驟索引
 
         try {
-            let payload = {};
-            if (uploadImage.files.length > 0 && document.getElementById('imageContent').classList.contains('active')) {
+             let payload = {}; // 請求的資料
+             if (uploadImage.files.length > 0 && document.getElementById('imageContent').classList.contains('active')) {
                 // 圖片模式
                 const base64Image = await convertImageToBase64(uploadImage.files[0]);
                 payload = {
-                    contents: [{
-                        parts: [{
-                            text: `請以繁體中文回答，不得使用簡體字或英文詞彙。
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: `請以繁體中文回答，不得使用簡體字或英文詞彙。
 
 請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
 1. 題意分析：清楚解釋題目所問與重點。
@@ -91,90 +80,120 @@ const solveProblemModule = (() => {
 5. 學習反思：提供延伸思考方向或避免錯誤的建議。
 
 請務必謹慎檢查，不能有矛盾或錯誤的內容。所有論述必須合理、一致，並以自然流暢的繁體中文呈現。`
-                        }, {
-                            inline_data: {
-                                mime_type: 'image/jpeg',
-                                data: base64Image
-                            }
-                        }]
-                    }]
+                                },
+                                {
+                                     inline_data: {
+                                        mime_type: 'image/jpeg',
+                                        data: base64Image
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 };
             } else if (textInput.value.trim()) {
-                // 文字模式
+                 // 文字模式
                 payload = {
-                    contents: [{
-                        parts: [{
-                            text: `請以繁體中文回答，不使用簡體字或英文。
-                            請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
-                            1. 題意分析：
-                            2. 相關知識與理論：
-                            3. 解題流程：
-                            4. 答案：
-                            5. 學習反思：
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: `請以繁體中文回答，不使用簡體字或英文。
+                                    請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
+                                    1. 題意分析：
+                                    2. 相關知識與理論：
+                                    3. 解題流程：
+                                    4. 答案：
+                                    5. 學習反思：
 
-                            題目內容：${textInput.value.trim()}
+                                    題目內容：${textInput.value.trim()}
 
-                            請詳細分述解題步驟並在最後給出學習反思與延伸建議。`
-                        }]
-                    }]
+                                    請詳細分述解題步驟並在最後給出學習反思與延伸建議。`
+                                }
+                            ]
+                        }
+                    ]
                 };
             } else {
                 alert('請提供圖片或文字內容！');
-                button.innerText = '分析題目';
-                button.disabled = false;
+                 button.innerText = '分析題目';
+                 button.disabled = false;
                 return;
             }
 
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
+
+            const response = await fetch(
+                geminiurl,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
 
             const responseData = await response.json();
-            const answer = getNestedValue(responseData, 'text') || '無法獲取解答';
+            const answer = getNestedValue(responseData, 'text') || '無法獲取解答';  // 獲取解答文字
 
             // 將回應依序分段
             const sections = answer.split(/\d\.\s/).filter((section) => section.trim() !== '');
-            // 最後一段視為學習反思
-            reflectionStep = sections.pop();
-            solutionSteps = sections.map(s => s.trim());
+             // 最後一段視為學習反思
+            const reflectionStep = sections.pop();
+            const stepsWithoutReflection = sections;
+
+            solutionSteps = stepsWithoutReflection.map(s => s.trim()); // 儲存解題步驟
+            resultArea.innerHTML = ''; // 清空結果區域
+            hintArea.style.display = 'block'; // 顯示提示區域
 
             // 顯示第一個提示 (題意分析)
             if (solutionSteps.length > 0) {
-                resultArea.style.display = 'block';
-                hintArea.style.display = 'block';
                 hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
-                currentStepIndex = 0;
-
-                // 若有超過一個步驟，顯示「下一提示」按鈕
-                if (solutionSteps.length > 1) {
-                    showNextHintButton.style.display = 'block';
-                }
+                currentStepIndex = 0; // 設定目前步驟索引為 0
             }
+
+            // 若有超過一個步驟，顯示「下一提示」按鈕
+            if (solutionSteps.length > 1) {
+                 showNextHintButton.style.display = 'inline-block'; // 顯示「下一提示」按鈕
+            }
+
+             showNextHintButton.onclick = function() {
+                currentStepIndex++;
+                if (currentStepIndex < solutionSteps.length) {
+                    // 顯示下一個步驟，並加上分隔線
+                    hintContent.innerHTML += `<hr><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+                }
+
+                 // 所有步驟顯示完畢後，顯示學習反思
+                if (currentStepIndex === solutionSteps.length - 1) {
+                     showNextHintButton.style.display = 'none'; // 隱藏「下一提示」按鈕
+                     reflectionArea.style.display = 'block';  // 顯示學習反思區域
+                    reflectionContent.innerHTML = `<p>${formatText(reflectionStep)}</p>`; // 顯示學習反思內容
+                }
+            };
 
         } catch (error) {
-            resultArea.style.display = 'block';
-            resultArea.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+            resultArea.innerHTML = `<p class="loading">錯誤：${error.message}</p>`; // 顯示錯誤訊息
         } finally {
-            button.innerText = '分析題目';
-            button.disabled = false;
+            button.innerText = '分析題目'; // 恢復按鈕文字
+            button.disabled = false;  // 啟用按鈕
         }
     }
 
-    // 從巢狀物件中取得指定鍵的值
+
+     // 從巢狀物件中取得指定鍵的值
     function getNestedValue(data, key) {
+        // 如果 data 是物件且不為 null
         if (typeof data === 'object' && data !== null) {
-            for (const [k, v] of Object.entries(data)) {
-                if (k === key) return v;
-                const nestedValue = getNestedValue(v, key);
-                if (nestedValue) return nestedValue;
+             for (const [k, v] of Object.entries(data)) {  // 遍歷物件的鍵值對
+                if (k === key) return v; // 如果找到指定的鍵，則返回對應的值
+                 const nestedValue = getNestedValue(v, key); // 遞迴尋找巢狀物件
+                if (nestedValue) return nestedValue;  // 如果找到值，則返回
             }
         }
-        return null;
+        return null; // 如果找不到指定的鍵，則返回 null
     }
+
 
     // 將圖片轉換為 Base64
     async function convertImageToBase64(imageFile) {
@@ -186,52 +205,14 @@ const solveProblemModule = (() => {
         });
     }
 
-    // 顯示下一個提示
-    function setupNextHintButton() {
-        showNextHintButton.onclick = function() {
-            currentStepIndex++;
-            if (currentStepIndex < solutionSteps.length) {
-                hintContent.innerHTML += `<hr><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
-
-                // 當所有解題步驟都顯示完後，顯示反思區域
-                if (currentStepIndex === solutionSteps.length - 1) {
-                    showNextHintButton.style.display = 'none';
-                    reflectionArea.style.display = 'block';
-                    reflectionContent.innerHTML = `<p>${formatText(reflectionStep)}</p>`;
-                }
-            }
-        };
-    }
-
     // 事件監聽器綁定
-    function initializeEventListeners() {
-        imageTab.addEventListener('click', () => switchTab('image'));
-        textTab.addEventListener('click', () => switchTab('text'));
-        uploadImage.addEventListener('change', previewImage);
-        analyzeButton.addEventListener('click', analyzeInput);
-        setupNextHintButton();
-    }
+    imageTab.addEventListener('click', () => switchTab('image'));
+    textTab.addEventListener('click', () => switchTab('text'));
+    uploadImage.addEventListener('change', previewImage);
+    analyzeButton.addEventListener('click', analyzeInput);
 
-    // 格式化文字
-    function formatText(text) {
-        if (!text) return '';
-        let formatted = text;
-        formatted = formatted.replace(/\n/g, '<br>');
-        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        return formatted;
-    }
-
-    // 初始化
-    function init() {
-        initializeEventListeners();
-        initializeAnalysisArea();
-    }
-
-    // 暴露需要外部訪問的函數
+    // 暴露需要外部訪問的函數 (如果有的話)
     return {
-        init
+        // ...
     };
 })();
-
-// 初始化模組
-solveProblemModule.init();

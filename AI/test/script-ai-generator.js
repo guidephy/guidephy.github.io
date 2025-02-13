@@ -498,12 +498,12 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                         return q;
                     });
                     if (qList.length > 0) {
-    singleQuestionData = qList[0]; // 儲存單一題目資料
-    displaySingleQuestion(singleQuestionData); // 顯示單一題目
-    singleQuizForm.style.display = 'block';   // 顯示提交答案的表單
-    singleQuizForm.querySelector('.submit-button').style.display = 'block'; // 顯示提交按鈕
-    copyQContent.style.display = 'block'; //顯示複製按鈕
-} else {
+                        singleQuestionData = qList[0]; // 儲存單一題目資料
+                        displaySingleQuestion(singleQuestionData); // 顯示單一題目
+                        singleQuizForm.style.display = 'block';   // 顯示提交答案的表單
+                        singleQuizForm.querySelector('.submit-button').style.display = 'block'; // 顯示提交按鈕
+                        copyQContent.style.display = 'block'; //顯示複製按鈕
+                    } else {
                         throw new Error('沒有產生題目');
                     }
                 } else {
