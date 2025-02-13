@@ -1,7 +1,7 @@
-// script-ai-generator.js (REVERTED and FIXED)
+// script-ai-generator.js (AI 素養題產生器)
 
 const aiGeneratorModule = (() => {
-    // 獲取 DOM 元素 - These should match your index.html
+    // 獲取 DOM 元素
     const customTopicTab = document.getElementById('customTopicTab');
     const chatTopicTab = document.getElementById('chatTopicTab');
     const questionTopicTab = document.getElementById('questionTopicTab');
@@ -10,13 +10,13 @@ const aiGeneratorModule = (() => {
     const questionTopicContent = document.getElementById('questionTopicContent');
     const imageQTab = document.getElementById('imageQTab');
     const textQTab = document.getElementById('textQTab');
-        const imageQContent = document.getElementById('imageQContent');
+    const imageQContent = document.getElementById('imageQContent');
     const textQContent = document.getElementById('textQContent');
     const generateButton = document.getElementById('generateButton');
     const quizForm = document.getElementById('quizForm');
     const questionsDiv = document.getElementById('questions');
-    const gradeSelect = document.getElementById('grade'); // Make sure this ID exists!
-    const questionCountSelect = document.getElementById('questionCount'); // Make sure this ID exists!
+    const gradeSelect = document.getElementById('grade');
+    const questionCountSelect = document.getElementById('questionCount');
     const mainGenerateGroup = document.getElementById('mainGenerateGroup');
     const singleQuizForm = document.getElementById('singleQuizForm');
     const singleQuestionDiv = document.getElementById('singleQuestion');
@@ -26,10 +26,10 @@ const aiGeneratorModule = (() => {
     const textQInput = document.getElementById('textQInput');
     const generateFromQButton = document.getElementById('generateFromQButton');
 
-    let questions = [];
-    let singleQuestionData = null;
+    let questions = [];      // 儲存產生的題目
+    let singleQuestionData = null;  // 儲存以題出題
 
-    // 初始化選項 (This function was missing/incomplete in previous versions)
+    // 初始化選項
     function initOptions() {
         // 年級選項 (1 到 12 年級)
         for (let i = 1; i <= 12; i++) {
@@ -48,8 +48,7 @@ const aiGeneratorModule = (() => {
         }
     }
 
-    // ... (Rest of your tab switching and other functions - keep these as in your ORIGINAL code) ...
-     // 切換分頁的事件監聽
+    // 切換分頁的事件監聽
     customTopicTab.addEventListener('click', () => {
         customTopicTab.classList.add('active');
         chatTopicTab.classList.remove('active');
@@ -114,7 +113,8 @@ const aiGeneratorModule = (() => {
         });
         return testData;
     }
-     // 根據聊天記錄產生題目
+
+    // 根據聊天記錄產生題目
     async function generateQuestionsFromChat() {
         if (thread.length === 0) {
             alert('目前無聊天記錄，無法使用');
@@ -129,10 +129,11 @@ const aiGeneratorModule = (() => {
 
         generateQuestions(chatContent); // 呼叫 generateQuestions 函數，並傳入聊天記錄
     }
-    // 產生題目 (Corrected and Working)
+
+    // 產生題目 (主要函數)
     async function generateQuestions(chatContent = '') {
         const button = document.getElementById('generateButton');
-        button.innerText = '生成題目中，請稍候...';
+        button.innerText = '生成題目中，請稍候...';// 修改按鈕文字，提示使用者正在生成題目
 
         let topic = '';
         let topicText = '';
@@ -140,27 +141,27 @@ const aiGeneratorModule = (() => {
         let questionCount = '';
 
         if (customTopicTab.classList.contains('active')) {
-            topic = document.getElementById('topic').value;
+            topic = document.getElementById('topic').value; // 獲取使用者輸入的主題
             if (!topic) {
                 alert('請填寫主題！');
-                button.innerText = '生成題目'; // Reset button text
-                return; // Stop execution if no topic
+                button.innerText = '生成題目';
+                return;
             }
             topicText = document.getElementById('topicText').value;
-            grade = document.getElementById('grade').value; // Get grade
-            questionCount = document.getElementById('questionCount').value; // Get question count
-
+            grade = document.getElementById('grade').value;
+            questionCount = document.getElementById('questionCount').value;
 
         } else {
-             topic = '以聊天記錄生成題目';
+            topic = '以聊天記錄生成題目';
             grade = '10';  //預設十年級
             questionCount = '5'; // 預設五題
         }
 
+        // 附加條件：符合高中學科目標、專家設計、結合生活情境、確保有正確答案
         const conditions = '符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。';
 
-        quizForm.style.display = 'none';
-        questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
+        quizForm.style.display = 'none'; // 隱藏測驗表單
+        questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>'; // 顯示載入提示
 
         try {
             const response = await fetch(geminiurl, {
@@ -209,17 +210,18 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             const data = await response.json();
             if (data.candidates && data.candidates[0].content) {
                 const textContent = data.candidates[0].content.parts[0].text;
+                // 從回應中提取 JSON 格式的題目資料
                 const jsonMatch = textContent.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     const parsedData = JSON.parse(jsonMatch[0]);
-                     questions = parsedData.questions.map((q) => {
+                    questions = parsedData.questions.map((q) => {
                         q.options = [...new Set(q.options)];  // 確保選項不重複
                         return q;
                     });
-                    displayQuestions(questions);
-                    quizForm.style.display = 'block';
+                    displayQuestions(questions); // 顯示題目
+                    quizForm.style.display = 'block';  //顯示測驗表單
                     quizForm.querySelector('.submit-button').style.display = 'block'; // 顯示提交按鈕
-                     document.getElementById('copyContent').style.display = 'block';// 顯示複製按鈕
+                    document.getElementById('copyContent').style.display = 'block';// 顯示複製按鈕
                 } else {
                     throw new Error('無法解析回應格式');
                 }
@@ -227,11 +229,12 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 throw new Error('API 回應格式不正確');
             }
         } catch (error) {
-            questionsDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
-        } finally {
-             button.innerText = '重新生成題目'; // 恢復按鈕文字
+            questionsDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`; // 顯示錯誤訊息
         }
+
+        button.innerText = '重新生成題目'; // 恢復按鈕文字
     }
+
     // 顯示題目
     function displayQuestions(questions) {
         questionsDiv.innerHTML = '';  // 清空先前的題目
@@ -264,42 +267,43 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
     }
 
-      // 檢查答案
+    // 檢查答案
     function checkAnswers(event) {
-        event.preventDefault();
+        event.preventDefault(); // 阻止表單提交
 
-        const formData = new FormData(document.getElementById('quizForm'));
-        const results = [];
+        const formData = new FormData(document.getElementById('quizForm')); // 獲取表單資料
+        const results = []; // 儲存結果
 
+        // 逐題檢查答案
         questions.forEach((q, i) => {
-            const userAnswer = formData.get(`question${i}`);
-            const correctAnswer = q.answer;
+            const userAnswer = formData.get(`question${i}`); // 獲取使用者的答案
+            const correctAnswer = q.answer; // 正確答案
+            // 判斷答案是否正確
             const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswer;
 
             results.push({
-                question: q.question,
-                options: q.options,
-                correct: isCorrect,
-                userAnswer: userAnswer !== null ? parseInt(userAnswer) : '未作答',
-                correctAnswer,
-                explanation: q.explanation,
+                question: q.question, // 題目
+                options: q.options,   // 選項
+                correct: isCorrect,  // 是否正確
+                userAnswer: userAnswer !== null ? parseInt(userAnswer) : '未作答', // 使用者答案
+                correctAnswer, //正確答案
+                explanation: q.explanation,  // 解答說明
             });
         });
 
-        displayResults(results);
-        const submitButton = document.querySelector('#quizForm .submit-button'); // 更精確的選擇器
+        displayResults(results); // 顯示結果
+        const submitButton = document.querySelector('#quizForm .submit-button');
         submitButton.style.display = 'none'; // 隱藏提交按鈕
-
     }
 
-    // 顯示結果 (與 checkAnswers 搭配)
+    // 顯示結果
     function displayResults(results) {
         questionsDiv.innerHTML = results.map((result, i) => `
             <div class="question-card">
                 <p><strong>${i + 1}. ${result.question}</strong></p>
                 <div class="question-options">
                     ${result.options.map((option, j) => `
-                        <label style="background-color: ${j === result.correctAnswer ? '#28a745' :
+                        <label style="background-color: ${j === result.correctAnswer ? '#28a745' : 
                             (j === result.userAnswer ? '#dc3545' : '#ffffff')};
                             color: ${j === result.correctAnswer || j === result.userAnswer ? 'white' : '#333'};">
                             ${['A', 'B', 'C', 'D'][j]}. ${option}
@@ -510,11 +514,10 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             }
         } catch (error) {
             singleQuestionDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`; // 顯示錯誤訊息
-        }finally {
-             button.innerText = '生成題目'; // 恢復按鈕文字
-             button.disabled = false; // 啟用按鈕
         }
 
+        button.innerText = '生成題目'; // 恢復按鈕文字
+        button.disabled = false; // 啟用按鈕
     }
 
     // 顯示單一題目
@@ -541,7 +544,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 </div>
             </div>
         `;
-        singleQuestionDiv.innerHTML += questionHtml;
+        singleQuestionDiv.innerHTML += questionHtml;  //顯示題目
     }
 
     // 檢查單一題目的答案並顯示結果
@@ -572,8 +575,59 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 <p class="explanation">解答說明：${singleQuestionData.explanation}</p>
             </div>
         `;
-         document.querySelector('#singleQuizForm .submit-button').style.display = 'none'; // 更精確的選擇器
 
+        document.querySelector('#singleQuizForm .submit-button').style.display = 'none'; // 隱藏提交按鈕
+
+        // 新增儲存測驗結果按鈕
+        singleQuestionDiv.innerHTML += `
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="saveSingleTestButton" class="feature-button">儲存測驗結果</button>
+            </div>
+        `;
+
+        // 綁定儲存單一題目測驗結果的事件
+        document.getElementById('saveSingleTestButton').addEventListener('click', async () => {
+            const username = prompt('請輸入您的帳號：');
+            if (!username) {
+                alert('必須輸入帳號才能儲存測驗結果。');
+                return;
+            }
+
+            // 格式化測驗結果
+            let testData = '測驗結果：\n\n';
+            testData += `題目：${singleQuestionData.question}\n`;
+            singleQuestionData.options.forEach((option, i) => {
+                testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
+            });
+            testData += `您的答案：${userAnswer === null ? '未作答' : ['A', 'B', 'C', 'D'][userAnswer]}\n`;
+            testData += `正確答案：${['A', 'B', 'C', 'D'][correctAnswer]}\n`;
+            testData += `結果：${isCorrect ? '正確' : '錯誤'}\n`;
+            testData += `解釋：${singleQuestionData.explanation}\n`;
+
+            try {
+                await new Promise((resolve, reject) => {
+                    google.script.run
+                        .withSuccessHandler(result => {
+                            if (result.status === 'success') {
+                                alert('測驗結果已成功儲存！');
+                            } else {
+                                alert(`儲存失敗：${result.error}`);
+                            }
+                            resolve(result);
+                        })
+                        .withFailureHandler(error => {
+                            alert(`儲存失敗：${error.message}`);
+                            reject(error);
+                        })
+                        .saveTestResult({
+                            username: username,
+                            testData: testData
+                        });
+                });
+            } catch (error) {
+                console.error('儲存測驗結果時發生錯誤：', error);
+            }
+        });
     }
 
     // 複製單一題目的內容
