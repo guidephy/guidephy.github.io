@@ -962,3 +962,24 @@ body {
         width: 100%;
     }
 }
+
+/* 新增以下樣式 */
+.account-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+#current-user {
+    font-weight: bold;
+    color: #8ab0ab;
+}
+
+#switch-account {
+    font-size: 12px;
+    padding: 4px 8px;
+}
