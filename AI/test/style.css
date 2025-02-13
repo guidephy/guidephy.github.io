@@ -802,3 +802,41 @@ button:hover {
     padding: 20px;
     border-radius: 8px;
 }
+.modern-container iframe {
+    width: 100%;
+    height: calc(100vh - 100px);
+    border: none;
+    border-radius: 8px;
+}
+
+#physics-lecture-content,
+#calculator-content,
+#tomato-content {
+    padding: 0 !important;
+    height: calc(100vh - 100px);
+    overflow: hidden;
+}
+
+#physics-lecture-content .feature-container,
+#calculator-content .feature-container,
+#tomato-content .feature-container {
+    padding: 0;
+    height: 100%;
+    margin: 0;
+    max-width: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+#physics-lecture-content .modern-container,
+#calculator-content .modern-container,
+#tomato-content .modern-container {
+    padding: 0;
+    height: 100%;
+    max-width: none;
+}
+
+/* 確保外部內容區域不會有額外的內邊距 */
+.external-content {
+    padding: 0;
+}
