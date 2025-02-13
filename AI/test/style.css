@@ -419,14 +419,24 @@ body {
 /* 標籤內容顯示控制 */
 .tab-content {
     display: none;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
 }
 
 .tab-content.active {
     display: block;
+}
+
+/* 確保表單元素在容器內正確對齊 */
+.form-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
 }
 
 /* 統一表單組件樣式 */
