@@ -1,202 +1,43 @@
-/* 主頁基礎樣式 */
-body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-color: #f7f6f2;
-}
-
-/* 遮罩層 */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    display: none;
-}
-
-.overlay.show {
-    display: block;
-}
-
-/* 容器布局 */
-.container {
-    flex: 1;
-    display: flex;
-}
-
-/* 側邊欄 */
-.sidebar {
-    width: 250px;
-    background-color: #f0f0f0;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease;
-    z-index: 1000;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-header {
-    padding: 20px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    background-color: #f0f0f0;
-}
-
-.sidebar-menu {
-    flex: 1;
-    padding: 10px;
-}
-
-.menu-item {
-    padding: 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    color: #333;
-    font-size: 16px;
-}
-
-.menu-item:hover {
-    background-color: #d9d9d9;
-    color: #000;
-}
-
-.menu-item.hidden {
-    display: none;
-}
-
-/* 頁首 */
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1001;
-    background-color: #8ab0ab;
-    color: white;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 20px;
-}
-
-/* 主內容區域 */
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: #fafafa;
-    overflow: hidden;
-}
-
-/* 統一容器樣式 */
-.content-container {
+/* AI素養題產生器、教我解題和學習記錄的共同容器樣式 */
+.ai-generator-container,
+.solve-problem-container,
+.my-records-container {
     max-width: 800px;
-    margin: 20px auto;
+    margin: 0 auto;
+    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
     padding: 30px;
-    background: #fff;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
-/* 聊天窗口 */
-.chat-window {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background-color: white;
-    max-height: calc(100vh - 100px);
+/* 標題統一樣式 */
+.ai-generator-container h1,
+.solve-problem-container h1,
+.my-records-container h1 {
+    text-align: center;
+    color: #8ab0ab;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    transition: color 0.3s ease;
 }
 
-.message {
-    display: flex;
-    max-width: 80%;
-    padding: 10px 15px;
-    border-radius: 15px;
-    margin: 5px 0;
-    word-wrap: break-word;
-    animation: fadeIn 0.3s ease-in;
-    line-height: 1.6;
-    font-size: 16px;
-}
-
-.user-message {
-    align-self: flex-end;
-    background-color: #DCF8C6;
-    justify-content: flex-end;
-}
-
-.bot-message {
-    align-self: flex-start;
-    background-color: #ECF5FF;
-    justify-content: flex-start;
-}
-
-/* 工具列 */
-.toolbar {
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    gap: 5px;
-    background-color: #f7f7f7;
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.mode-indicator {
-    background-color: #f0f0f0;
-    padding: 6px 10px;
-    border-radius: 20px;
-    font-size: 14px;
-    color: #333;
-    display: flex;
-    align-items: center;
-    margin-right: 5px;
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-
-/* 輸入區域 */
-.input-area {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-    background-color: white;
-    gap: 10px;
-    flex-shrink: 0;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-/* 表單元素統一樣式 */
+/* 表單群組樣式 */
 .form-group {
     margin-bottom: 20px;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: 600;
+    font-weight: bold;
     color: #333;
+    transition: color 0.3s ease;
 }
 
-.form-group input,
+.form-group input[type="text"],
 .form-group textarea,
 .form-group select {
     width: 100%;
@@ -204,29 +45,56 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 按鈕統一樣式 */
-.primary-button {
+.form-group input[type="text"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #8ab0ab;
+    box-shadow: 0 0 0 2px rgba(138, 176, 171, 0.2);
+    outline: none;
+}
+
+/* 按鈕群組樣式 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* 主要按鈕樣式 */
+.feature-button,
+#generateButton,
+#analyzeButton,
+#load-notes-button,
+#load-records-button {
     background-color: #8ab0ab;
     color: white;
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
     font-size: 16px;
-    font-weight: 500;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.primary-button:hover {
+.feature-button:hover,
+#generateButton:hover,
+#analyzeButton:hover,
+#load-notes-button:hover,
+#load-records-button:hover {
     background-color: #6e928b;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Tab 切換統一樣式 */
+/* Tab 切換樣式 */
 .tab-switch {
     display: flex;
     gap: 2px;
@@ -234,6 +102,7 @@ body {
     background: #f5f5f5;
     padding: 4px;
     border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .tab-button {
@@ -246,19 +115,21 @@ body {
     border-radius: 6px;
     color: #666;
     transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .tab-button.active {
     background: #8ab0ab;
     color: white;
-    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tab-content {
     display: none;
     padding: 20px;
-    background: white;
     border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .tab-content.active {
@@ -266,24 +137,22 @@ body {
     animation: fadeIn 0.3s ease;
 }
 
-/* 卡片統一樣式 */
-.card,
+/* 題目卡片樣式 */
 .question-card {
     background: white;
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.card:hover,
 .question-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 題目選項統一樣式 */
 .question-options {
     display: flex;
     flex-direction: column;
@@ -298,14 +167,30 @@ body {
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    background: white;
 }
 
 .question-options label:hover {
-    background: #f5f5f5;
+    background: #f8f9fa;
     border-color: #8ab0ab;
+    transform: translateX(5px);
 }
 
-/* 提示和反思區域統一樣式 */
+.question-options input[type="radio"] {
+    margin-right: 10px;
+}
+
+/* 結果區域樣式 */
+.result-area {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    animation: slideUp 0.5s ease;
+}
+
+/* 提示和反思區域樣式 */
 .hint-area,
 .reflection-area {
     background: white;
@@ -313,6 +198,49 @@ body {
     padding: 20px;
     margin-top: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.5s ease;
+}
+
+.hint-content,
+.reflection-content {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* 統計卡片樣式 */
+.statistics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.statistic-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.statistic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.statistic-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #8ab0ab;
+    margin-bottom: 5px;
+}
+
+.statistic-label {
+    color: #666;
+    font-size: 0.9rem;
 }
 
 /* 動畫效果 */
@@ -327,96 +255,51 @@ body {
     }
 }
 
-/* 響應式設計 */
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        height: 100%;
-        top: 0;
-        left: 0;
-        transform: translateX(-250px);
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .header .menu-toggle {
-        display: block;
-    }
-
-    .main-content {
-        margin-left: 0;
-        padding-top: 50px;
-        padding-bottom: 70px;
-    }
-
-    .content-container {
-        margin: 10px;
-        padding: 15px;
-    }
-
-    .input-area {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 1002;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select,
-    .primary-button {
-        font-size: 14px;
-        padding: 10px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* 特定功能樣式 */
+/* 載入動畫 */
 .loading {
     text-align: center;
     color: #666;
     padding: 20px;
     font-style: italic;
+    animation: pulse 1.5s infinite;
 }
 
-.upload-button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 15px;
-    cursor: pointer;
-    position: relative;
-    flex-shrink: 0;
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 }
 
-.image-preview {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-}
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .ai-generator-container,
+    .solve-problem-container,
+    .my-records-container {
+        margin: 10px;
+        padding: 15px;
+    }
 
-.image-preview img {
-    max-width: 50px;
-    border-radius: 10px;
-}
+    .button-group {
+        flex-direction: column;
+    }
 
-/* iframe 容器樣式 */
-.physics-lecture-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
+    .statistics-cards {
+        grid-template-columns: 1fr;
+    }
 
-.physics-lecture-container iframe {
-    width: 100%;
-    height: 100vh;
-    border: none;
-    border-radius: 8px;
+    .question-options label {
+        font-size: 14px;
+        padding: 10px;
+    }
 }
