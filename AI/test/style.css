@@ -1,8 +1,7 @@
-/* style.css (REVERTED with AI Generator Fixes) */
+/* style.css (REVERTED with AI Generator Fixes - Adjusted Width) */
 
 /* --- START OF YOUR ORIGINAL CSS --- */
 /* (Paste your original CSS here, up to the AI Generator section) */
-
 /* 主頁樣式 */
 body {
     margin: 0;
@@ -367,28 +366,28 @@ body {
 
 
 /* AI素養題產生器 - Targeted Fixes */
-#ai-generator-content { /* Use ID for highest specificity */
-    max-width: 800px; /* Same as solve-problem */
-    margin: 20px auto;   /* Center and add margin */
-    padding: 30px;
-    background: linear-gradient(to bottom right, #ffffff, #f8f9fa);
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+#ai-generator-content {
+    /* Remove max-width, let it expand */
+    margin: 20px auto;  /* Keep centering and margins */
+    padding: 30px;      /* Keep padding */
+    background: linear-gradient(to bottom right, #ffffff, #f8f9fa); /* Keep background */
+    border-radius: 15px;   /* Keep border-radius */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);  /* Keep box-shadow */
 }
 
-#ai-generator-content h1 { /* Style the h1 within the container */
+
+#ai-generator-content h1 {
     text-align: center;
     color: #8ab0ab;
     margin-bottom: 30px;
     font-weight: bold;
 }
 
-
-#ai-generator-content .form-group { /* More specific */
+#ai-generator-content .form-group {
     margin-bottom: 20px;
 }
 
-#ai-generator-content label { /* More specific */
+#ai-generator-content label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
@@ -397,17 +396,18 @@ body {
 
 #ai-generator-content input[type="text"],
 #ai-generator-content textarea,
-#ai-generator-content select { /* More specific */
+#ai-generator-content select,
+#ai-generator-content input[type="file"] { /* Include file input */
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box; /*  Important for consistent width */
+    box-sizing: border-box;
 }
 
-#ai-generator-content textarea { /* More specific */
+#ai-generator-content textarea {
     min-height: 100px;
     resize: vertical;
 }
@@ -419,12 +419,19 @@ body {
     justify-content: center;
     margin-top: 20px;
 }
-
-
-/* Keep other original styles for .ai-generator-container, but ensure
-   they don't conflict with the above (e.g., remove width settings) */
-
-/* Original AI question styles. Keep these. */
+/* Keep other original styles for .ai-generator-container */
+/* 確保沒有樣式衝突 (例如，移除 width 設定) */
+.ai-generator-container button {
+     background-color: #8ab0ab;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 18px;
+}
 .ai-generator-container .result-area {
     display: none;
     border: 1px solid #ddd;
@@ -484,22 +491,7 @@ body {
 .ai-generator-container .your-answer {
     margin-top: 5px;
 }
-.ai-generator-container button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
-    font-size: 18px;
-}
 
-.ai-generator-container button:hover {
-    background-color: #6e928b;
-    transform: scale(1.05);
-}
 .ai-generator-container .submit-button {
     display: none;
     margin: 30px auto 0 auto;
@@ -513,12 +505,6 @@ body {
     font-weight: bold;
     transition: background-color 0.3s, transform 0.2s;
 }
-
-.ai-generator-container .submit-button:hover {
-    background-color: #6e928b;
-    transform: scale(1.05);
-}
-
 .ai-generator-container .loading {
     text-align: center;
     color: #333;
@@ -964,4 +950,15 @@ body {
     .records-input-area button {
         width: 100%;
     }
+     /* AI Generator Specific - Mobile Adjustments */
+    #ai-generator-content {
+        padding: 15px; /* Less padding on mobile */
+    }
 }
+/* ---  End of AI Generator Specific Styles --- */
+
+
+/* (Styles for other sections: 教我解題, 我的學習記錄, etc.
+    Keep these as they were originally.  The key is that
+    we're now ONLY targeting the AI generator with the
+    #ai-generator-content selector.) */
