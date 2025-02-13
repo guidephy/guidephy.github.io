@@ -20,7 +20,7 @@ const solveProblemModule = (() => {
     let solutionSteps = []; // 儲存解題步驟
     let currentStepIndex = 0; // 目前步驟的索引
 
-     // 切換分頁
+    // 切換分頁
     function switchTab(tab) {
         // 切換 active 狀態，並根據 tab 參數顯示或隱藏對應的內容
         imageContent.classList.toggle('active', tab === 'image');
@@ -34,8 +34,8 @@ const solveProblemModule = (() => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-             reader.onload = function (e) {
-                 imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">`;
             };
             reader.readAsDataURL(file);
         } else {
@@ -47,22 +47,22 @@ const solveProblemModule = (() => {
     async function analyzeInput() {
         const button = document.getElementById('analyzeButton');
 
-         // 重新初始化顯示區塊
+        // 重新初始化顯示區塊
         button.innerText = '分析中，請稍候...'; // 更改按鈕文字為「分析中，請稍候...」
-        button.disabled = true;  // 禁用按鈕，防止重複點擊
+        button.disabled = true; // 禁用按鈕，防止重複點擊
         resultArea.style.display = 'block'; // 顯示結果區域
         resultArea.innerHTML = '<p class="loading">正在處理...</p>'; // 顯示載入提示
-        hintArea.style.display = 'none';  // 隱藏提示區域
+        hintArea.style.display = 'none'; // 隱藏提示區域
         hintContent.innerHTML = ''; // 清空提示內容
-        showNextHintButton.style.display = 'none';  // 隱藏「顯示下一提示」按鈕
-        reflectionArea.style.display = 'none';  // 隱藏學習反思區域
-        reflectionContent.innerHTML = '';  // 清空學習反思內容
+        showNextHintButton.style.display = 'none'; // 隱藏「顯示下一提示」按鈕
+        reflectionArea.style.display = 'none'; // 隱藏學習反思區域
+        reflectionContent.innerHTML = ''; // 清空學習反思內容
         solutionSteps = []; // 清空解題步驟
         currentStepIndex = 0; // 重置目前步驟索引
 
         try {
-             let payload = {}; // 請求的資料
-             if (uploadImage.files.length > 0 && document.getElementById('imageContent').classList.contains('active')) {
+            let payload = {}; // 請求的資料
+            if (uploadImage.files.length > 0 && document.getElementById('imageContent').classList.contains('active')) {
                 // 圖片模式
                 const base64Image = await convertImageToBase64(uploadImage.files[0]);
                 payload = {
@@ -82,7 +82,7 @@ const solveProblemModule = (() => {
 請務必謹慎檢查，不能有矛盾或錯誤的內容。所有論述必須合理、一致，並以自然流暢的繁體中文呈現。`
                                 },
                                 {
-                                     inline_data: {
+                                    inline_data: {
                                         mime_type: 'image/jpeg',
                                         data: base64Image
                                     }
@@ -92,7 +92,7 @@ const solveProblemModule = (() => {
                     ]
                 };
             } else if (textInput.value.trim()) {
-                 // 文字模式
+                // 文字模式
                 payload = {
                     contents: [
                         {
@@ -116,15 +116,13 @@ const solveProblemModule = (() => {
                 };
             } else {
                 alert('請提供圖片或文字內容！');
-                 button.innerText = '分析題目';
-                 button.disabled = false;
+                button.innerText = '分析題目';
+                button.disabled = false;
                 return;
             }
 
-
             const response = await fetch(
-                geminiurl,
-                {
+                geminiurl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -134,11 +132,11 @@ const solveProblemModule = (() => {
             );
 
             const responseData = await response.json();
-            const answer = getNestedValue(responseData, 'text') || '無法獲取解答';  // 獲取解答文字
+            const answer = getNestedValue(responseData, 'text') || '無法獲取解答'; // 獲取解答文字
 
             // 將回應依序分段
             const sections = answer.split(/\d\.\s/).filter((section) => section.trim() !== '');
-             // 最後一段視為學習反思
+            // 最後一段視為學習反思
             const reflectionStep = sections.pop();
             const stepsWithoutReflection = sections;
 
@@ -154,20 +152,20 @@ const solveProblemModule = (() => {
 
             // 若有超過一個步驟，顯示「下一提示」按鈕
             if (solutionSteps.length > 1) {
-                 showNextHintButton.style.display = 'inline-block'; // 顯示「下一提示」按鈕
+                showNextHintButton.style.display = 'inline-block'; // 顯示「下一提示」按鈕
             }
 
-             showNextHintButton.onclick = function() {
+            showNextHintButton.onclick = function() {
                 currentStepIndex++;
                 if (currentStepIndex < solutionSteps.length) {
                     // 顯示下一個步驟，並加上分隔線
                     hintContent.innerHTML += `<hr><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
                 }
 
-                 // 所有步驟顯示完畢後，顯示學習反思
+                // 所有步驟顯示完畢後，顯示學習反思
                 if (currentStepIndex === solutionSteps.length - 1) {
-                     showNextHintButton.style.display = 'none'; // 隱藏「下一提示」按鈕
-                     reflectionArea.style.display = 'block';  // 顯示學習反思區域
+                    showNextHintButton.style.display = 'none'; // 隱藏「下一提示」按鈕
+                    reflectionArea.style.display = 'block'; // 顯示學習反思區域
                     reflectionContent.innerHTML = `<p>${formatText(reflectionStep)}</p>`; // 顯示學習反思內容
                 }
             };
@@ -176,19 +174,19 @@ const solveProblemModule = (() => {
             resultArea.innerHTML = `<p class="loading">錯誤：${error.message}</p>`; // 顯示錯誤訊息
         } finally {
             button.innerText = '分析題目'; // 恢復按鈕文字
-            button.disabled = false;  // 啟用按鈕
+            button.disabled = false; // 啟用按鈕
         }
     }
 
 
-     // 從巢狀物件中取得指定鍵的值
+    // 從巢狀物件中取得指定鍵的值
     function getNestedValue(data, key) {
         // 如果 data 是物件且不為 null
         if (typeof data === 'object' && data !== null) {
-             for (const [k, v] of Object.entries(data)) {  // 遍歷物件的鍵值對
+            for (const [k, v] of Object.entries(data)) { // 遍歷物件的鍵值對
                 if (k === key) return v; // 如果找到指定的鍵，則返回對應的值
-                 const nestedValue = getNestedValue(v, key); // 遞迴尋找巢狀物件
-                if (nestedValue) return nestedValue;  // 如果找到值，則返回
+                const nestedValue = getNestedValue(v, key); // 遞迴尋找巢狀物件
+                if (nestedValue) return nestedValue; // 如果找到值，則返回
             }
         }
         return null; // 如果找不到指定的鍵，則返回 null
@@ -216,3 +214,6 @@ const solveProblemModule = (() => {
         // ...
     };
 })();
+
+// 初始化模組
+solveProblemModule.init();
