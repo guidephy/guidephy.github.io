@@ -1,4 +1,5 @@
 /* 主頁樣式 */
+
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
@@ -121,7 +122,8 @@ body {
     flex-direction: column;
     background-color: #fafafa;
     overflow: hidden;
-    padding-top: 50px; /* 增加 padding-top */
+    padding-top: 50px;
+    /* 增加 padding-top */
 }
 
 /* 聊天視窗 */
@@ -546,9 +548,16 @@ button:hover,
     margin-top: 5px;
 }
 
+.ai-generator-container .submit-button-container {
+    text-align: center;
+    /* 確保提交按鈕水平置中 */
+    margin-top: 30px;
+    /* 增加按鈕與上方元件的距離 */
+}
+
 .ai-generator-container .submit-button {
     display: none;
-    margin: 30px auto 0 auto;
+    /* 預設隱藏提交答案按鈕 */
 }
 
 .ai-generator-container .loading {
@@ -563,6 +572,13 @@ button:hover,
 .solve-problem-container {
     /* 使用通用容器樣式 */
     margin-bottom: 20px;
+}
+
+.solve-problem-container .button-group {
+    text-align: center;
+    /* 確保按鈕水平置中 */
+    margin-top: 30px;
+    /* 增加按鈕與上方元件的距離 */
 }
 
 .solve-problem-container .result-area {
@@ -905,9 +921,27 @@ button:hover,
 /* 將按鈕群組置中 */
 .ai-generator-container .button-group,
 .solve-problem-container .button-group {
-    text-align: center; /* 確保按鈕水平置中 */
-    margin-top: 20px; /* 保持與上方元件的距離 */
-    display: flex;  /* 讓按鈕水平排列 */
-    justify-content: center;  /* 水平置中 */
-    align-items: center;    /* 垂直置中（如果需要） */
+    text-align: center;
+    /* 確保按鈕水平置中 */
+    margin-top: 30px;
+    /* 增加按鈕與上方元件的距離 */
+    display: flex;
+    /* 讓按鈕水平排列 */
+    justify-content: center;
+    /* 水平置中 */
+    align-items: center;
+    /* 垂直置中（如果需要） */
+}
+
+/*提交按鈕初始*/
+.ai-generator-container .submit-button-container {
+    text-align: center;
+    /* 確保提交按鈕水平置中 */
+    margin-top: 30px;
+    /* 增加按鈕與上方元件的距離 */
+}
+
+.ai-generator-container .submit-button {
+    display: none;
+    /* 預設隱藏提交答案按鈕 */
 }
