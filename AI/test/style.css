@@ -306,12 +306,13 @@ body {
 
 #user-input {
     flex: 1 1 auto; 
-    padding: 10px;
+    padding: 10px 15px;  /* 修改內邊距 */
     border: 1px solid #ddd;
     border-radius: 20px;
     outline: none;
     box-sizing: border-box;
-    font-size: 16px; 
+    font-size: 16px;
+    margin: 0;  /* 確保沒有額外的邊距 */
 }
 
 #send-button {
@@ -737,17 +738,15 @@ body {
     }
 
     /* 輸入區域相關 */
-    .input-area {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 1002; 
-        padding: 10px;
-        background-color: white;
-        border-top: 1px solid #ddd;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    }
+.input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;  /* 統一內邊距 */
+    gap: 10px;
+    background-color: white;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
 
     /* 選單按鈕相關 */
     .header .menu-toggle {
