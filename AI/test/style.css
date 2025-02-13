@@ -589,3 +589,216 @@ button:hover {
         transform: translateY(0);
     }
 }
+
+/* 筆記卡片樣式 */
+.note-card {
+    background: white;
+    border-left: 4px solid #8ab0ab;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.note-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.note-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 圖片預覽 */
+.image-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.image-preview img {
+    max-width: 50px;
+    border-radius: 10px;
+}
+
+.image-preview .delete-button {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* 選項按鈕相關 */
+.message-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+    justify-content: flex-start;
+}
+
+.option-button {
+    background-color: #8ab0ab;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.option-button:hover {
+    background-color: #6e928b;
+    transform: scale(1.05);
+}
+
+/* 物理講義樣式 */
+.physics-lecture-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    height: calc(100vh - 100px);
+}
+
+.physics-lecture-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+/* 提示區域樣式 */
+#hintArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#reflectionArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#hintContent,
+#reflectionContent {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* 滾動條樣式 */
+.chat-window {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.chat-window::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+/* 進度步驟樣式 */
+.progress-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #8ab0ab;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    margin-right: 16px;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.step-description {
+    color: #666;
+    font-size: 14px;
+}
+
+.progress-step.inactive .step-number {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
+
+/* 上傳區域樣式 */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.upload-area:hover {
+    border-color: #8ab0ab;
+    background-color: #f8fafc;
+}
+
+.upload-icon {
+    font-size: 48px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+/* 輸入區域樣式 */
+.notes-input-area,
+.records-input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
