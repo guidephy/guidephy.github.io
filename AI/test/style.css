@@ -1,27 +1,11 @@
-/* 色彩變數 */
-:root {
-    --primary-color: #a7d9b7; /* 淡薄荷綠 */
-    --primary-color-darker: #8cb79b; /* 淡薄荷綠 (深色) */
-    --secondary-color: #6c757d; /* 灰色 */
-    --text-color: #343a40; /* 深灰色 */
-    --bg-color: #f8f9fa; /* 淺灰色背景 */
-    --border-color: #dee2e6; /* 邊框顏色 */
-    --shadow-color: rgba(0, 0, 0, 0.05); /* 陰影顏色 */
-    --success-color: #28a745; /* 成功顏色 */
-    --error-color: #dc3545; /* 錯誤顏色 */
-    --warning-color: #ffc107; /* 警告顏色 */
-    --info-color: #17a2b8; /* 資訊顏色 */
-}
-
 /* 主頁樣式 */
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; 
     min-height: 100vh;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: #f7f6f2;
 }
 
 .overlay {
@@ -59,7 +43,7 @@ body {
 @media (min-width: 769px) {
     .sidebar {
         position: fixed;
-        top: 50px;
+        top: 50px; 
         left: 0;
         height: calc(100vh - 50px);
         width: 250px;
@@ -68,8 +52,8 @@ body {
     }
 
     .main-content {
-        margin-left: 250px;
-        padding-top: 50px;
+        margin-left: 250px; 
+        padding-top: 50px; 
         display: flex;
         flex-direction: column;
         height: calc(100vh - 50px);
@@ -78,13 +62,13 @@ body {
     .chat-window {
         flex: 1;
         overflow-y: auto;
-        max-height: calc(100vh - 150px);
+        max-height: calc(100vh - 150px); 
     }
 
     .input-area {
-        position: relative;
+        position: relative; 
         width: 100%;
-        margin-top: auto;
+        margin-top: auto; 
         padding: 10px;
         background-color: white;
         border-top: 1px solid #ddd;
@@ -100,7 +84,7 @@ body {
 .sidebar-header {
     padding: 20px;
     text-align: center;
-    font-size: 18px;
+    font-size: 18px; 
     font-weight: bold;
     background-color: #f0f0f0;
 }
@@ -111,12 +95,12 @@ body {
 }
 
 .menu-item {
-    padding: 15px;
+    padding: 15px; 
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.2s ease, color 0.2s ease;
     color: #333;
-    font-size: 16px;
+    font-size: 16px; 
 }
 
 .menu-item:hover {
@@ -129,19 +113,19 @@ body {
 }
 
 .header {
-    position: fixed;
+    position: fixed; 
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1001;
+    z-index: 1001; 
     background-color: #8ab0ab;
     color: white;
     padding: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    font-size: 20px; 
 }
 
 .main-content {
@@ -184,13 +168,13 @@ body {
 
 .user-message {
     align-self: flex-end;
-    background-color: #DCF8C6;
+    background-color: #DCF8C6; 
     justify-content: flex-end;
 }
 
 .bot-message {
     align-self: flex-start;
-    background-color: #ECF5FF;
+    background-color: #ECF5FF; 
     justify-content: flex-start;
 }
 
@@ -262,13 +246,8 @@ body {
 }
 
 @keyframes fadeInOut {
-    0% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
 .feature-button {
@@ -308,7 +287,7 @@ body {
     padding: 10px 15px;
     cursor: pointer;
     position: relative;
-    flex-shrink: 0;
+    flex-shrink: 0; 
 }
 
 .upload-button:hover {
@@ -326,25 +305,25 @@ body {
 }
 
 #user-input {
-    flex: 1 1 auto;
+    flex: 1 1 auto; 
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 20px;
     outline: none;
     box-sizing: border-box;
-    font-size: 16px;
+    font-size: 16px; 
 }
 
 #send-button {
-    flex-shrink: 0;
+    flex-shrink: 0; 
     padding: 10px 20px;
     background-color: #46A3FF;
     color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    white-space: nowrap;
-    max-width: 100px;
+    white-space: nowrap; 
+    max-width: 100px; 
     transition: background-color 0.3s ease;
     font-weight: 500;
 }
@@ -365,9 +344,8 @@ body {
 }
 
 .image-preview img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
+    max-width: 50px;
+    border-radius: 10px;
 }
 
 .image-preview .delete-button {
@@ -388,7 +366,6 @@ body {
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -499,12 +476,7 @@ body {
 #retry-history,
 #retry-wrong,
 #load-notes-button,
-#load-records-button,
-#generateFromQButton,
-#copyQContent,
-#analyzeButton,
-#generateButton,
-#copyContent {
+#load-records-button {
     background-color: #8ab0ab;
     color: white;
     border: none;
@@ -521,11 +493,7 @@ body {
 #retry-history:hover,
 #retry-wrong:hover,
 #load-notes-button:hover,
-#generateFromQButton:hover,
-#copyQContent:hover,
-#analyzeButton:hover,
-#generateButton:hover,
-#copyContent:hover {
+#load-records-button:hover {
     background-color: #6e928b;
     transform: translateY(-2px);
 }
@@ -603,6 +571,10 @@ body {
     transition: transform 0.2s;
 }
 
+.statistic-card:hover {
+    transform: translateY(-2px);
+}
+
 .statistic-number {
     font-size: 2rem;
     font-weight: bold;
@@ -657,7 +629,7 @@ body {
 .physics-lecture-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 0;
+    padding: 0; 
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -699,22 +671,15 @@ body {
 }
 
 @keyframes blink {
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }
 
 /* 手機版樣式 */
 @media (max-width: 768px) {
-
     /* 側邊欄相關 */
     .sidebar {
-        position: fixed;
+        position: fixed; 
         height: 100%;
         top: 0;
         left: 0;
@@ -732,16 +697,15 @@ body {
         padding-top: 50px;
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
+        overflow-y: auto; 
         padding-bottom: 70px;
     }
 
     /* 聊天視窗相關 */
-    .chat-window,
-    .external-content {
+    .chat-window, .external-content {
         flex: 1;
         overflow-y: auto;
-        padding-bottom: 70px;
+        padding-bottom: 70px; 
     }
 
     .chat-window {
@@ -755,7 +719,7 @@ body {
         bottom: 0;
         left: 0;
         right: 0;
-        z-index: 1002;
+        z-index: 1002; 
         padding: 10px;
         background-color: white;
         border-top: 1px solid #ddd;
@@ -800,7 +764,7 @@ body {
     .records-input-area button {
         width: 100%;
     }
-
+    
     /* 容器樣式調整 */
     .ai-generator-container,
     .solve-problem-container,
@@ -831,25 +795,4 @@ body {
         padding: 8px 16px;
         font-size: 14px;
     }
-}
-
-/* 共用樣式(警告提示框) */
-.loading {
-    text-align: center;
-    font-style: italic;
-    color: var(--secondary-color);
-    padding: 10px;
-    border: 1px solid var(--warning-color);
-    border-radius: 5px;
-    background-color: rgba(255, 193, 7, 0.1);
-    /* 警告色淡化 */
-    margin-bottom: 15px;
-}
-
-/* image preview */
-.image-preview-img {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #ccc;
-    border-radius: 8px;
 }
