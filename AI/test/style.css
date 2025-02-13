@@ -416,6 +416,19 @@ body {
     font-weight: bold;
 }
 
+/* 標籤內容顯示控制 */
+.tab-content {
+    display: none;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 /* 統一表單組件樣式 */
 .form-group {
     margin-bottom: 20px;
@@ -510,6 +523,7 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+
 /* 統一選項樣式 */
 .question-options label {
     display: block;
@@ -524,7 +538,6 @@ body {
 .question-options label:hover {
     background-color: #f5f5f5;
 }
-
 
 /* 統一圖片預覽區域樣式 */
 .image-preview {
