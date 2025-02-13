@@ -267,43 +267,40 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
     }
 
-    // 檢查答案
+   // 檢查答案 (Revised to match new CSS)
     function checkAnswers(event) {
-        event.preventDefault(); // 阻止表單提交
+        event.preventDefault();
 
-        const formData = new FormData(document.getElementById('quizForm')); // 獲取表單資料
-        const results = []; // 儲存結果
+        const formData = new FormData(document.getElementById('quizForm'));
+        const results = [];
 
-        // 逐題檢查答案
         questions.forEach((q, i) => {
-            const userAnswer = formData.get(`question${i}`); // 獲取使用者的答案
-            const correctAnswer = q.answer; // 正確答案
-            // 判斷答案是否正確
+            const userAnswer = formData.get(`question${i}`);
+            const correctAnswer = q.answer;
             const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswer;
 
             results.push({
-                question: q.question, // 題目
-                options: q.options,   // 選項
-                correct: isCorrect,  // 是否正確
-                userAnswer: userAnswer !== null ? parseInt(userAnswer) : '未作答', // 使用者答案
-                correctAnswer, //正確答案
-                explanation: q.explanation,  // 解答說明
+                question: q.question,
+                options: q.options,
+                correct: isCorrect,
+                userAnswer: userAnswer !== null ? parseInt(userAnswer) : '未作答',
+                correctAnswer,
+                explanation: q.explanation,
             });
         });
 
-        displayResults(results); // 顯示結果
+        displayResults(results);
         const submitButton = document.querySelector('#quizForm .submit-button');
-        submitButton.style.display = 'none'; // 隱藏提交按鈕
+        submitButton.style.display = 'none';
     }
-
-    // 顯示結果
+      // 顯示結果 (Revised to match new CSS)
     function displayResults(results) {
         questionsDiv.innerHTML = results.map((result, i) => `
             <div class="question-card">
                 <p><strong>${i + 1}. ${result.question}</strong></p>
                 <div class="question-options">
                     ${result.options.map((option, j) => `
-                        <label style="background-color: ${j === result.correctAnswer ? '#28a745' : 
+                        <label style="background-color: ${j === result.correctAnswer ? '#28a745' :
                             (j === result.userAnswer ? '#dc3545' : '#ffffff')};
                             color: ${j === result.correctAnswer || j === result.userAnswer ? 'white' : '#333'};">
                             ${['A', 'B', 'C', 'D'][j]}. ${option}
@@ -520,7 +517,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         button.disabled = false; // 啟用按鈕
     }
 
-    // 顯示單一題目
+      // 顯示單一題目 (Revised for new CSS)
     function displaySingleQuestion(q) {
         singleQuestionDiv.innerHTML = '';
         const uniqueOptions = [...new Set(q.options)];
@@ -547,7 +544,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         singleQuestionDiv.innerHTML += questionHtml;  //顯示題目
     }
 
-    // 檢查單一題目的答案並顯示結果
+    // 檢查單一題目的答案並顯示結果 (Revised for new CSS)
     function checkSingleAnswer(event) {
         event.preventDefault();
         if (!singleQuestionData) return;
