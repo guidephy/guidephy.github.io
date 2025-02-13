@@ -406,6 +406,7 @@ body {
     border-radius: 8px;
     font-size: 16px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* 添加這一行 */
 }
 
 .ai-generator-container textarea {
