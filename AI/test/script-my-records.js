@@ -380,12 +380,14 @@ async function loadUserNotes() {
     function init() {
         initializeTabs();
         initializeEventListeners();
+        console.log("myRecordsModule.init() 函數已執行！");
     }
 
     // 公開的介面
     return {
         init,
         retryQuiz // 將重新測驗函數公開，供按鈕調用
+        
     };
 })();
 
