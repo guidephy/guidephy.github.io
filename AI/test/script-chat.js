@@ -281,93 +281,137 @@ ${text}
         }
     }
     // 生成筆記
-    async function generateNotes() {
-        if (thread.length === 0) {
-            alert('目前無聊天記錄，無法生成筆記。');
-            return;
-        }
+async function generateNotes() {
+    if (thread.length === 0) {
+        alert('目前無聊天記錄，無法生成筆記。');
+        return;
+    }
 
-        // 要求用戶輸入帳號
-        const username = prompt('請輸入您的帳號：');
-        if (!username) {
-            alert('必須輸入帳號才能生成筆記。');
-            return;
-        }
+    const username = prompt('請輸入您的帳號：');
+    if (!username) {
+        alert('必須輸入帳號才能生成筆記。');
+        return;
+    }
 
-        // 獲取聊天記錄 (去除系統訊息)
-        const chatLog = thread
-            .filter(msg => msg.role !== 'system')
-            .map(entry => `${entry.role}: ${entry.parts[0].text}`)
-            .join('\n');
+    // 獲取聊天記錄 (去除系統訊息)
+    const chatLog = thread
+        .filter(msg => msg.role !== 'system')
+        .map(entry => `${entry.role}: ${entry.parts[0].text}`)
+        .join('\n');
 
-        // 顯示載入指示器
-        appendMessage('正在生成筆記...', 'bot-message');
+    appendMessage('正在生成筆記...', 'bot-message');
 
-        try {
-            // 生成摘要
-            const summaryResponse = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `請以繁體中文回答，不得使用簡體字。作為一位專業的教學助理，請仔細閱讀以下的對話內容，並整理成結構清晰的學習筆記。
+    try {
+        const summaryResponse = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `請以繁體中文回答，不得使用簡體字。
+作為一位專業的教學助理，請幫我將以下對話內容整理成簡潔的學習筆記。請注意以下要求：
+
+1. 篇幅控制：
+   - 每個主題重點不超過3-4行
+   - 使用簡潔的文字描述
+   - 去除不必要的贅述
+
+2. 結構要求：
+   【關鍵概念】
+   • 列出2-3個最重要的概念
+   • 每個概念用一句話解釋
+
+   【重點整理】
+   • 用項目符號列出主要重點（最多5點）
+   • 每點重點使用精簡的文字說明
+
+   【記憶提示】
+   • 提供2-3個容易記憶的口訣或關聯
+   • 可以是類比、比喻或實際應用例子
+
+   【複習問題】
+   • 列出2-3個理解程度測試問題
+   • 問題應該能夠檢驗關鍵概念的掌握程度
 
 對話內容：
 ${chatLog}
 
-請依照以下結構整理：
-
-【討論主題分類】
-列出所有討論的主題（不限數量），並簡述每個主題的主要內容。
-
-【各主題詳解】
-針對每個主題，請提供：
-1. 完整的概念解釋：包含定義、原理或背景
-2. 關鍵重點歸納：列出最重要的學習要點
-3. 相關實例說明：如果有討論到具體案例，請一併整理
-
-請確保每個主題都有詳細的說明，並保持內容的完整性。避免重複的資訊，重點放在知識的系統性整理。`
-                        }]
+請依照上述格式整理出精簡的學習筆記。`
                     }]
+                }]
+            })
+        });
+
+        const summaryData = await summaryResponse.json();
+        const summary = summaryData.candidates[0].content.parts[0].text;
+
+        // 儲存到 Google Apps Script
+        await new Promise((resolve, reject) => {
+            google.script.run
+                .withSuccessHandler(result => {
+                    removeLastBotMessage();
+                    if (result && result.status === 'success') {
+                        appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
+                        thread = []; // 清空聊天記錄
+                    } else {
+                        appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
+                    }
+                    resolve(result);
                 })
-            });
+                .withFailureHandler(error => {
+                    removeLastBotMessage();
+                    appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+                    reject(error);
+                })
+                .doPost({
+                    username: username,
+                    chatLog: summary
+                });
+        });
 
-            const summaryData = await summaryResponse.json();
-            const summary = summaryData.candidates[0].content.parts[0].text;
-
-            // 儲存到 Google Apps Script
-            await new Promise((resolve, reject) => {
-                google.script.run
-                    .withSuccessHandler(result => {
-                        removeLastBotMessage();
-                        if (result && result.status === 'success') {
-                            appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
-                            // 清空聊天記錄
-                            thread = [];
-                        } else {
-                            appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
-                        }
-                        resolve(result);
-                    })
-                    .withFailureHandler(error => {
-                        removeLastBotMessage();
-                        appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
-                        reject(error);
-                    })
-                    .doPost({
-                        username: username,
-                        chatLog: summary
-                    });
-            });
-
-        } catch (error) {
-            removeLastBotMessage();
-            appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
-        }
+    } catch (error) {
+        removeLastBotMessage();
+        appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
     }
+}
+
+// 修改筆記顯示函數，讓筆記呈現更有結構
+function formatNoteDisplay(note) {
+    // 將筆記文本轉換為 HTML 格式
+    let formattedNote = note.replace(/【(.+?)】/g, '<h3 class="note-section">$1</h3>');
+    formattedNote = formattedNote.replace(/•\s(.*?)(?=(\n|$))/g, '<li class="note-item">$1</li>');
+    formattedNote = formattedNote.replace(/\n\n/g, '<br>');
+
+    return `
+        <div class="note-content">
+            ${formattedNote}
+        </div>
+        <style>
+            .note-section {
+                color: #8ab0ab;
+                font-size: 1.2em;
+                margin-top: 15px;
+                margin-bottom: 10px;
+                border-bottom: 2px solid #8ab0ab;
+                padding-bottom: 5px;
+            }
+            .note-item {
+                margin: 8px 0;
+                list-style-type: none;
+                position: relative;
+                padding-left: 20px;
+            }
+            .note-item:before {
+                content: "•";
+                color: #8ab0ab;
+                position: absolute;
+                left: 0;
+            }
+        </style>
+    `;
+}
 
     // 啟動自主學習計畫
     function startStudyPlan() {
