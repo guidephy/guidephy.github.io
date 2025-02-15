@@ -27,6 +27,8 @@ body {
 .container {
     flex: 1;
     display: flex;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .sidebar {
@@ -55,23 +57,24 @@ body {
     .main-content {
         margin-left: 250px;
         padding-top: 50px;
-        height: calc(100vh - 50px);
-        overflow: hidden;
         width: calc(100% - 250px);
+        height: calc(100vh - 50px);
+        display: flex;
+        flex-direction: column;
     }
 
     .chat-window {
         flex: 1;
         overflow-y: auto;
-        max-height: calc(100vh - 150px);
+        height: calc(100vh - 200px);
     }
 
     .external-content {
         flex: 1;
-        overflow: hidden;
-        padding: 0;
-        margin: 0;
-        height: 100%;
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
+        height: calc(100vh - 50px);
     }
 }
 
@@ -120,6 +123,8 @@ body {
     justify-content: space-between;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     font-size: 20px;
+    height: 50px;
+    box-sizing: border-box;
 }
 
 .main-content {
@@ -127,7 +132,8 @@ body {
     display: flex;
     flex-direction: column;
     background-color: #fafafa;
-    overflow: hidden;
+    position: relative;
+    height: 100vh;
 }
 
 .header .menu-toggle {
@@ -144,7 +150,7 @@ body {
     flex-direction: column;
     gap: 10px;
     background-color: white;
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 200px);
 }
 
 .message {
@@ -180,7 +186,7 @@ body {
 .toolbar {
     display: flex;
     align-items: center;
-    padding: 5px;
+    padding: 10px;
     gap: 5px;
     background-color: #f7f7f7;
     border-top: 1px solid #ddd;
@@ -188,6 +194,9 @@ body {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
 }
 
 .toolbar::-webkit-scrollbar {
@@ -220,7 +229,28 @@ body {
     animation: fadeInOut 0.3s ease;
 }
 
-/* 輸入區域 */
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.feature-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-right: 2px;
+}
+
+.feature-button:hover {
+    background-color: #6e928b;
+}
+
 .input-area {
     display: flex;
     align-items: center;
@@ -233,6 +263,7 @@ body {
     width: 100%;
     position: sticky;
     bottom: 0;
+    z-index: 100;
 }
 
 .upload-button {
@@ -288,39 +319,28 @@ body {
     background-color: #0072E3;
 }
 
-/* 按鈕樣式 */
-.feature-button {
-    background-color: #8ab0ab;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 12px;
-    cursor: pointer;
-    white-space: nowrap;
-    font-size: 13px;
-    flex-shrink: 0;
-    margin-right: 2px;
-}
-
-.feature-button:hover {
-    background-color: #6e928b;
-}
-
-/* 功能容器和統一風格 */
-.feature-container {
-    width: 100%;
-    margin: 0;
-    padding: 30px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
+/* 統一風格 */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f6f2;
+    color: #333;
 }
 
 h1 {
     color: #8ab0ab;
     text-align: center;
     margin-bottom: 24px;
+}
+
+.feature-container {
+    height: 100%;
+    margin: 0;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .form-group {
@@ -364,6 +384,39 @@ select {
     border-radius: 8px;
     font-size: 16px;
     background-color: #fff;
+}
+
+button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #6e928b;
+    transform: scale(1.05);
+}
+
+.loading {
+    text-align: center;
+    font-style: italic;
+    color: #555;
+}
+
+.result-area {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow-y: auto;
+    max-height: calc(100vh - 300px);
 }
 
 /* Tabs */
@@ -417,67 +470,6 @@ select {
     display: block;
 }
 
-/* 嵌入式頁面容器樣式 */
-#physics-lecture-content,
-#calculator-content,
-#tomato-content {
-    padding: 0 !important;
-    height: calc(100vh - 50px) !important;
-    overflow: hidden;
-    margin: 0;
-    width: 100%;
-}
-
-#physics-lecture-content .modern-container,
-#calculator-content .modern-container,
-#tomato-content .modern-container {
-    padding: 0;
-    margin: 0;
-    height: 100%;
-    width: 100%;
-    max-width: none;
-}
-
-#physics-lecture-content .feature-container,
-#calculator-content .feature-container,
-#tomato-content .feature-container {
-    padding: 0;
-    margin: 0;
-    height: 100%;
-    width: 100%;
-    max-width: none;
-    box-shadow: none;
-    border-radius: 0;
-    background: transparent;
-}
-
-#physics-lecture-content iframe,
-#calculator-content iframe,
-#tomato-content iframe {
-    width: 100%;
-    height: 100vh;
-    border: none;
-    display: block;
-    background: white;
-}
-
-/* 載入提示 */
-.loading {
-    text-align: center;
-    font-style: italic;
-    color: #555;
-    padding: 20px;
-}
-
-/* 結果區域 */
-.result-area {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
 /* Question Card */
 .question-card {
     border: 1px solid #ddd;
@@ -492,13 +484,6 @@ select {
 .question-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.question-options {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 15px;
 }
 
 .question-options label {
@@ -536,57 +521,7 @@ select {
     font-style: italic;
 }
 
-/* 筆記卡片 */
-.note-card {
-    background: white;
-    border-left: 4px solid #8ab0ab;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-
-.note-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
-
-.note-content {
-    color: #333;
-    line-height: 1.6;
-}
-
-/* 圖片預覽 */
-.image-preview {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.image-preview img {
-    max-width: 200px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-}
-
-.image-preview .delete-button {
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 14px;
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* 統計卡片 */
+/* 統計卡片樣式 */
 .statistics-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -619,15 +554,152 @@ select {
     font-size: 0.9rem;
 }
 
-/* 進度步驟 */
-.progress-steps {
-    margin: 32px 0;
+/* 筆記卡片樣式 */
+.note-card {
+    background: white;
+    border-left: 4px solid #8ab0ab;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
+.note-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.note-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 圖片預覽 */
+.image-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.image-preview img {
+    max-width: 50px;
+    border-radius: 10px;
+}
+
+.image-preview .delete-button {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* 選項按鈕相關 */
+.message-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+    justify-content: flex-start;
+}
+
+.option-button {
+    background-color: #8ab0ab;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.option-button:hover {
+    background-color: #6e928b;
+    transform: scale(1.05);
+}
+
+/* 物理講義樣式 */
+.physics-lecture-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    height: calc(100vh - 100px);
+}
+
+.physics-lecture-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+/* 提示區域樣式 */
+#hintArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#reflectionArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#hintContent,
+#reflectionContent {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* 滾動條樣式 */
+.chat-window {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.chat-window::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+/* 進度步驟樣式 */
 .progress-step {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .step-number {
@@ -641,7 +713,6 @@ select {
     justify-content: center;
     font-weight: 500;
     margin-right: 16px;
-    flex-shrink: 0;
 }
 
 .step-content {
@@ -664,24 +735,74 @@ select {
     color: #6b7280;
 }
 
-/* 動畫 */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* 上傳區域樣式 */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-@keyframes fadeInOut {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+.upload-area:hover {
+    border-color: #8ab0ab;
+    background-color: #f8fafc;
 }
 
-/* 響應式設計 */
+.upload-icon {
+    font-size: 48px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+/* 輸入區域樣式 */
+.notes-input-area,
+.records-input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* iframe 相關樣式 */
+.modern-container iframe {
+    width: 100%;
+    height: calc(100vh - 100px);
+    border: none;
+    border-radius: 8px;
+}
+
+#physics-lecture-content,
+#calculator-content,
+#tomato-content {
+    padding: 0 !important;
+    height: calc(100vh - 50px);
+    overflow: hidden;
+}
+
+#physics-lecture-content .feature-container,
+#calculator-content .feature-container,
+#tomato-content .feature-container {
+    padding: 0;
+    height: 100%;
+    margin: 0;
+    max-width: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+#physics-lecture-content .modern-container,
+#calculator-content .modern-container,
+#tomato-content .modern-container {
+    padding: 0;
+    height: 100%;
+    max-width: none;
+}
+
+/* 響應式調整 */
 @media (max-width: 768px) {
     .statistics-cards {
         grid-template-columns: 1fr;
@@ -714,153 +835,28 @@ select {
         width: 100%;
         border-radius: 0;
     }
-}
 
-/* 上傳區域樣式 */
-.upload-area {
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    padding: 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+    .external-content {
+        padding: 10px;
+    }
 
-.upload-area:hover {
-    border-color: #8ab0ab;
-    background-color: #f8fafc;
-}
+    .feature-container {
+        padding: 15px;
+    }
 
-.upload-icon {
-    font-size: 48px;
-    color: #6b7280;
-    margin-bottom: 16px;
-}
-
-/* 選項按鈕相關 */
-.message-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 10px 0;
-    justify-content: flex-start;
-}
-
-.option-button {
-    background-color: #8ab0ab;
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-.option-button:hover {
-    background-color: #6e928b;
-    transform: scale(1.05);
-}
-
-/* 提示區域樣式 */
-#hintArea {
-    display: none;
-    margin-top: 20px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-#reflectionArea {
-    display: none;
-    margin-top: 20px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-#hintContent,
-#reflectionContent {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #333;
-}
-
-/* 現代化輸入區域 */
-.notes-input-area,
-.records-input-area {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-/* 現代化按鈕組 */
-.button-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-    justify-content: center;
-}
-
-/* 現代化兩列布局 */
-.modern-two-columns {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
-
-@media (max-width: 640px) {
-    .modern-two-columns {
-        grid-template-columns: 1fr;
+    .result-area {
+        max-height: calc(100vh - 200px);
     }
 }
 
-/* 滾動條樣式 */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #c0c0c0;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #a0a0a0;
-}
-
-/* 工具提示 */
-.tooltip {
-    position: relative;
-}
-
-.tooltip:hover::before {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 12px;
-    background-color: #1f2937;
-    color: white;
-    font-size: 14px;
-    border-radius: 6px;
-    white-space: nowrap;
-    z-index: 10;
+/* 動畫效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
