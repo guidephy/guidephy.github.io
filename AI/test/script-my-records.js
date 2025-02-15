@@ -12,24 +12,14 @@ const myRecordsModule = (() => {
     const recordsOptionsDiv = document.getElementById('records-options');
     const recordsQuizArea = document.getElementById('records-quiz-area');
     const notesDisplayArea = document.getElementById('notes-display-area');
-    const recordsUsernameInput = document.getElementById('records-username');
     const notesUsernameInput = document.getElementById('notes-username');
+    const recordsUsernameInput = document.getElementById('records-username');
 
     let allQuestions = [];
     let wrongQuestions = [];
     let currentQuestions = [];
 
     // Tab 切換
-    function initializeTabs() {
-        notesTab.addEventListener('click', () => {
-            switchTab('notes');
-        });
-
-        testRecordsTab.addEventListener('click', () => {
-            switchTab('testRecords');
-        });
-    }
-
     function switchTab(tabId) {
         // 移除所有 Tab 的 active 狀態
         notesTab.classList.remove('active');
@@ -42,6 +32,57 @@ const myRecordsModule = (() => {
         // 根據點擊的 Tab，設定對應的 active 狀態和內容顯示
         document.getElementById(tabId + 'Tab').classList.add('active');
         document.getElementById(tabId + 'Content').classList.add('active');
+    }
+
+    // 格式化文字
+    function formatText(text) {
+        let formatted = text;
+        formatted = formatted.replace(/\n/g, '<br>');
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return formatted;
+    }
+
+    // 載入用戶筆記
+    async function loadUserNotes() {
+        const username = notesUsernameInput.value.trim();
+        if (!username) {
+            alert('請輸入帳號');
+            return;
+        }
+
+        notesDisplayArea.innerHTML = '<p style="text-align: center;">載入中...</p>';
+
+        try {
+            await new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(result => {
+                        if (result.status === 'success') {
+                            const notes = result.notes;
+                            if (notes.length === 0) {
+                                notesDisplayArea.innerHTML = '<p style="text-align: center;">目前還沒有任何筆記。</p>';
+                                return;
+                            }
+
+                            // 顯示筆記
+                            notesDisplayArea.innerHTML = notes.map((note, index) => `
+                                <div class="note-card">
+                                    <div class="note-content">${formatText(note)}</div>
+                                </div>
+                            `).join('');
+                        } else {
+                            notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${result.error}</p>`;
+                        }
+                        resolve(result);
+                    })
+                    .withFailureHandler(error => {
+                        notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
+                        reject(error);
+                    })
+                    .getNotes(username);
+            });
+        } catch (error) {
+            notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
+        }
     }
 
     // 載入測驗記錄
@@ -108,48 +149,6 @@ const myRecordsModule = (() => {
         }
     }
 
-    async function loadUserNotes() {
-        const username = notesUsernameInput.value.trim();
-        if (!username) {
-            alert('請輸入帳號');
-            return;
-        }
-
-        notesDisplayArea.innerHTML = '<p class="loading">載入中...</p>';
-
-        try {
-            await new Promise((resolve, reject) => {
-                google.script.run
-                    .withSuccessHandler(result => {
-                        if (result.status === 'success') {
-                            const notes = result.notes;
-                            if (notes.length === 0) {
-                                notesDisplayArea.innerHTML = '<p style="text-align: center;">目前還沒有任何筆記。</p>';
-                                return;
-                            }
-
-                            // 顯示筆記
-                            notesDisplayArea.innerHTML = notes.map((note, index) => `
-                                <div class="note-card">
-                                    <div class="note-content">${formatText(note)}</div>
-                                </div>
-                            `).join('');
-                        } else {
-                            notesDisplayArea.innerHTML = `<p class="loading" style="color: red;">載入失敗：${result.error}</p>`;
-                        }
-                        resolve(result);
-                    })
-                    .withFailureHandler(error => {
-                        notesDisplayArea.innerHTML = `<p class="loading" style="color: red;">載入失敗：${error.message}</p>`;
-                        reject(error);
-                    })
-                    .getNotes(username);
-            });
-        } catch (error) {
-            notesDisplayArea.innerHTML = `<p class="loading" style="color: red;">載入失敗：${error.message}</p>`;
-        }
-    }
-
     // 隨機選取題目
     function getRandomQuestions(questions, count) {
         const shuffled = [...questions].sort(() => 0.5 - Math.random());
@@ -194,6 +193,32 @@ const myRecordsModule = (() => {
         });
     }
 
+    // 檢查答案
+    function checkRetryAnswers() {
+        const formData = new FormData(document.getElementById('retryQuizForm'));
+        const results = currentQuestions.map((q, i) => {
+            const userAnswer = formData.get(`question${i}`);
+            const options = Array.isArray(q.options) ? q.options : [];
+            const correctAnswerIndex = options.findIndex(opt =>
+                opt.startsWith(q.correctAnswer));
+
+            // 確保將 userAnswer 轉換為字符串
+            const userAnswerString = userAnswer === null ? '未作答' : userAnswer.toString();
+
+            return {
+                question: q.question || '無題目',
+                options: options,
+                userAnswer: userAnswerString,
+                correctAnswer: q.correctAnswer || '無答案',
+                correct: userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex,
+                explanation: q.explanation || '無解說'
+            };
+        });
+
+        displayRetryResults(results);
+    }
+
+    // 顯示結果
     function displayRetryResults(results) {
         let correctCount = 0;
 
@@ -264,36 +289,23 @@ const myRecordsModule = (() => {
             </div>
         `;
     }
-    // 檢查答案
-    function checkRetryAnswers() {
-        const formData = new FormData(document.getElementById('retryQuizForm'));
-        const results = currentQuestions.map((q, i) => {
-            const userAnswer = formData.get(`question${i}`);
-            const options = Array.isArray(q.options) ? q.options : [];
-            const correctAnswerIndex = options.findIndex(opt =>
-                opt.startsWith(q.correctAnswer));
-
-            // 確保將 userAnswer 轉換為字符串
-            const userAnswerString = userAnswer === null ? '未作答' : userAnswer.toString();
-
-            return {
-                question: q.question || '無題目',
-                options: options,
-                userAnswer: userAnswerString,
-                correctAnswer: q.correctAnswer || '無答案',
-                correct: userAnswer !== null && parseInt(userAnswer) === correctAnswerIndex,
-                explanation: q.explanation || '無解說'
-            };
-        });
-
-        displayRetryResults(results);
-    }
 
     // 重新測驗
     function retryQuiz() {
         if (currentQuestions.length > 0) {
             displayQuiz(getRandomQuestions(currentQuestions, currentQuestions.length));
         }
+    }
+
+    // 初始化 Tabs
+    function initializeTabs() {
+        notesTab.addEventListener('click', () => {
+            switchTab('notes');
+        });
+
+        testRecordsTab.addEventListener('click', () => {
+            switchTab('testRecords');
+        });
     }
 
     // 事件監聽器綁定
@@ -325,7 +337,7 @@ const myRecordsModule = (() => {
     // 公開的介面
     return {
         init,
-        retryQuiz // 將重新測驗函數公開，供按鈕調用
+        retryQuiz
     };
 })();
 
