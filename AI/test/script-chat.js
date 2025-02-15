@@ -11,7 +11,6 @@ const chatModule = (() => {
     const returnToChatButton = document.getElementById('return-to-chat-button');
     const generateNotesButton = document.getElementById('generate-notes-button');
     const currentModeIndicator = document.getElementById('current-mode');
-    let loadNotesButton = document.getElementById('load-notes-button'); // fix: 宣告loadNotesButton
 
     // 學習計畫相關變數
     let studyPlanStep = 0;
@@ -645,10 +644,10 @@ function formatNoteDisplay(note) {
 
         directions.forEach(direction => {
             const button = document.createElement('button');
-            button.textContent = topic;
+            button.textContent = direction;
             button.className = 'option-button';
             button.addEventListener('click', () => {
-                handleStudyPlanInput(topic);
+                handleStudyPlanInput(direction);
                 const options = document.querySelectorAll('.message-options');
                 options.forEach(option => option.remove());
             });
@@ -877,9 +876,8 @@ function init() {
     setInputState(false);
 
     // 移除所有已存在的事件監聽器
-    const loadNotesButtonElement = document.getElementById('load-notes-button'); // 獲取按鈕
-    const cloneLoadNotesButton = loadNotesButtonElement.cloneNode(true);
-    loadNotesButtonElement.parentNode.replaceChild(cloneLoadNotesButton, loadNotesButtonElement);
+    const cloneLoadNotesButton = document.getElementById('load-notes-button').cloneNode(true);
+    document.getElementById('load-notes-button').parentNode.replaceChild(cloneLoadNotesButton, document.getElementById('load-notes-button'));
     
     const cloneGenerateNotesButton = generateNotesButton.cloneNode(true);
     generateNotesButton.parentNode.replaceChild(cloneGenerateNotesButton, generateNotesButton);
@@ -957,7 +955,6 @@ function init() {
     returnToChatButton = cloneReturnToChatButton;
     studyPlanButton = cloneStudyPlanButton;
     generateNotesButton = cloneGenerateNotesButton;
-    loadNotesButton = cloneLoadNotesButton; // fix: 更新loadNotesButton的引用
 }
     
 
