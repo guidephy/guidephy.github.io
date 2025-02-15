@@ -295,6 +295,7 @@ function displayRetryResults(results) {
 
     // 載入我的筆記功能
 async function loadUserNotes() {
+    console.log("loadUserNotes function called");
     const username = notesUsernameInput.value.trim();
     if (!username) {
         alert('請輸入帳號');
@@ -304,9 +305,12 @@ async function loadUserNotes() {
     notesDisplayArea.innerHTML = '<p style="text-align: center;">載入中...</p>';
 
     try {
+        console.log("Calling google.script.run.getNotes with username:", username);
+
         await new Promise((resolve, reject) => {
             google.script.run
                 .withSuccessHandler(result => {
+                    console.log("google.script.run.getNotes success:", result);
                     if (result.status === 'success') {
                         const notes = result.notes;
                         if (notes.length === 0) {
@@ -326,12 +330,14 @@ async function loadUserNotes() {
                     resolve(result);
                 })
                 .withFailureHandler(error => {
+                    console.error("google.script.run.getNotes failure:", error);
                     notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
                     reject(error);
                 })
                 .getNotes(username);
         });
     } catch (error) {
+        console.error("Error in loadUserNotes:", error);
         notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
     }
 }
@@ -356,12 +362,7 @@ async function loadUserNotes() {
 
         // 新增：載入我的筆記按鈕監聽器
         loadNotesButton.addEventListener('click', loadUserNotes);
-    }
-
-    // 初始化
-    function init() {
-        initializeTabs();
-        initializeEventListeners();
+        console.log("loadNotesButton event listener added");
     }
 
     // 格式化文字的函數
@@ -371,6 +372,12 @@ async function loadUserNotes() {
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         formatted = formatted.replace(/\*\*/g, '');
         return formatted;
+    }
+
+    // 初始化
+    function init() {
+        initializeTabs();
+        initializeEventListeners();
     }
 
     // 公開的介面
