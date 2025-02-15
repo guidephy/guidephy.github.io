@@ -1,6 +1,6 @@
 // script-my-records.js
 
-alert("script-my-records.js 檔案已載入！");
+alert("new script-my-records.js 檔案已載入！");
 const myRecordsModule = (() => {
     // 獲取 DOM 元素
     const notesTab = document.getElementById('notesTab');
