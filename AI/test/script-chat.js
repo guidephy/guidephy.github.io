@@ -709,47 +709,112 @@ ${chatLog}
     }
 
     // 生成學習計畫
-    async function generateStudyPlan(data) {
-        showLoadingIndicator();
-        const prompt = `請以繁體中文回答，不得使用簡體字。
+async function generateStudyPlan(data) {
+    showLoadingIndicator();
+    const prompt = `請以繁體中文回答，不得使用簡體字。
 請扮演一位具有豐富教學經驗的老師，為學生制定一份為期18週的自主學習計畫。
 
-學生提供的資訊如下：
-* 學習主題/科目：${data.subject}
-* 目前理解程度：${data.level}
+學生資訊：
+* 學習主題：${data.subject}
+* 目前程度：${data.level}
 * 學習目標：${data.goal}
 
-請根據這些資訊，設計一份詳細的學習計畫，包含：
-1. **每週的學習主題**：清楚列出每週要學習的具體內容。
-2. **學習活動建議**：提供多樣化的學習活動（例如：閱讀教材、觀看影片、做練習題、實作專案、小考）。
-3. **學習資源**：推薦相關的學習資源（例如：教科書章節、網站、影片）。
-4. **進度評估方式**：建議學生如何評估自己的學習進度（例如：每週自我測驗、與朋友討論）。
-5. 總體學習目標回顧：計畫最後再次強調整體18週的學習目標。
+請使用以下格式回應，確保內容清晰易讀：
 
-請以條列式、清晰易懂的方式呈現學習計畫，並在適當的地方加入鼓勵的話語。`;
+# 自主學習計畫總覽
+【學習主題】：
+【學習目標】：
+【預期成果】：
 
-        try {
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
-            });
+# 每週學習規劃
+請使用以下格式列出每週的學習內容：
 
-            const responseData = await response.json();
-            hideLoadingIndicator();
-            if (responseData.candidates && responseData.candidates[0].content && responseData.candidates[0].content.parts && responseData.candidates[0].content.parts[0].text) {
-                return responseData.candidates[0].content.parts[0].text;
-            }
-            return '無法生成學習計畫，請再試一次。';
-        } catch (error) {
-            hideLoadingIndicator();
-            return `生成學習計畫時發生錯誤：${error.message}`;
+第X週
+-------------------
+｜學習主題｜[本週主題]
+｜學習活動｜[具體活動，以1. 2. 3.條列]
+｜學習資源｜[推薦資源，以1. 2. 3.條列]
+｜進度評估｜[如何評估本週學習成效]
+-------------------
+
+# 學習評量方式
+1. [評量方式1]
+2. [評量方式2]
+3. [評量方式3]
+
+# 學習建議
+• [重要建議1]
+• [重要建議2]
+• [重要建議3]
+
+請確保內容具體可行，並配合學生程度安排適當的進度。`;
+
+    try {
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
+
+        const responseData = await response.json();
+        hideLoadingIndicator();
+        
+        if (responseData.candidates && responseData.candidates[0].content && 
+            responseData.candidates[0].content.parts && responseData.candidates[0].content.parts[0].text) {
+            // 格式化回應文字
+            let planText = responseData.candidates[0].content.parts[0].text;
+            
+            // 將回應文字轉換為 HTML 格式
+            planText = planText.replace(/^第(\d+)週$/gm, '<div class="week-header">第$1週</div>');
+            planText = planText.replace(/^[-｜]{3,}$/gm, '');
+            planText = planText.replace(/^｜([^｜]+)｜/gm, '<div class="plan-row"><strong>$1</strong>');
+            planText = planText.replace(/(\d+\. .+?)(?=\d+\.|$)/g, '<div class="plan-item">$1</div>');
+            
+            // 添加樣式
+            const styledPlan = `
+                <div class="study-plan">
+                    ${planText}
+                </div>
+                <style>
+                    .study-plan {
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }
+                    .week-header {
+                        background: #8ab0ab;
+                        color: white;
+                        padding: 10px;
+                        margin: 20px 0 10px 0;
+                        border-radius: 4px;
+                        font-weight: bold;
+                    }
+                    .plan-row {
+                        display: grid;
+                        grid-template-columns: 100px 1fr;
+                        padding: 10px;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .plan-item {
+                        margin: 5px 0;
+                        padding-left: 20px;
+                    }
+                </style>
+            `;
+            
+            return styledPlan;
         }
+        return '無法生成學習計畫，請再試一次。';
+    } catch (error) {
+        hideLoadingIndicator();
+        return `生成學習計畫時發生錯誤：${error.message}`;
     }
+}
 
     // 初始化
 // 初始化
