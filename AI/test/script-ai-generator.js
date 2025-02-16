@@ -469,48 +469,79 @@ async function generateSingleQuestion() {
         singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
         copyQContent.style.display = 'none';
 
-        let payload = {};
         let prompt = `請以繁體中文回答，不得使用簡體字或英文詞彙。
 
-請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列步驟進行分析和出題：
+請扮演資深數理教師，對提供的題目進行分析並產生新題目。請嚴格遵守以下規範：
 
-1. 題目分析：
-   - 仔細分析題目測驗的核心概念和知識點
-   - 確認題目考察的學科能力和思維方式
-   - 判斷題目的難度層級和適用年級
+1. 題目完整性檢查：
+   - 確保題目陳述完整，包含所有必要的已知條件
+   - 確認所有變數、單位都有明確定義
+   - 避免模糊或可能造成誤解的描述
+   - 檢查是否提供足夠資訊來解答
 
-2. 概念延伸：
-   - 基於相同的核心概念，思考不同的應用場景
-   - 保持相同的思維邏輯，但改變情境設定
-   - 維持相近的難度水準，確保學習連貫性
+2. 答案正確性驗證：
+   - 詳細列出解題步驟，確保邏輯正確
+   - 確認選項間有足夠的區別性
+   - 驗證只有一個絕對正確的答案
+   - 其他選項必須合理但明確錯誤
 
-3. 新題目設計：
-   - 運用不同的生活情境或實例
-   - 保持原有概念的完整性
-   - 確保新題目能有效檢驗相同的知識理解
-   - 設計具啟發性的選項，包含常見迷思概念
+3. 解說要求：
+   - 詳細解釋為何正確答案是唯一解
+   - 說明其他選項為何錯誤
+   - 提供每個步驟的理論依據
+   - 標註關鍵概念和解題要點
 
-重要要求：
-1. 新題目必須測驗相同的核心概念，但使用全新的情境
-2. 確保新題目的難度相當，但不是簡單改寫原題
-3. 選項設計要能反映學生對概念的不同理解層次
-4. 解答說明要特別強調與原題的概念連結
-5. 務必確保答案唯一且正確，以數字0,1,2,3分別對應A,B,C,D選項
+4. 選項設計規範：
+   - 選項之間必須有明顯差異
+   - 避免使用「以上皆是」或「以上皆非」
+   - 錯誤選項要具有干擾性但不能太離譜
+   - 選項長度和形式要盡量一致
 
-請用以下JSON格式回應：
+5. 自我檢查機制：
+   請列出以下驗證項目並確認：
+   □ 題目敘述是否完整無誤
+   □ 是否提供足夠的解題資訊
+   □ 是否只有一個正確答案
+   □ 答案是否經過完整推導驗證
+   □ 選項是否具有明確區別性
+   □ 解說是否完整且邏輯清晰
+
+請用以下JSON格式回應，並確保所有欄位都完整填寫：
 {
     "questions": [
         {
-            "originalConcept": "原題目測驗的核心概念說明",
-            "question": "新設計的題目內容",
+            "originalConcept": "原題目的核心概念和測驗重點",
+            "question": "題目內容（包含完整的已知條件）",
             "options": ["A選項", "B選項", "C選項", "D選項"],
             "answer": 0,
-            "explanation": "解答說明（需包含與原概念的連結）",
-            "conceptLink": "新舊題目的概念連結說明"
+            "validation": {
+                "completeness": "確認題目資訊完整性",
+                "uniqueness": "確認答案唯一性的說明",
+                "distinction": "確認選項區別性的說明"
+            },
+            "solution": {
+                "steps": [
+                    "步驟1：...",
+                    "步驟2：...",
+                    "步驟3：..."
+                ],
+                "theory": "相關理論依據"
+            },
+            "explanation": "完整的解答說明",
+            "conceptLink": "概念連結說明",
+            "verificationChecklist": {
+                "completeInfo": true,
+                "sufficientData": true,
+                "uniqueAnswer": true,
+                "verifiedSolution": true,
+                "distinctOptions": true,
+                "clearExplanation": true
+            }
         }
     ]
 }`;
 
+        let payload = {};
         if (imageQTab.classList.contains('active') && uploadQImage.files.length > 0) {
             const base64Image = await convertImageToBase64(uploadQImage.files[0]);
             payload = {
@@ -551,35 +582,107 @@ async function generateSingleQuestion() {
         }
 
         const data = await response.json();
-        if (data.candidates && data.candidates[0].content) {
-            const textContent = data.candidates[0].content.parts[0].text;
-            const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                const parsedData = JSON.parse(jsonMatch[0]);
-                const qList = parsedData.questions.map((q) => {
-                    q.options = [...new Set(q.options)];
-                    return q;
-                });
-                if (qList.length > 0) {
-                    singleQuestionData = qList[0];
-                    displaySingleQuestion(singleQuestionData);
-                    singleQuizForm.style.display = 'block';
-                    const submitButton = singleQuizForm.querySelector('.submit-button');
-                    if (submitButton) submitButton.style.display = 'block';
-                    copyQContent.style.display = 'block';
-                } else {
-                    throw new Error('沒有產生題目');
-                }
-            } else {
-                throw new Error('無法解析回應格式');
-            }
-        } else {
+        if (!data.candidates || !data.candidates[0].content) {
             throw new Error('API 回應格式不正確');
         }
+
+        const textContent = data.candidates[0].content.parts[0].text;
+        const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('無法解析回應格式');
+        }
+
+        // 驗證回應資料的完整性
+        function validateQuestionData(question) {
+            // 檢查必要欄位
+            const required = [
+                'originalConcept', 'question', 'options', 'answer', 
+                'validation', 'solution', 'explanation', 'conceptLink', 
+                'verificationChecklist'
+            ];
+            
+            const missing = required.filter(field => !question[field]);
+            if (missing.length > 0) {
+                throw new Error(`題目缺少必要欄位: ${missing.join(', ')}`);
+            }
+
+            // 驗證選項完整性
+            if (!Array.isArray(question.options) || question.options.length !== 4) {
+                throw new Error('選項必須為4個');
+            }
+
+            // 檢查選項是否有重複
+            const uniqueOptions = new Set(question.options);
+            if (uniqueOptions.size !== 4) {
+                throw new Error('選項不可重複');
+            }
+
+            // 驗證答案合理性
+            if (typeof question.answer !== 'number' || question.answer < 0 || question.answer > 3) {
+                throw new Error('答案必須是0-3之間的數字');
+            }
+
+            // 驗證解題步驟
+            if (!Array.isArray(question.solution.steps) || question.solution.steps.length === 0) {
+                throw new Error('必須提供解題步驟');
+            }
+
+            // 檢查驗證資訊
+            if (!question.validation.completeness || 
+                !question.validation.uniqueness || 
+                !question.validation.distinction) {
+                throw new Error('驗證資訊不完整');
+            }
+
+            // 驗證檢查清單
+            const checklist = question.verificationChecklist;
+            const checklistKeys = [
+                'completeInfo', 'sufficientData', 'uniqueAnswer',
+                'verifiedSolution', 'distinctOptions', 'clearExplanation'
+            ];
+            
+            checklistKeys.forEach(key => {
+                if (checklist[key] !== true) {
+                    throw new Error(`檢查項目 ${key} 未通過驗證`);
+                }
+            });
+
+            return true;
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+        const qList = parsedData.questions.map((q) => {
+            // 進行資料驗證
+            if (!validateQuestionData(q)) {
+                throw new Error('題目資料驗證失敗');
+            }
+            
+            // 確保選項唯一性
+            q.options = [...new Set(q.options)];
+            
+            // 驗證選項處理後仍維持4個
+            if (q.options.length !== 4) {
+                throw new Error('去重後選項數量不正確');
+            }
+            
+            return q;
+        });
+
+        if (qList.length > 0) {
+            singleQuestionData = qList[0];
+            displaySingleQuestion(singleQuestionData);
+            singleQuizForm.style.display = 'block';
+            const submitButton = singleQuizForm.querySelector('.submit-button');
+            if (submitButton) submitButton.style.display = 'block';
+            copyQContent.style.display = 'block';
+        } else {
+            throw new Error('沒有產生題目');
+        }
+
     } catch (error) {
         console.error('生成單一題目時發生錯誤:', error);
         if (singleQuestionDiv) {
-            singleQuestionDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+            singleQuestionDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
         }
     } finally {
         if (button) {
@@ -588,39 +691,35 @@ async function generateSingleQuestion() {
         }
     }
 }
-
     // 顯示單一題目
+// 修改顯示函數以包含更多資訊
 function displaySingleQuestion(q) {
     if (!singleQuestionDiv) return;
-    singleQuestionDiv.innerHTML = '';
-    const uniqueOptions = [...new Set(q.options)];
-    const formattedOptions = uniqueOptions.map((option, index) => {
-        if (/^[A-D]\.\s/.test(option)) {
-            return option;
-        }
-        return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
-    });
-
-    const questionHtml = `
+    singleQuestionDiv.innerHTML = `
         <div class="question-card">
             <div class="concept-area">
                 <h3>核心概念</h3>
                 <p>${q.originalConcept}</p>
             </div>
+            <div class="validation-info">
+                <h3>題目驗證</h3>
+                <p>完整性：${q.validation.completeness}</p>
+                <p>唯一性：${q.validation.uniqueness}</p>
+                <p>區別性：${q.validation.distinction}</p>
+            </div>
             <div class="question-content">
                 <p><strong>${q.question}</strong></p>
                 <div class="question-options">
-                    ${formattedOptions.map((option, j) => `
+                    ${q.options.map((option, j) => `
                         <label>
                             <input type="radio" name="singleQ" value="${j}" required>
-                            ${option}
+                            ${['A', 'B', 'C', 'D'][j]}. ${option}
                         </label>
                     `).join('')}
                 </div>
             </div>
         </div>
     `;
-    singleQuestionDiv.innerHTML += questionHtml;
 }
 
 function displaySingleResult(q, userAnswer, isCorrect) {
@@ -642,7 +741,20 @@ function displaySingleResult(q, userAnswer, isCorrect) {
             </div>
             <p class="your-answer">您的答案：${userAnswer === null ? '未作答' : ['A', 'B', 'C', 'D'][userAnswer]} ${isCorrect ? '✔️' : '❌'}</p>
             ${!isCorrect ? `<p class="correct-answer">正確答案：${['A', 'B', 'C', 'D'][q.answer]}</p>` : ''}
-            <p class="explanation">解答說明：${q.explanation}</p>
+            
+            <div class="solution-steps">
+                <h3>解題步驟</h3>
+                <ol>
+                    ${q.solution.steps.map(step => `<li>${step}</li>`).join('')}
+                </ol>
+                <div class="theory-base">
+                    <h4>理論依據</h4>
+                    <p>${q.solution.theory}</p>
+                </div>
+            </div>
+            
+            <p class="explanation">完整解說：${q.explanation}</p>
+            
             <div class="concept-link">
                 <h3>概念連結</h3>
                 <p>${q.conceptLink}</p>
