@@ -134,7 +134,6 @@ body {
     background-color: #fafafa;
     position: relative;
     height: 100vh;
-    padding-top: 60px; /* 修正標題遮擋問題 */
 }
 
 .header .menu-toggle {
@@ -242,11 +241,10 @@ body {
     border-radius: 20px;
     padding: 8px 12px;
     cursor: pointer;
-    white-space: nowrap; /* 防止文字換行 */
+    white-space: nowrap;
     font-size: 13px;
     flex-shrink: 0;
     margin-right: 2px;
-     /* 可以考慮適當縮小 font-size，或者只保留圖示 */
 }
 
 .feature-button:hover {
@@ -424,12 +422,7 @@ button:hover {
 /* Tabs */
 .tab-switch {
     display: flex;
-    flex-direction: row; /* 強制水平排列 */
-    flex-wrap: nowrap;    /* 防止換行 */
-    /* 如果按鈕太多，可以考慮以下樣式 */
-    /* overflow-x: auto;  */
-    /* -webkit-overflow-scrolling: touch; */ /* iOS 平滑滾動 */
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-bottom: 20px;
     border-bottom: 2px solid #8ab0ab;
     gap: 10px;
@@ -447,7 +440,6 @@ button:hover {
     flex: 0 1 auto;
     text-align: center;
     border-radius: 8px 8px 0 0;
-    margin-right: 5px;
 }
 
 .tab-button.active {
@@ -815,40 +807,37 @@ button:hover {
     .statistics-cards {
         grid-template-columns: 1fr;
     }
-
+    
     .header .menu-toggle {
         display: block;
     }
-
+    
     .sidebar {
         position: fixed;
         left: -250px;
         height: 100vh;
     }
-
+    
     .sidebar.show {
         left: 0;
     }
-
+    
     .main-content {
         margin-left: 0;
         width: 100%;
     }
 
-    /* .tab-switch {  移除原本手機版的設定
+    .tab-switch {
         flex-direction: column;
-    } */
+    }
 
     .tab-button {
-        width: auto; /* 讓按鈕寬度自動調整 */
+        width: 100%;
         border-radius: 0;
-         /* 可以根據需要添加 margin 或 padding */
-        margin-right: 5px; /* 為按鈕之間添加間距(優化) */
     }
 
     .external-content {
         padding: 10px;
-         padding-top: 60px; /* 修正標題遮擋問題 */
     }
 
     .feature-container {
@@ -857,10 +846,6 @@ button:hover {
 
     .result-area {
         max-height: calc(100vh - 200px);
-    }
-    .feature-button {
-        font-size: 12px; /* 在較小螢幕上稍微縮小字體 */
-        padding: 8px 10px;/*調整按鈕大小*/
     }
 }
 

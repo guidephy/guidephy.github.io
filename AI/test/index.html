@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>隨身家教</title>
-    <link rel="stylesheet" href="https://guidephy.github.io/AI/style.css">
+    <link rel="stylesheet" href="https://guidephy.github.io/AI/test/style.css">
+    <!-- 添加 Font Awesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <!-- 遮罩層 -->
     <div class="overlay" id="overlay"></div>
@@ -13,363 +16,467 @@
     <div class="container">
         <!-- 側邊欄 -->
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">探索工具箱</div>
+            <div class="sidebar-header">
+                <i class="fas fa-graduation-cap"></i>
+                探索工具箱
+            </div>
             <div class="sidebar-menu">
-                <div class="menu-item" id="open-ai-generator">AI素養題產生器</div>
-                <div class="menu-item" id="open-solve-problem">教我解題</div>
-                <div class="menu-item" id="open-my-records">我的學習記錄</div>
-                <div class="menu-item" id="open-physics-lecture">物理講義</div>
-                <div class="menu-item" id="open-calculator">計算機</div>
-                <div class="menu-item" id="open-tomato">蕃茄鐘</div>
-                <div class="menu-item hidden" id="return-chat">返回聊天</div>
+                <div class="menu-item" id="open-ai-generator">
+                    <i class="fas fa-robot"></i>
+                    AI素養題產生器
+                </div>
+                <div class="menu-item" id="open-solve-problem">
+                    <i class="fas fa-question-circle"></i>
+                    教我解題
+                </div>
+                <div class="menu-item" id="open-my-records">
+                    <i class="fas fa-history"></i>
+                    我的學習記錄
+                </div>
+                <div class="menu-item" id="open-physics-lecture">
+                    <i class="fas fa-book"></i>
+                    物理講義
+                </div>
+                <div class="menu-item" id="open-calculator">
+                    <i class="fas fa-calculator"></i>
+                    計算機
+                </div>
+                <div class="menu-item" id="open-tomato">
+                    <i class="fas fa-clock"></i>
+                    蕃茄鐘
+                </div>
+                <div class="menu-item hidden" id="return-chat">
+                    <i class="fas fa-arrow-left"></i>
+                    返回聊天
+                </div>
             </div>
         </div>
+
         <!-- 主內容區域 -->
         <div class="main-content">
             <!-- 頭部 -->
             <div class="header">
-                <span class="menu-toggle" id="menu-toggle">☰</span>
-                隨身家教
+                <span class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </span>
+                <span class="header-title">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    隨身家教
+                </span>
+                <span></span>
             </div>
+
             <!-- 聊天窗口 -->
             <div class="chat-window" id="chat-window"></div>
 
-            <!-- 工具列(中英翻譯與返回聊天) -->
+            <!-- 工具列 -->
             <div class="toolbar" id="toolbar">
-    <div class="mode-indicator">
-        <span class="mode-label">目前模式：</span>
-        <span id="current-mode">聊天</span>
-    </div>
-    <button id="translate-button" class="feature-button">中英翻譯</button>
-    <button id="study-plan-button" class="feature-button">自主學習計畫</button>
-    <button id="generate-notes-button" class="feature-button">生成筆記</button> 
-    <button id="return-to-chat-button" class="feature-button" style="display:none;">返回聊天</button>
-</div>
-
-            <!-- AI素養題產生器 -->
+                <div class="mode-indicator">
+                    <span class="mode-label">目前模式：</span>
+                    <span id="current-mode">聊天</span>
+                </div>
+                <button id="translate-button" class="modern-button secondary">
+                    <i class="fas fa-language"></i>
+                    中英翻譯
+                </button>
+                <button id="study-plan-button" class="modern-button secondary">
+                    <i class="fas fa-tasks"></i>
+                    自主學習計畫
+                </button>
+                <button id="generate-notes-button" class="modern-button secondary">
+                    <i class="fas fa-sticky-note"></i>
+                    生成筆記
+                </button>
+                <button id="return-to-chat-button" class="modern-button secondary" style="display:none;">
+                    <i class="fas fa-arrow-left"></i>
+                    返回聊天
+                </button>
+            </div>
+    <!-- AI素養題產生器 -->
             <div class="external-content" id="ai-generator-content" style="display: none;">
-                <div class="ai-generator-container">
-                    <h1>AI素養題產生器</h1>
-
-                    <div class="tab-switch">
-                        <div id="customTopicTab" class="tab-button active">自訂主題</div>
-                        <div id="chatTopicTab" class="tab-button">聊天內容</div>
-                        <div id="questionTopicTab" class="tab-button">以題出題</div>
-                    </div>
-
-                    <div id="customTopicContent" class="tab-content active">
-                        <div class="form-group">
-                            <label for="topic">主題 (必填):</label>
-                            <input type="text" id="topic" required>
+                <div class="modern-container">
+                    <div class="feature-container">
+                        <div class="feature-header">
+                            <h1 class="feature-title">AI素養題產生器</h1>
+                        </div>
+                        
+                        <div class="tab-switch">
+                            <button id="customTopicTab" class="tab-button active">自訂主題</button>
+                            <button id="chatTopicTab" class="tab-button">聊天內容</button>
+                            <button id="questionTopicTab" class="tab-button">以題出題</button>
                         </div>
 
-                        <div class="form-group">
-                            <label for="topicText">補充提詞或學習內容文本(選填):</label>
-                            <textarea id="topicText"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="grade">題目程度:</label>
-                            <select id="grade">
-                                <option value="">請選擇年級</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="questionCount">題目數量:</label>
-                            <select id="questionCount">
-                                <option value="">請選擇題數</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div id="chatTopicContent" class="tab-content">
-                        <p>將根據目前的聊天紀錄生成相關題目。</p>
-                    </div>
-
-                    <div id="questionTopicContent" class="tab-content">
-                        <p>上傳圖片或輸入文字題目，將生成一題AI素養題。</p>
-                        <div class="tab-switch" style="margin-top:10px;">
-                            <div id="imageQTab" class="tab-button active">圖片上傳</div>
-                            <div id="textQTab" class="tab-button">文字輸入</div>
-                        </div>
-                        <div id="imageQContent" class="tab-content active">
+                        <div id="customTopicContent" class="tab-content active">
                             <div class="form-group">
-                                <label for="uploadQImage">上傳題目圖片：</label>
-                                <input type="file" id="uploadQImage" accept="image/*">
-                                <div id="imageQPreview" class="image-preview" style="margin-top: 15px; text-align: center;">
+                                <label class="form-label">主題 (必填)</label>
+                                <input type="text" id="topic" class="form-input" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">補充提詞或學習內容文本(選填)</label>
+                                <textarea id="topicText" class="form-textarea"></textarea>
+                            </div>
+
+                            <div class="modern-two-columns">
+                                <div class="form-group">
+                                    <label class="form-label">題目程度</label>
+                                    <select id="grade" class="form-select">
+                                        <option value="">請選擇年級</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">題目數量</label>
+                                    <select id="questionCount" class="form-select">
+                                        <option value="">請選擇題數</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                        <div id="textQContent" class="tab-content">
-                            <div class="form-group">
-                                <label for="textQInput">輸入題目文字：</label>
-                                <textarea id="textQInput" rows="6" placeholder="請輸入題目內容"></textarea>
+
+                        <div id="chatTopicContent" class="tab-content">
+                            <div class="upload-area">
+                                <div class="upload-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <p class="upload-text">將根據目前的聊天紀錄生成相關題目</p>
                             </div>
                         </div>
-                        <div class="button-group">
-                            <button id="generateFromQButton">生成題目</button>
-                            <button id="copyQContent" style="display:none;">複製題本</button>
+
+                        <div id="questionTopicContent" class="tab-content">
+                            <div class="tab-switch">
+                                <button id="imageQTab" class="tab-button active">圖片上傳</button>
+                                <button id="textQTab" class="tab-button">文字輸入</button>
+                            </div>
+
+                            <div id="imageQContent" class="tab-content active">
+                                <div class="upload-area">
+                                    <input type="file" id="uploadQImage" accept="image/*" hidden>
+                                    <div class="upload-icon">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    <p class="upload-text">點擊或拖曳上傳題目圖片</p>
+                                    <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
+                                        選擇圖片
+                                    </button>
+                                </div>
+                                <div id="imageQPreview" class="image-preview"></div>
+                            </div>
+
+                            <div id="textQContent" class="tab-content">
+                                <div class="form-group">
+                                    <label class="form-label">輸入題目文字</label>
+                                    <textarea id="textQInput" class="form-textarea" rows="6" placeholder="請輸入題目內容"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="button-group">
+                                <button id="generateFromQButton" class="modern-button primary">生成題目</button>
+                                <button id="copyQContent" class="modern-button secondary" style="display:none;">複製題本</button>
+                            </div>
                         </div>
-                        <form id="singleQuizForm" class="result-area" onsubmit="checkSingleAnswer(event)">
+
+                        <div class="button-group" id="mainGenerateGroup">
+                            <button id="generateButton" class="modern-button primary">生成題目</button>
+                            <button id="copyContent" class="modern-button secondary" style="display:none;">複製題本</button>
+                        </div>
+
+                        <form id="quizForm" class="result-area" style="display:none;">
+                            <div id="questions"></div>
+                            <button type="submit" class="modern-button primary">提交答案</button>
+                        </form>
+
+                        <form id="singleQuizForm" class="result-area" style="display:none;">
                             <div id="singleQuestion"></div>
-                            <button type="submit" class="submit-button">提交答案</button>
+                            <button type="submit" class="modern-button primary">提交答案</button>
                         </form>
                     </div>
-
-                    <div class="button-group" id="mainGenerateGroup">
-                        <button id="generateButton">生成題目</button>
-                        <button id="copyContent" style="display:none;">複製題本</button>
-                    </div>
-
-                    <form id="quizForm" class="result-area" onsubmit="checkAnswers(event)">
-                        <div id="questions"></div>
-                        <button type="submit" class="submit-button">提交答案</button>
-                    </form>
                 </div>
             </div>
 
             <!-- 教我解題 -->
             <div class="external-content" id="solve-problem-content" style="display: none;">
-                <div class="solve-problem-container">
-                    <h1>教我解題</h1>
+                <div class="modern-container">
+                    <div class="feature-container">
+                        <div class="feature-header">
+                            <h1 class="feature-title">教我解題</h1>
+                        </div>
 
-                    <div class="tab-switch">
-                        <div id="imageTab" class="tab-button active">圖片上傳</div>
-                        <div id="textTab" class="tab-button">文字輸入</div>
-                    </div>
+                        <div class="tab-switch">
+                            <button id="imageTab" class="tab-button active">圖片上傳</button>
+                            <button id="textTab" class="tab-button">文字輸入</button>
+                        </div>
 
-                    <div id="imageContent" class="tab-content active">
-                        <div class="form-group">
-                            <label for="uploadImage">上傳題目圖片：</label>
-                            <input type="file" id="uploadImage" accept="image/*">
-                            <div id="imagePreview" class="image-preview" style="margin-top: 15px; text-align: center;">
+                        <div id="imageContent" class="tab-content active">
+                            <div class="upload-area">
+                                <input type="file" id="uploadImage" accept="image/*" hidden>
+                                <div class="upload-icon">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <p class="upload-text">點擊或拖曳上傳題目圖片</p>
+                                <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
+                                    選擇圖片
+                                </button>
+                            </div>
+                            <div id="imagePreview" class="image-preview"></div>
+                        </div>
+
+                        <div id="textContent" class="tab-content">
+                            <div class="form-group">
+                                <label class="form-label">輸入題目文字</label>
+                                <textarea id="textInput" class="form-textarea" rows="6" placeholder="請輸入題目內容"></textarea>
                             </div>
                         </div>
-                    </div>
-                    <div id="textContent" class="tab-content">
-                        <div class="form-group">
-                            <label for="textInput">輸入題目文字：</label>
-                            <textarea id="textInput" rows="6" placeholder="請輸入題目內容"></textarea>
+
+                        <div class="button-group">
+                            <button id="analyzeButton" class="modern-button primary">分析題目</button>
+                        </div>
+
+                        <div id="resultArea" class="result-area"></div>
+
+                        <div id="hintArea" style="display: none;">
+                            <div id="hintContent"></div>
+                            <button id="showNextHintButton" class="modern-button secondary" style="display:none;">
+                                顯示下一提示
+                            </button>
+                        </div>
+
+                        <div id="reflectionArea" style="display: none;">
+                            <h2 class="feature-title">學習反思</h2>
+                            <div id="reflectionContent"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+  <!-- 我的學習記錄 -->
+            <div class="external-content" id="my-records-content" style="display: none;">
+                <div class="modern-container">
+                    <div class="feature-container">
+                        <div class="feature-header">
+                            <h1 class="feature-title">我的學習記錄</h1>
+                        </div>
 
-                    <div class="button-group">
-                        <button id="analyzeButton">分析題目</button>
-                    </div>
+                        <div class="tab-switch">
+                            <button id="notesTab" class="tab-button active">我的筆記</button>
+                            <button id="testRecordsTab" class="tab-button">測驗記錄</button>
+                        </div>
 
-                    <div id="resultArea" class="result-area"></div>
+                        <div id="notesContent" class="tab-content active">
+                            <div class="form-group">
+                                <div class="modern-two-columns">
+                                    <input type="text" id="notes-username" class="form-input" placeholder="請輸入您的帳號">
+                                    <button id="load-notes-button" class="modern-button primary">載入筆記</button>
+                                </div>
+                            </div>
+                            <div id="notes-display-area" class="result-area"></div>
+                        </div>
 
-                    <!-- 提示顯示區 -->
-                    <div id="hintArea">
-                        <div id="hintContent"></div>
-                        <button id="showNextHintButton" style="display:none;">顯示下一提示</button>
-                    </div>
+                        <div id="testRecordsContent" class="tab-content">
+                            <div class="form-group">
+                                <div class="modern-two-columns">
+                                    <input type="text" id="records-username" class="form-input" placeholder="請輸入您的帳號">
+                                    <button id="load-records-button" class="modern-button primary">載入測驗記錄</button>
+                                </div>
+                            </div>
 
-                    <!-- 學習反思區塊 -->
-                    <div id="reflectionArea">
-                        <h2>學習反思</h2>
-                        <div id="reflectionContent"></div>
+                            <div id="records-options" class="button-group" style="display: none;">
+                                <button id="retry-history" class="modern-button secondary">重作歷史題</button>
+                                <button id="retry-wrong" class="modern-button secondary">錯題重作</button>
+                            </div>
+
+                            <div id="records-quiz-area" class="result-area"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-
-<!-- 我的學習記錄 -->
-<div class="external-content" id="my-records-content" style="display: none;">
-    <div class="my-records-container">
-        <h1>我的學習記錄</h1>
-        
-        <div class="tab-switch">
-            <div id="notesTab" class="tab-button active">我的筆記</div>
-            <div id="testRecordsTab" class="tab-button">測驗記錄</div>
-        </div>
-
-        <!-- 筆記內容區塊 -->
-        <div id="notesContent" class="tab-content active">
-            <div class="notes-input-area">
-                <input type="text" id="notes-username" placeholder="請輸入您的帳號">
-                <button id="load-notes-button">載入筆記</button>
-            </div>
-            <div id="notes-display-area"></div>
-        </div>
-
-        <!-- 測驗記錄區塊 -->
-        <div id="testRecordsContent" class="tab-content">
-            <div class="records-input-area">
-                <input type="text" id="records-username" placeholder="請輸入您的帳號">
-                <button id="load-records-button">載入測驗記錄</button>
-            </div>
-            <div id="records-options" style="display: none; text-align: center; margin-top: 20px;">
-                <button id="retry-history" class="feature-button">重作歷史題</button>
-                <button id="retry-wrong" class="feature-button">錯題重作</button>
-            </div>
-            <div id="records-quiz-area"></div>
+            <!-- 物理講義 -->
+<div class="external-content" id="physics-lecture-content" style="display: none;">
+    <div class="modern-container">
+        <div class="feature-container">
+            <iframe src="https://guidephy.github.io/guidephy/PhysicsForGSAT/tableOfContents.html"></iframe>
         </div>
     </div>
 </div>
 
-            <!-- 物理講義 -->
-            <div class="external-content" id="physics-lecture-content" style="display: none;">
-                <div class="physics-lecture-container">
-                    <iframe src="https://guidephy.github.io/guidephy/PhysicsForGSAT/tableOfContents.html" frameborder="0"></iframe>
-                </div>
-            </div>
-            
-            <!-- 計算機 -->
-            <div class="external-content" id="calculator-content" style="display: none;">
-                <div class="physics-lecture-container">
-                    <iframe src="https://hh1810.github.io/calculator/" frameborder="0"></iframe>
-                </div>
-            </div>
+<!-- 計算機 -->
+<div class="external-content" id="calculator-content" style="display: none;">
+    <div class="modern-container">
+        <div class="feature-container">
+            <iframe src="https://hh1810.github.io/calculator/"></iframe>
+        </div>
+    </div>
+</div>
 
-            <!-- 蕃茄鐘 -->
-            <div class="external-content" id="tomato-content" style="display: none;">
-                <div class="physics-lecture-container">
-                    <iframe src="https://gishstudent.github.io/tomato-timer/" frameborder="0"></iframe>
-                </div>
-            </div>
+<!-- 蕃茄鐘 -->
+<div class="external-content" id="tomato-content" style="display: none;">
+    <div class="modern-container">
+        <div class="feature-container">
+            <iframe src="https://gishstudent.github.io/tomato-timer/"></iframe>
+        </div>
+    </div>
+</div>
 
             <!-- 輸入區域 -->
             <div class="input-area">
-                <label class="upload-button" style="display: none;">
+                <label class="modern-button secondary" style="display: none;">
+                    <i class="fas fa-image"></i>
                     上傳照片
-                    <input type="file" id="upload-image" accept="image/*">
+                    <input type="file" id="upload-image" accept="image/*" hidden>
                 </label>
                 <div id="image-preview-container" class="image-preview"></div>
-                <input type="text" id="user-input" placeholder="輸入訊息...">
-                <button id="send-button">傳送</button>
+                <input type="text" id="user-input" class="form-input" placeholder="輸入訊息...">
+                <button id="send-button" class="modern-button primary">傳送</button>
             </div>
         </div>
     </div>
 
-    <!-- 引入拆分後的 JavaScript 檔案 -->
+<!-- 初始化全局變數 -->
     <script>
         // 宣告全域變數
-let thread = []; // 儲存聊天記錄
-const geminiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key='; // 請替換為您的 Gemini API URL
-let translationMode = false; // 是否為翻譯模式
+        let thread = []; // 儲存聊天記錄
+        const geminiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='; // 請替換為您的 Gemini API URL
+        let translationMode = false; // 是否為翻譯模式
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 獲取 DOM 元素
-    const sidebar = document.getElementById('sidebar');
-    const menuToggle = document.getElementById('menu-toggle');
-    const openAIGenerator = document.getElementById('open-ai-generator');
-    const openSolveProblem = document.getElementById('open-solve-problem');
-    const openMyRecords = document.getElementById('open-my-records');
-    const openPhysicsLecture = document.getElementById('open-physics-lecture');
-    const openCalculator = document.getElementById('open-calculator');
-    const openTomato = document.getElementById('open-tomato');
-    const returnChat = document.getElementById('return-chat');
-    const chatWindow = document.getElementById('chat-window');
-    const aiGeneratorContent = document.getElementById('ai-generator-content');
-    const solveProblemContent = document.getElementById('solve-problem-content');
-    const myRecordsContent = document.getElementById('my-records-content');
-    const physicsLectureContent = document.getElementById('physics-lecture-content');
-    const calculatorContent = document.getElementById('calculator-content');
-    const tomatoContent = document.getElementById('tomato-content');
-    const toolbar = document.getElementById('toolbar');
-    const translateButton = document.getElementById('translate-button');
-    const returnToChatButton = document.getElementById('return-to-chat-button');
-    const overlay = document.getElementById('overlay');
-    const studyPlanButton = document.getElementById('study-plan-button');
-    const input_area = document.querySelector('.input-area');
-
-    // 初始化顯示狀態
-    chatWindow.style.display = 'flex';
-    aiGeneratorContent.style.display = 'none';
-    solveProblemContent.style.display = 'none';
-    myRecordsContent.style.display = 'none';
-    physicsLectureContent.style.display = 'none';
-    calculatorContent.style.display = 'none';
-    tomatoContent.style.display = 'none';
-    returnChat.classList.add('hidden');
-
-    // 側邊欄控制
-    menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation(); // 阻止事件冒泡到 document
-        sidebar.classList.toggle('show');
-        overlay.classList.toggle('show');
-    });
-
-    overlay.addEventListener('click', () => {
-        sidebar.classList.remove('show');
-        overlay.classList.remove('show');
-    });
-
-    document.addEventListener('click', (event) => {
-        // 檢查點擊事件是否發生在 sidebar 或 menuToggle 之外
-        if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
+        // 格式化文字的函數
+        function formatText(text) {
+            let formatted = text;
+            formatted = formatted.replace(/\n/g, '<br>');
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/\*\*/g, '');
+            return formatted;
         }
-    });
 
-    // 工具切換事件監聽器
-    openAIGenerator.addEventListener('click', () => toggleTool('ai-generator'));
-    openSolveProblem.addEventListener('click', () => toggleTool('solve-problem'));
-    openMyRecords.addEventListener('click', () => toggleTool('my-records'));
-    openPhysicsLecture.addEventListener('click', () => toggleTool('physics-lecture'));
-    openCalculator.addEventListener('click', () => toggleTool('calculator'));
-    openTomato.addEventListener('click', () => toggleTool('tomato'));
-    returnChat.addEventListener('click', () => toggleTool('chat'));
+        document.addEventListener('DOMContentLoaded', () => {
+            // 獲取所有相關元素
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menu-toggle');
+            const overlay = document.getElementById('overlay');
+            const openAIGenerator = document.getElementById('open-ai-generator');
+            const openSolveProblem = document.getElementById('open-solve-problem');
+            const openMyRecords = document.getElementById('open-my-records');
+            const openPhysicsLecture = document.getElementById('open-physics-lecture');
+            const openCalculator = document.getElementById('open-calculator');
+            const openTomato = document.getElementById('open-tomato');
+            const returnChat = document.getElementById('return-chat');
+            const chatWindow = document.getElementById('chat-window');
+            const aiGeneratorContent = document.getElementById('ai-generator-content');
+            const solveProblemContent = document.getElementById('solve-problem-content');
+            const myRecordsContent = document.getElementById('my-records-content');
+            const physicsLectureContent = document.getElementById('physics-lecture-content');
+            const calculatorContent = document.getElementById('calculator-content');
+            const tomatoContent = document.getElementById('tomato-content');
+            const toolbar = document.getElementById('toolbar');
+            const input_area = document.querySelector('.input-area');
 
-    // 切換工具的函數
-    function toggleTool(tool) {
-        const tools = ['chat', 'ai-generator', 'solve-problem', 'my-records', 'physics-lecture', 'calculator', 'tomato'];
-        const contentElements = {
-            'chat': chatWindow,
-            'ai-generator': aiGeneratorContent,
-            'solve-problem': solveProblemContent,
-            'my-records': myRecordsContent,
-            'physics-lecture': physicsLectureContent,
-            'calculator': calculatorContent,
-            'tomato': tomatoContent
-        };
-        const menuItems = {
-            'chat': returnChat,
-            'ai-generator': openAIGenerator,
-            'solve-problem': openSolveProblem,
-            'my-records': openMyRecords,
-            'physics-lecture': openPhysicsLecture,
-            'calculator': openCalculator,
-            'tomato': openTomato
-        };
+            // 側邊欄控制
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('show');
+                overlay.classList.toggle('show');
+            });
 
-        // 隱藏所有工具內容和顯示所有選單項目
-        tools.forEach(t => {
-            if (contentElements[t]) contentElements[t].style.display = 'none';
-            if (menuItems[t]) menuItems[t].classList.remove('hidden');
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+
+            // 工具切換函數
+            function toggleTool(tool) {
+                const tools = ['chat', 'ai-generator', 'solve-problem', 'my-records', 'physics-lecture', 'calculator', 'tomato'];
+                const contentElements = {
+                    'chat': chatWindow,
+                    'ai-generator': aiGeneratorContent,
+                    'solve-problem': solveProblemContent,
+                    'my-records': myRecordsContent,
+                    'physics-lecture': physicsLectureContent,
+                    'calculator': calculatorContent,
+                    'tomato': tomatoContent
+                };
+                const menuItems = {
+                    'chat': returnChat,
+                    'ai-generator': openAIGenerator,
+                    'solve-problem': openSolveProblem,
+                    'my-records': openMyRecords,
+                    'physics-lecture': openPhysicsLecture,
+                    'calculator': openCalculator,
+                    'tomato': openTomato
+                };
+
+                // 隱藏所有工具內容和顯示所有選單項目
+                tools.forEach(t => {
+                    if (contentElements[t]) contentElements[t].style.display = 'none';
+                    if (menuItems[t]) menuItems[t].classList.remove('hidden');
+                });
+
+                // 顯示選定的工具內容，並隱藏對應的選單項目
+                if (contentElements[tool]) {
+                    contentElements[tool].style.display = (tool === 'chat') ? 'flex' : 'block';
+                }
+                if (menuItems[tool]) menuItems[tool].classList.add('hidden');
+
+                // 根據是否為聊天模式調整輸入區域和工具列的顯示
+                input_area.style.display = (tool === 'chat') ? 'flex' : 'none';
+                toolbar.style.display = (tool === 'chat') ? 'flex' : 'none';
+
+                // 判斷是否為 iframe
+                if (tool === 'tomato') {
+                    tomatoContent.style.display = 'block';
+                    calculatorContent.style.display = 'none';
+                    physicsLectureContent.style.display = 'none';
+                } else if (tool === 'calculator') {
+                    calculatorContent.style.display = 'block';
+                    tomatoContent.style.display = 'none';
+                    physicsLectureContent.style.display = 'none';
+                } else if (tool === 'physics-lecture') {
+                    physicsLectureContent.style.display = 'block';
+                    tomatoContent.style.display = 'none';
+                    calculatorContent.style.display = 'none';
+                }
+
+                // 根據工具類型初始化相應模組
+                switch (tool) {
+                    case 'ai-generator':
+                        if (typeof aiGeneratorModule !== 'undefined') aiGeneratorModule.init();
+                        break;
+                    case 'solve-problem':
+                        if (typeof solveProblemModule !== 'undefined') solveProblemModule.init();
+                        break;
+                    case 'my-records':
+                        if (typeof myRecordsModule !== 'undefined') myRecordsModule.init();
+                        break;
+                }
+
+                // 隱藏側邊欄和遮罩
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            }
+
+            // 綁定工具切換事件
+            openAIGenerator.addEventListener('click', () => toggleTool('ai-generator'));
+            openSolveProblem.addEventListener('click', () => toggleTool('solve-problem'));
+            openMyRecords.addEventListener('click', () => toggleTool('my-records'));
+            openPhysicsLecture.addEventListener('click', () => toggleTool('physics-lecture'));
+            openCalculator.addEventListener('click', () => toggleTool('calculator'));
+            openTomato.addEventListener('click', () => toggleTool('tomato'));
+            returnChat.addEventListener('click', () => toggleTool('chat'));
+
+            // 初始化聊天模組
+            if (typeof chatModule !== 'undefined') chatModule.init();
         });
-
-        // 顯示選定的工具內容，並隱藏對應的選單項目
-        if (contentElements[tool]) contentElements[tool].style.display = tool.includes('lecture') || tool.includes('calculator') || tool.includes('tomato')  ? 'block' : (tool === 'chat' ? 'flex' : 'block');
-        if (menuItems[tool]) menuItems[tool].classList.add('hidden');
-
-        // 根據是否為聊天模式調整輸入區域和工具列的顯示
-        input_area.style.display = (tool === 'chat') ? 'flex' : 'none';
-        toolbar.style.display = (tool === 'chat') ? 'flex' : 'none';
-
-        // 隱藏側邊欄和遮罩
-        sidebar.classList.remove('show');
-        overlay.classList.remove('show');
-    }
-});
-
-// 格式化文字的函數 (例如，處理換行和粗體)
-function formatText(text) {
-    let formatted = text;
-    formatted = formatted.replace(/\n/g, '<br>'); // 將換行符號 \n 轉換為 HTML 的 <br> 標籤
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // 將 **包圍的文字** 轉換為 HTML 的 <strong> 標籤
-    formatted = formatted.replace(/\*\*/g, '');  // 移除多餘的 ** 符號
-    return formatted; // 最終返回格式化後的文字
-}
     </script>
-    <!-- 引入其他 JavaScript 檔案 -->
-    <script src="https://guidephy.github.io/AI/script-ai-generator.js"></script>
-    <script src="https://guidephy.github.io/AI/script-chat.js"></script>
-    <script src="https://guidephy.github.io/AI/script-solve-problem.js"></script>
-    <script src="https://guidephy.github.io/AI/script-my-records.js"></script>
 
+    <!-- 引入其他 JavaScript 檔案 -->
+    <script src="https://guidephy.github.io/AI/test/script-ai-generator.js"></script>
+    <script src="https://guidephy.github.io/AI/test/script-chat.js"></script>
+    <script src="https://guidephy.github.io/AI/test/script-solve-problem.js"></script>
+    <script src="https://guidephy.github.io/AI/test/script-my-records.js"></script>
 </body>
 </html>
