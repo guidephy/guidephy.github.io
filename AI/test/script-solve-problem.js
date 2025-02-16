@@ -27,6 +27,7 @@ const solveProblemModule = (() => {
         textContent.classList.toggle('active', tab === 'text');
         imageTab.classList.toggle('active', tab === 'image');
         textTab.classList.toggle('active', tab === 'text');
+        resetSolveProblemPage(); // 新增：切換 Tab 時重置頁面
     }
 
     // 預覽圖片
@@ -42,6 +43,46 @@ const solveProblemModule = (() => {
             imagePreview.innerHTML = '';
         }
     }
+
+     // 新增：重置「教我解題」頁面
+    function resetSolveProblemPage() {
+        // 重置輸入
+        if (uploadImage) uploadImage.value = '';
+        if (textInput) textInput.value = '';
+
+        // 重置圖片預覽
+        if (imagePreview) imagePreview.innerHTML = '';
+
+        // 重置結果區域
+        if (resultArea) {
+            resultArea.style.display = 'none';
+            resultArea.innerHTML = '';
+        }
+
+        // 重置提示區域
+        if (hintArea) {
+            hintArea.style.display = 'none';
+            hintContent.innerHTML = '';
+        }
+        if (showNextHintButton) showNextHintButton.style.display = 'none';
+
+        // 重置學習反思區域
+        if (reflectionArea) {
+            reflectionArea.style.display = 'none';
+            reflectionContent.innerHTML = '';
+        }
+
+        // 重置解題步驟和索引
+        solutionSteps = [];
+        currentStepIndex = 0;
+
+        // 重置分析按鈕
+        if (analyzeButton) {
+            analyzeButton.innerText = '分析題目';
+            analyzeButton.disabled = false;
+        }
+    }
+
 
     // 分析輸入 (主要函數)
     async function analyzeInput() {
