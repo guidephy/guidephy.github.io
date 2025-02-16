@@ -458,147 +458,156 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
     }
 
     // 將圖片轉換為 Base64
-    async function convertImageToBase64(imageFile) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = (error) => reject(error);
-            reader.readAsDataURL(imageFile);
-        });
-    }
+async function generateSingleQuestion() {
+    const button = generateFromQButton;
+    if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
 
-    // 生成單一題目 (以題出題)
-    async function generateSingleQuestion() {
-        const button = generateFromQButton;
-        if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
+    try {
+        button.innerText = '生成中，請稍候...';
+        button.disabled = true;
+        singleQuizForm.style.display = 'none';
+        singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
+        copyQContent.style.display = 'none';
 
-        try {
-            button.innerText = '生成中，請稍候...';
-            button.disabled = true;
-            singleQuizForm.style.display = 'none';
-            singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
-            copyQContent.style.display = 'none';
+        let payload = {};
+        let prompt = `請以繁體中文回答，不得使用簡體字或英文詞彙。
 
-            let payload = {};
-            let prompt = `請以繁體中文回答，不得使用簡體字或英文詞彙。
+請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供），請依照下列步驟進行分析和出題：
 
-請根據下列資訊產生符合學科學習目標的素養題（選擇題）。
-每題有四個選項，並結合生活情境。
-題目數量：1題
-主題：請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目（由圖片或文字提供）解題作為出題靈感，重新設計題目。
+1. 題目分析：
+   - 仔細分析題目測驗的核心概念和知識點
+   - 確認題目考察的學科能力和思維方式
+   - 判斷題目的難度層級和適用年級
+
+2. 概念延伸：
+   - 基於相同的核心概念，思考不同的應用場景
+   - 保持相同的思維邏輯，但改變情境設定
+   - 維持相近的難度水準，確保學習連貫性
+
+3. 新題目設計：
+   - 運用不同的生活情境或實例
+   - 保持原有概念的完整性
+   - 確保新題目能有效檢驗相同的知識理解
+   - 設計具啟發性的選項，包含常見迷思概念
+
 重要要求：
-1. 請以自然、通順的繁體中文撰寫題目和選項。
-2. 務必提供唯一正確的答案，以數字0,1,2,3分別對應A,B,C,D選項。
-3. 請確保選項中的正確答案與解釋絕對一致，不得有不合理或矛盾的地方。
-4. 解答說明需明確指出為何該選項正確，其他選項為何不正確，並不得有不合理的論述。
-5. 若引用參考文本或聊天紀錄，需先理解再轉換為素養題，不可直接複製整段文字。
-6. 請自行檢查，保證題目、選項、正確答案及解釋完全匹配且無誤。
+1. 新題目必須測驗相同的核心概念，但使用全新的情境
+2. 確保新題目的難度相當，但不是簡單改寫原題
+3. 選項設計要能反映學生對概念的不同理解層次
+4. 解答說明要特別強調與原題的概念連結
+5. 務必確保答案唯一且正確，以數字0,1,2,3分別對應A,B,C,D選項
 
-請用以下JSON格式回應（不得包含任何英文字詞在選項或題目中，但可保留JSON結構）：
+請用以下JSON格式回應：
 {
     "questions": [
         {
-            "question": "題目",
+            "originalConcept": "原題目測驗的核心概念說明",
+            "question": "新設計的題目內容",
             "options": ["A選項", "B選項", "C選項", "D選項"],
             "answer": 0,
-            "explanation": "解答說明"
+            "explanation": "解答說明（需包含與原概念的連結）",
+            "conceptLink": "新舊題目的概念連結說明"
         }
     ]
 }`;
 
-            if (imageQTab.classList.contains('active') && uploadQImage.files.length > 0) {
-                const base64Image = await convertImageToBase64(uploadQImage.files[0]);
-                payload = {
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }, {
-                            inline_data: {
-                                mime_type: 'image/jpeg',
-                                data: base64Image
-                            }
-                        }]
+        if (imageQTab.classList.contains('active') && uploadQImage.files.length > 0) {
+            const base64Image = await convertImageToBase64(uploadQImage.files[0]);
+            payload = {
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }, {
+                        inline_data: {
+                            mime_type: 'image/jpeg',
+                            data: base64Image
+                        }
                     }]
-                };
-            } else if (textQTab.classList.contains('active') && textQInput.value.trim()) {
-                payload = {
-                    contents: [{
-                        parts: [{
-                            text: `${prompt}
-                            題目內容：${textQInput.value.trim()}`
-                        }]
+                }]
+            };
+        } else if (textQTab.classList.contains('active') && textQInput.value.trim()) {
+            payload = {
+                contents: [{
+                    parts: [{
+                        text: `${prompt}\n\n原題目內容：${textQInput.value.trim()}`
                     }]
-                };
-            } else {
-                alert('請提供圖片或文字內容！');
-                throw new Error('未提供題目內容');
-            }
-
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (data.candidates && data.candidates[0].content) {
-                const textContent = data.candidates[0].content.parts[0].text;
-                const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    const parsedData = JSON.parse(jsonMatch[0]);
-                    const qList = parsedData.questions.map((q) => {
-                        q.options = [...new Set(q.options)];
-                        return q;
-                    });
-                    if (qList.length > 0) {
-                        singleQuestionData = qList[0];
-                        displaySingleQuestion(singleQuestionData);
-                        singleQuizForm.style.display = 'block';
-                        const submitButton = singleQuizForm.querySelector('.submit-button');
-                        if (submitButton) submitButton.style.display = 'block';
-                        copyQContent.style.display = 'block';
-                    } else {
-                        throw new Error('沒有產生題目');
-                    }
-                } else {
-                    throw new Error('無法解析回應格式');
-                }
-            } else {
-                throw new Error('API 回應格式不正確');
-            }
-        } catch (error) {
-            console.error('生成單一題目時發生錯誤:', error);
-            if (singleQuestionDiv) {
-                singleQuestionDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
-            }
-        } finally {
-            if (button) {
-                button.innerText = '生成題目';
-                button.disabled = false;
-            }
+                }]
+            };
+        } else {
+            alert('請提供圖片或文字內容！');
+            throw new Error('未提供題目內容');
         }
-    }
 
-    // 顯示單一題目
-    function displaySingleQuestion(q) {
-        if (!singleQuestionDiv) return;
-        singleQuestionDiv.innerHTML = '';
-        const uniqueOptions = [...new Set(q.options)];
-        const formattedOptions = uniqueOptions.map((option, index) => {
-            if (/^[A-D]\.\s/.test(option)) {
-                return option;
-            }
-            return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
         });
 
-        const questionHtml = `
-            <div class="question-card">
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.candidates && data.candidates[0].content) {
+            const textContent = data.candidates[0].content.parts[0].text;
+            const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                const parsedData = JSON.parse(jsonMatch[0]);
+                const qList = parsedData.questions.map((q) => {
+                    q.options = [...new Set(q.options)];
+                    return q;
+                });
+                if (qList.length > 0) {
+                    singleQuestionData = qList[0];
+                    displaySingleQuestion(singleQuestionData);
+                    singleQuizForm.style.display = 'block';
+                    const submitButton = singleQuizForm.querySelector('.submit-button');
+                    if (submitButton) submitButton.style.display = 'block';
+                    copyQContent.style.display = 'block';
+                } else {
+                    throw new Error('沒有產生題目');
+                }
+            } else {
+                throw new Error('無法解析回應格式');
+            }
+        } else {
+            throw new Error('API 回應格式不正確');
+        }
+    } catch (error) {
+        console.error('生成單一題目時發生錯誤:', error);
+        if (singleQuestionDiv) {
+            singleQuestionDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+        }
+    } finally {
+        if (button) {
+            button.innerText = '生成題目';
+            button.disabled = false;
+        }
+    }
+}
+
+    // 顯示單一題目
+function displaySingleQuestion(q) {
+    if (!singleQuestionDiv) return;
+    singleQuestionDiv.innerHTML = '';
+    const uniqueOptions = [...new Set(q.options)];
+    const formattedOptions = uniqueOptions.map((option, index) => {
+        if (/^[A-D]\.\s/.test(option)) {
+            return option;
+        }
+        return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
+    });
+
+    const questionHtml = `
+        <div class="question-card">
+            <div class="concept-area">
+                <h3>核心概念</h3>
+                <p>${q.originalConcept}</p>
+            </div>
+            <div class="question-content">
                 <p><strong>${q.question}</strong></p>
                 <div class="question-options">
                     ${formattedOptions.map((option, j) => `
@@ -609,9 +618,38 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                     `).join('')}
                 </div>
             </div>
-        `;
-        singleQuestionDiv.innerHTML += questionHtml;
-    }
+        </div>
+    `;
+    singleQuestionDiv.innerHTML += questionHtml;
+}
+
+function displaySingleResult(q, userAnswer, isCorrect) {
+    return `
+        <div class="question-card">
+            <div class="concept-area">
+                <h3>核心概念</h3>
+                <p>${q.originalConcept}</p>
+            </div>
+            <p><strong>${q.question}</strong></p>
+            <div class="question-options">
+                ${q.options.map((option, j) => `
+                    <label style="background-color: ${j === q.answer ? '#28a745' :
+                        (j === parseInt(userAnswer) ? '#dc3545' : '#ffffff')};
+                        color: ${j === q.answer || j === parseInt(userAnswer) ? 'white' : '#333'};">
+                        ${['A', 'B', 'C', 'D'][j]}. ${option}
+                    </label>
+                `).join('')}
+            </div>
+            <p class="your-answer">您的答案：${userAnswer === null ? '未作答' : ['A', 'B', 'C', 'D'][userAnswer]} ${isCorrect ? '✔️' : '❌'}</p>
+            ${!isCorrect ? `<p class="correct-answer">正確答案：${['A', 'B', 'C', 'D'][q.answer]}</p>` : ''}
+            <p class="explanation">解答說明：${q.explanation}</p>
+            <div class="concept-link">
+                <h3>概念連結</h3>
+                <p>${q.conceptLink}</p>
+            </div>
+        </div>
+    `;
+}
 
     // 檢查單一題目的答案並顯示結果
     function checkSingleAnswer(event) {
