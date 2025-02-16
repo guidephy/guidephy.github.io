@@ -45,7 +45,11 @@ const aiGeneratorModule = (() => {
             { element: generateButton, name: 'generateButton' },
             { element: quizForm, name: 'quizForm' },
             { element: questionsDiv, name: 'questionsDiv' },
-            { element: mainGenerateGroup, name: 'mainGenerateGroup' }
+            { element: mainGenerateGroup, name: 'mainGenerateGroup' },
+            { element: imageQTab, name: 'imageQTab' },
+            { element: textQTab, name: 'textQTab' },
+            { element: imageQContent, name: 'imageQContent' },
+            { element: textQContent, name: 'textQContent' }
         ];
 
         const missingElements = requiredElements
@@ -116,6 +120,24 @@ const aiGeneratorModule = (() => {
         }
     }
 
+    // 切換「以題出題」內的 tab
+    function switchQTab(tab) {
+        [imageQTab, textQTab].forEach(t => {
+            if (t) t.classList.remove('active');
+        });
+        [imageQContent, textQContent].forEach(c => {
+            if (c) c.classList.remove('active');
+        });
+
+        if (tab === 'imageQ') {
+            imageQTab.classList.add('active');
+            imageQContent.classList.add('active');
+        } else if (tab === 'textQ') {
+            textQTab.classList.add('active');
+            textQContent.classList.add('active');
+        }
+    }
+
     // 格式化測驗結果以供儲存
     function formatTestDataForStorage(results) {
         let testData = '測驗結果：\n\n';
@@ -146,6 +168,7 @@ const aiGeneratorModule = (() => {
 
         generateQuestions(chatContent);
     }
+
     // 產生題目 (主要函數)
     async function generateQuestions(chatContent = '') {
         if (!generateButton || !questionsDiv || !quizForm) {
@@ -326,6 +349,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         const submitButton = quizForm.querySelector('.submit-button');
         if (submitButton) submitButton.style.display = 'none';
     }
+
     // 顯示結果
     function displayResults(results) {
         if (!questionsDiv) return;
@@ -443,7 +467,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
     }
 
-// 生成單一題目 (以題出題)
+    // 生成單一題目 (以題出題)
     async function generateSingleQuestion() {
         const button = generateFromQButton;
         if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
@@ -482,7 +506,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
     ]
 }`;
 
-            if (imageQTab && imageQTab.classList.contains('active') && uploadQImage && uploadQImage.files.length > 0) {
+            if (imageQTab.classList.contains('active') && uploadQImage.files.length > 0) {
                 const base64Image = await convertImageToBase64(uploadQImage.files[0]);
                 payload = {
                     contents: [{
@@ -496,7 +520,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                         }]
                     }]
                 };
-            } else if (textQTab && textQTab.classList.contains('active') && textQInput && textQInput.value.trim()) {
+            } else if (textQTab.classList.contains('active') && textQInput.value.trim()) {
                 payload = {
                     contents: [{
                         parts: [{
@@ -640,7 +664,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 let testData = '測驗結果：\n\n';
                 testData += `題目：${singleQuestionData.question}\n`;
                 singleQuestionData.options.forEach((option, i) => {
-                    testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
+                   testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
                 });
                 testData += `您的答案：${userAnswer === null ? '未作答' : ['A', 'B', 'C', 'D'][userAnswer]}\n`;
                 testData += `正確答案：${['A', 'B', 'C', 'D'][correctAnswer]}\n`;
@@ -711,13 +735,15 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         if (customTopicTab) customTopicTab.addEventListener('click', () => switchTab('customTopic'));
         if (chatTopicTab) chatTopicTab.addEventListener('click', () => switchTab('chatTopic'));
         if (questionTopicTab) questionTopicTab.addEventListener('click', () => switchTab('questionTopic'));
+        if (imageQTab) imageQTab.addEventListener('click', () => switchQTab('imageQ'));
+        if (textQTab) textQTab.addEventListener('click', () => switchQTab('textQ'));
 
         // 綁定其他事件監聽器
         if (generateButton) {
             generateButton.addEventListener('click', () => {
-                if (customTopicTab && customTopicTab.classList.contains('active')) {
+                if (customTopicTab.classList.contains('active')) {
                     generateQuestions();
-                } else if (chatTopicTab && chatTopicTab.classList.contains('active')) {
+                } else if (chatTopicTab.classList.contains('active')) {
                     generateQuestionsFromChat();
                 }
             });
@@ -730,6 +756,10 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         if (generateFromQButton) generateFromQButton.addEventListener('click', generateSingleQuestion);
         if (singleQuizForm) singleQuizForm.addEventListener('submit', checkSingleAnswer);
         if (copyQContent) copyQContent.addEventListener('click', copySingleContent);
+
+        // 設定初始狀態
+        switchTab('customTopic');
+        switchQTab('imageQ');
     }
 
     // 暴露需要外部訪問的函數
