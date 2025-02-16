@@ -334,7 +334,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                     if (quizForm) {
                         quizForm.style.display = 'block';
                         const submitButton = quizForm.querySelector('.submit-button');
-                        if (submitButton) submitButton.style.display = 'block';
+                        if (submitButton) submitButton.style.display = 'block'; // 顯示提交按鈕
                     }
                     const copyButton = document.getElementById('copyContent');
                     if (copyButton) copyButton.style.display = 'block';
@@ -409,6 +409,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
 
         displayResults(results);
+        // 提交答案後隱藏提交按鈕
         const submitButton = quizForm.querySelector('.submit-button');
         if (submitButton) submitButton.style.display = 'none';
     }
@@ -674,14 +675,13 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 singleQuestionData = qList[0];
                 displaySingleQuestion(singleQuestionData);
                 
-                // 如果是計算題，添加重新生成按鈕
-                if (singleQuestionData.isCalculation) {
-                    const regenerateButton = document.createElement('button');
-                    regenerateButton.textContent = '更換數值';
-                    regenerateButton.className = 'feature-button';
-                    regenerateButton.onclick = generateSingleQuestion;
-                    singleQuestionDiv.appendChild(regenerateButton);
-                }
+                // 移除「更換數值」按鈕
+                // const regenerateButton = document.createElement('button');
+                // regenerateButton.textContent = '更換數值';
+                // regenerateButton.className = 'feature-button';
+                // regenerateButton.onclick = generateSingleQuestion;
+                // singleQuestionDiv.appendChild(regenerateButton);
+
                 
                 singleQuizForm.style.display = 'block';
                 const submitButton = singleQuizForm.querySelector('.submit-button');
@@ -775,6 +775,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
         if (singleQuizForm) {
             const submitButton = singleQuizForm.querySelector('.submit-button');
+             // 提交答案後隱藏提交按鈕
             if (submitButton) submitButton.style.display = 'none';
         }
 
@@ -839,7 +840,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
         let content = '題目：\n';
         content += `${singleQuestionData.question}\n`;
-        singleQuestionData.options.forEach((option, i) => {
+        singleQuestionData.options.forEach((option, i) =>            
             content += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
         });
 
@@ -902,4 +903,4 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
 // 初始化 AI 素養題產生器
 aiGeneratorModule.init();
-                    
+                           
