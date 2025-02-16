@@ -145,6 +145,16 @@ const aiGeneratorModule = (() => {
         const errorMessages = document.querySelectorAll('.error-message');
         loadingMessages.forEach(msg => msg.remove());
         errorMessages.forEach(msg => msg.remove());
+      
+        // 恢復提交按鈕的顯示狀態
+        const quizSubmitButton = quizForm?.querySelector('.submit-button');
+        if (quizSubmitButton) {
+            quizSubmitButton.style.display = 'block';
+        }
+        const singleQuizSubmitButton = singleQuizForm?.querySelector('.submit-button');
+        if (singleQuizSubmitButton) {
+            singleQuizSubmitButton.style.display = 'block';
+        }
     }
 
 
@@ -735,8 +745,6 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         `;
     }
 
-
-
     // 檢查單一題目的答案並顯示結果
     function checkSingleAnswer(event) {
         event.preventDefault();
@@ -815,8 +823,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
                 try {
                     await new Promise((resolve, reject) => {
-                        google.script.run
-                            .withSuccessHandler(result => {
+                        google.script.run                            .withSuccessHandler(result => {
                                 if (result.status === 'success') {
                                     alert('測驗結果已成功儲存！');
                                 } else {
@@ -849,7 +856,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
         let content = '題目：\n';
         content += `${singleQuestionData.question}\n`;
-        singleQuestionData.options.forEach((option, i) =>            
+        singleQuestionData.options.forEach((option, i) => {
             content += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
         });
 
@@ -912,4 +919,3 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
 // 初始化 AI 素養題產生器
 aiGeneratorModule.init();
-                           
