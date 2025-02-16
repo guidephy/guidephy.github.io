@@ -88,7 +88,7 @@ const aiGeneratorModule = (() => {
         }
     }
 
-    // 重置頁面函數
+    // 重置頁面函數 (修改的部分)
     function resetGeneratorPage() {
         // 重置所有輸入
         const topicInput = document.getElementById('topic');
@@ -97,34 +97,34 @@ const aiGeneratorModule = (() => {
         if (topicText) topicText.value = '';
         if (gradeSelect) gradeSelect.value = '';
         if (questionCountSelect) questionCountSelect.value = '';
-        
+
         // 重置文字輸入區
         if (textQInput) textQInput.value = '';
-        
+
         // 重置圖片預覽
         if (imageQPreview) imageQPreview.innerHTML = '';
         if (uploadQImage) uploadQImage.value = '';
-        
-        // 隱藏結果區域
+
+        // 隱藏結果區域, 並重置表單
         if (quizForm) {
             quizForm.style.display = 'none';
-            quizForm.reset();
+            quizForm.reset(); // 重置表單
         }
         if (singleQuizForm) {
             singleQuizForm.style.display = 'none';
-            singleQuizForm.reset();
+            singleQuizForm.reset(); // 重置表單
         }
-        
+      
         // 清空題目顯示區域
         if (questionsDiv) questionsDiv.innerHTML = '';
         if (singleQuestionDiv) singleQuestionDiv.innerHTML = '';
-        
+
         // 重置複製按鈕
         const copyContent = document.getElementById('copyContent');
         const copyQContent = document.getElementById('copyQContent');
         if (copyContent) copyContent.style.display = 'none';
         if (copyQContent) copyQContent.style.display = 'none';
-        
+
         // 重置生成按鈕狀態
         if (generateButton) {
             generateButton.innerText = '生成題目';
@@ -134,6 +134,11 @@ const aiGeneratorModule = (() => {
             generateFromQButton.innerText = '生成題目';
             generateFromQButton.disabled = false;
         }
+      
+      // 重新顯示主生成按鈕組 (在 customTopic 和 chatTopic 模式下)
+        if (mainGenerateGroup) {
+            mainGenerateGroup.style.display = 'flex';
+        }
 
         // 重置提示和錯誤訊息
         const loadingMessages = document.querySelectorAll('.loading');
@@ -142,11 +147,12 @@ const aiGeneratorModule = (() => {
         errorMessages.forEach(msg => msg.remove());
     }
 
-    // 切換分頁的函數
+
+    // 切換分頁的函數 (修改的部分)
     function switchTab(tabId) {
         // 重置頁面狀態
         resetGeneratorPage();
-        
+
         // 移除所有 Tab 的 active 狀態
         [customTopicTab, chatTopicTab, questionTopicTab].forEach(tab => {
             if (tab) tab.classList.remove('active');
@@ -160,14 +166,15 @@ const aiGeneratorModule = (() => {
         // 設定選中的 Tab 和內容
         const selectedTab = document.getElementById(tabId + 'Tab');
         const selectedContent = document.getElementById(tabId + 'Content');
-        
+
         if (selectedTab) selectedTab.classList.add('active');
         if (selectedContent) selectedContent.classList.add('active');
 
-        // 控制生成按鈕的顯示
+        // 控制生成按鈕的顯示 (這裡做了修改)
         if (mainGenerateGroup) {
-            mainGenerateGroup.style.display = (tabId === 'questionTopic') ? 'none' : 'flex';
+          mainGenerateGroup.style.display = (tabId === 'questionTopic') ? 'none' : 'flex';
         }
+        
 
         // 重置「以題出題」的子分頁
         if (tabId === 'questionTopic') {
@@ -185,7 +192,7 @@ const aiGeneratorModule = (() => {
     function switchQTab(tab) {
         // 重置頁面狀態
         resetGeneratorPage();
-        
+
         [imageQTab, textQTab].forEach(t => {
             if (t) t.classList.remove('active');
         });
@@ -333,8 +340,8 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                     displayQuestions(questions);
                     if (quizForm) {
                         quizForm.style.display = 'block';
-                        const submitButton = quizForm.querySelector('.submit-button');
-                        if (submitButton) submitButton.style.display = 'block'; // 顯示提交按鈕
+                        //const submitButton = quizForm.querySelector('.submit-button'); //搬到resetpage
+                        //if (submitButton) submitButton.style.display = 'block'; // 顯示提交按鈕
                     }
                     const copyButton = document.getElementById('copyContent');
                     if (copyButton) copyButton.style.display = 'block';
@@ -684,8 +691,8 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
                 
                 singleQuizForm.style.display = 'block';
-                const submitButton = singleQuizForm.querySelector('.submit-button');
-                if (submitButton) submitButton.style.display = 'block';
+                //const submitButton = singleQuizForm.querySelector('.submit-button'); //搬到resetpage
+                //if (submitButton) submitButton.style.display = 'block';
                 copyQContent.style.display = 'block';
             } else {
                 throw new Error('沒有產生題目');
@@ -727,6 +734,8 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             </div>
         `;
     }
+
+
 
     // 檢查單一題目的答案並顯示結果
     function checkSingleAnswer(event) {
