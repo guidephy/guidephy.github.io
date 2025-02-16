@@ -881,3 +881,58 @@ button:hover {
     margin-bottom: 10px;
     font-size: 1.1em;
 }
+
+.validation-info {
+    background-color: #f0f7ff;
+    border-left: 4px solid #46A3FF;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.solution-steps {
+    background-color: #f8f9fa;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 8px;
+}
+
+.solution-steps ol {
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.solution-steps li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.theory-base {
+    background-color: #fff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.theory-base h4 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.validation-info h3,
+.solution-steps h3 {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.validation-info p {
+    margin: 5px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.validation-info p:last-child {
+    border-bottom: none;
+}
