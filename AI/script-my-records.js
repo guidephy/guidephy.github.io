@@ -10,8 +10,18 @@ const myRecordsModule = (() => {
     let wrongQuestions = [];
     let currentQuestions = [];
 
+    // 格式化文字
+    function formatText(text) {
+        if (!text) return '';
+        let formatted = text.toString();
+        formatted = formatted.replace(/\n/g, '<br>');
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return formatted;
+    }
+
     // 初始化 DOM 元素
     function initializeDOMElements() {
+        console.log('初始化 DOM 元素...');
         notesTab = document.getElementById('notesTab');
         testRecordsTab = document.getElementById('testRecordsTab');
         notesContent = document.getElementById('notesContent');
@@ -26,7 +36,6 @@ const myRecordsModule = (() => {
         notesUsernameInput = document.getElementById('notes-username');
         recordsUsernameInput = document.getElementById('records-username');
 
-        // 檢查必要元素是否存在
         const requiredElements = [
             { element: notesTab, name: 'notesTab' },
             { element: testRecordsTab, name: 'testRecordsTab' },
@@ -45,12 +54,18 @@ const myRecordsModule = (() => {
             console.error('找不到必要的 DOM 元素:', missingElements.join(', '));
             return false;
         }
+        
+        console.log('DOM 元素初始化完成');
         return true;
     }
 
     // Tab 切換
     function switchTab(tabId) {
-        if (!notesTab || !testRecordsTab || !notesContent || !testRecordsContent) return;
+        console.log('切換頁籤:', tabId);
+        if (!notesTab || !testRecordsTab || !notesContent || !testRecordsContent) {
+            console.error('Tab 元素未正確初始化');
+            return;
+        }
 
         // 移除所有 Tab 的 active 狀態
         notesTab.classList.remove('active');
@@ -62,23 +77,19 @@ const myRecordsModule = (() => {
         const selectedTab = document.getElementById(tabId + 'Tab');
         const selectedContent = document.getElementById(tabId + 'Content');
         
-        if (selectedTab) selectedTab.classList.add('active');
-        if (selectedContent) selectedContent.classList.add('active');
-    }
-
-    // 格式化文字
-    function formatText(text) {
-        if (!text) return '';
-        let formatted = text.toString();
-        // 先處理 Markdown 格式
-        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        // 再處理換行符
-        formatted = formatted.replace(/\n/g, '<br>');
-        return formatted;
+        if (selectedTab) {
+            selectedTab.classList.add('active');
+            console.log('設置頁籤 active:', tabId);
+        }
+        if (selectedContent) {
+            selectedContent.classList.add('active');
+            console.log('顯示內容:', tabId);
+        }
     }
 
     // 載入用戶筆記
     async function loadUserNotes() {
+        console.log('開始載入筆記...');
         if (!notesUsernameInput || !notesDisplayArea) {
             console.error('找不到筆記相關的 DOM 元素');
             return;
@@ -90,13 +101,20 @@ const myRecordsModule = (() => {
             return;
         }
 
-        notesDisplayArea.innerHTML = '<p style="text-align: center;">載入中...</p>';
+        notesDisplayArea.innerHTML = '<p class="loading">載入中...</p>';
 
         try {
+            console.log('發送請求至 Apps Script...');
             const result = await new Promise((resolve, reject) => {
                 google.script.run
-                    .withSuccessHandler(resolve)
-                    .withFailureHandler(reject)
+                    .withSuccessHandler(response => {
+                        console.log('收到 Apps Script 回應:', response);
+                        resolve(response);
+                    })
+                    .withFailureHandler(error => {
+                        console.error('Apps Script 錯誤:', error);
+                        reject(error);
+                    })
                     .getNotes(username);
             });
 
@@ -107,6 +125,7 @@ const myRecordsModule = (() => {
                     return;
                 }
 
+                console.log('載入到筆記數量:', notes.length);
                 // 顯示筆記
                 notesDisplayArea.innerHTML = notes.map((note, index) => `
                     <div class="note-card">
@@ -117,14 +136,18 @@ const myRecordsModule = (() => {
                 throw new Error(result ? result.error : '未知錯誤');
             }
         } catch (error) {
-            console.error('載入筆記發生錯誤:', error);
+            console.error('載入筆記時發生錯誤:', error);
             notesDisplayArea.innerHTML = `<p style="text-align: center; color: red;">載入失敗：${error.message}</p>`;
         }
     }
 
     // 載入測驗記錄
     async function loadTestRecords() {
-        if (!recordsUsernameInput || !recordsQuizArea || !recordsOptionsDiv) return;
+        console.log('開始載入測驗記錄...');
+        if (!recordsUsernameInput || !recordsQuizArea || !recordsOptionsDiv) {
+            console.error('找不到測驗記錄相關的 DOM 元素');
+            return;
+        }
 
         const username = recordsUsernameInput.value.trim();
         if (!username) {
@@ -144,8 +167,8 @@ const myRecordsModule = (() => {
             });
 
             if (result.status === 'success') {
-                allQuestions = result.allQuestions || [];
-                wrongQuestions = result.wrongQuestions || [];
+                allQuestions = result.allQuestions;
+                wrongQuestions = result.wrongQuestions;
 
                 if (allQuestions.length === 0) {
                     recordsQuizArea.innerHTML = '<p style="text-align: center;">尚無測驗記錄。</p>';
@@ -153,6 +176,9 @@ const myRecordsModule = (() => {
                 }
 
                 recordsOptionsDiv.style.display = 'flex';
+                recordsQuizArea.innerHTML = '';
+
+                // 顯示測驗統計資訊
                 const totalQuestions = allQuestions.length;
                 const totalWrong = wrongQuestions.length;
                 const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
@@ -181,6 +207,7 @@ const myRecordsModule = (() => {
                 throw new Error(result.error || '載入失敗');
             }
         } catch (error) {
+            console.error('載入測驗記錄時發生錯誤:', error);
             recordsQuizArea.innerHTML = `<p class="loading" style="color: red;">載入失敗：${error.message}</p>`;
         }
     }
@@ -229,7 +256,7 @@ const myRecordsModule = (() => {
         });
     }
 
-    // 檢查答案
+    // 檢查答案並顯示結果
     function checkRetryAnswers() {
         const formData = new FormData(document.getElementById('retryQuizForm'));
         const results = currentQuestions.map((q, i) => {
@@ -327,6 +354,7 @@ const myRecordsModule = (() => {
 
     // 重新測驗
     function retryQuiz() {
+        console.log('開始重新測驗');
         if (currentQuestions.length > 0) {
             displayQuiz(getRandomQuestions(currentQuestions, currentQuestions.length));
         }
@@ -334,14 +362,9 @@ const myRecordsModule = (() => {
 
     // 初始化事件監聽器
     function initializeEventListeners() {
-        if (!loadNotesButton || !loadRecordsButton || !notesTab || !testRecordsTab || 
-            !retryHistoryButton || !retryWrongButton) {
-            console.error('無法初始化事件監聽器：找不到必要的 DOM 元素');
-            return;
-        }
-
+        console.log('初始化事件監聽器...');
+        
         // 移除現有的事件監聽器
-        // 事件監聽器綁定（續）
         const newLoadNotesButton = loadNotesButton.cloneNode(true);
         loadNotesButton.parentNode.replaceChild(newLoadNotesButton, loadNotesButton);
         loadNotesButton = newLoadNotesButton;
@@ -351,18 +374,34 @@ const myRecordsModule = (() => {
         loadRecordsButton = newLoadRecordsButton;
 
         // 綁定新的事件監聽器
-        loadNotesButton.addEventListener('click', loadUserNotes);
-        loadRecordsButton.addEventListener('click', loadTestRecords);
+        loadNotesButton.addEventListener('click', () => {
+            console.log('點擊載入筆記按鈕');
+            loadUserNotes();
+        });
 
-        notesTab.addEventListener('click', () => switchTab('notes'));
-        testRecordsTab.addEventListener('click', () => switchTab('testRecords'));
+        loadRecordsButton.addEventListener('click', () => {
+            console.log('點擊載入測驗記錄按鈕');
+            loadTestRecords();
+        });
+
+        notesTab.addEventListener('click', () => {
+            console.log('點擊筆記頁籤');
+            switchTab('notes');
+        });
+
+        testRecordsTab.addEventListener('click', () => {
+            console.log('點擊測驗記錄頁籤');
+            switchTab('testRecords');
+        });
 
         retryHistoryButton.addEventListener('click', () => {
+            console.log('點擊重作歷史題按鈕');
             const selectedQuestions = getRandomQuestions(allQuestions, 5);
             displayQuiz(selectedQuestions);
         });
 
         retryWrongButton.addEventListener('click', () => {
+            console.log('點擊錯題重作按鈕');
             if (wrongQuestions.length === 0) {
                 alert('沒有錯題記錄！');
                 return;
@@ -370,18 +409,24 @@ const myRecordsModule = (() => {
             const selectedQuestions = getRandomQuestions(wrongQuestions, Math.min(5, wrongQuestions.length));
             displayQuiz(selectedQuestions);
         });
+
+        console.log('事件監聽器初始化完成');
     }
 
-    // 初始化
+    // 初始化模組
     function init() {
         console.log('初始化 myRecordsModule...');
+        
+        // 初始化 DOM 元素
         if (!initializeDOMElements()) {
             console.error('初始化 DOM 元素失敗');
             return;
         }
-        
-        switchTab('notes'); // 預設顯示筆記頁面
+
+        // 初始化 Tab 和事件監聽器
+        switchTab('notes');
         initializeEventListeners();
+
         console.log('myRecordsModule 初始化完成');
     }
 
