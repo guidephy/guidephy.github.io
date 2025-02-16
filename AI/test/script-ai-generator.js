@@ -93,50 +93,65 @@ const aiGeneratorModule = (() => {
     }
 
     // 切換分頁的函數
-    function switchTab(tabId) {
-        // 移除所有 Tab 的 active 狀態
-        [customTopicTab, chatTopicTab, questionTopicTab].forEach(tab => {
-            if (tab) tab.classList.remove('active');
-        });
+function switchTab(tabId) {
+    // 重置頁面狀態
+    resetGeneratorPage();
+    
+    // 移除所有 Tab 的 active 狀態
+    [customTopicTab, chatTopicTab, questionTopicTab].forEach(tab => {
+        if (tab) tab.classList.remove('active');
+    });
 
-        // 隱藏所有 Tab 內容
-        [customTopicContent, chatTopicContent, questionTopicContent].forEach(content => {
-            if (content) content.classList.remove('active');
-        });
+    // 隱藏所有 Tab 內容
+    [customTopicContent, chatTopicContent, questionTopicContent].forEach(content => {
+        if (content) content.classList.remove('active');
+    });
 
-        // 設定選中的 Tab 和內容
-        const selectedTab = document.getElementById(tabId + 'Tab');
-        const selectedContent = document.getElementById(tabId + 'Content');
-        
-        if (selectedTab) selectedTab.classList.add('active');
-        if (selectedContent) selectedContent.classList.add('active');
+    // 設定選中的 Tab 和內容
+    const selectedTab = document.getElementById(tabId + 'Tab');
+    const selectedContent = document.getElementById(tabId + 'Content');
+    
+    if (selectedTab) selectedTab.classList.add('active');
+    if (selectedContent) selectedContent.classList.add('active');
 
-        // 控制生成按鈕的顯示
-        if (mainGenerateGroup) {
-            mainGenerateGroup.style.display = (tabId === 'questionTopic') ? 'none' : 'flex';
+    // 控制生成按鈕的顯示
+    if (mainGenerateGroup) {
+        mainGenerateGroup.style.display = (tabId === 'questionTopic') ? 'none' : 'flex';
+    }
+
+    // 重置「以題出題」的子分頁
+    if (tabId === 'questionTopic') {
+        if (imageQTab && textQTab) {
+            imageQTab.classList.add('active');
+            textQTab.classList.remove('active');
         }
-        if (quizForm) {
-            quizForm.style.display = 'none';
+        if (imageQContent && textQContent) {
+            imageQContent.classList.add('active');
+            textQContent.classList.remove('active');
         }
     }
+}
 
     // 切換「以題出題」內的 tab
-    function switchQTab(tab) {
-        [imageQTab, textQTab].forEach(t => {
-            if (t) t.classList.remove('active');
-        });
-        [imageQContent, textQContent].forEach(c => {
-            if (c) c.classList.remove('active');
-        });
+function switchQTab(tab) {
+    // 重置頁面狀態
+    resetGeneratorPage();
+    
+    [imageQTab, textQTab].forEach(t => {
+        if (t) t.classList.remove('active');
+    });
+    [imageQContent, textQContent].forEach(c => {
+        if (c) c.classList.remove('active');
+    });
 
-        if (tab === 'imageQ') {
-            imageQTab.classList.add('active');
-            imageQContent.classList.add('active');
-        } else if (tab === 'textQ') {
-            textQTab.classList.add('active');
-            textQContent.classList.add('active');
-        }
+    if (tab === 'imageQ') {
+        imageQTab.classList.add('active');
+        imageQContent.classList.add('active');
+    } else if (tab === 'textQ') {
+        textQTab.classList.add('active');
+        textQContent.classList.add('active');
     }
+}
 
     // 格式化測驗結果以供儲存
     function formatTestDataForStorage(results) {
@@ -885,6 +900,61 @@ function displaySingleResult(q, userAnswer, isCorrect) {
             .then(() => alert('內容已複製到剪貼簿！'))
             .catch(err => alert('複製失敗：' + err));
     }
+
+    // 新增重置頁面函數
+function resetGeneratorPage() {
+    // 重置所有輸入
+    const topicInput = document.getElementById('topic');
+    const topicText = document.getElementById('topicText');
+    if (topicInput) topicInput.value = '';
+    if (topicText) topicText.value = '';
+    if (gradeSelect) gradeSelect.value = '';
+    if (questionCountSelect) questionCountSelect.value = '';
+    
+    // 重置文字輸入區
+    if (textQInput) textQInput.value = '';
+    
+    // 重置圖片預覽
+    if (imageQPreview) imageQPreview.innerHTML = '';
+    if (uploadQImage) uploadQImage.value = '';
+    
+    // 隱藏結果區域
+    if (quizForm) {
+        quizForm.style.display = 'none';
+        quizForm.reset();
+    }
+    if (singleQuizForm) {
+        singleQuizForm.style.display = 'none';
+        singleQuizForm.reset();
+    }
+    
+    // 清空題目顯示區域
+    if (questionsDiv) questionsDiv.innerHTML = '';
+    if (singleQuestionDiv) singleQuestionDiv.innerHTML = '';
+    
+    // 重置複製按鈕
+    const copyContent = document.getElementById('copyContent');
+    const copyQContent = document.getElementById('copyQContent');
+    if (copyContent) copyContent.style.display = 'none';
+    if (copyQContent) copyQContent.style.display = 'none';
+    
+    // 重置生成按鈕狀態
+    if (generateButton) {
+        generateButton.innerText = '生成題目';
+        generateButton.disabled = false;
+    }
+    if (generateFromQButton) {
+        generateFromQButton.innerText = '生成題目';
+        generateFromQButton.disabled = false;
+    }
+
+    // 重置提示和錯誤訊息
+    const loadingMessages = document.querySelectorAll('.loading');
+    const errorMessages = document.querySelectorAll('.error-message');
+    loadingMessages.forEach(msg => msg.remove());
+    errorMessages.forEach(msg => msg.remove());
+}
+
 
     // 初始化
     function init() {
