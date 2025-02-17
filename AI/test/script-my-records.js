@@ -77,6 +77,8 @@ const myRecordsModule = (() => {
 
     // 載入筆記函數
     async function loadUserNotes() {
+        
+notesDisplayArea.style.display = 'block';
         const username = document.getElementById('notes-username')?.value?.trim();
         if (!username) {
             alert('請輸入帳號');
@@ -123,6 +125,7 @@ const myRecordsModule = (() => {
 
     // 載入測驗記錄
     async function loadTestRecords() {
+        recordsQuizArea.style.display = 'block';
         const username = document.getElementById('records-username')?.value?.trim();
         if (!username) {
             alert('請輸入帳號');
