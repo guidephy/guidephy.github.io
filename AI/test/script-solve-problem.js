@@ -27,7 +27,7 @@ const solveProblemModule = (() => {
         textContent.classList.toggle('active', tab === 'text');
         imageTab.classList.toggle('active', tab === 'image');
         textTab.classList.toggle('active', tab === 'text');
-        resetSolveProblemPage(); // 新增：切換 Tab 時重置頁面
+        resetSolveProblemPage(); // 切換 Tab 時重置頁面
     }
 
     // 預覽圖片
@@ -44,7 +44,7 @@ const solveProblemModule = (() => {
         }
     }
 
-     // 新增：重置「教我解題」頁面
+    // 重置頁面
     function resetSolveProblemPage() {
         // 重置輸入
         if (uploadImage) uploadImage.value = '';
@@ -53,20 +53,20 @@ const solveProblemModule = (() => {
         // 重置圖片預覽
         if (imagePreview) imagePreview.innerHTML = '';
 
-        // 重置結果區域
+        // 隱藏結果區域
         if (resultArea) {
             resultArea.style.display = 'none';
             resultArea.innerHTML = '';
         }
 
-        // 重置提示區域
+        // 隱藏提示區域
         if (hintArea) {
             hintArea.style.display = 'none';
             hintContent.innerHTML = '';
         }
         if (showNextHintButton) showNextHintButton.style.display = 'none';
 
-        // 重置學習反思區域
+        // 隱藏學習反思區域
         if (reflectionArea) {
             reflectionArea.style.display = 'none';
             reflectionContent.innerHTML = '';
@@ -82,7 +82,6 @@ const solveProblemModule = (() => {
             analyzeButton.disabled = false;
         }
     }
-
 
     // 分析輸入 (主要函數)
     async function analyzeInput() {
@@ -195,7 +194,8 @@ const solveProblemModule = (() => {
             if (solutionSteps.length > 1) {
                 showNextHintButton.style.display = 'inline-block'; // 顯示「下一提示」按鈕
             }
-            // script-solve-problem.js (繼續)
+
+            // 設定「下一提示」按鈕的點擊事件
             showNextHintButton.onclick = function() {
                 currentStepIndex++;
                 if (currentStepIndex < solutionSteps.length) {
@@ -219,7 +219,6 @@ const solveProblemModule = (() => {
         }
     }
 
-
     // 從巢狀物件中取得指定鍵的值
     function getNestedValue(data, key) {
         // 如果 data 是物件且不為 null
@@ -233,6 +232,22 @@ const solveProblemModule = (() => {
         return null; // 如果找不到指定的鍵，則返回 null
     }
 
+    // 格式化文字
+    function formatText(text) {
+        if (!text) return '';
+        
+        let formatted = text;
+        // 移除 Markdown 標題標記 (移除所有的 # 符號和後面的空格)
+        formatted = formatted.replace(/^#+\s*/gm, '');
+        // 轉換換行符
+        formatted = formatted.replace(/\n/g, '<br>');
+        // 轉換粗體
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // 去除多餘空白
+        formatted = formatted.trim();
+        
+        return formatted;
+    }
 
     // 將圖片轉換為 Base64
     async function convertImageToBase64(imageFile) {
@@ -244,15 +259,30 @@ const solveProblemModule = (() => {
         });
     }
 
-    // 事件監聽器綁定
-    imageTab.addEventListener('click', () => switchTab('image'));
-    textTab.addEventListener('click', () => switchTab('text'));
-    uploadImage.addEventListener('change', previewImage);
-    analyzeButton.addEventListener('click', analyzeInput);
+    // 初始化模組
+    function init() {
+        console.log('Initializing Solve Problem Module...');
+        
+        // 確保所有結果區域一開始是隱藏的
+        if (resultArea) resultArea.style.display = 'none';
+        if (hintArea) hintArea.style.display = 'none';
+        if (reflectionArea) reflectionArea.style.display = 'none';
+        
+        // 綁定事件監聽器
+        if (imageTab) imageTab.addEventListener('click', () => switchTab('image'));
+        if (textTab) textTab.addEventListener('click', () => switchTab('text'));
+        if (uploadImage) uploadImage.addEventListener('change', previewImage);
+        if (analyzeButton) analyzeButton.addEventListener('click', analyzeInput);
+        
+        // 設置初始狀態
+        switchTab('image');
+        
+        console.log('Solve Problem Module initialized successfully');
+    }
 
-    // 暴露需要外部訪問的函數 (如果有的話)
+    // 返回公開的函數
     return {
-        init: () => {} // 添加一個空的 init 函數，避免 TypeError
+        init
     };
 })();
 
