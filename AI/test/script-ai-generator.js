@@ -60,6 +60,14 @@ const aiGeneratorModule = (() => {
         return true;
     }
 
+    // 在生成新題目時添加提交按鈕的輔助函數
+    function addSubmitButton(form) {
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.className = 'modern-button primary submit-button';
+        submitButton.textContent = '提交答案';
+        form.appendChild(submitButton);
+    }
     // 初始化選項
     function initOptions() {
         if (!gradeSelect || !questionCountSelect) {
@@ -88,7 +96,7 @@ const aiGeneratorModule = (() => {
         }
     }
 
-    // 重置頁面函數 (修改的部分)
+    // 重置頁面函數
     function resetGeneratorPage() {
         // 重置所有輸入
         const topicInput = document.getElementById('topic');
@@ -97,34 +105,34 @@ const aiGeneratorModule = (() => {
         if (topicText) topicText.value = '';
         if (gradeSelect) gradeSelect.value = '';
         if (questionCountSelect) questionCountSelect.value = '';
-
+        
         // 重置文字輸入區
         if (textQInput) textQInput.value = '';
-
+        
         // 重置圖片預覽
         if (imageQPreview) imageQPreview.innerHTML = '';
         if (uploadQImage) uploadQImage.value = '';
-
-        // 隱藏結果區域, 並重置表單
+        
+        // 隱藏結果區域
         if (quizForm) {
             quizForm.style.display = 'none';
-            quizForm.reset(); // 重置表單
+            quizForm.reset();
         }
         if (singleQuizForm) {
             singleQuizForm.style.display = 'none';
-            singleQuizForm.reset(); // 重置表單
+            singleQuizForm.reset();
         }
-      
+        
         // 清空題目顯示區域
         if (questionsDiv) questionsDiv.innerHTML = '';
         if (singleQuestionDiv) singleQuestionDiv.innerHTML = '';
-
+        
         // 重置複製按鈕
         const copyContent = document.getElementById('copyContent');
         const copyQContent = document.getElementById('copyQContent');
         if (copyContent) copyContent.style.display = 'none';
         if (copyQContent) copyQContent.style.display = 'none';
-
+        
         // 重置生成按鈕狀態
         if (generateButton) {
             generateButton.innerText = '生成題目';
@@ -134,35 +142,19 @@ const aiGeneratorModule = (() => {
             generateFromQButton.innerText = '生成題目';
             generateFromQButton.disabled = false;
         }
-      
-      // 重新顯示主生成按鈕組 (在 customTopic 和 chatTopic 模式下)
-        if (mainGenerateGroup) {
-            mainGenerateGroup.style.display = 'flex';
-        }
 
         // 重置提示和錯誤訊息
         const loadingMessages = document.querySelectorAll('.loading');
         const errorMessages = document.querySelectorAll('.error-message');
         loadingMessages.forEach(msg => msg.remove());
         errorMessages.forEach(msg => msg.remove());
-      
-        // 恢復提交按鈕的顯示狀態
-        const quizSubmitButton = quizForm?.querySelector('.submit-button');
-        if (quizSubmitButton) {
-            quizSubmitButton.style.display = 'block';
-        }
-        const singleQuizSubmitButton = singleQuizForm?.querySelector('.submit-button');
-        if (singleQuizSubmitButton) {
-            singleQuizSubmitButton.style.display = 'block';
-        }
     }
 
-
-    // 切換分頁的函數 (修改的部分)
+    // 切換分頁的函數
     function switchTab(tabId) {
         // 重置頁面狀態
         resetGeneratorPage();
-
+        
         // 移除所有 Tab 的 active 狀態
         [customTopicTab, chatTopicTab, questionTopicTab].forEach(tab => {
             if (tab) tab.classList.remove('active');
@@ -176,15 +168,14 @@ const aiGeneratorModule = (() => {
         // 設定選中的 Tab 和內容
         const selectedTab = document.getElementById(tabId + 'Tab');
         const selectedContent = document.getElementById(tabId + 'Content');
-
+        
         if (selectedTab) selectedTab.classList.add('active');
         if (selectedContent) selectedContent.classList.add('active');
 
-        // 控制生成按鈕的顯示 (這裡做了修改)
+        // 控制生成按鈕的顯示
         if (mainGenerateGroup) {
-          mainGenerateGroup.style.display = (tabId === 'questionTopic') ? 'none' : 'flex';
+            mainGenerateGroup.style.display = (tabId === 'questionTopic') ? 'none' : 'flex';
         }
-        
 
         // 重置「以題出題」的子分頁
         if (tabId === 'questionTopic') {
@@ -202,7 +193,7 @@ const aiGeneratorModule = (() => {
     function switchQTab(tab) {
         // 重置頁面狀態
         resetGeneratorPage();
-
+        
         [imageQTab, textQTab].forEach(t => {
             if (t) t.classList.remove('active');
         });
@@ -332,8 +323,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                     }]
                 })
             });
-
-            if (!response.ok) {
+if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -350,8 +340,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                     displayQuestions(questions);
                     if (quizForm) {
                         quizForm.style.display = 'block';
-                        //const submitButton = quizForm.querySelector('.submit-button'); //搬到resetpage
-                        //if (submitButton) submitButton.style.display = 'block'; // 顯示提交按鈕
+                        addSubmitButton(quizForm);
                     }
                     const copyButton = document.getElementById('copyContent');
                     if (copyButton) copyButton.style.display = 'block';
@@ -371,6 +360,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             }
         }
     }
+
     // 顯示題目
     function displayQuestions(questions) {
         if (!questionsDiv) return;
@@ -426,9 +416,11 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
 
         displayResults(results);
-        // 提交答案後隱藏提交按鈕
+        // 移除提交按鈕
         const submitButton = quizForm.querySelector('.submit-button');
-        if (submitButton) submitButton.style.display = 'none';
+        if (submitButton) {
+            submitButton.remove();
+        }
     }
 
     // 顯示結果
@@ -458,8 +450,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 <button id="saveTestButton" class="feature-button">儲存測驗結果</button>
             </div>
         `;
-
-        const saveTestButton = document.getElementById('saveTestButton');
+const saveTestButton = document.getElementById('saveTestButton');
         if (saveTestButton) {
             saveTestButton.addEventListener('click', async () => {
                 const username = prompt('請輸入您的帳號：');
@@ -560,9 +551,10 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
             copyQContent.style.display = 'none';
 
-              let prompt = `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
+            let prompt = `請以繁體中文回答，不得使用簡體字或英文詞彙。
 
-請扮演資深數理教師，對提供的題目進行分析並產生新題目。請嚴格遵守以下規範：
+請扮演資深數理教師，對提供的題目進行分析並產生新題目：
+
 1. 題目分析：
    - 識別題目的核心概念和解題原理
    - 判斷是否為計算題型
@@ -571,47 +563,24 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 2. 新題目設計：
    - 使用相同的核心概念和解題方法
    - 如果是計算題：
-     * 改變數值，但保持難度相當
      * 確保計算過程合理
      * 提供詳細的計算步驟
    - 如果是概念題：
      * 改變情境，保持概念相同
      * 使用不同的例子說明同一概念
      * 確保新情境貼近生活
-3. 題目完整性檢查：
-   - 確保題目陳述完整，包含所有必要的已知條件
-   - 確認所有變數、單位都有明確定義
-   - 避免模糊或可能造成誤解的描述
-   - 檢查是否提供足夠資訊來解答
 
-4. 答案正確性驗證：
-   - 詳細列出解題步驟，確保邏輯正確
-   - 確認選項間有足夠的區別性
-   - 驗證只有一個絕對正確的答案
-   - 其他選項必須合理但明確錯誤
-
-5. 解說要求：
-   - 詳細解釋為何正確答案是唯一解
-   - 說明其他選項為何錯誤
-   - 提供每個步驟的理論依據
-   - 標註關鍵概念和解題要點
-
-6. 選項設計規範：
-   - 選項之間必須有明顯差異
-   - 避免使用「以上皆是」或「以上皆非」
-   - 錯誤選項要具有干擾性但不能太離譜
-   - 選項長度和形式要盡量一致
-
-7. 自我檢查機制：
-   請列出以下驗證項目並確認：
-   題目敘述是否完整無誤、是否提供足夠的解題資訊、是否只有一個正確答案、答案是否經過完整推導驗證、選項是否具有明確區別性、解說是否完整且邏輯清晰
+3. 新題目要求：
+   - 題目敘述完整清晰
+   - 包含所有必要的已知條件
+   - 明確標示單位和變數
+   - 確保解題資訊充足
 
 請用以下JSON格式回應：
 {
     "questions": [
         {
             "originalConcept": "原題目的核心概念",
-            "isCalculation": true/false,
             "question": "新設計的題目內容",
             "options": ["A選項", "B選項", "C選項", "D選項"],
             "answer": 0,
@@ -691,18 +660,8 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             if (qList.length > 0) {
                 singleQuestionData = qList[0];
                 displaySingleQuestion(singleQuestionData);
-                
-                // 移除「更換數值」按鈕
-                // const regenerateButton = document.createElement('button');
-                // regenerateButton.textContent = '更換數值';
-                // regenerateButton.className = 'feature-button';
-                // regenerateButton.onclick = generateSingleQuestion;
-                // singleQuestionDiv.appendChild(regenerateButton);
-
-                
                 singleQuizForm.style.display = 'block';
-                //const submitButton = singleQuizForm.querySelector('.submit-button'); //搬到resetpage
-                //if (submitButton) submitButton.style.display = 'block';
+                addSubmitButton(singleQuizForm);
                 copyQContent.style.display = 'block';
             } else {
                 throw new Error('沒有產生題目');
@@ -755,6 +714,12 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         const correctAnswer = singleQuestionData.answer;
         const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswer;
 
+        // 移除提交按鈕
+        const submitButton = singleQuizForm.querySelector('.submit-button');
+        if (submitButton) {
+            submitButton.remove();
+        }
+
         singleQuestionDiv.innerHTML = `
             <div class="question-card">
                 <div class="concept-area">
@@ -790,12 +755,6 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             </div>
         `;
 
-        if (singleQuizForm) {
-            const submitButton = singleQuizForm.querySelector('.submit-button');
-             // 提交答案後隱藏提交按鈕
-            if (submitButton) submitButton.style.display = 'none';
-        }
-
         singleQuestionDiv.innerHTML += `
             <div style="text-align: center; margin-top: 20px;">
                 <button id="saveSingleTestButton" class="feature-button">儲存測驗結果</button>
@@ -823,7 +782,8 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
                 try {
                     await new Promise((resolve, reject) => {
-                        google.script.run                            .withSuccessHandler(result => {
+                        google.script.run
+                            .withSuccessHandler(result => {
                                 if (result.status === 'success') {
                                     alert('測驗結果已成功儲存！');
                                 } else {
@@ -893,7 +853,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 if (customTopicTab.classList.contains('active')) {
                     generateQuestions();
                 } else if (chatTopicTab.classList.contains('active')) {
-                   generateQuestionsFromChat();
+                    generateQuestionsFromChat();
                 }
             });
         }
