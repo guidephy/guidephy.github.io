@@ -23,6 +23,11 @@ const myRecordsModule = (() => {
         recordsQuizArea = document.getElementById('records-quiz-area');
         notesDisplayArea = document.getElementById('notes-display-area');
 
+        // 初始化時隱藏結果區域
+        if (recordsOptionsDiv) recordsOptionsDiv.style.display = 'none';
+        if (recordsQuizArea) recordsQuizArea.innerHTML = '';
+        if (notesDisplayArea) notesDisplayArea.innerHTML = '';
+
         // 檢查是否所有必要元素都存在
         if (!notesTab || !testRecordsTab || !notesContent || !testRecordsContent || 
             !loadNotesButton || !loadRecordsButton || !notesDisplayArea) {
@@ -46,6 +51,11 @@ const myRecordsModule = (() => {
         
         if (selectedTab) selectedTab.classList.add('active');
         if (selectedContent) selectedContent.classList.add('active');
+
+        // 切換 Tab 時清空顯示區域
+        if (recordsOptionsDiv) recordsOptionsDiv.style.display = 'none';
+        if (recordsQuizArea) recordsQuizArea.innerHTML = '';
+        if (notesDisplayArea) notesDisplayArea.innerHTML = '';
     }
 
     // 格式化文字
@@ -349,7 +359,8 @@ const myRecordsModule = (() => {
             });
         }
 
-        if (retryWrongButton) {retryWrongButton.addEventListener('click', () => {
+        if (retryWrongButton) {
+            retryWrongButton.addEventListener('click', () => {
                 if (wrongQuestions.length === 0) {
                     alert('沒有錯題記錄！');
                     return;
@@ -376,6 +387,12 @@ const myRecordsModule = (() => {
         }
         
         initializeEventListeners();
+
+        // 確保初始狀態下結果區域是隱藏的
+        if (recordsOptionsDiv) recordsOptionsDiv.style.display = 'none';
+        if (recordsQuizArea) recordsQuizArea.innerHTML = '';
+        if (notesDisplayArea) notesDisplayArea.innerHTML = '';
+        
         console.log('My Records Module initialized successfully');
     }
 
