@@ -31,23 +31,23 @@ const solveProblemModule = (() => {
     }
 
     // 預覽圖片
-function previewQImage(event) {
-    if (!imageQPreview) return;
+function previewImage(event) {
     const file = event.target.files[0];
-    const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+    const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;"></div>`;
+            // 先移除上傳區域內現有的圖片
+            uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;"></div>`;
         };
         reader.readAsDataURL(file);
     } else {
-       uploadArea.innerHTML = `
+        uploadArea.innerHTML = `
           <div class="upload-icon">
             <i class="fas fa-image"></i>
           </div>
           <p class="upload-text">點擊或拖曳上傳題目圖片</p>
-          <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">選擇圖片</button>
+          <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">選擇圖片</button>
         `;
     }
 }
