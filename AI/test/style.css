@@ -387,14 +387,15 @@ h1 {
 }
 
 .feature-container {
-    height: 100%;
+    height: auto; /* 修改：移除固定高度 */
+    max-height: calc(100vh - 100px); /* 限制最大高度 */
     margin: 0;
     padding: 30px;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
-    overflow-y: auto;
+    overflow-y: auto; /* 修改：允許垂直滾動 */
 }
 
 /* 表單相關樣式 */
@@ -804,10 +805,15 @@ select {
 
     .external-content {
         padding: 10px;
+        box-sizing: border-box;
+        height: calc(100vh - 50px);
     }
 
     .feature-container {
         padding: 15px;
+        box-sizing: border-box;
+        max-height: calc(100vh - 100px); /* 限制最大高度 */
+        overflow-y: auto; /* 確保內部內容可以滾動 */
     }
 
     .result-area {
@@ -1061,41 +1067,4 @@ select {
 .solution-steps li {
     margin-bottom: 10px;
     line-height: 1.6;
-}
-
-/* 互動元素狀態 */
-.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-/* 表單元素焦點狀態 */
-input:focus,
-textarea:focus,
-select:focus {
-    border-color: #8ab0ab;
-    box-shadow: 0 0 0 2px rgba(138, 176, 171, 0.2);
-    outline: none;
-}
-
-/* 按鈕類型樣式 */
-.modern-button.primary {
-    background-color: #8ab0ab;
-}
-
-.modern-button.secondary {
-    background-color: #6c757d;
-}
-
-.modern-button.danger {
-    background-color: #dc3545;
-}
-
-/* 避免文字選擇 */
-.no-select {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
