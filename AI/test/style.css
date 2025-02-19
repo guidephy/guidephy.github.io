@@ -463,10 +463,15 @@ select {
     font-weight: 500;
     cursor: pointer;
     position: relative;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
     flex: 0 1 auto;
     text-align: center;
-    border-radius: 8px 8px 0 0
+    border-radius: 8px 8px 0 0;
+}
+
+.tab-button:hover {
+    color: #8ab0ab;
+    background-color: rgba(138, 176, 171, 0.1);
 }
 
 .tab-button.active {
@@ -495,7 +500,10 @@ select {
 
 .tab-content.active {
     display: block;
+    animation: fadeIn 0.3s ease-in;
 }
+
+
 
 /* 題目卡片樣式 */
 .question-card {
