@@ -31,20 +31,26 @@ const solveProblemModule = (() => {
     }
 
     // 預覽圖片
-    function previewImage(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">`;
-const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
-uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;"></div>`;;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.innerHTML = '';
-        }
+function previewImage(event) {
+    const file = event.target.files[0];
+    const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // 先移除上傳區域內現有的圖片
+            uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;"></div>`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        uploadArea.innerHTML = `
+          <div class="upload-icon">
+            <i class="fas fa-image"></i>
+          </div>
+          <p class="upload-text">點擊或拖曳上傳題目圖片</p>
+          <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">選擇圖片</button>
+        `;
     }
+}
 
     // 重置頁面
     function resetSolveProblemPage() {
