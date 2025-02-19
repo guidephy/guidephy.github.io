@@ -117,10 +117,20 @@ const aiGeneratorModule = (() => {
         if (quizForm) {
             quizForm.style.display = 'none';
             quizForm.reset();
+            // 移除提交按鈕
+            const submitButton = quizForm.querySelector('.submit-button');
+            if (submitButton) {
+                submitButton.remove();
+            }
         }
         if (singleQuizForm) {
             singleQuizForm.style.display = 'none';
             singleQuizForm.reset();
+            // 移除提交按鈕
+            const submitButton = singleQuizForm.querySelector('.submit-button');
+            if (submitButton) {
+                submitButton.remove();
+            }
         }
         
         // 清空題目顯示區域
@@ -291,9 +301,8 @@ const aiGeneratorModule = (() => {
                         parts: [{
                             text: `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
 
-
 請根據下列資訊產生符合學科學習目標的素養題（選擇題）。
-每題有四個選項 (A、B、C、D)，並結合生活情境。
+每題有四個選項 (A、B、C、D)，並結合生活情境。選項必須簡潔、不宜過長。
 年級：${grade} 年級
 題目數量：${questionCount} 題
 主題：${topic}
@@ -308,6 +317,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 4. 解答說明需明確指出為何該選項正確，其他選項為何不正確，並不得有不合理的論述。
 5. 若引用參考文本或聊天紀錄，需先理解再轉換為素養題，不可直接複製整段文字。
 6. 請自行檢查，保證題目、選項、正確答案及解釋完全匹配且無誤。
+7. 選項內容務必簡潔，避免過長或難以理解的描述。
 
 請用以下JSON格式回應（不得包含任何英文字詞在選項或題目中，但可保留JSON結構）：
 {
@@ -401,6 +411,12 @@ if (!response.ok) {
         const formData = new FormData(quizForm);
         const results = [];
 
+        // 移除提交按鈕
+        const submitButton = quizForm.querySelector('.submit-button');
+        if (submitButton) {
+            submitButton.remove();
+        }
+
         questions.forEach((q, i) => {
             const userAnswer = formData.get(`question${i}`);
             const correctAnswer = q.answer;
@@ -417,11 +433,6 @@ if (!response.ok) {
         });
 
         displayResults(results);
-        // 移除提交按鈕
-        const submitButton = quizForm.querySelector('.submit-button');
-        if (submitButton) {
-            submitButton.remove();
-        }
     }
 
     // 顯示結果
@@ -837,7 +848,7 @@ const saveTestButton = document.getElementById('saveTestButton');
         }
 
         let content = '題目：\n';
-        content += `${singleQuestionData.question}\n`;
+                content += `${singleQuestionData.question}\n`;
         singleQuestionData.options.forEach((option, i) => {
             content += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
         });
@@ -884,7 +895,13 @@ const saveTestButton = document.getElementById('saveTestButton');
         const copyContentButton = document.getElementById('copyContent');
         if (copyContentButton) copyContentButton.addEventListener('click', copyContentFn);
         if (uploadQImage) uploadQImage.addEventListener('change', previewQImage);
-        if (generateFromQButton) generateFromQButton.addEventListener('click', generateSingleQuestion);
+        if (generateFromQButton) generateFromQButton.addEventListener('click', () => {
+            generateSingleQuestion().then(()=>{
+                if (singleQuizForm) {
+                    addSubmitButton(singleQuizForm);
+                }
+            });
+        });
         if (singleQuizForm) singleQuizForm.addEventListener('submit', checkSingleAnswer);
         if (copyQContent) copyQContent.addEventListener('click', copySingleContent);
 
