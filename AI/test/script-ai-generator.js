@@ -60,14 +60,6 @@ const aiGeneratorModule = (() => {
         return true;
     }
 
-    // 在生成新題目時添加提交按鈕的輔助函數
-    function addSubmitButton(form) {
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        submitButton.className = 'modern-button primary submit-button';
-        submitButton.textContent = '提交答案';
-        form.appendChild(submitButton);
-    }
     // 初始化選項
     function initOptions() {
         if (!gradeSelect || !questionCountSelect) {
@@ -96,7 +88,7 @@ const aiGeneratorModule = (() => {
         }
     }
 
-    // 重置頁面函數
+// 重置頁面函數
     function resetGeneratorPage() {
         // 重置所有輸入
         const topicInput = document.getElementById('topic');
@@ -117,20 +109,10 @@ const aiGeneratorModule = (() => {
         if (quizForm) {
             quizForm.style.display = 'none';
             quizForm.reset();
-            // 移除提交按鈕
-            const submitButton = quizForm.querySelector('.submit-button');
-            if (submitButton) {
-                submitButton.remove();
-            }
         }
         if (singleQuizForm) {
             singleQuizForm.style.display = 'none';
             singleQuizForm.reset();
-            // 移除提交按鈕
-            const submitButton = singleQuizForm.querySelector('.submit-button');
-            if (submitButton) {
-                submitButton.remove();
-            }
         }
         
         // 清空題目顯示區域
@@ -199,6 +181,7 @@ const aiGeneratorModule = (() => {
             }
         }
     }
+
     // 切換「以題出題」內的 tab
     function switchQTab(tab) {
         // 重置頁面狀態
@@ -220,23 +203,7 @@ const aiGeneratorModule = (() => {
         }
     }
 
-    // 格式化測驗結果以供儲存
-    function formatTestDataForStorage(results) {
-        let testData = '測驗結果：\n\n';
-        results.forEach((result, index) => {
-            testData += `題目：${result.question}\n`;
-            result.options.forEach((option, i) => {
-                testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
-            });
-            testData += `您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]}\n`;
-            testData += `正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}\n`;
-            testData += `結果：${result.correct ? '正確' : '錯誤'}\n`;
-            testData += `解釋：${result.explanation}\n\n`;
-        });
-        return testData;
-    }
-
-    // 根據聊天記錄產生題目
+// 根據聊天記錄產生題目
     async function generateQuestionsFromChat() {
         if (thread.length === 0) {
             alert('目前無聊天記錄，無法使用');
@@ -302,7 +269,7 @@ const aiGeneratorModule = (() => {
                             text: `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
 
 請根據下列資訊產生符合學科學習目標的素養題（選擇題）。
-每題有四個選項 (A、B、C、D)，並結合生活情境。選項必須簡潔、不宜過長。
+每題有四個選項 (A、B、C、D)，並結合生活情境。
 年級：${grade} 年級
 題目數量：${questionCount} 題
 主題：${topic}
@@ -317,7 +284,6 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 4. 解答說明需明確指出為何該選項正確，其他選項為何不正確，並不得有不合理的論述。
 5. 若引用參考文本或聊天紀錄，需先理解再轉換為素養題，不可直接複製整段文字。
 6. 請自行檢查，保證題目、選項、正確答案及解釋完全匹配且無誤。
-7. 選項內容務必簡潔，避免過長或難以理解的描述。
 
 請用以下JSON格式回應（不得包含任何英文字詞在選項或題目中，但可保留JSON結構）：
 {
@@ -334,11 +300,11 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                     }]
                 })
             });
-if (!response.ok) {
+
+            if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
-            const data = await response.json();
+const data = await response.json();
             if (data.candidates && data.candidates[0].content) {
                 const textContent = data.candidates[0].content.parts[0].text;
                 const jsonMatch = textContent.match(/\{[\s\S]*\}/);
@@ -349,10 +315,6 @@ if (!response.ok) {
                         return q;
                     });
                     displayQuestions(questions);
-                    if (quizForm) {
-                        quizForm.style.display = 'block';
-                        addSubmitButton(quizForm);
-                    }
                     const copyButton = document.getElementById('copyContent');
                     if (copyButton) copyButton.style.display = 'block';
                 } else {
@@ -363,7 +325,7 @@ if (!response.ok) {
             }
         } catch (error) {
             console.error('生成題目時發生錯誤:', error);
-            if (questionsDiv) questionsDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
+            if (questionsDiv) questionsDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
         } finally {
             if (button) {
                 button.disabled = false;
@@ -377,30 +339,43 @@ if (!response.ok) {
         if (!questionsDiv) return;
         questionsDiv.innerHTML = '';
 
-        questions.forEach((q, i) => {
-            const uniqueOptions = [...new Set(q.options)];
-            const formattedOptions = uniqueOptions.map((option, index) => {
-                if (/^[A-D]\.\s/.test(option)) {
-                    return option;
-                }
-                return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
-            });
+        // 创建表单容器
+        const formHtml = `
+            <form id="quizForm" class="result-area">
+                ${questions.map((q, i) => {
+                    const uniqueOptions = [...new Set(q.options)];
+                    const formattedOptions = uniqueOptions.map((option, index) => {
+                        if (/^[A-D]\.\s/.test(option)) {
+                            return option;
+                        }
+                        return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
+                    });
 
-            const questionHtml = `
-                <div class="question-card">
-                    <p><strong>${i + 1}. ${q.question}</strong></p>
-                    <div class="question-options">
-                        ${formattedOptions.map((option, j) => `
-                            <label>
-                                <input type="radio" name="question${i}" value="${j}" required>
-                                ${option}
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            questionsDiv.innerHTML += questionHtml;
-        });
+                    return `
+                        <div class="question-card">
+                            <p><strong>${i + 1}. ${q.question}</strong></p>
+                            <div class="question-options">
+                                ${formattedOptions.map((option, j) => `
+                                    <label>
+                                        <input type="radio" name="question${i}" value="${j}" required>
+                                        ${option}
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+                <button type="submit" class="modern-button primary">提交答案</button>
+            </form>
+        `;
+
+        questionsDiv.innerHTML = formHtml;
+
+        // 为新创建的表单添加提交事件监听器
+        const quizForm = document.getElementById('quizForm');
+        if (quizForm) {
+            quizForm.addEventListener('submit', checkAnswers);
+        }
     }
 
     // 檢查答案
@@ -410,12 +385,6 @@ if (!response.ok) {
 
         const formData = new FormData(quizForm);
         const results = [];
-
-        // 移除提交按鈕
-        const submitButton = quizForm.querySelector('.submit-button');
-        if (submitButton) {
-            submitButton.remove();
-        }
 
         questions.forEach((q, i) => {
             const userAnswer = formData.get(`question${i}`);
@@ -435,7 +404,7 @@ if (!response.ok) {
         displayResults(results);
     }
 
-    // 顯示結果
+// 顯示結果
     function displayResults(results) {
         if (!questionsDiv) return;
 
@@ -462,7 +431,8 @@ if (!response.ok) {
                 <button id="saveTestButton" class="feature-button">儲存測驗結果</button>
             </div>
         `;
-const saveTestButton = document.getElementById('saveTestButton');
+
+        const saveTestButton = document.getElementById('saveTestButton');
         if (saveTestButton) {
             saveTestButton.addEventListener('click', async () => {
                 const username = prompt('請輸入您的帳號：');
@@ -500,6 +470,22 @@ const saveTestButton = document.getElementById('saveTestButton');
         }
     }
 
+    // 格式化測驗結果以供儲存
+    function formatTestDataForStorage(results) {
+        let testData = '測驗結果：\n\n';
+        results.forEach((result, index) => {
+            testData += `題目：${result.question}\n`;
+            result.options.forEach((option, i) => {
+                testData += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
+            });
+            testData += `您的答案：${result.userAnswer === '未作答' ? result.userAnswer : ['A', 'B', 'C', 'D'][result.userAnswer]}\n`;
+            testData += `正確答案：${['A', 'B', 'C', 'D'][result.correctAnswer]}\n`;
+            testData += `結果：${result.correct ? '正確' : '錯誤'}\n`;
+            testData += `解釋：${result.explanation}\n\n`;
+        });
+        return testData;
+    }
+
     // 複製內容
     function copyContentFn() {
         if (questions.length === 0) {
@@ -526,7 +512,7 @@ const saveTestButton = document.getElementById('saveTestButton');
             .catch(err => alert('複製失敗：' + err));
     }
 
-    // 預覽以題出題的圖片
+// 預覽以題出題的圖片
     function previewQImage(event) {
         if (!imageQPreview) return;
         const file = event.target.files[0];
@@ -581,6 +567,7 @@ const saveTestButton = document.getElementById('saveTestButton');
      * 改變情境，保持概念相同
      * 使用不同的例子說明同一概念
      * 確保新情境貼近生活
+
 3. 題目完整性檢查：
    - 確保題目陳述完整，包含所有必要的已知條件
    - 確認所有變數、單位都有明確定義
@@ -694,7 +681,6 @@ const saveTestButton = document.getElementById('saveTestButton');
                 singleQuestionData = qList[0];
                 displaySingleQuestion(singleQuestionData);
                 singleQuizForm.style.display = 'block';
-                addSubmitButton(singleQuizForm);
                 copyQContent.style.display = 'block';
             } else {
                 throw new Error('沒有產生題目');
@@ -712,29 +698,40 @@ const saveTestButton = document.getElementById('saveTestButton');
             }
         }
     }
-
-    // 顯示單一題目
+// 顯示單一題目
     function displaySingleQuestion(q) {
         if (!singleQuestionDiv) return;
-        singleQuestionDiv.innerHTML = `
-            <div class="question-card">
-                <div class="concept-area">
-                    <h3>核心概念</h3>
-                    <p>${q.originalConcept}</p>
-                </div>
-                <div class="question-content">
-                    <p><strong>${q.question}</strong></p>
-                    <div class="question-options">
-                        ${q.options.map((option, j) => `
-                            <label>
-                                <input type="radio" name="singleQ" value="${j}" required>
-                                ${['A', 'B', 'C', 'D'][j]}. ${option}
-                            </label>
-                        `).join('')}
+        
+        const formHtml = `
+            <form id="singleQuizForm" class="result-area">
+                <div class="question-card">
+                    <div class="concept-area">
+                        <h3>核心概念</h3>
+                        <p>${q.originalConcept}</p>
+                    </div>
+                    <div class="question-content">
+                        <p><strong>${q.question}</strong></p>
+                        <div class="question-options">
+                            ${q.options.map((option, j) => `
+                                <label>
+                                    <input type="radio" name="singleQ" value="${j}" required>
+                                    ${['A', 'B', 'C', 'D'][j]}. ${option}
+                                </label>
+                            `).join('')}
+                        </div>
                     </div>
                 </div>
-            </div>
+                <button type="submit" class="modern-button primary">提交答案</button>
+            </form>
         `;
+
+        singleQuestionDiv.innerHTML = formHtml;
+
+        // 为新创建的表单添加提交事件监听器
+        const form = document.getElementById('singleQuizForm');
+        if (form) {
+            form.addEventListener('submit', checkSingleAnswer);
+        }
     }
 
     // 檢查單一題目的答案並顯示結果
@@ -746,12 +743,6 @@ const saveTestButton = document.getElementById('saveTestButton');
         const userAnswer = formData.get('singleQ');
         const correctAnswer = singleQuestionData.answer;
         const isCorrect = userAnswer !== null && parseInt(userAnswer) === correctAnswer;
-
-        // 移除提交按鈕
-        const submitButton = singleQuizForm.querySelector('.submit-button');
-        if (submitButton) {
-            submitButton.remove();
-        }
 
         singleQuestionDiv.innerHTML = `
             <div class="question-card">
@@ -786,9 +777,7 @@ const saveTestButton = document.getElementById('saveTestButton');
                     <p>${singleQuestionData.conceptLink}</p>
                 </div>
             </div>
-        `;
 
-        singleQuestionDiv.innerHTML += `
             <div style="text-align: center; margin-top: 20px;">
                 <button id="saveSingleTestButton" class="feature-button">儲存測驗結果</button>
             </div>
@@ -844,11 +833,10 @@ const saveTestButton = document.getElementById('saveTestButton');
     function copySingleContent() {
         if (!singleQuestionData) {
             alert('請先生成題目！');
-            return;
-        }
+            return}
 
         let content = '題目：\n';
-                content += `${singleQuestionData.question}\n`;
+        content += `${singleQuestionData.question}\n`;
         singleQuestionData.options.forEach((option, i) => {
             content += `${['A', 'B', 'C', 'D'][i]}. ${option}\n`;
         });
@@ -864,6 +852,7 @@ const saveTestButton = document.getElementById('saveTestButton');
 
     // 初始化
     function init() {
+        console.log('Initializing AI Generator Module...');
         // 初始化 DOM 元素
         if (!initializeDOMElements()) {
             console.error('初始化失敗：無法找到必要的 DOM 元素');
@@ -891,26 +880,20 @@ const saveTestButton = document.getElementById('saveTestButton');
             });
         }
 
-        if (quizForm) quizForm.addEventListener('submit', checkAnswers);
         const copyContentButton = document.getElementById('copyContent');
         if (copyContentButton) copyContentButton.addEventListener('click', copyContentFn);
         if (uploadQImage) uploadQImage.addEventListener('change', previewQImage);
-        if (generateFromQButton) generateFromQButton.addEventListener('click', () => {
-            generateSingleQuestion().then(()=>{
-                if (singleQuizForm) {
-                    addSubmitButton(singleQuizForm);
-                }
-            });
-        });
-        if (singleQuizForm) singleQuizForm.addEventListener('submit', checkSingleAnswer);
+        if (generateFromQButton) generateFromQButton.addEventListener('click', generateSingleQuestion);
         if (copyQContent) copyQContent.addEventListener('click', copySingleContent);
 
         // 設定初始狀態
         switchTab('customTopic');
         switchQTab('imageQ');
+        
+        console.log('AI Generator Module initialized successfully');
     }
 
-    // 暴露需要外部訪問的函數
+    // 返回公開的函數
     return {
         init
     };
