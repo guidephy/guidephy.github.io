@@ -133,8 +133,6 @@ body {
     flex-direction: column;
     background-color: #fafafa;
     position: relative;
-    height: 100vh;
-    padding-top: 50px;
 }
 
 .header .menu-toggle {
@@ -152,8 +150,7 @@ body {
     flex-direction: column;
     gap: 10px;
     background-color: white;
-    height: calc(100vh - 180px);
-    margin-top: 0;
+    height: auto; /* 設定為 auto */
 }
 
 .message {
@@ -277,11 +274,10 @@ body {
     flex-shrink: 0;
     box-sizing: border-box;
     width: 100%;
-    position: sticky; /* 確保置底 */
+    position: sticky;
     bottom: 0;
     z-index: 100;
 }
-
 .upload-button {
     background-color: #8ab0ab;
     color: white;
