@@ -451,6 +451,7 @@ select {
     gap: 10px;
 }
 
+
 .tab-button {
     padding: 12px 24px;
     background: none;
@@ -1154,17 +1155,20 @@ select {
         gap: 6px;
     }
 
- .tab-switch {
+    .tab-switch {
         flex-direction: row;   /* 設定為水平排列 */
         overflow-x: auto;       /* 允許水平滾動 */
         white-space: nowrap;   /* 防止選項換行 */
         padding-bottom: 5px;     /* 增加底部內距 */
+        display: flex;          /* 確保使用 Flexbox */
+        width: 100%;             /* 設定總寬度與頁面內容一致 */
     }
 
     .tab-button {
         width: auto;              /* 設定為自動寬度 */
-        flex: 0 0 auto;           /* 防止按鈕拉伸 */
+        flex: 1;                 /* 修改：使所有 Tab 均分寬度 */
         border-bottom: none;      /* 移除底部邊框 */
+        text-align: center;      /* 確保 Tab 文字置中 */
     }
 
     .external-content {
