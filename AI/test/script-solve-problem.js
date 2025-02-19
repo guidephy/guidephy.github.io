@@ -37,6 +37,8 @@ const solveProblemModule = (() => {
             const reader = new FileReader();
             reader.onload = function(e) {
                 imagePreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">`;
+const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
+uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;"></div>`;;
             };
             reader.readAsDataURL(file);
         } else {
