@@ -443,7 +443,6 @@ select {
 }
 
 /* Tab 相關樣式 */
-/* Tab 相關樣式 */
 .tab-switch {
     display: flex;
     justify-content: flex-start;
@@ -1155,13 +1154,17 @@ select {
         gap: 6px;
     }
 
-    .tab-switch {
-        flex-direction: column;
+ .tab-switch {
+        flex-direction: row;   /* 設定為水平排列 */
+        overflow-x: auto;       /* 允許水平滾動 */
+        white-space: nowrap;   /* 防止選項換行 */
+        padding-bottom: 5px;     /* 增加底部內距 */
     }
 
     .tab-button {
-        width: 100%;
-        border-radius: 0;
+        width: auto;              /* 設定為自動寬度 */
+        flex: 0 0 auto;           /* 防止按鈕拉伸 */
+        border-bottom: none;      /* 移除底部邊框 */
     }
 
     .external-content {
