@@ -54,20 +54,26 @@ body {
         transform: translateX(0);
     }
 
-    .main-content {
-        margin-left: 250px;
-        padding-top: 50px;
-        width: calc(100% - 250px);
-        height: calc(100vh - 50px);
-        display: flex;
-        flex-direction: column;
-    }
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fafafa;
+    position: relative;
+    height: 100vh;
+    padding-top: 50px;
+}
 
-    .chat-window {
-        flex: 1;
-        overflow-y: auto;
-        height: calc(100vh - 200px);
-    }
+   .chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    height: calc(100vh - 180px); /* 调整高度考虑顶部和底部空间 */
+}
 
     .external-content {
         flex: 1;
@@ -188,16 +194,15 @@ body {
 
 /* 工具列(toolbar) */
 .toolbar {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    gap: 5px;
     background-color: #f7f7f7;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
     position: sticky;
     bottom: 0;
     z-index: 100;
@@ -272,15 +277,14 @@ body {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-top: 1px solid #ddd;
     background-color: white;
+    border-top: 1px solid #ddd;
     gap: 10px;
-    flex-shrink: 0;
-    box-sizing: border-box;
-    width: 100%;
     position: sticky;
     bottom: 0;
     z-index: 100;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .upload-button {
