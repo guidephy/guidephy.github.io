@@ -530,6 +530,8 @@ const saveTestButton = document.getElementById('saveTestButton');
             const reader = new FileReader();
             reader.onload = function(e) {
                 imageQPreview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
+const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;"></div>`;
             };
             reader.readAsDataURL(file);
         } else {
