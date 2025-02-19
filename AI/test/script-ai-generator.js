@@ -219,54 +219,53 @@ const aiGeneratorModule = (() => {
     }
 
     // 產生題目 (主要函數)
-    async function generateQuestions(chatContent = '') {
-        if (!generateButton || !questionsDiv || !quizForm) {
-            console.error('找不到必要的 DOM 元素');
-            return;
+  async function generateQuestions(chatContent = '') {
+    if (!generateButton || !questionsDiv || !quizForm) {
+        console.error('找不到必要的 DOM 元素');
+        return;
+    }
+
+    const button = generateButton;
+    try {
+        button.innerText = '生成題目中，請稍候...';
+        button.disabled = true;
+
+        let topic = '';
+        let topicText = '';
+        let grade = '';
+        let questionCount = '';
+
+        if (customTopicTab && customTopicTab.classList.contains('active')) {
+            const topicInput = document.getElementById('topic');
+            if (!topicInput || !topicInput.value.trim()) {
+                alert('請填寫主題！');
+                button.disabled = false;
+                button.innerText = '生成題目';
+                return;
+            }
+            topic = topicInput.value.trim();
+            topicText = document.getElementById('topicText')?.value || '';
+            grade = gradeSelect?.value || '10';
+            questionCount = questionCountSelect?.value || '5';
+        } else {
+            topic = '以聊天記錄生成題目';
+            grade = '10';
+            questionCount = '5';
         }
 
-        const button = generateButton;
-        try {
-            button.innerText = '生成題目中，請稍候...';
-            button.disabled = true;
+        const conditions = '符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。';
 
-            let topic = '';
-            let topicText = '';
-            let grade = '';
-            let questionCount = '';
+        if (questionsDiv) questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
 
-            if (customTopicTab && customTopicTab.classList.contains('active')) {
-                const topicInput = document.getElementById('topic');
-                if (!topicInput || !topicInput.value.trim()) {
-                    alert('請填寫主題！');
-                    button.disabled = false;
-                    button.innerText = '生成題目';
-                    return;
-                }
-                topic = topicInput.value.trim();
-                topicText = document.getElementById('topicText')?.value || '';
-                grade = gradeSelect?.value || '10';
-                questionCount = questionCountSelect?.value || '5';
-            } else {
-                topic = '以聊天記錄生成題目';
-                grade = '10';
-                questionCount = '5';
-            }
-
-            const conditions = '符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。';
-
-            if (quizForm) quizForm.style.display = 'none';
-            if (questionsDiv) questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
-
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
 
 請根據下列資訊產生符合學科學習目標的素養題（選擇題）。
 每題有四個選項 (A、B、C、D)，並結合生活情境。
@@ -296,87 +295,93 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         }
     ]
 }`
-                        }]
                     }]
-                })
-            });
+                }]
+            })
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-const data = await response.json();
-            if (data.candidates && data.candidates[0].content) {
-                const textContent = data.candidates[0].content.parts[0].text;
-                const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    const parsedData = JSON.parse(jsonMatch[0]);
-                    questions = parsedData.questions.map((q) => {
-                        q.options = [...new Set(q.options)];
-                        return q;
-                    });
-                    displayQuestions(questions);
-                    const copyButton = document.getElementById('copyContent');
-                    if (copyButton) copyButton.style.display = 'block';
-                } else {
-                    throw new Error('無法解析回應格式');
-                }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.candidates && data.candidates[0].content) {
+            const textContent = data.candidates[0].content.parts[0].text;
+            const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                const parsedData = JSON.parse(jsonMatch[0]);
+                questions = parsedData.questions.map((q) => {
+                    q.options = [...new Set(q.options)];
+                    return q;
+                });
+                displayQuestions(questions);
+                const copyButton = document.getElementById('copyContent');
+                if (copyButton) copyButton.style.display = 'block';
             } else {
-                throw new Error('API 回應格式不正確');
+                throw new Error('無法解析回應格式');
             }
-        } catch (error) {
-            console.error('生成題目時發生錯誤:', error);
-            if (questionsDiv) questionsDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
-        } finally {
-            if (button) {
-                button.disabled = false;
-                button.innerText = '重新生成題目';
-            }
+        } else {
+            throw new Error('API 回應格式不正確');
+        }
+    } catch (error) {
+        console.error('生成題目時發生錯誤:', error);
+        if (questionsDiv) questionsDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.innerText = '重新生成題目';
         }
     }
+}
+function displayQuestions(questions) {
+    if (!questionsDiv) return;
+    questionsDiv.innerHTML = '';
 
-    // 顯示題目
-    function displayQuestions(questions) {
-        if (!questionsDiv) return;
-        questionsDiv.innerHTML = '';
+    questions.forEach((q, i) => {
+        const uniqueOptions = [...new Set(q.options)];
+        const formattedOptions = uniqueOptions.map((option, index) => {
+            if (/^[A-D]\.\s/.test(option)) {
+                return option;
+            }
+            return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
+        });
 
-        // 创建表单容器
-        const formHtml = `
-            <form id="quizForm" class="result-area">
-                ${questions.map((q, i) => {
-                    const uniqueOptions = [...new Set(q.options)];
-                    const formattedOptions = uniqueOptions.map((option, index) => {
-                        if (/^[A-D]\.\s/.test(option)) {
-                            return option;
-                        }
-                        return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
-                    });
-
-                    return `
-                        <div class="question-card">
-                            <p><strong>${i + 1}. ${q.question}</strong></p>
-                            <div class="question-options">
-                                ${formattedOptions.map((option, j) => `
-                                    <label>
-                                        <input type="radio" name="question${i}" value="${j}" required>
-                                        ${option}
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-                <button type="submit" class="modern-button primary">提交答案</button>
-            </form>
+        const questionHtml = `
+            <div class="question-card">
+                <p><strong>${i + 1}. ${q.question}</strong></p>
+                <div class="question-options">
+                    ${formattedOptions.map((option, j) => `
+                        <label>
+                            <input type="radio" name="question${i}" value="${j}" required>
+                            ${option}
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
         `;
+        questionsDiv.innerHTML += questionHtml;
+    });
 
-        questionsDiv.innerHTML = formHtml;
+    // 在所有题目后添加提交按钮
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.className = 'modern-button primary';
+    submitButton.textContent = '提交答案';
+    
+    // 创建表单并包装现有内容
+    const form = document.createElement('form');
+    form.id = 'quizForm';
+    form.className = 'result-area';
+    form.innerHTML = questionsDiv.innerHTML;
+    form.appendChild(submitButton);
+    
+    // 清空并重新设置内容
+    questionsDiv.innerHTML = '';
+    questionsDiv.appendChild(form);
 
-        // 为新创建的表单添加提交事件监听器
-        const quizForm = document.getElementById('quizForm');
-        if (quizForm) {
-            quizForm.addEventListener('submit', checkAnswers);
-        }
-    }
+    // 为表单添加提交事件监听器
+    form.addEventListener('submit', checkAnswers);
+}
 
     // 檢查答案
     function checkAnswers(event) {
