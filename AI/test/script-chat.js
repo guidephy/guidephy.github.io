@@ -420,7 +420,7 @@ function formatNoteDisplay(note) {
         studyPlanData = {};
         hasIdea = null;
         setInputState(false);
-        appendMessage("好的，我們開始規劃你的自主學習計畫！首先，請問你對學習主題是否已經有初步的想法？", "bot-message");
+        appendMessage("好的，我們開始規劃你的專題計畫！首先，請問你對學習主題是否已經有初步的想法？", "bot-message");
 
         const optionsDiv = document.createElement('div');
         optionsDiv.className = 'message-options';
@@ -530,7 +530,7 @@ function formatNoteDisplay(note) {
     async function fetchOptions(promptText) {
         showLoadingIndicator();
         const prompt = `請以繁體中文回答，不得使用簡體字。
-我正在為國中或高中生設計自主學習選項。
+我正在為國中或高中生設計研究主題選項。
 請根據以下主題，列出5個簡單、具體且符合中學生程度的選項: ${promptText}
 
 要求：
