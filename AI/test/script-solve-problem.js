@@ -32,10 +32,13 @@ const solveProblemModule = (() => {
 
     // 預覽圖片
 // script-solve-problem.js 中的 previewImage 函數
+// script-solve-problem.js 中的 previewImage 函數
 function previewImage(event) {
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
-    const preview = document.getElementById('imagePreview');
+    
+    // 先清除所有預覽區域
+    resetAllPreviews();
     
     // 清除之前的分析結果
     resetAnalysis();
@@ -43,57 +46,43 @@ function previewImage(event) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 更新上傳區域的預覽
-            uploadArea.innerHTML = `
-                <div class="image-preview" style="margin-bottom: 15px;">
-                    <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
-                </div>
-                <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
-                    更換圖片
-                </button>
-                <input type="file" id="uploadImage" accept="image/*" hidden>
-            `;
-
-            // 更新底部的預覽區域
-            if (preview) {
-                preview.innerHTML = `
-                    <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
+            const imageDataUrl = e.target.result;
+            
+            // 確保圖片完全載入後再更新預覽
+            const img = new Image();
+            img.onload = function() {
+                // 更新上傳區域的預覽
+                uploadArea.innerHTML = `
+                    <div class="image-preview" style="margin-bottom: 15px;">
+                        <img src="${imageDataUrl}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
+                    </div>
+                    <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
+                        更換圖片
+                    </button>
+                    <input type="file" id="uploadImage" accept="image/*" hidden>
                 `;
-            }
 
-            // 重新綁定事件監聽器
-            const newInput = document.getElementById('uploadImage');
-            if (newInput) {
-                newInput.addEventListener('change', previewImage);
-                // 清除舊的值，確保同一張圖片也能觸發change事件
-                newInput.value = '';
-            }
+                // 更新底部的預覽區域
+                const preview = document.getElementById('imagePreview');
+                if (preview) {
+                    preview.innerHTML = `
+                        <img src="${imageDataUrl}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
+                    `;
+                }
+
+                // 重新綁定事件監聽器
+                const newInput = document.getElementById('uploadImage');
+                if (newInput) {
+                    newInput.addEventListener('change', previewImage);
+                    newInput.value = ''; // 清除值以允許選擇相同的圖片
+                }
+            };
+            img.src = imageDataUrl;
         };
         reader.readAsDataURL(file);
     } else {
         // 重置為初始狀態
-        uploadArea.innerHTML = `
-            <div class="upload-icon">
-                <i class="fas fa-image"></i>
-            </div>
-            <p class="upload-text">點擊或拖曳上傳題目圖片</p>
-            <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
-                選擇圖片
-            </button>
-            <input type="file" id="uploadImage" accept="image/*" hidden>
-        `;
-
-        // 清空預覽區域
-        if (preview) {
-            preview.innerHTML = '';
-        }
-
-        // 重新綁定事件監聽器
-        const newInput = document.getElementById('uploadImage');
-        if (newInput) {
-            newInput.addEventListener('change', previewImage);
-            newInput.value = '';
-        }
+        resetToDefault();
     }
 
     // 重置分析按鈕狀態
@@ -104,7 +93,50 @@ function previewImage(event) {
     }
 }
 
-// 重置分析結果的輔助函數
+// 清除所有預覽區域
+function resetAllPreviews() {
+    const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
+    const preview = document.getElementById('imagePreview');
+    
+    if (uploadArea) {
+        uploadArea.innerHTML = '';
+    }
+    if (preview) {
+        preview.innerHTML = '';
+    }
+}
+
+// 重置為默認狀態
+function resetToDefault() {
+    const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
+    const preview = document.getElementById('imagePreview');
+    
+    if (uploadArea) {
+        uploadArea.innerHTML = `
+            <div class="upload-icon">
+                <i class="fas fa-image"></i>
+            </div>
+            <p class="upload-text">點擊或拖曳上傳題目圖片</p>
+            <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
+                選擇圖片
+            </button>
+            <input type="file" id="uploadImage" accept="image/*" hidden>
+        `;
+        
+        // 重新綁定事件監聽器
+        const newInput = document.getElementById('uploadImage');
+        if (newInput) {
+            newInput.addEventListener('change', previewImage);
+            newInput.value = '';
+        }
+    }
+    
+    if (preview) {
+        preview.innerHTML = '';
+    }
+}
+
+// 重置分析結果
 function resetAnalysis() {
     const resultArea = document.getElementById('resultArea');
     const hintArea = document.getElementById('hintArea');
