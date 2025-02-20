@@ -31,43 +31,19 @@ const solveProblemModule = (() => {
     }
 
     // 預覽圖片
+// script-solve-problem.js 中的 previewImage 函數
 function previewImage(event) {
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
-
+    const preview = document.getElementById('imagePreview');
+    
     // 清除之前的分析結果
-    const resultArea = document.getElementById('resultArea');
-    const hintArea = document.getElementById('hintArea');
-    const hintContent = document.getElementById('hintContent');
-    const showNextHintButton = document.getElementById('showNextHintButton');
-    const reflectionArea = document.getElementById('reflectionArea');
-    const reflectionContent = document.getElementById('reflectionContent');
-
-    // 重置所有顯示區域
-    if (resultArea) {
-        resultArea.style.display = 'none';
-        resultArea.innerHTML = '';
-    }
-    if (hintArea) {
-        hintArea.style.display = 'none';
-        hintContent.innerHTML = '';
-    }
-    if (showNextHintButton) {
-        showNextHintButton.style.display = 'none';
-    }
-    if (reflectionArea) {
-        reflectionArea.style.display = 'none';
-        reflectionContent.innerHTML = '';
-    }
-
-    // 重置解題步驟相關變數
-    solutionSteps = [];
-    currentStepIndex = 0;
+    resetAnalysis();
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 只保留圖片預覽和上傳按鈕
+            // 更新上傳區域的預覽
             uploadArea.innerHTML = `
                 <div class="image-preview" style="margin-bottom: 15px;">
                     <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
@@ -75,8 +51,23 @@ function previewImage(event) {
                 <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
                     更換圖片
                 </button>
-                <input type="file" id="uploadImage" accept="image/*" hidden onchange="previewImage(event)">
+                <input type="file" id="uploadImage" accept="image/*" hidden>
             `;
+
+            // 更新底部的預覽區域
+            if (preview) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
+                `;
+            }
+
+            // 重新綁定事件監聽器
+            const newInput = document.getElementById('uploadImage');
+            if (newInput) {
+                newInput.addEventListener('change', previewImage);
+                // 清除舊的值，確保同一張圖片也能觸發change事件
+                newInput.value = '';
+            }
         };
         reader.readAsDataURL(file);
     } else {
@@ -89,11 +80,20 @@ function previewImage(event) {
             <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
                 選擇圖片
             </button>
-            <input type="file" id="uploadImage" accept="image/*" hidden onchange="previewImage(event)">
+            <input type="file" id="uploadImage" accept="image/*" hidden>
         `;
-    }
-    if (imagePreview) {
-        imagePreview.innerHTML = '';
+
+        // 清空預覽區域
+        if (preview) {
+            preview.innerHTML = '';
+        }
+
+        // 重新綁定事件監聽器
+        const newInput = document.getElementById('uploadImage');
+        if (newInput) {
+            newInput.addEventListener('change', previewImage);
+            newInput.value = '';
+        }
     }
 
     // 重置分析按鈕狀態
@@ -104,7 +104,7 @@ function previewImage(event) {
     }
 }
 
-// 添加一個新的初始化函數到模組中
+// 重置分析結果的輔助函數
 function resetAnalysis() {
     const resultArea = document.getElementById('resultArea');
     const hintArea = document.getElementById('hintArea');
@@ -132,7 +132,6 @@ function resetAnalysis() {
     solutionSteps = [];
     currentStepIndex = 0;
 }
-
 
     // 重置頁面
     function resetSolveProblemPage() {
