@@ -527,26 +527,23 @@ function previewQImage(event) {
     if (!imageQPreview) return;
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
-    const uploadButton = uploadArea.querySelector('.modern-button'); // 取得按鈕
-    const uploadIcon = uploadArea.querySelector('.upload-icon'); // 取得 icon
-    const uploadText = uploadArea.querySelector('.upload-text'); // 取得 text
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             // 直接替換圖片預覽區域
-            imageQPreview.innerHTML = '';
-            uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;"></div>`;
+            imageQPreview.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;"></div>`;
         };
         reader.readAsDataURL(file);
+        // 圖片預覽後，隱藏原本的按鈕
+        uploadArea.querySelector('.modern-button').style.display = 'none';
+        uploadArea.querySelector('.upload-icon').style.display = 'none';
+        uploadArea.querySelector('.upload-text').style.display = 'none';
+
     } else {
-        uploadArea.innerHTML = `
-          <div class="upload-icon">
-            <i class="fas fa-image"></i>
-          </div>
-          <p class="upload-text">點擊或拖曳上傳題目圖片</p>
-          <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">選擇圖片</button>
-        `;
-        imageQPreview.innerHTML = '';
+      //上傳按鈕回來
+      uploadArea.querySelector('.modern-button').style.display = 'inline-block';
+      uploadArea.querySelector('.upload-icon').style.display = 'block';
+      uploadArea.querySelector('.upload-text').style.display = 'block';
     }
 }
 
