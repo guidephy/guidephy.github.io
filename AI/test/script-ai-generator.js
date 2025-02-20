@@ -242,55 +242,71 @@ const aiGeneratorModule = (() => {
     }
 
     // 產生題目 (主要函數)
-    async function generateQuestions(chatContent = '') {
-        if (!generateButton || !questionsDiv || !quizForm) {
-            console.error('找不到必要的 DOM 元素');
+async function generateQuestions(chatContent = '') {
+    if (!generateButton || !questionsDiv || !quizForm) {
+        console.error('找不到必要的 DOM 元素');
+        return;
+    }
+
+    const button = generateButton;
+    let isGenerating = false; // 添加標記避免重複生成
+
+    try {
+        // 如果正在生成中，直接返回
+        if (isGenerating) {
             return;
         }
+        
+        isGenerating = true;
+        button.innerText = '生成題目中，請稍候...';
+        button.disabled = true;
 
-        const button = generateButton;
-        try {
-            button.innerText = '生成題目中，請稍候...';
-            button.disabled = true;
+        let topic = '';
+        let topicText = '';
+        let grade = '';
+        let questionCount = '';
 
-            let topic = '';
-            let topicText = '';
-            let grade = '';
-            let questionCount = '';
-
-            if (customTopicTab && customTopicTab.classList.contains('active')) {
-                const topicInput = document.getElementById('topic');
-                if (!topicInput || !topicInput.value.trim()) {
-                    alert('請填寫主題！');
-                    button.disabled = false;
-                    button.innerText = '生成題目';
-                    return;
-                }
-                topic = topicInput.value.trim();
-                topicText = document.getElementById('topicText')?.value || '';
-                grade = gradeSelect?.value || '10';
-                questionCount = questionCountSelect?.value || '5';
-            } else {
-                topic = '以聊天記錄生成題目';
-                grade = '10';
-                questionCount = '5';
+        if (customTopicTab && customTopicTab.classList.contains('active')) {
+            const topicInput = document.getElementById('topic');
+            if (!topicInput || !topicInput.value.trim()) {
+                alert('請填寫主題！');
+                button.disabled = false;
+                button.innerText = '生成題目';
+                isGenerating = false;
+                return;
             }
+            topic = topicInput.value.trim();
+            topicText = document.getElementById('topicText')?.value || '';
+            grade = gradeSelect?.value || '10';
+            questionCount = questionCountSelect?.value || '5';
+        } else {
+            topic = '以聊天記錄生成題目';
+            grade = '10';
+            questionCount = '5';
+        }
 
-            const conditions = '符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。';
+        const conditions = '符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。';
 
-            if (quizForm) quizForm.style.display = 'none';
-            if (questionsDiv) questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
+        // 清空之前的內容
+        if (quizForm) {
+            quizForm.style.display = 'none';
+            quizForm.innerHTML = '<div id="questions"></div>';
+        }
+        
+        // 顯示loading狀態
+        if (questionsDiv) {
+            questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
+        }
 
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
-
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
 
 請根據下列資訊產生符合學科學習目標的素養題（選擇題）。
 每題有四個選項 (A、B、C、D)，並結合生活情境。
@@ -345,8 +361,6 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 3、確認選項間的差異性和正確性
 4、最後才確定正確答案編號
 
-
-
 請用以下JSON格式回應（不得包含任何英文字詞在選項或題目中，但可保留JSON結構）：
 {
     "questions": [
@@ -358,48 +372,51 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         }
     ]
 }`
-                        }]
                     }]
-                })
-            });
-if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+                }]
+            })
+        });
 
-            const data = await response.json();
-            if (data.candidates && data.candidates[0].content) {
-                const textContent = data.candidates[0].content.parts[0].text;
-                const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    const parsedData = JSON.parse(jsonMatch[0]);
-                    questions = parsedData.questions.map((q) => {
-                        q.options = [...new Set(q.options)];
-                        return q;
-                    });
-                    displayQuestions(questions);
-                    if (quizForm) {
-                        quizForm.style.display = 'block';
-                        addSubmitButton(quizForm);
-                    }
-                    const copyButton = document.getElementById('copyContent');
-                    if (copyButton) copyButton.style.display = 'block';
-                } else {
-                    throw new Error('無法解析回應格式');
-                }
-            } else {
-                throw new Error('API 回應格式不正確');
-            }
-        } catch (error) {
-            console.error('生成題目時發生錯誤:', error);
-            if (questionsDiv) questionsDiv.innerHTML = `<p class="loading">錯誤：${error.message}</p>`;
-        } finally {
-            if (button) {
-                button.disabled = false;
-                button.innerText = '重新生成題目';
-            }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    }
 
+        const data = await response.json();
+        if (data.candidates && data.candidates[0].content) {
+            const textContent = data.candidates[0].content.parts[0].text;
+            const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                const parsedData = JSON.parse(jsonMatch[0]);
+                questions = parsedData.questions.map((q) => {
+                    q.options = [...new Set(q.options)];
+                    return q;
+                });
+                displayQuestions(questions);
+                if (quizForm) {
+                    quizForm.style.display = 'block';
+                    addSubmitButton(quizForm);
+                }
+                const copyButton = document.getElementById('copyContent');
+                if (copyButton) copyButton.style.display = 'block';
+            } else {
+                throw new Error('無法解析回應格式');
+            }
+        } else {
+            throw new Error('API 回應格式不正確');
+        }
+    } catch (error) {
+        console.error('生成題目時發生錯誤:', error);
+        if (questionsDiv) {
+            questionsDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
+        }
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.innerText = '重新生成題目';
+        }
+        isGenerating = false;
+    }
+}
     // 顯示題目
     function displayQuestions(questions) {
     if (!questionsDiv) return;
