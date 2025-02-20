@@ -69,32 +69,38 @@ const aiGeneratorModule = (() => {
         form.appendChild(submitButton);
     }
     // 初始化選項
-    function initOptions() {
-        if (!gradeSelect || !questionCountSelect) {
-            console.error('找不到年級或題數選擇元素');
-            return;
-        }
-
-        // 清空現有選項
-        gradeSelect.innerHTML = '<option value="">請選擇年級</option>';
-        questionCountSelect.innerHTML = '<option value="">請選擇題數</option>';
-
-        // 年級選項 (1 到 12 年級)
-        for (let i = 1; i <= 12; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.text = `${i}年級`;
-            gradeSelect.appendChild(option);
-        }
-
-        // 題數選項 (1 到 10 題)
-        for (let i = 1; i <= 10; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.text = `${i}題`;
-            questionCountSelect.appendChild(option);
-        }
+function initOptions() {
+    if (!gradeSelect || !questionCountSelect) {
+        console.error('找不到年級或題數選擇元素');
+        return;
     }
+
+    // 清空現有選項
+    gradeSelect.innerHTML = '<option value="">請選擇難度</option>';
+    questionCountSelect.innerHTML = '<option value="">請選擇題數</option>';
+
+    // 難度選項
+    const difficultyLevels = [
+        { value: 'easy', text: '簡單' },
+        { value: 'medium', text: '中等' },
+        { value: 'hard', text: '困難' }
+    ];
+
+    difficultyLevels.forEach(level => {
+        const option = document.createElement('option');
+        option.value = level.value;
+        option.text = level.text;
+        gradeSelect.appendChild(option);
+    });
+
+    // 題數選項 (1 到 10 題)
+    for (let i = 1; i <= 10; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.text = `${i}題`;
+        questionCountSelect.appendChild(option);
+    }
+}
 
     // 重置頁面函數
     function resetGeneratorPage() {
@@ -249,21 +255,14 @@ async function generateQuestions(chatContent = '') {
     }
 
     const button = generateButton;
-    let isGenerating = false; // 添加標記避免重複生成
-
+    
     try {
-        // 如果正在生成中，直接返回
-        if (isGenerating) {
-            return;
-        }
-        
-        isGenerating = true;
         button.innerText = '生成題目中，請稍候...';
         button.disabled = true;
 
         let topic = '';
         let topicText = '';
-        let grade = '';
+        let difficulty = '';
         let questionCount = '';
 
         if (customTopicTab && customTopicTab.classList.contains('active')) {
@@ -272,31 +271,27 @@ async function generateQuestions(chatContent = '') {
                 alert('請填寫主題！');
                 button.disabled = false;
                 button.innerText = '生成題目';
-                isGenerating = false;
                 return;
             }
             topic = topicInput.value.trim();
             topicText = document.getElementById('topicText')?.value || '';
-            grade = gradeSelect?.value || '10';
+            difficulty = gradeSelect?.value || 'easy';
             questionCount = questionCountSelect?.value || '5';
         } else {
             topic = '以聊天記錄生成題目';
-            grade = '10';
+            difficulty = 'easy'; // 聊天生題固定使用簡單難度
             questionCount = '5';
         }
 
-        const conditions = '符合高中學科學習目標，並為該領域專家設計的符合使用者年級並結合生活情境之素養題，並確定選項中一定有答案。';
+        // 清空之前的內容並顯示載入提示
+        if (quizForm) quizForm.style.display = 'none';
+        if (questionsDiv) questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
 
-        // 清空之前的內容
-        if (quizForm) {
-            quizForm.style.display = 'none';
-            quizForm.innerHTML = '<div id="questions"></div>';
-        }
-        
-        // 顯示loading狀態
-        if (questionsDiv) {
-            questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
-        }
+        const difficultyText = {
+            'easy': '簡單',
+            'medium': '中等',
+            'hard': '困難'
+        }[difficulty];
 
         const response = await fetch(geminiurl, {
             method: 'POST',
@@ -306,66 +301,43 @@ async function generateQuestions(chatContent = '') {
             body: JSON.stringify({
                 contents: [{
                     parts: [{
-                        text: `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
+                        text: `請扮演資深教師，以繁體中文回答，不得使用簡體字或英文詞彙。
 
-請根據下列資訊產生符合學科學習目標的素養題（選擇題）。
-每題有四個選項 (A、B、C、D)，並結合生活情境。
-年級：${grade} 年級
+請根據下列資訊產生符合程度的素養題（選擇題）：
+題目難度：${difficultyText}
 題目數量：${questionCount} 題
 主題：${topic}
 ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `參考文本：${topicText}` : '')}
 
-附加條件：${conditions}
+【題目設計規範】
+1. 格式要求：
+   - 題幹必須包含情境描述和明確的問題
+   - 每個選項長度相近
+   - 選項間具有邏輯關聯性
+   - 避免使用「以上皆是」、「以上皆非」等模糊選項
 
-重要要求：
-請嚴格按照以下規範生成素養題。每個題目必須包含以下元素，並確保所有要求都被完整執行：
+2. 選項設計：
+   - 必須有且僅有一個絕對正確答案
+   - 干擾項必須合理但可明確判斷為錯誤
+   - 每個錯誤選項都需要有明確的錯誤原因
+   - 選項之間必須互斥，不能有重疊或包含關係
 
-一、格式要求：
-1、題幹必須包含情境描述和明確的問題
-2、每個選項長度相近
-3、選項間具有邏輯關聯性
-4、避免使用「以上皆是」、「以上皆非」等模糊選項
+3. 答案設定：
+   - 使用數字0-3表示正確答案，對應A-D選項
+   - 正確答案必須在邏輯和事實上完全正確
+   - 答案位置需隨機分布，避免固定模式
 
-二、選項設計：
-1、必須有且僅有一個絕對正確答案
-2、干擾項必須合理但可明確判斷為錯誤
-3、每個錯誤選項都需要有明確的錯誤原因
-4、選項之間必須互斥，不能有重疊或包含關係
+4. 解析要求：
+   - 分別解釋正確答案為何正確
+   - 具體說明每個錯誤選項的錯誤原因
+   - 提供相關的知識點或概念連結
+   - 解析必須完整涵蓋題目中的所有重要元素
 
-三、答案設定：
-1、使用數字0-3表示正確答案，對應A-D選項
-2、正確答案必須在邏輯和事實上完全正確
-3、答案位置需隨機分布，避免固定模式
-
-四、解析要求：
-1、分別解釋正確答案為何正確
-2、具體說明每個錯誤選項的錯誤原因
-3、提供相關的知識點或概念連結
-4、解析必須完整涵蓋題目中的所有重要元素
-
-五、驗證清單
-生成題目後，必須自我檢查以下項目：
-1、題幹是否清晰且包含足夠信息
-2、是否確實只有一個正確答案
-3、所有選項是否互斥且邏輯完整
-4、解析是否完整解釋了所有選項
-5、是否存在知識性或邏輯性錯誤
-6、題目難度是否符合指定年級水平
-7、是否具有真實生活情境連結
-8、選項是否避免了明顯或刻意的干擾
-
-六、自我修正機制:
-在生成答案前，請進行以下步驟：
-1、先寫出完整的解析和推理過程
-2、根據推理過程設計選項
-3、確認選項間的差異性和正確性
-4、最後才確定正確答案編號
-
-請用以下JSON格式回應（不得包含任何英文字詞在選項或題目中，但可保留JSON結構）：
+請用以下JSON格式回應（不得包含英文詞彙在選項或題目中，但保留JSON結構）：
 {
     "questions": [
         {
-            "question": "題目",
+            "question": "題目內容",
             "options": ["A選項", "B選項", "C選項", "D選項"],
             "answer": 0,
             "explanation": "解答說明"
@@ -382,28 +354,36 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         }
 
         const data = await response.json();
-        if (data.candidates && data.candidates[0].content) {
-            const textContent = data.candidates[0].content.parts[0].text;
-            const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                const parsedData = JSON.parse(jsonMatch[0]);
-                questions = parsedData.questions.map((q) => {
-                    q.options = [...new Set(q.options)];
-                    return q;
-                });
-                displayQuestions(questions);
-                if (quizForm) {
-                    quizForm.style.display = 'block';
-                    addSubmitButton(quizForm);
-                }
-                const copyButton = document.getElementById('copyContent');
-                if (copyButton) copyButton.style.display = 'block';
-            } else {
-                throw new Error('無法解析回應格式');
-            }
-        } else {
+        if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
             throw new Error('API 回應格式不正確');
         }
+
+        const textContent = data.candidates[0].content.parts[0].text;
+        const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+        
+        if (!jsonMatch) {
+            throw new Error('無法解析回應格式');
+        }
+
+        const parsedData = JSON.parse(jsonMatch[0]);
+        questions = parsedData.questions.map((q) => {
+            q.options = [...new Set(q.options)];
+            if (q.options.length !== 4) {
+                throw new Error('選項數量必須為4個');
+            }
+            return q;
+        });
+
+        displayQuestions(questions);
+        
+        if (quizForm) {
+            quizForm.style.display = 'block';
+            addSubmitButton(quizForm);
+        }
+        
+        const copyButton = document.getElementById('copyContent');
+        if (copyButton) copyButton.style.display = 'block';
+
     } catch (error) {
         console.error('生成題目時發生錯誤:', error);
         if (questionsDiv) {
@@ -414,7 +394,6 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             button.disabled = false;
             button.innerText = '重新生成題目';
         }
-        isGenerating = false;
     }
 }
     // 顯示題目
