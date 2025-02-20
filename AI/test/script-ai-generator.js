@@ -574,20 +574,22 @@ function previewQImage(event) {
         }
     }
 }
-
-    // 生成單一題目 (以題出題)
     async function generateSingleQuestion() {
-        const button = generateFromQButton;
-        if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
+    const button = generateFromQButton;
+    if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
 
-        try {
-            button.innerText = '生成中，請稍候...';
-            button.disabled = true;
-            singleQuizForm.style.display = 'none';
-            singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
-            copyQContent.style.display = 'none';
+    try {
+        button.innerText = '生成中，請稍候...';
+        button.disabled = true;
+        singleQuizForm.style.display = 'none';
+        singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
+        copyQContent.style.display = 'none';
 
-            let prompt = `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
+        // 檢查上傳的圖片
+        let payload = {};
+        const activeTab = imageQTab.classList.contains('active') ? 'image' : 'text';
+        
+        const prompt = `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
 
 請扮演資深數理教師，對提供的題目進行分析並產生新題目。請嚴格遵守以下規範：
 1. 題目分析：
@@ -648,95 +650,106 @@ function previewQImage(event) {
                     "步驟3：..."
                 ]
             },
-            "explanation": "解答說明（包含計算過程或概念說明）",
+            "explanation": "詳細的解答說明",
             "conceptLink": "新舊題目的概念連結說明"
         }
     ]
 }`;
 
-            let payload = {};
-            if (imageQTab.classList.contains('active') && uploadQImage.files.length > 0) {
-                const base64Image = await convertImageToBase64(uploadQImage.files[0]);
-                payload = {
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }, {
+        if (activeTab === 'image' && uploadQImage.files.length > 0) {
+            // 處理圖片
+            const file = uploadQImage.files[0];
+            const base64Image = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            payload = {
+                contents: [{
+                    parts: [
+                        { text: prompt },
+                        {
                             inline_data: {
                                 mime_type: 'image/jpeg',
                                 data: base64Image
                             }
-                        }]
+                        }
+                    ]
+                }]
+            };
+        } else if (activeTab === 'text' && textQInput.value.trim()) {
+            // 處理文字
+            payload = {
+                contents: [{
+                    parts: [{
+                        text: `${prompt}\n\n原題目內容：${textQInput.value.trim()}`
                     }]
-                };
-            } else if (textQTab.classList.contains('active') && textQInput.value.trim()) {
-                payload = {
-                    contents: [{
-                        parts: [{
-                            text: `${prompt}\n\n原題目內容：${textQInput.value.trim()}`
-                        }]
-                    }]
-                };
-            } else {
-                alert('請提供圖片或文字內容！');
-                throw new Error('未提供題目內容');
-            }
+                }]
+            };
+        } else {
+            throw new Error('請提供圖片或文字內容！');
+        }
 
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-            const data = await response.json();
-            if (!data.candidates || !data.candidates[0].content) {
-                throw new Error('API 回應格式不正確');
-            }
+        const data = await response.json();
+        if (!data.candidates || !data.candidates[0].content) {
+            throw new Error('API 回應格式不正確');
+        }
 
-            const textContent = data.candidates[0].content.parts[0].text;
-            const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('無法解析回應格式');
-            }
+        const textContent = data.candidates[0].content.parts[0].text;
+        const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('無法解析回應格式');
+        }
 
-            const parsedData = JSON.parse(jsonMatch[0]);
-            const qList = parsedData.questions.map((q) => {
-                q.options = [...new Set(q.options)];
-                if (q.options.length !== 4) {
-                    throw new Error('選項數量必須為4個');
-                }
-                return q;
-            });
+        const parsedData = JSON.parse(jsonMatch[0]);
+        const qList = parsedData.questions.map((q) => {
+            q.options = [...new Set(q.options)];
+            if (q.options.length !== 4) {
+                throw new Error('選項數量必須為4個');
+            }
+            return q;
+        });
 
-            if (qList.length > 0) {
-                singleQuestionData = qList[0];
-                displaySingleQuestion(singleQuestionData);
-                singleQuizForm.style.display = 'block';
-                addSubmitButton(singleQuizForm);
-                copyQContent.style.display = 'block';
-            } else {
-                throw new Error('沒有產生題目');
-            }
+        if (qList.length > 0) {
+            singleQuestionData = qList[0];
+            displaySingleQuestion(singleQuestionData);
+            singleQuizForm.style.display = 'block';
+            addSubmitButton(singleQuizForm);
+            copyQContent.style.display = 'block';
+        } else {
+            throw new Error('沒有產生題目');
+        }
 
-        } catch (error) {
-            console.error('生成單一題目時發生錯誤:', error);
-            if (singleQuestionDiv) {
-                singleQuestionDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
-            }
-        } finally {
-            if (button) {
-                button.innerText = '生成題目';
-                button.disabled = false;
-            }
+    } catch (error) {
+        console.error('生成單一題目時發生錯誤:', error);
+        if (singleQuestionDiv) {
+            singleQuestionDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
+        }
+    } finally {
+        if (button) {
+            button.innerText = '生成題目';
+            button.disabled = false;
         }
     }
+}
 
+   
     // 顯示單一題目
 function displaySingleQuestion(q) {
     if (!singleQuestionDiv) return;
