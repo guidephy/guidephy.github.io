@@ -962,3 +962,117 @@ body {
         width: 100%;
     }
 }
+
+@media (max-width: 768px) {
+    /* 聊天訊息文字 */
+    .message {
+        font-size: 16px;
+        line-height: 1.6;
+        padding: 12px 16px;
+    }
+
+    /* 工具列文字 */
+    .toolbar .modern-button {
+        font-size: 15px;
+        padding: 8px 16px;
+    }
+
+    .mode-indicator {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+
+    /* 輸入區域文字 */
+    #user-input {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* 選項按鈕文字 */
+    .option-button {
+        font-size: 15px;
+        padding: 8px 16px;
+    }
+
+    /* 題目卡片文字 */
+    .question-card {
+        font-size: 16px;
+        padding: 16px;
+    }
+
+    .question-options label {
+        font-size: 15px;
+        padding: 14px;
+    }
+
+    /* 筆記卡片文字 */
+    .note-card {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .note-header {
+        font-size: 18px;
+    }
+
+    /* 提示區域文字 */
+    #hintContent,
+    #reflectionContent {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    /* 表單元素文字 */
+    input[type="text"],
+    textarea,
+    select {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* 統計卡片文字 */
+    .statistic-number {
+        font-size: 24px;
+    }
+
+    .statistic-label {
+        font-size: 14px;
+    }
+
+    /* Tab文字 */
+    .tab-button {
+        font-size: 15px;
+        padding: 12px 16px;
+    }
+
+    /* 其他標題文字 */
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+}
+
+/* 超小屏幕額外調整 */
+@media (max-width: 320px) {
+    .message {
+        font-size: 15px;
+        padding: 10px 14px;
+    }
+
+    .toolbar .modern-button {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .statistic-number {
+        font-size: 20px;
+    }
+}
+Last edited just now
