@@ -70,28 +70,28 @@
             <div class="chat-window" id="chat-window"></div>
 
             <!-- 工具列 -->
-            <div class="toolbar" id="toolbar">
-                <div class="mode-indicator">
-                    <span class="mode-label">目前模式：</span>
-                    <span id="current-mode">聊天</span>
-                </div>
-                <button id="translate-button" class="modern-button secondary">
-                    <i class="fas fa-language"></i>
-                    中英翻譯
-                </button>
-                <button id="study-plan-button" class="modern-button secondary">
-                    <i class="fas fa-tasks"></i>
-                    自主學習計畫
-                </button>
-                <button id="generate-notes-button" class="modern-button secondary">
-                    <i class="fas fa-sticky-note"></i>
-                    生成筆記
-                </button>
-                <button id="return-to-chat-button" class="modern-button secondary" style="display:none;">
-                    <i class="fas fa-arrow-left"></i>
-                    返回聊天
-                </button>
-            </div>
+<div class="toolbar" id="toolbar">
+    <div class="mode-indicator">
+        <span class="mode-label">模式：</span>
+        <span id="current-mode">聊天</span>
+    </div>
+    <button id="translate-button" class="modern-button secondary">
+        <i class="fas fa-language"></i>
+        <span>翻譯</span>
+    </button>
+    <button id="study-plan-button" class="modern-button secondary">
+        <i class="fas fa-tasks"></i>
+        <span>學習計畫</span>
+    </button>
+    <button id="generate-notes-button" class="modern-button secondary">
+        <i class="fas fa-sticky-note"></i>
+        <span>生成筆記</span>
+    </button>
+    <button id="return-to-chat-button" class="modern-button secondary" style="display:none;">
+        <i class="fas fa-arrow-left"></i>
+        <span>返回聊天</span>
+    </button>
+</div>
     <!-- AI素養題產生器 -->
             <div class="external-content" id="ai-generator-content" style="display: none;">
                 <div class="modern-container">
@@ -144,37 +144,37 @@
                         </div>
 
                         <div id="questionTopicContent" class="tab-content">
-                            <div class="tab-switch">
-                                <button id="imageQTab" class="tab-button active">圖片上傳</button>
-                                <button id="textQTab" class="tab-button">文字輸入</button>
-                            </div>
+    <div class="tab-switch">
+        <button id="imageQTab" class="tab-button active">圖片上傳</button>
+        <button id="textQTab" class="tab-button">文字輸入</button>
+    </div>
 
-                            <div id="imageQContent" class="tab-content active">
-                                <div class="upload-area">
-                                    <input type="file" id="uploadQImage" accept="image/*" hidden>
-                                    <div class="upload-icon">
-                                        <i class="fas fa-image"></i>
-                                    </div>
-                                    <p class="upload-text">點擊或拖曳上傳題目圖片</p>
-                                    <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
-                                        選擇圖片
-                                    </button>
-                                </div>
-                                <div id="imageQPreview" class="image-preview"></div>
-                            </div>
+    <div id="imageQContent" class="tab-content active">
+        <div class="upload-area">
+            <div class="upload-icon">
+                <i class="fas fa-image"></i>
+            </div>
+            <p class="upload-text">點擊或拖曳上傳題目圖片</p>
+            <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
+                選擇圖片
+            </button>
+            <input type="file" id="uploadQImage" accept="image/*" hidden>
+        </div>
+        <!-- 移除這裡的 image-preview div，因為它會在 JavaScript 中動態生成 -->
+    </div>
 
-                            <div id="textQContent" class="tab-content">
-                                <div class="form-group">
-                                    <label class="form-label">輸入題目文字</label>
-                                    <textarea id="textQInput" class="form-textarea" rows="6" placeholder="請輸入題目內容"></textarea>
-                                </div>
-                            </div>
+    <div id="textQContent" class="tab-content">
+        <div class="form-group">
+            <label class="form-label">輸入題目文字</label>
+            <textarea id="textQInput" class="form-textarea" rows="6" placeholder="請輸入題目內容"></textarea>
+        </div>
+    </div>
 
-                            <div class="button-group">
-                                <button id="generateFromQButton" class="modern-button primary">生成題目</button>
-                                <button id="copyQContent" class="modern-button secondary" style="display:none;">複製題本</button>
-                            </div>
-                        </div>
+    <div class="button-group">
+        <button id="generateFromQButton" class="modern-button primary">生成題目</button>
+        <button id="copyQContent" class="modern-button secondary" style="display:none;">複製題本</button>
+    </div>
+</div>
 
                         <div class="button-group" id="mainGenerateGroup">
                             <button id="generateButton" class="modern-button primary">生成題目</button>
@@ -183,71 +183,66 @@
 
                         <form id="quizForm" class="result-area" style="display:none;">
                             <div id="questions"></div>
-                            <button type="submit" class="modern-button primary">提交答案</button>
                         </form>
 
                         <form id="singleQuizForm" class="result-area" style="display:none;">
                             <div id="singleQuestion"></div>
-                            <button type="submit" class="modern-button primary">提交答案</button>
+                         
                         </form>
                     </div>
                 </div>
             </div>
 
             <!-- 教我解題 -->
-            <div class="external-content" id="solve-problem-content" style="display: none;">
-                <div class="modern-container">
-                    <div class="feature-container">
-                        <div class="feature-header">
-                            <h1 class="feature-title">教我解題</h1>
-                        </div>
+<div class="external-content" id="solve-problem-content" style="display: none;">
+    <div class="modern-container">
+        <div class="feature-container">
+            <div class="feature-header">
+                <h1 class="feature-title">教我解題</h1>
+            </div>
 
-                        <div class="tab-switch">
-                            <button id="imageTab" class="tab-button active">圖片上傳</button>
-                            <button id="textTab" class="tab-button">文字輸入</button>
-                        </div>
+            <div class="tab-switch">
+                <button id="imageTab" class="tab-button active">圖片上傳</button>
+                <button id="textTab" class="tab-button">文字輸入</button>
+            </div>
 
-                        <div id="imageContent" class="tab-content active">
-                            <div class="upload-area">
-                                <input type="file" id="uploadImage" accept="image/*" hidden>
-                                <div class="upload-icon">
-                                    <i class="fas fa-image"></i>
-                                </div>
-                                <p class="upload-text">點擊或拖曳上傳題目圖片</p>
-                                <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
-                                    選擇圖片
-                                </button>
-                            </div>
-                            <div id="imagePreview" class="image-preview"></div>
-                        </div>
-
-                        <div id="textContent" class="tab-content">
-                            <div class="form-group">
-                                <label class="form-label">輸入題目文字</label>
-                                <textarea id="textInput" class="form-textarea" rows="6" placeholder="請輸入題目內容"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="button-group">
-                            <button id="analyzeButton" class="modern-button primary">分析題目</button>
-                        </div>
-
-                        <div id="resultArea" class="result-area"></div>
-
-                        <div id="hintArea" style="display: none;">
-                            <div id="hintContent"></div>
-                            <button id="showNextHintButton" class="modern-button secondary" style="display:none;">
-                                顯示下一提示
-                            </button>
-                        </div>
-
-                        <div id="reflectionArea" style="display: none;">
-                            <h2 class="feature-title">學習反思</h2>
-                            <div id="reflectionContent"></div>
-                        </div>
+            <div id="imageContent" class="tab-content active">
+                <div class="upload-area">
+                    <div class="upload-icon">
+                        <i class="fas fa-image"></i>
                     </div>
+                    <p class="upload-text">點擊或拖曳上傳題目圖片</p>
+                    <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
+                        選擇圖片
+                    </button>
+                    <input type="file" id="uploadImage" accept="image/*" hidden>
+                </div>
+                <!-- 移除這裡的 image-preview div，因為它會在 JavaScript 中動態生成 -->
+            </div>
+
+            <div id="textContent" class="tab-content">
+                <div class="form-group">
+                    <label class="form-label">輸入題目文字</label>
+                    <textarea id="textInput" class="form-textarea" rows="6" placeholder="請輸入題目內容"></textarea>
                 </div>
             </div>
+
+            <div class="button-group">
+                <button id="analyzeButton" class="modern-button primary">分析題目</button>
+            </div>
+
+            <div id="resultArea" class="result-area"></div>
+            <div id="hintArea" style="display: none;">
+                <div id="hintContent"></div>
+                <button id="showNextHintButton" class="modern-button secondary" style="display:none;">顯示下一提示</button>
+            </div>
+            <div id="reflectionArea" style="display: none;">
+                <h2 class="feature-title">學習反思</h2>
+                <div id="reflectionContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
   <!-- 我的學習記錄 -->
             <div class="external-content" id="my-records-content" style="display: none;">
                 <div class="modern-container">
@@ -261,31 +256,29 @@
                             <button id="testRecordsTab" class="tab-button">測驗記錄</button>
                         </div>
 
-                        <div id="notesContent" class="tab-content active">
-                            <div class="form-group">
-                                <div class="modern-two-columns">
-                                    <input type="text" id="notes-username" class="form-input" placeholder="請輸入您的帳號">
-                                    <button id="load-notes-button" class="modern-button primary">載入筆記</button>
-                                </div>
-                            </div>
-                            <div id="notes-display-area" class="result-area"></div>
-                        </div>
+ <div id="notesContent" class="tab-content active">
+    <div class="form-group">
+        <input type="text" id="notes-username" class="form-input" placeholder="請輸入您的帳號">
+        <div class="button-container">
+            <button id="load-notes-button" class="modern-button primary">載入筆記</button>
+        </div>
+    </div>
+    <div id="notes-display-area" style="display: none;"></div>
+</div>
 
-                        <div id="testRecordsContent" class="tab-content">
-                            <div class="form-group">
-                                <div class="modern-two-columns">
-                                    <input type="text" id="records-username" class="form-input" placeholder="請輸入您的帳號">
-                                    <button id="load-records-button" class="modern-button primary">載入測驗記錄</button>
-                                </div>
-                            </div>
-
-                            <div id="records-options" class="button-group" style="display: none;">
-                                <button id="retry-history" class="modern-button secondary">重作歷史題</button>
-                                <button id="retry-wrong" class="modern-button secondary">錯題重作</button>
-                            </div>
-
-                            <div id="records-quiz-area" class="result-area"></div>
-                        </div>
+<div id="testRecordsContent" class="tab-content">
+    <div class="form-group">
+        <input type="text" id="records-username" class="form-input" placeholder="請輸入您的帳號">
+        <div class="button-container">
+            <button id="load-records-button" class="modern-button primary">載入測驗記錄</button>
+        </div>
+    </div>
+    <div id="records-options" class="button-group" style="display: none;">
+        <button id="retry-history" class="modern-button secondary">重作歷史題</button>
+        <button id="retry-wrong" class="modern-button secondary">錯題重作</button>
+    </div>
+    <div id="records-quiz-area" style="display: none;"></div>
+</div>
                     </div>
                 </div>
             </div>
