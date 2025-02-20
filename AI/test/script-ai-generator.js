@@ -526,11 +526,12 @@ const saveTestButton = document.getElementById('saveTestButton');
 function previewQImage(event) {
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+    const preview = document.getElementById('imageQPreview');
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 只保留圖片預覽和上傳按鈕
+            // 更新上傳區域
             uploadArea.innerHTML = `
                 <div class="image-preview" style="margin-bottom: 15px;">
                     <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
@@ -540,6 +541,11 @@ function previewQImage(event) {
                 </button>
                 <input type="file" id="uploadQImage" accept="image/*" hidden onchange="previewQImage(event)">
             `;
+
+            // 更新全域預覽區域
+            if (preview) {
+                preview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">`;
+            }
         };
         reader.readAsDataURL(file);
     } else {
@@ -554,9 +560,9 @@ function previewQImage(event) {
             </button>
             <input type="file" id="uploadQImage" accept="image/*" hidden onchange="previewQImage(event)">
         `;
-    }
-    if (imageQPreview) {
-        imageQPreview.innerHTML = '';
+        if (preview) {
+            preview.innerHTML = '';
+        }
     }
 }
 
