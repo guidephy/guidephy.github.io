@@ -1463,13 +1463,13 @@ select {
 }
 
 .toolbar .modern-button.note-button {
-    background-color: #ffa726;  /* 溫暖的橙色 */
+    background-color: #FFBB77;  /* 溫暖的橙色 */
     color: white;
     transition: all 0.3s ease;
 }
 
 .toolbar .modern-button.note-button:hover {
-    background-color: #f57c00;  /* 深橙色 */
+    background-color: #FFA042;  /* 深橙色 */
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(245, 124, 0, 0.3);
 }
