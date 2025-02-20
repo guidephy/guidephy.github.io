@@ -1446,3 +1446,22 @@ select {
     margin-bottom: 10px;
     line-height: 1.6;
 }
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group .form-input {
+    width: 100%;
+    margin-bottom: 15px;  /* 增加輸入框與按鈕的垂直間距 */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;  /* 水平置中 */
+    margin-top: 10px;  /* 額外的上方間距 */
+}
+
+.button-container .modern-button {
+    min-width: 120px;  /* 設定按鈕最小寬度 */
+}
