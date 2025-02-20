@@ -34,27 +34,21 @@ const solveProblemModule = (() => {
 function previewImage(event) {
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
-    const uploadButton = uploadArea.querySelector('.modern-button'); // 取得按鈕
-    const uploadIcon = uploadArea.querySelector('.upload-icon'); // 取得 icon
-    const uploadText = uploadArea.querySelector('.upload-text'); // 取得 text
-
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             // 直接替換圖片預覽區域
-             imagePreview.innerHTML = '';
-            uploadArea.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;"></div>`;
+             imagePreview.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;"></div>`;
         };
         reader.readAsDataURL(file);
+
+        uploadArea.querySelector('.modern-button').style.display = 'none';
+        uploadArea.querySelector('.upload-icon').style.display = 'none';
+        uploadArea.querySelector('.upload-text').style.display = 'none';
     } else {
-       uploadArea.innerHTML = `
-          <div class="upload-icon">
-            <i class="fas fa-image"></i>
-          </div>
-          <p class="upload-text">點擊或拖曳上傳題目圖片</p>
-          <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">選擇圖片</button>
-        `;
-         imagePreview.innerHTML = '';
+      uploadArea.querySelector('.modern-button').style.display = 'inline-block';
+      uploadArea.querySelector('.upload-icon').style.display = 'block';
+      uploadArea.querySelector('.upload-text').style.display = 'block';
     }
 }
 
