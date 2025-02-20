@@ -526,12 +526,17 @@ const saveTestButton = document.getElementById('saveTestButton');
 function previewQImage(event) {
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
-    const preview = document.getElementById('imageQPreview');
+    const imagePreviewContainer = document.getElementById('imageQPreview');
+
+    // 清空預覽區域
+    if (imagePreviewContainer) {
+        imagePreviewContainer.innerHTML = '';
+    }
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 更新上傳區域
+            // 更新上傳區域的內容
             uploadArea.innerHTML = `
                 <div class="image-preview" style="margin-bottom: 15px;">
                     <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
@@ -539,12 +544,13 @@ function previewQImage(event) {
                 <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
                     更換圖片
                 </button>
-                <input type="file" id="uploadQImage" accept="image/*" hidden onchange="previewQImage(event)">
+                <input type="file" id="uploadQImage" accept="image/*" hidden>
             `;
 
-            // 更新全域預覽區域
-            if (preview) {
-                preview.innerHTML = `<img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">`;
+            // 重新綁定 change 事件
+            const newUploadInput = document.getElementById('uploadQImage');
+            if (newUploadInput) {
+                newUploadInput.addEventListener('change', previewQImage);
             }
         };
         reader.readAsDataURL(file);
@@ -558,10 +564,13 @@ function previewQImage(event) {
             <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
                 選擇圖片
             </button>
-            <input type="file" id="uploadQImage" accept="image/*" hidden onchange="previewQImage(event)">
+            <input type="file" id="uploadQImage" accept="image/*" hidden>
         `;
-        if (preview) {
-            preview.innerHTML = '';
+        
+        // 重新綁定 change 事件
+        const newUploadInput = document.getElementById('uploadQImage');
+        if (newUploadInput) {
+            newUploadInput.addEventListener('change', previewQImage);
         }
     }
 }
