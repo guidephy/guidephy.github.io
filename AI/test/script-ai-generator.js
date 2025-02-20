@@ -526,36 +526,62 @@ const saveTestButton = document.getElementById('saveTestButton');
 function previewQImage(event) {
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
-    const imagePreviewContainer = document.getElementById('imageQPreview');
-
-    // 清空預覽區域
-    if (imagePreviewContainer) {
-        imagePreviewContainer.innerHTML = '';
-    }
+    
+    // 先清除所有預覽
+    resetAllQPreviews();
+    
+    // 清除之前的結果
+    resetQuestionGenerator();
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 更新上傳區域的內容
-            uploadArea.innerHTML = `
-                <div class="image-preview" style="margin-bottom: 15px;">
-                    <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
-                </div>
-                <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
-                    更換圖片
-                </button>
-                <input type="file" id="uploadQImage" accept="image/*" hidden>
-            `;
+            const imageDataUrl = e.target.result;
+            
+            // 確保圖片完全載入後再更新預覽
+            const img = new Image();
+            img.onload = function() {
+                // 更新上傳區域的預覽
+                uploadArea.innerHTML = `
+                    <div class="image-preview" style="margin-bottom: 15px;">
+                        <img src="${imageDataUrl}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
+                    </div>
+                    <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
+                        更換圖片
+                    </button>
+                    <input type="file" id="uploadQImage" accept="image/*" hidden>
+                `;
 
-            // 重新綁定 change 事件
-            const newUploadInput = document.getElementById('uploadQImage');
-            if (newUploadInput) {
-                newUploadInput.addEventListener('change', previewQImage);
-            }
+                // 重新綁定事件監聽器
+                const newInput = document.getElementById('uploadQImage');
+                if (newInput) {
+                    newInput.addEventListener('change', previewQImage);
+                    newInput.value = ''; // 清除值以允許選擇相同的圖片
+                }
+            };
+            img.src = imageDataUrl;
         };
         reader.readAsDataURL(file);
     } else {
         // 重置為初始狀態
+        resetQToDefault();
+    }
+}
+
+// 清除所有預覽
+function resetAllQPreviews() {
+    const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+    
+    if (uploadArea) {
+        uploadArea.innerHTML = '';
+    }
+}
+
+// 重置為默認狀態
+function resetQToDefault() {
+    const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+    
+    if (uploadArea) {
         uploadArea.innerHTML = `
             <div class="upload-icon">
                 <i class="fas fa-image"></i>
@@ -567,14 +593,41 @@ function previewQImage(event) {
             <input type="file" id="uploadQImage" accept="image/*" hidden>
         `;
         
-        // 重新綁定 change 事件
-        const newUploadInput = document.getElementById('uploadQImage');
-        if (newUploadInput) {
-            newUploadInput.addEventListener('change', previewQImage);
+        // 重新綁定事件監聽器
+        const newInput = document.getElementById('uploadQImage');
+        if (newInput) {
+            newInput.addEventListener('change', previewQImage);
+            newInput.value = '';
         }
     }
 }
-    async function generateSingleQuestion() {
+
+// 重置題目生成器
+function resetQuestionGenerator() {
+    const singleQuizForm = document.getElementById('singleQuizForm');
+    const singleQuestionDiv = document.getElementById('singleQuestion');
+    const copyQContent = document.getElementById('copyQContent');
+
+    if (singleQuizForm) {
+        singleQuizForm.style.display = 'none';
+        singleQuizForm.reset();
+    }
+    if (singleQuestionDiv) {
+        singleQuestionDiv.innerHTML = '';
+    }
+    if (copyQContent) {
+        copyQContent.style.display = 'none';
+    }
+
+    // 重置生成按鈕
+    const generateFromQButton = document.getElementById('generateFromQButton');
+    if (generateFromQButton) {
+        generateFromQButton.innerText = '生成題目';
+        generateFromQButton.disabled = false;
+    }
+}
+
+async function generateSingleQuestion() {
     const button = generateFromQButton;
     if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
 
@@ -585,7 +638,6 @@ function previewQImage(event) {
         singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
         copyQContent.style.display = 'none';
 
-        // 檢查上傳的圖片
         let payload = {};
         const activeTab = imageQTab.classList.contains('active') ? 'image' : 'text';
         
@@ -635,6 +687,7 @@ function previewQImage(event) {
    請列出以下驗證項目並確認：
    題目敘述是否完整無誤、是否提供足夠的解題資訊、是否只有一個正確答案、答案是否經過完整推導驗證、選項是否具有明確區別性、解說是否完整且邏輯清晰
 
+
 請用以下JSON格式回應：
 {
     "questions": [
@@ -656,18 +709,25 @@ function previewQImage(event) {
     ]
 }`;
 
-        if (activeTab === 'image' && uploadQImage.files.length > 0) {
-            // 處理圖片
-            const file = uploadQImage.files[0];
-            const base64Image = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const base64 = reader.result.split(',')[1];
-                    resolve(base64);
-                };
-                reader.readAsDataURL(file);
-            });
+        if (activeTab === 'image') {
+            // 圖片模式
+            const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+            const previewImage = uploadArea.querySelector('.image-preview img');
+            
+            if (!previewImage) {
+                throw new Error('請上傳題目圖片！');
+            }
 
+            // 從當前顯示的圖片創建新的 Canvas
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = previewImage.naturalWidth || previewImage.width;
+            canvas.height = previewImage.naturalHeight || previewImage.height;
+            ctx.drawImage(previewImage, 0, 0);
+            
+            // 將 Canvas 轉換為 base64
+            const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+            
             payload = {
                 contents: [{
                     parts: [
@@ -681,17 +741,20 @@ function previewQImage(event) {
                     ]
                 }]
             };
-        } else if (activeTab === 'text' && textQInput.value.trim()) {
-            // 處理文字
+        } else {
+            // 文字模式
+            const textContent = textQInput.value.trim();
+            if (!textContent) {
+                throw new Error('請輸入題目內容！');
+            }
+
             payload = {
                 contents: [{
                     parts: [{
-                        text: `${prompt}\n\n原題目內容：${textQInput.value.trim()}`
+                        text: `${prompt}\n\n原題目內容：${textContent}`
                     }]
                 }]
             };
-        } else {
-            throw new Error('請提供圖片或文字內容！');
         }
 
         const response = await fetch(geminiurl, {
@@ -748,6 +811,8 @@ function previewQImage(event) {
         }
     }
 }
+
+  
 
    
     // 顯示單一題目
