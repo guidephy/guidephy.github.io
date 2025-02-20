@@ -38,18 +38,15 @@ function previewImage(event) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 更新上傳區域的內容，保留上傳按鈕
+            // 只保留圖片預覽和上傳按鈕
             uploadArea.innerHTML = `
-                <div class="upload-icon">
-                    <i class="fas fa-image"></i>
-                </div>
-                <p class="upload-text">點擊或拖曳上傳題目圖片</p>
-                <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
-                    選擇圖片
-                </button>
-                <div class="image-preview" style="margin-top: 15px;">
+                <div class="image-preview" style="margin-bottom: 15px;">
                     <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
                 </div>
+                <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
+                    更換圖片
+                </button>
+                <input type="file" id="uploadImage" accept="image/*" hidden onchange="previewImage(event)">
             `;
         };
         reader.readAsDataURL(file);
@@ -63,6 +60,7 @@ function previewImage(event) {
             <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
                 選擇圖片
             </button>
+            <input type="file" id="uploadImage" accept="image/*" hidden onchange="previewImage(event)">
         `;
     }
     if (imagePreview) {
