@@ -942,7 +942,7 @@ function init() {
         cloneStudyPlanButton.style.display = 'none';
         setInputState(false);
         thread = [];
-        updateModeDisplay('自主學習計畫');
+        updateModeDisplay('專題計畫');
         userInput.placeholder = "請依照指示回答...";
         
         // 清空聊天窗口後再開始學習計畫
