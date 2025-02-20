@@ -627,6 +627,7 @@ function resetQuestionGenerator() {
     }
 }
 
+//
 async function generateSingleQuestion() {
     const button = generateFromQButton;
     if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
@@ -718,29 +719,57 @@ async function generateSingleQuestion() {
                 throw new Error('請上傳題目圖片！');
             }
 
+            // 等待圖片完全載入
+            await new Promise((resolve, reject) => {
+                if (previewImage.complete) {
+                    resolve();
+                } else {
+                    previewImage.onload = resolve;
+                    previewImage.onerror = reject;
+                }
+            });
+
             // 從當前顯示的圖片創建新的 Canvas
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = previewImage.naturalWidth || previewImage.width;
-            canvas.height = previewImage.naturalHeight || previewImage.height;
-            ctx.drawImage(previewImage, 0, 0);
+            
+            // 確保使用實際圖片尺寸
+            const width = previewImage.naturalWidth || previewImage.width;
+            const height = previewImage.naturalHeight || previewImage.height;
+            
+            // 設置 canvas 尺寸
+            canvas.width = width;
+            canvas.height = height;
+            
+            // 繪製圖片到 canvas
+            try {
+                ctx.drawImage(previewImage, 0, 0, width, height);
+            } catch (error) {
+                console.error('繪製圖片到 canvas 時發生錯誤:', error);
+                throw new Error('圖片處理失敗，請重試');
+            }
             
             // 將 Canvas 轉換為 base64
-            const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
-            
-            payload = {
-                contents: [{
-                    parts: [
-                        { text: prompt },
-                        {
-                            inline_data: {
-                                mime_type: 'image/jpeg',
-                                data: base64Image
+            try {
+                const base64Image = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+                
+                payload = {
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            {
+                                inline_data: {
+                                    mime_type: 'image/jpeg',
+                                    data: base64Image
+                                }
                             }
-                        }
-                    ]
-                }]
-            };
+                        ]
+                    }]
+                };
+            } catch (error) {
+                console.error('轉換圖片為 base64 時發生錯誤:', error);
+                throw new Error('圖片格式轉換失敗，請重試');
+            }
         } else {
             // 文字模式
             const textContent = textQInput.value.trim();
@@ -810,8 +839,7 @@ async function generateSingleQuestion() {
             button.disabled = false;
         }
     }
-}
-
+}    
   
 
    
