@@ -413,7 +413,7 @@ function formatNoteDisplay(note) {
     `;
 }
 
-    // 啟動自主學習計畫
+    // 啟動專題計畫
     function startStudyPlan() {
         isStudyPlanActive = true;
         studyPlanStep = 1;
@@ -696,7 +696,7 @@ function formatNoteDisplay(note) {
                     studyPlanData.direction = selectedOption;
                     hasIdea = true;
                     studyPlanStep = 2;
-                    appendMessage(`太棒了！看來你對自主學習已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
+                    appendMessage(`太棒了！看來你對專題已經有一些想法了。我們現在來進一步確認你的專題題目。根據你目前的想法，你希望你的專題題目是什麼？`, "bot-message");
                     break;
             }
         } else {
@@ -756,7 +756,7 @@ function formatNoteDisplay(note) {
 async function generateStudyPlan(data) {
     showLoadingIndicator();
     const prompt = `請以繁體中文回答，不得使用簡體字。
-請扮演一位具有豐富教學經驗的老師，為學生制定一份為期18週的自主學習計畫。
+請扮演一位具有豐富教學經驗的老師，為學生制定一份為期18週的專題計畫。
 
 學生資訊：
 * 學習主題：${data.subject}
@@ -765,7 +765,7 @@ async function generateStudyPlan(data) {
 
 請使用以下格式回應，確保內容清晰易讀：
 
-# 自主學習計畫總覽
+# 專題計畫總覽
 【學習主題】：
 【學習目標】：
 【預期成果】：
