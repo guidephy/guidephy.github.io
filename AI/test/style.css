@@ -1462,6 +1462,22 @@ select {
     margin-top: 10px;  /* 額外的上方間距 */
 }
 
+.toolbar .modern-button.note-button {
+    background-color: #ffa726;  /* 溫暖的橙色 */
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.toolbar .modern-button.note-button:hover {
+    background-color: #f57c00;  /* 深橙色 */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(245, 124, 0, 0.3);
+}
+
+.toolbar .modern-button.note-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(245, 124, 0, 0.2);
+}
 .button-container .modern-button {
     min-width: 120px;  /* 設定按鈕最小寬度 */
 }
