@@ -34,17 +34,40 @@ const solveProblemModule = (() => {
 function previewImage(event) {
     const file = event.target.files[0];
     const uploadArea = document.querySelector('#solve-problem-content #imageContent .upload-area');
-    const imagePreviewContainer = document.getElementById('imagePreview');
 
-    // 清空預覽區域
-    if (imagePreviewContainer) {
-        imagePreviewContainer.innerHTML = '';
+    // 清除之前的分析結果
+    const resultArea = document.getElementById('resultArea');
+    const hintArea = document.getElementById('hintArea');
+    const hintContent = document.getElementById('hintContent');
+    const showNextHintButton = document.getElementById('showNextHintButton');
+    const reflectionArea = document.getElementById('reflectionArea');
+    const reflectionContent = document.getElementById('reflectionContent');
+
+    // 重置所有顯示區域
+    if (resultArea) {
+        resultArea.style.display = 'none';
+        resultArea.innerHTML = '';
     }
+    if (hintArea) {
+        hintArea.style.display = 'none';
+        hintContent.innerHTML = '';
+    }
+    if (showNextHintButton) {
+        showNextHintButton.style.display = 'none';
+    }
+    if (reflectionArea) {
+        reflectionArea.style.display = 'none';
+        reflectionContent.innerHTML = '';
+    }
+
+    // 重置解題步驟相關變數
+    solutionSteps = [];
+    currentStepIndex = 0;
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 更新上傳區域的內容
+            // 只保留圖片預覽和上傳按鈕
             uploadArea.innerHTML = `
                 <div class="image-preview" style="margin-bottom: 15px;">
                     <img src="${e.target.result}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
@@ -52,14 +75,8 @@ function previewImage(event) {
                 <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
                     更換圖片
                 </button>
-                <input type="file" id="uploadImage" accept="image/*" hidden>
+                <input type="file" id="uploadImage" accept="image/*" hidden onchange="previewImage(event)">
             `;
-
-            // 重新綁定 change 事件
-            const newUploadInput = document.getElementById('uploadImage');
-            if (newUploadInput) {
-                newUploadInput.addEventListener('change', previewImage);
-            }
         };
         reader.readAsDataURL(file);
     } else {
@@ -72,15 +89,48 @@ function previewImage(event) {
             <button class="modern-button secondary" onclick="document.getElementById('uploadImage').click()">
                 選擇圖片
             </button>
-            <input type="file" id="uploadImage" accept="image/*" hidden>
+            <input type="file" id="uploadImage" accept="image/*" hidden onchange="previewImage(event)">
         `;
-        
-        // 重新綁定 change 事件
-        const newUploadInput = document.getElementById('uploadImage');
-        if (newUploadInput) {
-            newUploadInput.addEventListener('change', previewImage);
-        }
     }
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+    }
+
+    // 重置分析按鈕狀態
+    const analyzeButton = document.getElementById('analyzeButton');
+    if (analyzeButton) {
+        analyzeButton.innerText = '分析題目';
+        analyzeButton.disabled = false;
+    }
+}
+
+// 添加一個新的初始化函數到模組中
+function resetAnalysis() {
+    const resultArea = document.getElementById('resultArea');
+    const hintArea = document.getElementById('hintArea');
+    const hintContent = document.getElementById('hintContent');
+    const showNextHintButton = document.getElementById('showNextHintButton');
+    const reflectionArea = document.getElementById('reflectionArea');
+    const reflectionContent = document.getElementById('reflectionContent');
+
+    if (resultArea) {
+        resultArea.style.display = 'none';
+        resultArea.innerHTML = '';
+    }
+    if (hintArea) {
+        hintArea.style.display = 'none';
+        hintContent.innerHTML = '';
+    }
+    if (showNextHintButton) {
+        showNextHintButton.style.display = 'none';
+    }
+    if (reflectionArea) {
+        reflectionArea.style.display = 'none';
+        reflectionContent.innerHTML = '';
+    }
+
+    solutionSteps = [];
+    currentStepIndex = 0;
 }
 
 
