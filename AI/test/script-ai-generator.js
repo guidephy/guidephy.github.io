@@ -161,7 +161,7 @@ function initOptions() {
         // 重置頁面狀態
         resetGeneratorPage();
         
-        // 移除所有 Tab 的 active 狀態
+        // 移除所有 Tab 的 active 狀態 
         [customTopicTab, chatTopicTab, questionTopicTab].forEach(tab => {
             if (tab) tab.classList.remove('active');
         });
@@ -436,7 +436,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 }
     // 檢查答案
     function checkAnswers(event) {
-        event.preventDefault();
+        event.preventDefault(); // 阻止表單的預設提交行為
         if (!quizForm || !questionsDiv) return;
 
         const formData = new FormData(quizForm);
@@ -912,7 +912,7 @@ function displaySingleQuestion(q) {
 
     // 檢查單一題目的答案並顯示結果
     function checkSingleAnswer(event) {
-        event.preventDefault();
+        event.preventDefault(); // 阻止表單的預設提交行為
         if (!singleQuestionData || !singleQuestionDiv) return;
 
         const formData = new FormData(document.getElementById('singleQuizForm'));
