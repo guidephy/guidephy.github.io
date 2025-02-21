@@ -1036,68 +1036,46 @@ function displaySingleQuestion(q) {
     }
 
     // 初始化
-function init() {
-    // 初始化 DOM 元素
-    if (!initializeDOMElements()) {
-        console.error('初始化失敗：無法找到必要的 DOM 元素');
-        return;
-    }
-
-    // 初始化選項
-    initOptions();
-
-    // 移除舊的事件監聽器
-    const oldGenerateButton = generateButton;
-    const newGenerateButton = oldGenerateButton.cloneNode(true);
-    oldGenerateButton.parentNode.replaceChild(newGenerateButton, oldGenerateButton);
-    generateButton = newGenerateButton;
-
-    // 使用克隆節點替換所有需要綁定事件的元素
-    const elements = [
-        { old: customTopicTab, event: 'click', handler: () => switchTab('customTopic') },
-        { old: chatTopicTab, event: 'click', handler: () => switchTab('chatTopic') },
-        { old: questionTopicTab, event: 'click', handler: () => switchTab('questionTopic') },
-        { old: imageQTab, event: 'click', handler: () => switchQTab('imageQ') },
-        { old: textQTab, event: 'click', handler: () => switchQTab('textQ') }
-    ];
-
-    elements.forEach(({ old, event, handler }) => {
-        if (old) {
-            const newElement = old.cloneNode(true);
-            old.parentNode.replaceChild(newElement, old);
-            newElement.addEventListener(event, handler);
+    function init() {
+        // 初始化 DOM 元素
+        if (!initializeDOMElements()) {
+            console.error('初始化失敗：無法找到必要的 DOM 元素');
+            return;
         }
-    });
 
-    // 重新綁定生成按鈕事件
-    if (generateButton) {
-        generateButton.addEventListener('click', () => {
-            if (customTopicTab.classList.contains('active')) {
-                generateQuestions();
-            } else if (chatTopicTab.classList.contains('active')) {
-                generateQuestionsFromChat();
-            }
-        });
+        // 初始化選項
+        initOptions();
+
+        // 綁定事件監聽器
+        if (customTopicTab) customTopicTab.addEventListener('click', () => switchTab('customTopic'));
+        if (chatTopicTab) chatTopicTab.addEventListener('click', () => switchTab('chatTopic'));
+        if (questionTopicTab) questionTopicTab.addEventListener('click', () => switchTab('questionTopic'));
+        if (imageQTab) imageQTab.addEventListener('click', () => switchQTab('imageQ'));
+        if (textQTab) textQTab.addEventListener('click', () => switchQTab('textQ'));
+
+        // 綁定其他事件監聽器
+        if (generateButton) {
+            generateButton.addEventListener('click', () => {
+                if (customTopicTab.classList.contains('active')) {
+                    generateQuestions();
+                } else if (chatTopicTab.classList.contains('active')) {
+                    generateQuestionsFromChat();
+                }
+            });
+        }
+
+        if (quizForm) quizForm.addEventListener('submit', checkAnswers);
+        const copyContentButton = document.getElementById('copyContent');
+        if (copyContentButton) copyContentButton.addEventListener('click', copyContentFn);
+        if (uploadQImage) uploadQImage.addEventListener('change', previewQImage);
+        if (generateFromQButton) generateFromQButton.addEventListener('click', generateSingleQuestion);
+        if (singleQuizForm) singleQuizForm.addEventListener('submit', checkSingleAnswer);
+        if (copyQContent) copyQContent.addEventListener('click', copySingleContent);
+
+        // 設定初始狀態
+        switchTab('customTopic');
+        switchQTab('imageQ');
     }
-
-    // 綁定其他事件監聽器
-    if (quizForm) quizForm.addEventListener('submit', checkAnswers);
-    if (uploadQImage) uploadQImage.addEventListener('change', previewQImage);
-    if (generateFromQButton) generateFromQButton.addEventListener('click', generateSingleQuestion);
-    if (singleQuizForm) singleQuizForm.addEventListener('submit', checkSingleAnswer);
-    if (copyQContent) copyQContent.addEventListener('click', copySingleContent);
-
-    const copyContentButton = document.getElementById('copyContent');
-    if (copyContentButton) {
-        const newCopyButton = copyContentButton.cloneNode(true);
-        copyContentButton.parentNode.replaceChild(newCopyButton, copyContentButton);
-        newCopyButton.addEventListener('click', copyContentFn);
-    }
-
-    // 設定初始狀態
-    switchTab('customTopic');
-    switchQTab('imageQ');
-}
 
     // 暴露需要外部訪問的函數
     return {
