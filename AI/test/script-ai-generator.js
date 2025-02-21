@@ -12,7 +12,6 @@ const aiGeneratorModule = (() => {
 
     let questions = [];      // 儲存產生的題目
     let singleQuestionData = null;  // 儲存以題出題
-    let isGenerating = false; // 添加狀態鎖
 
     // 初始化 DOM 元素
     function initializeDOMElements() {
@@ -61,39 +60,47 @@ const aiGeneratorModule = (() => {
         return true;
     }
 
-    // 初始化選項
-    function initOptions() {
-        if (!gradeSelect || !questionCountSelect) {
-            console.error('找不到年級或題數選擇元素');
-            return;
-        }
-
-        // 清空現有選項
-        gradeSelect.innerHTML = '<option value="">請選擇難度</option>';
-        questionCountSelect.innerHTML = '<option value="">請選擇題數</option>';
-
-        // 難度選項
-        const difficultyLevels = [
-            { value: 'easy', text: '簡單' },
-            { value: 'medium', text: '中等' },
-            { value: 'hard', text: '困難' }
-        ];
-
-        difficultyLevels.forEach(level => {
-            const option = document.createElement('option');
-            option.value = level.value;
-            option.text = level.text;
-            gradeSelect.appendChild(option);
-        });
-
-        // 題數選項 (1 到 10 題)
-        for (let i = 1; i <= 10; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.text = `${i}題`;
-            questionCountSelect.appendChild(option);
-        }
+    // 在生成新題目時添加提交按鈕的輔助函數
+    function addSubmitButton(form) {
+        const submitButton = document.createElement('button');
+        submitButton.type = 'submit';
+        submitButton.className = 'modern-button primary submit-button';
+        submitButton.textContent = '提交答案';
+        form.appendChild(submitButton);
     }
+    // 初始化選項
+function initOptions() {
+    if (!gradeSelect || !questionCountSelect) {
+        console.error('找不到年級或題數選擇元素');
+        return;
+    }
+
+    // 清空現有選項
+    gradeSelect.innerHTML = '<option value="">請選擇難度</option>';
+    questionCountSelect.innerHTML = '<option value="">請選擇題數</option>';
+
+    // 難度選項
+    const difficultyLevels = [
+        { value: 'easy', text: '簡單' },
+        { value: 'medium', text: '中等' },
+        { value: 'hard', text: '困難' }
+    ];
+
+    difficultyLevels.forEach(level => {
+        const option = document.createElement('option');
+        option.value = level.value;
+        option.text = level.text;
+        gradeSelect.appendChild(option);
+    });
+
+    // 題數選項 (1 到 10 題)
+    for (let i = 1; i <= 10; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.text = `${i}題`;
+        questionCountSelect.appendChild(option);
+    }
+}
 
     // 重置頁面函數
     function resetGeneratorPage() {
@@ -147,9 +154,6 @@ const aiGeneratorModule = (() => {
         const errorMessages = document.querySelectorAll('.error-message');
         loadingMessages.forEach(msg => msg.remove());
         errorMessages.forEach(msg => msg.remove());
-
-        // 重置狀態鎖
-        isGenerating = false;
     }
 
     // 切換分頁的函數
@@ -191,7 +195,6 @@ const aiGeneratorModule = (() => {
             }
         }
     }
-
     // 切換「以題出題」內的 tab
     function switchQTab(tab) {
         // 重置頁面狀態
@@ -245,63 +248,60 @@ const aiGeneratorModule = (() => {
     }
 
     // 產生題目 (主要函數)
-    async function generateQuestions(chatContent = '') {
-        if (isGenerating) return;  // 如果已經在生成中，直接返回
-        if (!generateButton || !questionsDiv || !quizForm) {
-            console.error('找不到必要的 DOM 元素');
-            return;
+async function generateQuestions(chatContent = '') {
+    if (!generateButton || !questionsDiv || !quizForm) {
+        console.error('找不到必要的 DOM 元素');
+        return;
+    }
+
+    const button = generateButton;
+    
+    try {
+        button.innerText = '生成題目中，請稍候...';
+        button.disabled = true;
+
+        let topic = '';
+        let topicText = '';
+        let difficulty = '';
+        let questionCount = '';
+
+        if (customTopicTab && customTopicTab.classList.contains('active')) {
+            const topicInput = document.getElementById('topic');
+            if (!topicInput || !topicInput.value.trim()) {
+                alert('請填寫主題！');
+                button.disabled = false;
+                button.innerText = '生成題目';
+                return;
+            }
+            topic = topicInput.value.trim();
+            topicText = document.getElementById('topicText')?.value || '';
+            difficulty = gradeSelect?.value || 'easy';
+            questionCount = questionCountSelect?.value || '5';
+        } else {
+            topic = '以聊天記錄生成題目';
+            difficulty = 'easy'; // 聊天生題固定使用簡單難度
+            questionCount = '5';
         }
 
-        isGenerating = true;  // 設置狀態鎖
-        const button = generateButton;
-        
-        try {
-            button.innerText = '生成題目中，請稍候...';
-            button.disabled = true;
+        // 清空之前的內容並顯示載入提示
+        if (quizForm) quizForm.style.display = 'none';
+        if (questionsDiv) questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
 
-            let topic = '';
-            let topicText = '';
-            let difficulty = '';
-            let questionCount = '';
+        const difficultyText = {
+            'easy': '簡單',
+            'medium': '中等',
+            'hard': '困難'
+        }[difficulty];
 
-            if (customTopicTab && customTopicTab.classList.contains('active')) {
-                const topicInput = document.getElementById('topic');
-                if (!topicInput || !topicInput.value.trim()) {
-                    alert('請填寫主題！');
-                    button.disabled = false;
-                    button.innerText = '生成題目';
-                    isGenerating = false;  // 重置狀態鎖
-                    return;
-                }
-                topic = topicInput.value.trim();
-                topicText = document.getElementById('topicText')?.value || '';
-                difficulty = gradeSelect?.value || 'easy';
-                questionCount = questionCountSelect?.value || '5';
-            } else {
-                topic = '以聊天記錄生成題目';
-                difficulty = 'easy';
-                questionCount = '5';
-            }
-
-            // 清空之前的內容並顯示載入提示
-            if (quizForm) quizForm.style.display = 'none';
-            if (questionsDiv) questionsDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
-
-            const difficultyText = {
-                'easy': '簡單',
-                'medium': '中等',
-                'hard': '困難'
-            }[difficulty];
-
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `請扮演資深教師，以繁體中文回答，不得使用簡體字或英文詞彙。
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `請扮演資深教師，以繁體中文回答，不得使用簡體字或英文詞彙。
 
 請根據下列資訊產生符合程度的素養題（選擇題）：
 題目難度：${difficultyText}
@@ -335,7 +335,9 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
 
 請用以下JSON格式回應（不得包含英文詞彙在選項或題目中，但保留JSON結構）：
 {
-    "question": "題目內容",
+    "questions": [
+        {
+            "question": "題目內容",
             "options": ["A選項", "B選項", "C選項", "D選項"],
             "answer": 0,
             "explanation": "解答說明"
@@ -375,11 +377,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         displayQuestions(questions);
         
         if (quizForm) {
-            const oldForm = quizForm.cloneNode(true);  // 克隆表单以移除旧的事件监听器
-            quizForm.parentNode.replaceChild(oldForm, quizForm);
-            quizForm = oldForm;
             quizForm.style.display = 'block';
-            quizForm.addEventListener('submit', checkAnswers);
             addSubmitButton(quizForm);
         }
         
@@ -392,65 +390,53 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             questionsDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
         }
     } finally {
-        isGenerating = false;  // 重置狀態鎖
         if (button) {
             button.disabled = false;
             button.innerText = '重新生成題目';
         }
     }
 }
-
     // 顯示題目
     function displayQuestions(questions) {
-        if (!questionsDiv) return;
+    if (!questionsDiv) return;
 
-        // 清除現有內容
-        questionsDiv.innerHTML = '';
+    // 清除現有內容
+    questionsDiv.innerHTML = '';
 
-        // 移除表單中已經存在的提交按鈕
-        const existingSubmitButton = quizForm.querySelector('.submit-button');
-        if (existingSubmitButton) {
-            existingSubmitButton.remove();
-        }
+    // 移除表單中已經存在的提交按鈕
+    const existingSubmitButton = quizForm.querySelector('.submit-button');
+    if (existingSubmitButton) {
+        existingSubmitButton.remove();
+    }
 
-        questions.forEach((q, i) => {
-            const uniqueOptions = [...new Set(q.options)];
-            const formattedOptions = uniqueOptions.map((option, index) => {
-                if (/^[A-D]\.\s/.test(option)) {
-                    return option;
-                }
-                return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
-            });
-
-            const questionHtml = `
-                <div class="question-card">
-                    <p><strong>${i + 1}. ${q.question}</strong></p>
-                    <div class="question-options">
-                        ${formattedOptions.map((option, j) => `
-                            <label>
-                                <input type="radio" name="question${i}" value="${j}" required>
-                                ${option}
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            questionsDiv.innerHTML += questionHtml;
+    questions.forEach((q, i) => {
+        const uniqueOptions = [...new Set(q.options)];
+        const formattedOptions = uniqueOptions.map((option, index) => {
+            if (/^[A-D]\.\s/.test(option)) {
+                return option;
+            }
+            return `${['A', 'B', 'C', 'D'][index]}. ${option}`;
         });
-    }
 
-    // 添加提交按鈕的輔助函數
-    function addSubmitButton(form) {
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        submitButton.className = 'modern-button primary submit-button';
-        submitButton.textContent = '提交答案';
-        form.appendChild(submitButton);
-    }
-
-    // 檢查答案並顯示結果
+        const questionHtml = `
+            <div class="question-card">
+                <p><strong>${i + 1}. ${q.question}</strong></p>
+                <div class="question-options">
+                    ${formattedOptions.map((option, j) => `
+                        <label>
+                            <input type="radio" name="question${i}" value="${j}" required>
+                            ${option}
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        questionsDiv.innerHTML += questionHtml;
+    });
+}
+    // 檢查答案
     function checkAnswers(event) {
-        event.preventDefault();  // 阻止表單預設提交行為
+        event.preventDefault();
         if (!quizForm || !questionsDiv) return;
 
         const formData = new FormData(quizForm);
@@ -472,7 +458,6 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         });
 
         displayResults(results);
-        
         // 移除提交按鈕
         const submitButton = quizForm.querySelector('.submit-button');
         if (submitButton) {
@@ -507,8 +492,7 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
                 <button id="saveTestButton" class="feature-button">儲存測驗結果</button>
             </div>
         `;
-
-        const saveTestButton = document.getElementById('saveTestButton');
+const saveTestButton = document.getElementById('saveTestButton');
         if (saveTestButton) {
             saveTestButton.addEventListener('click', async () => {
                 const username = prompt('請輸入您的帳號：');
@@ -572,131 +556,127 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             .catch(err => alert('複製失敗：' + err));
     }
 
-    // 预览以题出题的图片
-    function previewQImage(event) {
-        const file = event.target.files[0];
-        const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
-        
-        // 先清除所有预览
-        resetAllQPreviews();
-        
-        // 清除之前的结果
-        resetQuestionGenerator();
+    // 預覽以題出題的圖片
+function previewQImage(event) {
+    const file = event.target.files[0];
+    const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+    
+    // 先清除所有預覽
+    resetAllQPreviews();
+    
+    // 清除之前的結果
+    resetQuestionGenerator();
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageDataUrl = e.target.result;
-                
-                // 确保图片完全加载后再更新预览
-                const img = new Image();
-                img.onload = function() {
-                    // 更新上传区域的预览
-                    uploadArea.innerHTML = `
-                        <div class="image-preview" style="margin-bottom: 15px;">
-                            <img src="${imageDataUrl}" alt="题目图片" style="max-width: 100%; border-radius: 8px;">
-                        </div>
-                        <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
-                            更换图片
-                        </button>
-                        <input type="file" id="uploadQImage" accept="image/*" hidden>
-                    `;
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageDataUrl = e.target.result;
+            
+            // 確保圖片完全載入後再更新預覽
+            const img = new Image();
+            img.onload = function() {
+                // 更新上傳區域的預覽
+                uploadArea.innerHTML = `
+                    <div class="image-preview" style="margin-bottom: 15px;">
+                        <img src="${imageDataUrl}" alt="題目圖片" style="max-width: 100%; border-radius: 8px;">
+                    </div>
+                    <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
+                        更換圖片
+                    </button>
+                    <input type="file" id="uploadQImage" accept="image/*" hidden>
+                `;
 
-                    // 重新绑定事件监听器
-                    const newInput = document.getElementById('uploadQImage');
-                    if (newInput) {
-                        newInput.addEventListener('change', previewQImage);
-                        newInput.value = ''; // 清除值以允许选择相同的图片
-                    }
-                };
-                img.src = imageDataUrl;
+                // 重新綁定事件監聽器
+                const newInput = document.getElementById('uploadQImage');
+                if (newInput) {
+                    newInput.addEventListener('change', previewQImage);
+                    newInput.value = ''; // 清除值以允許選擇相同的圖片
+                }
             };
-            reader.readAsDataURL(file);
-        } else {
-            // 重置为初始状态
-            resetQToDefault();
+            img.src = imageDataUrl;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        // 重置為初始狀態
+        resetQToDefault();
+    }
+}
+
+// 清除所有預覽
+function resetAllQPreviews() {
+    const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+    
+    if (uploadArea) {
+        uploadArea.innerHTML = '';
+    }
+}
+
+// 重置為默認狀態
+function resetQToDefault() {
+    const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+    
+    if (uploadArea) {
+        uploadArea.innerHTML = `
+            <div class="upload-icon">
+                <i class="fas fa-image"></i>
+            </div>
+            <p class="upload-text">點擊或拖曳上傳題目圖片</p>
+            <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
+                選擇圖片
+            </button>
+            <input type="file" id="uploadQImage" accept="image/*" hidden>
+        `;
+        
+        // 重新綁定事件監聽器
+        const newInput = document.getElementById('uploadQImage');
+        if (newInput) {
+            newInput.addEventListener('change', previewQImage);
+            newInput.value = '';
         }
     }
+}
 
-    // 清除所有预览
-    function resetAllQPreviews() {
-        const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
-        
-        if (uploadArea) {
-            uploadArea.innerHTML = '';
-        }
+// 重置題目生成器
+function resetQuestionGenerator() {
+    const singleQuizForm = document.getElementById('singleQuizForm');
+    const singleQuestionDiv = document.getElementById('singleQuestion');
+    const copyQContent = document.getElementById('copyQContent');
+
+    if (singleQuizForm) {
+        singleQuizForm.style.display = 'none';
+        singleQuizForm.reset();
+    }
+    if (singleQuestionDiv) {
+        singleQuestionDiv.innerHTML = '';
+    }
+    if (copyQContent) {
+        copyQContent.style.display = 'none';
     }
 
-    // 重置为默认状态
-    function resetQToDefault() {
-        const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
-        
-        if (uploadArea) {
-            uploadArea.innerHTML = `
-                <div class="upload-icon">
-                    <i class="fas fa-image"></i>
-                </div>
-                <p class="upload-text">点击或拖曳上传题目图片</p>
-                <button class="modern-button secondary" onclick="document.getElementById('uploadQImage').click()">
-                    选择图片
-                </button>
-                <input type="file" id="uploadQImage" accept="image/*" hidden>
-            `;
-            
-            // 重新绑定事件监听器
-            const newInput = document.getElementById('uploadQImage');
-            if (newInput) {
-                newInput.addEventListener('change', previewQImage);
-                newInput.value = '';
-            }
-        }
+    // 重置生成按鈕
+    const generateFromQButton = document.getElementById('generateFromQButton');
+    if (generateFromQButton) {
+        generateFromQButton.innerText = '生成題目';
+        generateFromQButton.disabled = false;
     }
+}
 
-    // 重置题目生成器
-    function resetQuestionGenerator() {
-        const singleQuizForm = document.getElementById('singleQuizForm');
-        const singleQuestionDiv = document.getElementById('singleQuestion');
-        const copyQContent = document.getElementById('copyQContent');
+//
+async function generateSingleQuestion() {
+    const button = generateFromQButton;
+    if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
 
-        if (singleQuizForm) {
-            singleQuizForm.style.display = 'none';
-            singleQuizForm.reset();
-        }
-        if (singleQuestionDiv) {
-            singleQuestionDiv.innerHTML = '';
-        }
-        if (copyQContent) {
-            copyQContent.style.display = 'none';
-        }
+    try {
+        button.innerText = '生成中，請稍候...';
+        button.disabled = true;
+        singleQuizForm.style.display = 'none';
+        singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
+        copyQContent.style.display = 'none';
 
-        // 重置生成按钮
-        const generateFromQButton = document.getElementById('generateFromQButton');
-        if (generateFromQButton) {
-            generateFromQButton.innerText = '生成题目';
-            generateFromQButton.disabled = false;
-        }
-    }
-
-    // 生成单一题目
-    async function generateSingleQuestion() {
-        if (isGenerating) return;  // 如果已经在生成中，直接返回
+        let payload = {};
+        const activeTab = imageQTab.classList.contains('active') ? 'image' : 'text';
         
-        const button = generateFromQButton;
-        if (!button || !singleQuizForm || !singleQuestionDiv || !copyQContent) return;
-
-        isGenerating = true;  // 设置状态锁
-        
-        try {
-            button.innerText = '生成中，請稍候...';
-            button.disabled = true;
-            singleQuizForm.style.display = 'none';
-            singleQuestionDiv.innerHTML = '<p class="loading">生成題目中，請稍候...</p>';
-            copyQContent.style.display = 'none';
-
-            let payload = {};
-            const activeTab = imageQTab.classList.contains('active') ? 'image' : 'text';
-            
-            const prompt = `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
+        const prompt = `除了是以英文為主的來源，請以繁體中文回答，不得使用簡體字或英文詞彙。
 
 請扮演資深數理教師，對提供的題目進行分析並產生新題目。請嚴格遵守以下規範：
 1. 題目分析：
@@ -714,9 +694,8 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
      * 改變情境，保持概念相同
      * 使用不同的例子說明同一概念
      * 確保新情境貼近生活
-
 3. 題目完整性檢查：
-- 確保題目陳述完整，包含所有必要的已知條件
+   - 確保題目陳述完整，包含所有必要的已知條件
    - 確認所有變數、單位都有明確定義
    - 避免模糊或可能造成誤解的描述
    - 檢查是否提供足夠資訊來解答
@@ -765,176 +744,173 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
     ]
 }`;
 
-            if (activeTab === 'image') {
-                // 圖片模式
-                const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
-                const previewImage = uploadArea.querySelector('.image-preview img');
-                
-                if (!previewImage) {
-                    throw new Error('請上傳題目圖片！');
-                }
+        if (activeTab === 'image') {
+            // 圖片模式
+            const uploadArea = document.querySelector('#ai-generator-content #imageQContent .upload-area');
+            const previewImage = uploadArea.querySelector('.image-preview img');
+            
+            if (!previewImage) {
+                throw new Error('請上傳題目圖片！');
+            }
 
-                // 等待圖片完全載入
-                await new Promise((resolve, reject) => {
-                    if (previewImage.complete) {
-                        resolve();
-                    } else {
-                        previewImage.onload = resolve;
-                        previewImage.onerror = reject;
-                    }
-                });
+            // 等待圖片完全載入
+            await new Promise((resolve, reject) => {
+                if (previewImage.complete) {
+                    resolve();
+                } else {
+                    previewImage.onload = resolve;
+                    previewImage.onerror = reject;
+                }
+            });
 
-                // 從當前顯示的圖片創建新的 Canvas
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+            // 從當前顯示的圖片創建新的 Canvas
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 確保使用實際圖片尺寸
+            const width = previewImage.naturalWidth || previewImage.width;
+            const height = previewImage.naturalHeight || previewImage.height;
+            
+            // 設置 canvas 尺寸
+            canvas.width = width;
+            canvas.height = height;
+            
+            // 繪製圖片到 canvas
+            try {
+                ctx.drawImage(previewImage, 0, 0, width, height);
+            } catch (error) {
+                console.error('繪製圖片到 canvas 時發生錯誤:', error);
+                throw new Error('圖片處理失敗，請重試');
+            }
+            
+            // 將 Canvas 轉換為 base64
+            try {
+                const base64Image = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
                 
-                // 確保使用實際圖片尺寸
-                const width = previewImage.naturalWidth || previewImage.width;
-                const height = previewImage.naturalHeight || previewImage.height;
-                
-                // 設置 canvas 尺寸
-                canvas.width = width;
-                canvas.height = height;
-                
-                // 繪製圖片到 canvas
-                try {
-                    ctx.drawImage(previewImage, 0, 0, width, height);
-                } catch (error) {
-                    console.error('繪製圖片到 canvas 時發生錯誤:', error);
-                    throw new Error('圖片處理失敗，請重試');
-                }
-                
-                // 將 Canvas 轉換為 base64
-                try {
-                    const base64Image = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-                    
-                    payload = {
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                {
-                                    inline_data: {
-                                        mime_type: 'image/jpeg',
-                                        data: base64Image
-                                    }
-                                }
-                            ]
-                        }]
-                    };
-                } catch (error) {
-                    console.error('轉換圖片為 base64 時發生錯誤:', error);
-                    throw new Error('圖片格式轉換失敗，請重試');
-                }
-            } else {
-                // 文字模式
-                const textContent = textQInput.value.trim();
-                if (!textContent) {
-                    throw new Error('請輸入題目內容！');
-                }
-
                 payload = {
                     contents: [{
-                        parts: [{
-                            text: `${prompt}\n\n原題目內容：${textContent}`
-                        }]
+                        parts: [
+                            { text: prompt },
+                            {
+                                inline_data: {
+                                    mime_type: 'image/jpeg',
+                                    data: base64Image
+                                }
+                            }
+                        ]
                     }]
                 };
+            } catch (error) {
+                console.error('轉換圖片為 base64 時發生錯誤:', error);
+                throw new Error('圖片格式轉換失敗，請重試');
+            }
+        } else {
+            // 文字模式
+            const textContent = textQInput.value.trim();
+            if (!textContent) {
+                throw new Error('請輸入題目內容！');
             }
 
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
+            payload = {
+                contents: [{
+                    parts: [{
+                        text: `${prompt}\n\n原題目內容：${textContent}`
+                    }]
+                }]
+            };
+        }
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+        const response = await fetch(geminiurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-            const data = await response.json();
-            if (!data.candidates || !data.candidates[0].content) {
-                throw new Error('API 回應格式不正確');
-            }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-            const textContent = data.candidates[0].content.parts[0].text;
-            const jsonMatch = textContent.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                throw new Error('無法解析回應格式');
-            }
+        const data = await response.json();
+        if (!data.candidates || !data.candidates[0].content) {
+            throw new Error('API 回應格式不正確');
+        }
 
-            const parsedData = JSON.parse(jsonMatch[0]);
-            const qList = parsedData.questions.map((q) => {
-                q.options = [...new Set(q.options)];
-                if (q.options.length !== 4) {
-                    throw new Error('選項數量必須為4個');
-                }
-                return q;
-            });
+        const textContent = data.candidates[0].content.parts[0].text;
+        const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('無法解析回應格式');
+        }
 
-            if (qList.length > 0) {
-                singleQuestionData = qList[0];
-                displaySingleQuestion(singleQuestionData);
-                const oldForm = singleQuizForm.cloneNode(true);  // 克隆表单以移除旧的事件监听器
-                singleQuizForm.parentNode.replaceChild(oldForm, singleQuizForm);
-                singleQuizForm = oldForm;
-                singleQuizForm.style.display = 'block';
-                singleQuizForm.addEventListener('submit', checkSingleAnswer);
-                addSubmitButton(singleQuizForm);
-                copyQContent.style.display = 'block';
-            } else {
-                throw new Error('沒有產生題目');
+        const parsedData = JSON.parse(jsonMatch[0]);
+        const qList = parsedData.questions.map((q) => {
+            q.options = [...new Set(q.options)];
+            if (q.options.length !== 4) {
+                throw new Error('選項數量必須為4個');
             }
+            return q;
+        });
 
-        } catch (error) {
-            console.error('生成單一題目時發生錯誤:', error);
-            if (singleQuestionDiv) {
-                singleQuestionDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
-            }
-        } finally {
-            isGenerating = false;  // 重置状态锁
-            if (button) {
-                button.innerText = '生成題目';
-                button.disabled = false;
-            }
+        if (qList.length > 0) {
+            singleQuestionData = qList[0];
+            displaySingleQuestion(singleQuestionData);
+            singleQuizForm.style.display = 'block';
+            addSubmitButton(singleQuizForm);
+            copyQContent.style.display = 'block';
+        } else {
+            throw new Error('沒有產生題目');
+        }
+
+    } catch (error) {
+        console.error('生成單一題目時發生錯誤:', error);
+        if (singleQuestionDiv) {
+            singleQuestionDiv.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
+        }
+    } finally {
+        if (button) {
+            button.innerText = '生成題目';
+            button.disabled = false;
         }
     }
+}    
+  
 
+   
     // 顯示單一題目
-    function displaySingleQuestion(q) {
-        if (!singleQuestionDiv) return;
-        // 清除現有內容
-        singleQuestionDiv.innerHTML = '';
+function displaySingleQuestion(q) {
+    if (!singleQuestionDiv) return;
+    // 清除現有內容
+    singleQuestionDiv.innerHTML = '';
 
-        // 移除表單中已經存在的提交按鈕
-        const existingSubmitButton = singleQuizForm.querySelector('.submit-button');
-        if (existingSubmitButton) {
-            existingSubmitButton.remove();
-        }
+    // 移除表單中已經存在的提交按鈕
+    const existingSubmitButton = singleQuizForm.querySelector('.submit-button');
+    if (existingSubmitButton) {
+        existingSubmitButton.remove();
+    }
 
-        singleQuestionDiv.innerHTML = `
-            <div class="question-card">
-                <div class="concept-area">
-                    <h3>核心概念</h3>
-                    <p>${q.originalConcept}</p>
-                </div>
-                <div class="question-content">
-                    <p><strong>${q.question}</strong></p>
-                    <div class="question-options">
-                        ${q.options.map((option, j) => `
-                            <label>
-                                <input type="radio" name="singleQ" value="${j}" required>
-                                ${['A', 'B', 'C', 'D'][j]}. ${option}
-                            </label>
-                        `).join('')}
-                    </div>
+    singleQuestionDiv.innerHTML = `
+        <div class="question-card">
+            <div class="concept-area">
+                <h3>核心概念</h3>
+                <p>${q.originalConcept}</p>
+            </div>
+            <div class="question-content">
+                <p><strong>${q.question}</strong></p>
+                <div class="question-options">
+                    ${q.options.map((option, j) => `
+                        <label>
+                            <input type="radio" name="singleQ" value="${j}" required>
+                            ${['A', 'B', 'C', 'D'][j]}. ${option}
+                        </label>
+                    `).join('')}
                 </div>
             </div>
-        `;
-    }
+        </div>
+    `;
+}
 
-    // 檢查單一題目的答案
+    // 檢查單一題目的答案並顯示結果
     function checkSingleAnswer(event) {
         event.preventDefault();
         if (!singleQuestionData || !singleQuestionDiv) return;
@@ -1059,15 +1035,25 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
             .catch(err => alert('複製失敗：' + err));
     }
 
-    // 初始化事件監聽器
-    function initializeEventListeners() {
+    // 初始化
+    function init() {
+        // 初始化 DOM 元素
+        if (!initializeDOMElements()) {
+            console.error('初始化失敗：無法找到必要的 DOM 元素');
+            return;
+        }
+
+        // 初始化選項
+        initOptions();
+
+        // 綁定事件監聽器
         if (customTopicTab) customTopicTab.addEventListener('click', () => switchTab('customTopic'));
         if (chatTopicTab) chatTopicTab.addEventListener('click', () => switchTab('chatTopic'));
         if (questionTopicTab) questionTopicTab.addEventListener('click', () => switchTab('questionTopic'));
         if (imageQTab) imageQTab.addEventListener('click', () => switchQTab('imageQ'));
         if (textQTab) textQTab.addEventListener('click', () => switchQTab('textQ'));
 
-        // 绑定其他事件监听器
+        // 綁定其他事件監聽器
         if (generateButton) {
             generateButton.addEventListener('click', () => {
                 if (customTopicTab.classList.contains('active')) {
@@ -1085,29 +1071,10 @@ ${chatContent ? `參考文本(聊天紀錄)：${chatContent}` : (topicText ? `�
         if (generateFromQButton) generateFromQButton.addEventListener('click', generateSingleQuestion);
         if (singleQuizForm) singleQuizForm.addEventListener('submit', checkSingleAnswer);
         if (copyQContent) copyQContent.addEventListener('click', copySingleContent);
-    }
-
-    // 初始化模組
-    function init() {
-        console.log('Initializing AI Generator Module...');
-        
-        // 初始化 DOM 元素
-        if (!initializeDOMElements()) {
-            console.error('初始化失敗：無法找到必要的 DOM 元素');
-            return;
-        }
-
-        // 初始化選項
-        initOptions();
-        
-        // 初始化事件監聽器
-        initializeEventListeners();
 
         // 設定初始狀態
         switchTab('customTopic');
         switchQTab('imageQ');
-        
-        console.log('AI Generator Module initialized successfully');
     }
 
     // 暴露需要外部訪問的函數
