@@ -1039,46 +1039,109 @@ function displaySingleQuestion(q) {
     }
 
     // 初始化
-    function init() {
-        // 初始化 DOM 元素
-        if (!initializeDOMElements()) {
-            console.error('初始化失敗：無法找到必要的 DOM 元素');
-            return;
-        }
-
-        // 初始化選項
-        initOptions();
-
-        // 綁定事件監聽器
-        if (customTopicTab) customTopicTab.addEventListener('click', () => switchTab('customTopic'));
-        if (chatTopicTab) chatTopicTab.addEventListener('click', () => switchTab('chatTopic'));
-        if (questionTopicTab) questionTopicTab.addEventListener('click', () => switchTab('questionTopic'));
-        if (imageQTab) imageQTab.addEventListener('click', () => switchQTab('imageQ'));
-        if (textQTab) textQTab.addEventListener('click', () => switchQTab('textQ'));
-
-        // 綁定其他事件監聽器
-        if (generateButton) {
-            generateButton.addEventListener('click', () => {
-                if (customTopicTab.classList.contains('active')) {
-                    generateQuestions();
-                } else if (chatTopicTab.classList.contains('active')) {
-                    generateQuestionsFromChat();
-                }
-            });
-        }
-
-        if (quizForm) quizForm.addEventListener('submit', checkAnswers);
-        const copyContentButton = document.getElementById('copyContent');
-        if (copyContentButton) copyContentButton.addEventListener('click', copyContentFn);
-        if (uploadQImage) uploadQImage.addEventListener('change', previewQImage);
-        if (generateFromQButton) generateFromQButton.addEventListener('click', generateSingleQuestion);
-        if (singleQuizForm) singleQuizForm.addEventListener('submit', checkSingleAnswer);
-        if (copyQContent) copyQContent.addEventListener('click', copySingleContent);
-
-        // 設定初始狀態
-        switchTab('customTopic');
-        switchQTab('imageQ');
+function init() {
+    // 检查必要的 DOM 元素
+    if (!initializeDOMElements()) {
+        console.error('初始化失败：无法找到必要的 DOM 元素');
+        return;
     }
+
+    // 移除现有绑定并重新绑定tab切换事件
+    if (customTopicTab) {
+        const newCustomTopicTab = customTopicTab.cloneNode(true);
+        customTopicTab.parentNode.replaceChild(newCustomTopicTab, customTopicTab);
+        customTopicTab = newCustomTopicTab;
+        customTopicTab.addEventListener('click', () => switchTab('customTopic'));
+    }
+    if (chatTopicTab) {
+        const newChatTopicTab = chatTopicTab.cloneNode(true);
+        chatTopicTab.parentNode.replaceChild(newChatTopicTab, chatTopicTab);
+        chatTopicTab = newChatTopicTab;
+        chatTopicTab.addEventListener('click', () => switchTab('chatTopic'));
+    }
+    if (questionTopicTab) {
+        const newQuestionTopicTab = questionTopicTab.cloneNode(true);
+        questionTopicTab.parentNode.replaceChild(newQuestionTopicTab, questionTopicTab);
+        questionTopicTab = newQuestionTopicTab;
+        questionTopicTab.addEventListener('click', () => switchTab('questionTopic'));
+    }
+    if (imageQTab) {
+        const newImageQTab = imageQTab.cloneNode(true);
+        imageQTab.parentNode.replaceChild(newImageQTab, imageQTab);
+        imageQTab = newImageQTab;
+        imageQTab.addEventListener('click', () => switchQTab('imageQ'));
+    }
+    if (textQTab) {
+        const newTextQTab = textQTab.cloneNode(true);
+        textQTab.parentNode.replaceChild(newTextQTab, textQTab);
+        textQTab = newTextQTab;
+        textQTab.addEventListener('click', () => switchQTab('textQ'));
+    }
+
+    // 移除现有绑定并重新绑定生成按钮事件
+    if (generateButton) {
+        const newGenerateButton = generateButton.cloneNode(true);
+        generateButton.parentNode.replaceChild(newGenerateButton, generateButton);
+        generateButton = newGenerateButton;
+        generateButton.addEventListener('click', () => {
+            if (customTopicTab.classList.contains('active')) {
+                generateQuestions();
+            } else if (chatTopicTab.classList.contains('active')) {
+                generateQuestionsFromChat();
+            }
+        });
+    }
+
+    // 移除现有绑定并重新绑定其他事件
+    if (quizForm) {
+        const newQuizForm = quizForm.cloneNode(true);
+        quizForm.parentNode.replaceChild(newQuizForm, quizForm);
+        quizForm = newQuizForm;
+        quizForm.addEventListener('submit', checkAnswers);
+    }
+
+    const copyContentButton = document.getElementById('copyContent');
+    if (copyContentButton) {
+        const newCopyContentButton = copyContentButton.cloneNode(true);
+        copyContentButton.parentNode.replaceChild(newCopyContentButton, copyContentButton);
+        copyContentButton.addEventListener('click', copyContentFn);
+    }
+
+    if (uploadQImage) {
+        const newUploadQImage = uploadQImage.cloneNode(true);
+        uploadQImage.parentNode.replaceChild(newUploadQImage, uploadQImage);
+        uploadQImage = newUploadQImage;
+        uploadQImage.addEventListener('change', previewQImage);
+    }
+
+    if (generateFromQButton) {
+        const newGenerateFromQButton = generateFromQButton.cloneNode(true);
+        generateFromQButton.parentNode.replaceChild(newGenerateFromQButton, generateFromQButton);
+        generateFromQButton = newGenerateFromQButton;
+        generateFromQButton.addEventListener('click', generateSingleQuestion);
+    }
+
+    if (singleQuizForm) {
+        const newSingleQuizForm = singleQuizForm.cloneNode(true);
+        singleQuizForm.parentNode.replaceChild(newSingleQuizForm, singleQuizForm);
+        singleQuizForm = newSingleQuizForm;
+        singleQuizForm.addEventListener('submit', checkSingleAnswer);
+    }
+
+    if (copyQContent) {
+        const newCopyQContent = copyQContent.cloneNode(true);
+        copyQContent.parentNode.replaceChild(newCopyQContent, copyQContent);
+        copyQContent = newCopyQContent;
+        copyQContent.addEventListener('click', copySingleContent);
+    }
+
+    // 初始化选项
+    initOptions();
+
+    // 设置初始状态
+    switchTab('customTopic');
+    switchQTab('imageQ');
+}
 
     // 暴露需要外部訪問的函數
     return {
