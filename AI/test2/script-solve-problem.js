@@ -345,8 +345,10 @@ async function analyzeInput() {
         // 顯示第一步
         if (solutionSteps.length > 0) {
             hintContent.innerHTML = `
-                <h3 class="text-lg font-bold mb-2">${expectedSteps[0]}</h3>
-                <p>${formatText(solutionSteps[0])}</p>
+                <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
+                    ${expectedSteps[0]}
+                </h3>
+                <div class="px-2">${formatText(solutionSteps[0])}</div>
             `;
             currentStepIndex = 0;
         }
@@ -362,8 +364,10 @@ async function analyzeInput() {
             if (currentStepIndex < solutionSteps.length) {
                 hintContent.innerHTML += `
                     <hr class="my-4">
-                    <h3 class="text-lg font-bold mb-2">${expectedSteps[currentStepIndex]}</h3>
-                    <p>${formatText(solutionSteps[currentStepIndex])}</p>
+                    <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
+                        ${expectedSteps[currentStepIndex]}
+                    </h3>
+                    <div class="px-2">${formatText(solutionSteps[currentStepIndex])}</div>
                 `;
             }
             
@@ -371,8 +375,10 @@ async function analyzeInput() {
                 showNextHintButton.style.display = 'none';
                 reflectionArea.style.display = 'block';
                 reflectionContent.innerHTML = `
-                    <h3 class="text-lg font-bold mb-2">${expectedSteps[4]}</h3>
-                    <p>${formatText(reflectionStep)}</p>
+                    <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
+                        ${expectedSteps[4]}
+                    </h3>
+                    <div class="px-2">${formatText(reflectionStep)}</div>
                 `;
             }
         };
@@ -384,6 +390,30 @@ async function analyzeInput() {
         button.innerText = '分析題目';
         button.disabled = false;
     }
+}
+
+// 格式化文字的函數
+function formatText(text) {
+    if (!text) return '';
+    
+    let formatted = text;
+    
+    // 處理冒號前的標題為粗體
+    formatted = formatted.replace(/^([^：:]+)[：:]/gm, '<strong>$1：</strong>');
+    
+    // 處理星號項目為粗體
+    formatted = formatted.replace(/\*\s*([^：:]+)[：:]/g, '<strong>$1：</strong>');
+    
+    // 移除剩餘的星號
+    formatted = formatted.replace(/\*/g, '');
+    
+    // 轉換換行符
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    // 去除多餘空白
+    formatted = formatted.trim();
+    
+    return formatted;
 }
     
     // 格式化文字
