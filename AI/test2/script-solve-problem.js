@@ -391,7 +391,7 @@ async function analyzeInput() {
         // 設置下一步按鈕的點擊事件
         showNextHintButton.onclick = function() {
             currentStepIndex++;
-            if (currentStepIndex < solutionSteps.length) {
+            if (currentStepIndex < solutionSteps.length - 1) { // 修改：在答案步驟之前
                 hintContent.innerHTML += `
                     <hr class="step-divider">
                     <div class="step-container">
@@ -403,14 +403,22 @@ async function analyzeInput() {
                         </div>
                     </div>
                 `;
-            }
-            
-            // 當顯示完最後一個解題步驟時
-            if (currentStepIndex === solutionSteps.length - 1) {
-                showNextHintButton.style.display = 'none';
-                
-                // 在最後才顯示學習反思區域
-                setTimeout(() => {
+            } else if (currentStepIndex === solutionSteps.length - 1) { // 答案步驟
+                hintContent.innerHTML += `
+                    <hr class="step-divider">
+                    <div class="step-container">
+                        <div class="step-header">
+                            ${expectedSteps[currentStepIndex]}
+                        </div>
+                        <div class="step-content">
+                            ${formatText(solutionSteps[currentStepIndex])}
+                        </div>
+                    </div>
+                `;
+                showNextHintButton.style.display = 'inline-block'; // 顯示下一步按鈕
+                // 設置 "下一步" 按鈕文字為 "顯示學習反思"
+                showNextHintButton.innerText = "顯示學習反思";
+                showNextHintButton.onclick = function() {
                     reflectionArea.style.display = 'block';
                     reflectionContent.innerHTML = `
                         <hr class="step-divider">
@@ -423,7 +431,8 @@ async function analyzeInput() {
                             </div>
                         </div>
                     `;
-                }, 100);
+                    showNextHintButton.style.display = 'none';
+                };
             }
         };
 
@@ -439,28 +448,27 @@ async function analyzeInput() {
 // 格式化文字的函數
 function formatText(text) {
     if (!text) return '';
-
+    
     let formatted = text;
-
+    
     // 移除可能存在的"學習反思："標題
     formatted = formatted.replace(/^學習反思[：:]/gm, '');
-
+    
     // 處理冒號前的標題為粗體
-    // 只匹配行首到冒號的文字，確保只對標題生效
-    formatted = formatted.replace(/^([^：\n]+)[：:]/gm, '<strong>$1：</strong>');
-
+    formatted = formatted.replace(/^([^：:]+)[：:]/gm, '<strong>$1：</strong>');
+    
     // 處理星號項目為粗體
     formatted = formatted.replace(/\*\s*([^：:]+)[：:]/g, '<strong>$1：</strong>');
-
+    
     // 移除剩餘的星號
     formatted = formatted.replace(/\*/g, '');
-
+    
     // 轉換換行符
     formatted = formatted.replace(/\n/g, '<br>');
-
+    
     // 去除多餘空白
     formatted = formatted.trim();
-
+    
     return formatted;
 }
 // 初始化模組
