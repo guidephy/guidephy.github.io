@@ -718,6 +718,28 @@ select {
     max-width: none;
 }
 
+/* 保持桌面版的原有样式 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modern-button,
+.feature-button,
+.submit-button,
+.option-button,
+.tab-button {
+    /* 保持原有的桌面版样式 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
 /* 手機版樣式調整 */
 @media (max-width: 768px) {
     .statistics-cards {
