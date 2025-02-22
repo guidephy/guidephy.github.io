@@ -839,7 +839,47 @@ select {
         padding: 8px 16px;
         font-size: 14px;
     }
+
+        .button-group {
+        margin-bottom: 15px;  
 }
+
+    /* AI素养题生成器相关按钮 */
+    #ai-generator-content .modern-button,
+    #ai-generator-content .feature-button,
+    #ai-generator-content .submit-button,
+    #ai-generator-content .option-button,
+    #ai-generator-content .tab-button,
+    #generateButton,
+    #generateFromQButton,
+    #copyContent,
+    #copyQContent,
+    
+    /* 教我解题相关按钮 */
+    #solve-problem-content .modern-button,
+    #solve-problem-content .feature-button,
+    #solve-problem-content .submit-button,
+    #solve-problem-content .tab-button,
+    #analyzeButton,
+    
+    /* 我的学习记录相关按钮 */
+    #my-records-content .modern-button,
+    #my-records-content .feature-button,
+    #my-records-content .submit-button,
+    #my-records-content .tab-button,
+    #load-notes-button,
+    #load-records-button {
+        font-size: 16px;
+        padding: 12px 20px;
+        min-height: 44px;
+    }
+
+    /* 这些功能区的按钮组间距 */
+    #ai-generator-content .button-group,
+    #solve-problem-content .button-group,
+    #my-records-content .button-group {
+        gap: 12px;
+    }
 
 /* 適配超小屏幕 */
 @media (max-width: 320px) {
@@ -970,6 +1010,7 @@ select {
     margin-top: 20px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: 20px;  /* 增加底部间距 */
 }
 
 /* 提交按鈕水平置中 */
@@ -1641,4 +1682,3 @@ select {
         font-size: 20px;
     }
 }
-
