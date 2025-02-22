@@ -359,7 +359,7 @@ async function analyzeInput() {
             button.disabled = false;
         }
     }
-}
+
     
     // 格式化文字
     function formatText(text) {
