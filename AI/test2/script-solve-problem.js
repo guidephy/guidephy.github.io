@@ -203,6 +203,32 @@ const solveProblemModule = (() => {
     }
 
     // 分析輸入
+// 首先添加必要的樣式
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+    .step-container {
+        margin-bottom: 1rem;
+    }
+    .step-header {
+        background-color: #2563eb;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: bold;
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+    }
+    .step-content {
+        padding: 0 1rem;
+    }
+    .step-divider {
+        border: 0;
+        border-top: 1px solid #e5e7eb;
+        margin: 1rem 0;
+    }
+`;
+document.head.appendChild(styleSheet);
+
 async function analyzeInput() {
     const button = document.getElementById('analyzeButton');
 
@@ -342,14 +368,16 @@ async function analyzeInput() {
         resultArea.innerHTML = '';
         hintArea.style.display = 'block';
 
-        // 顯示第一步 - 減少標題和內容的間距
+        // 顯示第一步
         if (solutionSteps.length > 0) {
             hintContent.innerHTML = `
-                <div class="mb-4">
-                    <h3 class="text-lg font-bold text-blue-600 bg-blue-50 p-2 rounded-lg mb-1">
+                <div class="step-container">
+                    <div class="step-header">
                         ${expectedSteps[0]}
-                    </h3>
-                    <div class="px-2">${formatText(solutionSteps[0])}</div>
+                    </div>
+                    <div class="step-content">
+                        ${formatText(solutionSteps[0])}
+                    </div>
                 </div>
             `;
             currentStepIndex = 0;
@@ -365,11 +393,14 @@ async function analyzeInput() {
             currentStepIndex++;
             if (currentStepIndex < solutionSteps.length) {
                 hintContent.innerHTML += `
-                    <div class="mb-4">
-                        <h3 class="text-lg font-bold text-blue-600 bg-blue-50 p-2 rounded-lg mb-1">
+                    <hr class="step-divider">
+                    <div class="step-container">
+                        <div class="step-header">
                             ${expectedSteps[currentStepIndex]}
-                        </h3>
-                        <div class="px-2">${formatText(solutionSteps[currentStepIndex])}</div>
+                        </div>
+                        <div class="step-content">
+                            ${formatText(solutionSteps[currentStepIndex])}
+                        </div>
                     </div>
                 `;
             }
@@ -382,11 +413,14 @@ async function analyzeInput() {
                 setTimeout(() => {
                     reflectionArea.style.display = 'block';
                     reflectionContent.innerHTML = `
-                        <div class="mb-4">
-                            <h3 class="text-lg font-bold text-blue-600 bg-blue-50 p-2 rounded-lg mb-1">
+                        <hr class="step-divider">
+                        <div class="step-container">
+                            <div class="step-header">
                                 學習反思
-                            </h3>
-                            <div class="px-2">${formatText(reflectionStep)}</div>
+                            </div>
+                            <div class="step-content">
+                                ${formatText(reflectionStep)}
+                            </div>
                         </div>
                     `;
                 }, 100);
@@ -402,23 +436,23 @@ async function analyzeInput() {
     }
 }
 
-// 修改格式化文字的函數，避免在內容中出現"學習反思"標題
+// 格式化文字的函數
 function formatText(text) {
     if (!text) return '';
     
     let formatted = text;
     
-    // 處理冒號前的標題為粗體，但排除"學習反思"
-    formatted = formatted.replace(/^(?!學習反思)([^：:]+)[：:]/gm, '<strong>$1：</strong>');
+    // 移除可能存在的"學習反思："標題
+    formatted = formatted.replace(/^學習反思[：:]/gm, '');
+    
+    // 處理冒號前的標題為粗體
+    formatted = formatted.replace(/^([^：:]+)[：:]/gm, '<strong>$1：</strong>');
     
     // 處理星號項目為粗體
     formatted = formatted.replace(/\*\s*([^：:]+)[：:]/g, '<strong>$1：</strong>');
     
     // 移除剩餘的星號
     formatted = formatted.replace(/\*/g, '');
-    
-    // 移除可能出現的"學習反思"標題
-    formatted = formatted.replace(/^學習反思[：:]/gm, '');
     
     // 轉換換行符
     formatted = formatted.replace(/\n/g, '<br>');
@@ -428,7 +462,6 @@ function formatText(text) {
     
     return formatted;
 }
-
 // 初始化模組
     function init() {
         console.log('Initializing Solve Problem Module...');
