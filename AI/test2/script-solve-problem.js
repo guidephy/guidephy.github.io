@@ -314,22 +314,56 @@ async function analyzeInput() {
         const answer = responseData.candidates[0].content.parts[0].text;
         console.log('API回應:', answer); // 調試用
 
-        // 將回應拆分成段落
-        const paragraphs = answer.split(/(?=\d+\.\s+)/).filter(p => p.trim());
-        
-        if (paragraphs.length !== 5) {
-            throw new Error('回應格式不符合預期，請重試');
+        // 定義標題關鍵字
+        const titles = ['題意分析', '相關知識與理論', '解題流程', '答案', '學習反思'];
+        const sections = [];
+
+        // 用於儲存當前處理的部分
+        let currentContent = '';
+        let currentIndex = -1;
+
+        // 依行處理內容
+        const lines = answer.split('\n');
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
+
+            // 檢查是否是新的部分開始
+            for (let i = 0; i < titles.length; i++) {
+                const regex = new RegExp(`${i + 1}\\.\\s*${titles[i]}`);
+                if (line.match(regex)) {
+                    // 如果有前一部分的內容，保存它
+                    if (currentIndex !== -1 && currentContent) {
+                        sections[currentIndex] = currentContent.trim();
+                    }
+                    // 開始新的部分
+                    currentIndex = i;
+                    // 移除標題，只保留冒號後的內容
+                    currentContent = line.split(/[：:]/)[1] || '';
+                    line = ''; // 已處理此行
+                    break;
+                }
+            }
+
+            // 將非標題行加入當前內容
+            if (line && currentIndex !== -1) {
+                currentContent += (currentContent ? '\n' : '') + line;
+            }
         }
 
-        // 定義標題順序
-        const titles = ['題意分析', '相關知識與理論', '解題流程', '答案', '學習反思'];
-        
-        // 處理每個段落
-        solutionSteps = paragraphs.map((paragraph, index) => {
-            // 移除段落開頭的數字和標題
-            const content = paragraph.replace(/^\d+\.\s*[^：:]*[：:]\s*/, '').trim();
-            return `${titles[index]}：\n${content}`;
-        });
+        // 保存最後一部分的內容
+        if (currentIndex !== -1 && currentContent) {
+            sections[currentIndex] = currentContent.trim();
+        }
+
+        // 檢查是否所有部分都有內容
+        if (sections.length !== titles.length || sections.some(s => !s)) {
+            console.error('sections:', sections); // 調試用
+            throw new Error('無法正確解析所有部分的內容');
+        }
+
+        // 建立最終的步驟陣列
+        solutionSteps = sections.map((content, index) => `${titles[index]}：\n${content}`);
 
         // 顯示第一個部分
         resultArea.innerHTML = '';
@@ -344,7 +378,7 @@ async function analyzeInput() {
             showNextHintButton.style.display = 'inline-block';
         }
 
-        // 設置下一步按鈕的處理邏輯
+        // 修改點擊下一步按鈕的處理邏輯
         showNextHintButton.onclick = function() {
             currentStepIndex++;
             if (currentStepIndex < solutionSteps.length) {
@@ -365,7 +399,6 @@ async function analyzeInput() {
         button.disabled = false;
     }
 }
-
     
     // 格式化文字
     function formatText(text) {
