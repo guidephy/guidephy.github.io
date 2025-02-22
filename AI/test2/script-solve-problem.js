@@ -311,90 +311,97 @@ async function analyzeInput() {
             throw new Error('API 回應格式不正確');
         }
 
-  const answer = responseData.candidates[0].content.parts[0].text;
-    console.log('API回應:', answer); // 調試用
+        const answer = responseData.candidates[0].content.parts[0].text;
+        console.log('API回應:', answer); // 調試用
 
-    // 修改分割邏輯
-    const sections = {
-        '題意分析': '',
-        '相關知識與理論': '',
-        '解題流程': '',
-        '答案': '',
-        '學習反思': ''
-    };
-
-    try {
-        // 先找到所有的段落
-        const allParts = answer.split('\n');
-        let currentSection = '';
-
-        // 遍歷每一行，將內容分配到對應的部分
-        allParts.forEach(part => {
-            part = part.trim();
-            if (!part) return; // 跳過空行
-
-            // 檢查是否是新的段落開始
-            if (part.match(/^[1-5]\.\s*(題意分析|相關知識與理論|解題流程|答案|學習反思)/)) {
-                const sectionMatch = part.match(/\s*(題意分析|相關知識與理論|解題流程|答案|學習反思)/);
-                if (sectionMatch) {
-                    currentSection = sectionMatch[1];
-                    // 移除標題部分，只保留內容
-                    const content = part.replace(/^[1-5]\.\s*(題意分析|相關知識與理論|解題流程|答案|學習反思)[:：]?\s*/, '').trim();
-                    if (content) {
-                        sections[currentSection] = content;
-                    }
-                }
-            } else if (currentSection) {
-                // 將內容添加到當前部分
-                sections[currentSection] = sections[currentSection] ? 
-                    sections[currentSection] + '\n' + part : part;
-            }
-        });
-
-        // 將sections轉換為有序陣列
-        solutionSteps = Object.entries(sections).map(([title, content]) => {
-            return `${title}：\n${content.trim()}`;
-        });
-
-        // 檢查是否每個部分都有內容
-        if (solutionSteps.some(step => !step.split('：')[1].trim())) {
-            throw new Error('某些部分缺少內容');
-        }
-
-        // 顯示第一個部分
-        resultArea.innerHTML = '';
-        hintArea.style.display = 'block';
-        
-        if (solutionSteps.length > 0) {
-            hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
-            currentStepIndex = 0;
-        }
-
-        if (solutionSteps.length > 1) {
-            showNextHintButton.style.display = 'inline-block';
-        }
-
-        // 修改點擊下一步按鈕的處理邏輯
-        showNextHintButton.onclick = function() {
-            currentStepIndex++;
-            if (currentStepIndex < solutionSteps.length) {
-                hintContent.innerHTML = `<p>${formatText(solutionSteps[currentStepIndex])}</p>`;
-            }
-
-            // 當顯示到最後一個部分時
-            if (currentStepIndex === solutionSteps.length - 1) {
-                showNextHintButton.style.display = 'none';
-            }
+        // 修改分割邏輯
+        const sections = {
+            '題意分析': '',
+            '相關知識與理論': '',
+            '解題流程': '',
+            '答案': '',
+            '學習反思': ''
         };
 
+        try {
+            // 先找到所有的段落
+            const allParts = answer.split('\n');
+            let currentSection = '';
+
+            // 遍歷每一行，將內容分配到對應的部分
+            allParts.forEach(part => {
+                part = part.trim();
+                if (!part) return; // 跳過空行
+
+                // 檢查是否是新的段落開始
+                if (part.match(/^[1-5]\.\s*(題意分析|相關知識與理論|解題流程|答案|學習反思)/)) {
+                    const sectionMatch = part.match(/\s*(題意分析|相關知識與理論|解題流程|答案|學習反思)/);
+                    if (sectionMatch) {
+                        currentSection = sectionMatch[1];
+                        // 移除標題部分，只保留內容
+                        const content = part.replace(/^[1-5]\.\s*(題意分析|相關知識與理論|解題流程|答案|學習反思)[:：]?\s*/, '').trim();
+                        if (content) {
+                            sections[currentSection] = content;
+                        }
+                    }
+                } else if (currentSection) {
+                    // 將內容添加到當前部分
+                    sections[currentSection] = sections[currentSection] ? 
+                        sections[currentSection] + '\n' + part : part;
+                }
+            });
+
+            // 將sections轉換為有序陣列
+            solutionSteps = Object.entries(sections).map(([title, content]) => {
+                return `${title}：\n${content.trim()}`;
+            });
+
+            // 檢查是否每個部分都有內容
+            if (solutionSteps.some(step => !step.split('：')[1].trim())) {
+                throw new Error('某些部分缺少內容');
+            }
+
+            // 顯示第一個部分
+            resultArea.innerHTML = '';
+            hintArea.style.display = 'block';
+            
+            if (solutionSteps.length > 0) {
+                hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
+                currentStepIndex = 0;
+            }
+
+            if (solutionSteps.length > 1) {
+                showNextHintButton.style.display = 'inline-block';
+            }
+
+            // 修改點擊下一步按鈕的處理邏輯
+            showNextHintButton.onclick = function() {
+                currentStepIndex++;
+                if (currentStepIndex < solutionSteps.length) {
+                    hintContent.innerHTML = `<p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+                }
+
+                // 當顯示到最後一個部分時
+                if (currentStepIndex === solutionSteps.length - 1) {
+                    showNextHintButton.style.display = 'none';
+                }
+            };
+
+        } catch (error) {
+            console.error('內容分割錯誤:', error);
+            throw new Error('解答格式處理失敗：' + error.message);
+        }
+
     } catch (error) {
-        console.error('內容分割錯誤:', error);
-        throw new Error('解答格式處理失敗：' + error.message);
+        console.error('分析題目時發生錯誤:', error);
+        resultArea.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
     } finally {
         button.innerText = '分析題目';
         button.disabled = false;
     }
 }
+
+    
     // 格式化文字
     function formatText(text) {
         if (!text) return '';
