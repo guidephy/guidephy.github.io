@@ -727,17 +727,49 @@ select {
     flex-wrap: wrap;
 }
 
+
+
 .modern-button,
 .feature-button,
-.submit-button,
-.option-button,
-.tab-button {
-    /* 保持原有的桌面版样式 */
+.submit-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 16px;
+    padding: 10px 20px;
     font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    background-color: #8ab0ab;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-button:hover,
+.feature-button:hover,
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background-color: #7a9e99;
+}
+
+.modern-button:active,
+.feature-button:active,
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 我的学习记录页面的表单布局 */
+#my-records-content .form-group {
+    margin-bottom: 20px;  /* 增加与下方按钮的间距 */
+}
+
+#my-records-content .button-container {
+    display: flex;
+    justify-content: center;  /* 水平居中 */
+    margin-top: 20px;        /* 与上方输入框的间距 */
 }
 
 /* 手機版樣式調整 */
