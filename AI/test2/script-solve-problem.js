@@ -371,15 +371,21 @@ async function analyzeInput() {
                 `;
             }
             
+            // 當顯示完最後一個解題步驟時
             if (currentStepIndex === solutionSteps.length - 1) {
                 showNextHintButton.style.display = 'none';
-                reflectionArea.style.display = 'block';
-                reflectionContent.innerHTML = `
-                    <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
-                        ${expectedSteps[4]}
-                    </h3>
-                    <div class="px-2">${formatText(reflectionStep)}</div>
-                `;
+                
+                // 在最後才顯示學習反思區域，只顯示一次
+                setTimeout(() => {
+                    reflectionArea.style.display = 'block';
+                    reflectionContent.innerHTML = `
+                        <hr class="my-4">
+                        <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
+                            ${expectedSteps[4]}
+                        </h3>
+                        <div class="px-2">${formatText(reflectionStep)}</div>
+                    `;
+                }, 100);
             }
         };
 
@@ -415,23 +421,6 @@ function formatText(text) {
     
     return formatted;
 }
-    
-    // 格式化文字
-    function formatText(text) {
-        if (!text) return '';
-        
-        let formatted = text;
-        // 移除 Markdown 標題標記 (移除所有的 # 符號和後面的空格)
-        formatted = formatted.replace(/^#+\s*/gm, '');
-        // 轉換換行符
-        formatted = formatted.replace(/\n/g, '<br>');
-        // 轉換粗體
-        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        // 去除多餘空白
-        formatted = formatted.trim();
-        
-        return formatted;
-    }
 
 // 初始化模組
     function init() {
