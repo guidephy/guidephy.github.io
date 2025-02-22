@@ -342,13 +342,15 @@ async function analyzeInput() {
         resultArea.innerHTML = '';
         hintArea.style.display = 'block';
 
-        // 顯示第一步
+        // 顯示第一步 - 減少標題和內容的間距
         if (solutionSteps.length > 0) {
             hintContent.innerHTML = `
-                <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
-                    ${expectedSteps[0]}
-                </h3>
-                <div class="px-2">${formatText(solutionSteps[0])}</div>
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-blue-600 bg-blue-50 p-2 rounded-lg mb-1">
+                        ${expectedSteps[0]}
+                    </h3>
+                    <div class="px-2">${formatText(solutionSteps[0])}</div>
+                </div>
             `;
             currentStepIndex = 0;
         }
@@ -363,11 +365,12 @@ async function analyzeInput() {
             currentStepIndex++;
             if (currentStepIndex < solutionSteps.length) {
                 hintContent.innerHTML += `
-                    <hr class="my-4">
-                    <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
-                        ${expectedSteps[currentStepIndex]}
-                    </h3>
-                    <div class="px-2">${formatText(solutionSteps[currentStepIndex])}</div>
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-blue-600 bg-blue-50 p-2 rounded-lg mb-1">
+                            ${expectedSteps[currentStepIndex]}
+                        </h3>
+                        <div class="px-2">${formatText(solutionSteps[currentStepIndex])}</div>
+                    </div>
                 `;
             }
             
@@ -375,15 +378,16 @@ async function analyzeInput() {
             if (currentStepIndex === solutionSteps.length - 1) {
                 showNextHintButton.style.display = 'none';
                 
-                // 在最後才顯示學習反思區域，只顯示一次
+                // 在最後才顯示學習反思區域
                 setTimeout(() => {
                     reflectionArea.style.display = 'block';
                     reflectionContent.innerHTML = `
-                        <hr class="my-4">
-                        <h3 class="text-lg font-bold mb-2 text-blue-600 bg-blue-50 p-2 rounded-lg">
-                            ${expectedSteps[4]}
-                        </h3>
-                        <div class="px-2">${formatText(reflectionStep)}</div>
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-blue-600 bg-blue-50 p-2 rounded-lg mb-1">
+                                學習反思
+                            </h3>
+                            <div class="px-2">${formatText(reflectionStep)}</div>
+                        </div>
                     `;
                 }, 100);
             }
@@ -398,20 +402,23 @@ async function analyzeInput() {
     }
 }
 
-// 格式化文字的函數
+// 修改格式化文字的函數，避免在內容中出現"學習反思"標題
 function formatText(text) {
     if (!text) return '';
     
     let formatted = text;
     
-    // 處理冒號前的標題為粗體
-    formatted = formatted.replace(/^([^：:]+)[：:]/gm, '<strong>$1：</strong>');
+    // 處理冒號前的標題為粗體，但排除"學習反思"
+    formatted = formatted.replace(/^(?!學習反思)([^：:]+)[：:]/gm, '<strong>$1：</strong>');
     
     // 處理星號項目為粗體
     formatted = formatted.replace(/\*\s*([^：:]+)[：:]/g, '<strong>$1：</strong>');
     
     // 移除剩餘的星號
     formatted = formatted.replace(/\*/g, '');
+    
+    // 移除可能出現的"學習反思"標題
+    formatted = formatted.replace(/^學習反思[：:]/gm, '');
     
     // 轉換換行符
     formatted = formatted.replace(/\n/g, '<br>');
