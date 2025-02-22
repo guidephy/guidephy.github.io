@@ -210,8 +210,8 @@ styleSheet.textContent = `
         margin-bottom: 1rem;
     }
     .step-header {
-        background-color: #2563eb;
-        color: white;
+        background-color: #fae6de;
+        color: black;
         padding: 0.5rem 1rem;
         border-radius: 0.375rem;
         font-weight: bold;
