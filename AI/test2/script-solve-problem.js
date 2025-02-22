@@ -312,42 +312,26 @@ async function analyzeInput() {
         }
 
         const answer = responseData.candidates[0].content.parts[0].text;
+        console.log('API回應:', answer); // 調試用
 
-        // 使用明確的標記來分割不同部分
-        const sections = {
-            題意分析: '',
-            相關知識與理論: '',
-            解題流程: '',
-            答案: '',
-            學習反思: ''
-        };
+        // 將回應分成五個部分
+        const parts = answer.split(/\d+\.\s+/).filter(part => part.trim());
+        
+        if (parts.length !== 5) {
+            throw new Error('解答格式不正確，無法正確分割五個部分');
+        }
 
-        // 使用正則表達式找出每個部分
-        const patterns = {
-            題意分析: /1\.\s*題意分析[:：]([\s\S]*?)(?=2\.\s*相關知識與理論|$)/,
-            相關知識與理論: /2\.\s*相關知識與理論[:：]([\s\S]*?)(?=3\.\s*解題流程|$)/,
-            解題流程: /3\.\s*解題流程[:：]([\s\S]*?)(?=4\.\s*答案|$)/,
-            答案: /4\.\s*答案[:：]([\s\S]*?)(?=5\.\s*學習反思|$)/,
-            學習反思: /5\.\s*學習反思[:：]([\s\S]*?)$/
-        };
-
-        // 提取每個部分的內容
-        Object.keys(patterns).forEach(key => {
-            const match = answer.match(patterns[key]);
-            if (match && match[1]) {
-                sections[key] = match[1].trim();
-            }
-        });
-
-        // 將內容轉換為有序陣列
-        solutionSteps = Object.entries(sections).map(([title, content]) => {
-            return `${title}：\n${content}`;
+        const titles = ['題意分析', '相關知識與理論', '解題流程', '答案', '學習反思'];
+        solutionSteps = parts.map((content, index) => {
+            // 移除可能的標題文字
+            const cleanContent = content.replace(/^[^：:]*[：:]\s*/, '').trim();
+            return `${titles[index]}：\n${cleanContent}`;
         });
 
         // 顯示第一個部分
         resultArea.innerHTML = '';
         hintArea.style.display = 'block';
-
+        
         if (solutionSteps.length > 0) {
             hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
             currentStepIndex = 0;
