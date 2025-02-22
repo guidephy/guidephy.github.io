@@ -1,0 +1,1738 @@
+/* 主頁樣式 */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f7f6f2;
+    color: #333;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.overlay.show {
+    display: block;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #f0f0f0;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 桌面版樣式 */
+@media (min-width: 769px) {
+    .sidebar {
+        position: fixed;
+        top: 50px;
+        left: 0;
+        height: calc(100vh - 50px);
+        width: 250px;
+        overflow-y: auto;
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 250px;
+        padding-top: 50px;
+        width: calc(100% - 250px);
+        height: calc(100vh - 50px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-window {
+        flex: 1;
+        overflow-y: auto;
+        height: calc(100vh - 200px);
+    }
+
+    .external-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
+        height: calc(100vh - 50px);
+    }
+}
+
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+.sidebar-menu {
+    flex: 1;
+    padding: 10px;
+}
+
+.menu-item {
+    padding: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #333;
+    font-size: 16px;
+}
+
+.menu-item:hover {
+    background-color: #d9d9d9;
+    color: #000;
+}
+
+.menu-item.hidden {
+    display: none;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    background-color: #8ab0ab;
+    color: white;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+    height: 50px;
+    box-sizing: border-box;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fafafa;
+    position: relative;
+}
+
+.header .menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* 聊天窗口 */
+.chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    height: auto; /* 設定為 auto */
+}
+
+.message {
+    display: inline-block;
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin: 5px 0;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-in;
+    line-height: 1.6;
+    font-size: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.user-message {
+    background-color: #DCF8C6;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.bot-message {
+    background-color: #ECF5FF;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+}
+
+.message img {
+    max-width: 150px;
+    border-radius: 10px;
+}
+
+/* 工具列(toolbar) */
+.toolbar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap: 5px;
+    background-color: #f7f7f7;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    position: sticky; /* 確保置頂 */
+    bottom: 50px;
+    z-index: 100;
+}
+
+.toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+.mode-indicator {
+    background-color: #f0f0f0;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.mode-label {
+    margin-right: 4px;
+}
+
+#current-mode {
+    font-weight: bold;
+    color: #8ab0ab;
+}
+
+.mode-transition {
+    animation: fadeInOut 0.3s ease;
+}
+/* 工具列按鈕改進 */
+.toolbar .modern-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 80px;
+    height: 36px;
+    box-shadow: 0 2px 4px rgba(138, 176, 171, 0.2);
+}
+
+.toolbar .modern-button:hover {
+    background-color: #749994;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(138, 176, 171, 0.3);
+}
+
+.toolbar .modern-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(138, 176, 171, 0.2);
+}
+
+.toolbar .modern-button i {
+    font-size: 16px;
+}
+
+.input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: white;
+    gap: 10px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: 100%;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+}
+.upload-button {
+    background-color: #8ab0ab;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: background-color 0.3s;
+}
+
+.upload-button:hover {
+    background-color: #749994;
+}
+
+.upload-button input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#user-input {
+    flex: 1 1 auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+#user-input:focus {
+    border-color: #8ab0ab;
+}
+
+#send-button {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    background-color: #46A3FF;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 100px;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
+}
+
+#send-button:hover {
+    background-color: #0072E3;
+}
+
+/* 自主學習模式按鈕樣式 */
+.option-button {
+    background-color: #ffffff;
+    color: #8ab0ab;
+    border: 2px solid #8ab0ab;
+    padding: 8px 16px;
+    border-radius: 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 5px;
+    min-width: 100px;
+    max-width: 150px;
+    height: 32px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.option-button:hover {
+    background-color: #8ab0ab;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.option-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.message-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+/* 統一風格 */
+h1 {
+    color: #8ab0ab;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.feature-container {
+    height: auto; /* 修改：移除固定高度 */
+    max-height: calc(100vh - 100px); /* 限制最大高度 */
+    margin: 0;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    overflow-y: auto; /* 修改：允許垂直滾動 */
+}
+
+/* 表單相關樣式 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: #fff;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+select {
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%238ab0ab"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem 1.25rem;
+    padding-right: 2.5rem;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #fff;
+}
+
+/* Tab 相關樣式 */
+.tab-switch {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #8ab0ab;
+    gap: 10px;
+}
+
+
+.tab-button {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    color: #666;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    flex: 0 1 auto;
+    text-align: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.tab-button:hover {
+    color: #8ab0ab;
+    background-color: rgba(138, 176, 171, 0.1);
+}
+
+.tab-button.active {
+    color: #8ab0ab;
+    font-weight: bold;
+    background-color: #f5f5f5;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #8ab0ab;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 0 0 8px 8px;
+    box-sizing: border-box;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* 題目卡片樣式 */
+.question-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.question-options label {
+    display: block;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.question-options label:hover {
+    background-color: #f5f5f5;
+}
+
+.correct-answer {
+    color: #28a745;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.wrong-answer {
+    color: #dc3545;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.explanation {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    color: #333;
+    font-style: italic;
+}
+
+/* 圖片上傳區域樣式 */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+}
+
+.upload-area:hover {
+    border-color: #8ab0ab;
+    background-color: #f8fafc;
+}
+
+.upload-icon {
+    font-size: 48px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.upload-text {
+    color: #666;
+    margin-bottom: 16px;
+}
+
+/* 圖片預覽樣式 */
+.image-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+    position: relative;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.delete-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+    background-color: rgb(220, 53, 69);
+}
+
+/* 統計卡片樣式 */
+.statistics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.statistic-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.statistic-card:hover {
+    transform: translateY(-2px);
+}
+
+.statistic-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #8ab0ab;
+    margin-bottom: 5px;
+}
+
+.statistic-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* 筆記相關樣式 */
+.note-card {
+    background: white;
+    border-left: 4px solid #8ab0ab;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.note-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.note-card .note-header {
+    font-size: 1.2em;
+    color: #8ab0ab;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.note-content {
+    color: #333;
+    line-height: 1.6;
+}
+
+/* iframe 相關樣式 */
+.modern-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.modern-container iframe {
+    width: 100%;
+    height: calc(100vh - 100px);
+    border: none;
+    border-radius: 8px;
+}
+
+#physics-lecture-content,
+#calculator-content,
+#tomato-content {
+    padding: 0 !important;
+    height: calc(100vh - 50px);
+    overflow: hidden;
+}
+
+#physics-lecture-content .feature-container,
+#calculator-content .feature-container,
+#tomato-content .feature-container {
+    padding: 0;
+    height: 100%;
+    margin: 0;
+    max-width: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+#physics-lecture-content .modern-container,
+#calculator-content .modern-container,
+#tomato-content .modern-container {
+    padding: 0;
+    height: 100%;
+    max-width: none;
+}
+
+/* 保持桌面版的原有样式 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+
+
+.modern-button,
+.feature-button,
+.submit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    background-color: #8ab0ab;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-button:hover,
+.feature-button:hover,
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background-color: #7a9e99;
+}
+
+.modern-button:active,
+.feature-button:active,
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 我的学习记录页面的表单布局 */
+#my-records-content .form-group {
+    margin-bottom: 20px;  /* 增加与下方按钮的间距 */
+}
+
+#my-records-content .button-container {
+    display: flex;
+    justify-content: center;  /* 水平居中 */
+    margin-top: 20px;        /* 与上方输入框的间距 */
+}
+
+/* 手機版樣式調整 */
+@media (max-width: 768px) {
+    .statistics-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .header .menu-toggle {
+        display: block;
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        height: 100vh;
+    }
+    
+    .sidebar.show {
+        left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding-top: 50px;
+        height: calc(100vh - 50px);
+    }
+
+    .chat-window {
+        flex: 1;
+        height: auto;
+        max-height: calc(100vh - 180px);
+        overflow-y: auto;
+        margin-top: 0;
+        padding-top: 10px;
+    }
+
+    .toolbar {
+        padding: 8px 5px;
+        gap: 3px;
+    }
+
+    .mode-indicator {
+        padding: 4px 8px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .toolbar .modern-button {
+        padding: 6px 12px;
+        font-size: 13px;
+        min-width: 60px;
+        height: 32px;
+    }
+
+    .toolbar .modern-button i {
+        display: none;
+    }
+
+    .message {
+        max-width: 85%;
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .option-button {
+        padding: 6px 12px;
+        font-size: 13px;
+        min-width: 80px;
+        max-width: 120px;
+        height: 28px;
+    }
+
+    .message-options {
+        gap: 6px;
+    }
+
+    .tab-switch {
+        flex-direction: column;
+    }
+
+    .tab-button {
+        width: 100%;
+        border-radius: 0;
+    }
+
+    .external-content {
+        padding: 10px;
+        box-sizing: border-box;
+        height: calc(100vh - 50px);
+        width: 100%;
+    }
+
+    .feature-container {
+    height: auto;
+    max-height: calc(100vh - 100px);
+    margin: 0;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    overflow-y: auto;
+    }
+
+    .result-area {
+        max-height: calc(100vh - 200px);
+    }
+
+    .input-area {
+        padding: 8px;
+    }
+
+    #user-input {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    #send-button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+        .button-group {
+        margin-bottom: 15px;  
+}
+
+    /* AI素养题生成器相关按钮 */
+    #ai-generator-content .modern-button,
+    #ai-generator-content .feature-button,
+    #ai-generator-content .submit-button,
+    #ai-generator-content .option-button,
+    #ai-generator-content .tab-button,
+    #generateButton,
+    #generateFromQButton,
+    #copyContent,
+    #copyQContent,
+    
+    /* 教我解题相关按钮 */
+    #solve-problem-content .modern-button,
+    #solve-problem-content .feature-button,
+    #solve-problem-content .submit-button,
+    #solve-problem-content .tab-button,
+    #analyzeButton,
+    
+    /* 我的学习记录相关按钮 */
+    #my-records-content .modern-button,
+    #my-records-content .feature-button,
+    #my-records-content .submit-button,
+    #my-records-content .tab-button,
+    #load-notes-button,
+    #load-records-button {
+        font-size: 16px;
+        padding: 12px 20px;
+        min-height: 44px;
+    }
+
+    /* 这些功能区的按钮组间距 */
+    #ai-generator-content .button-group,
+    #solve-problem-content .button-group,
+    #my-records-content .button-group {
+        gap: 12px;
+    }
+
+/* 適配超小屏幕 */
+@media (max-width: 320px) {
+    .toolbar .modern-button {
+        font-size: 10px;
+        padding: 4px 6px;
+    }
+
+    .mode-indicator {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+
+    #user-input {
+        font-size: 12px;
+    }
+
+    .message {
+        font-size: 12px;
+        max-width: 95%;
+    }
+}
+
+/* 動畫效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* 滾動條樣式 */
+.chat-window {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.chat-window::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+/* 載入和錯誤提示樣式 */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+.loading::after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 2px solid #8ab0ab;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+/* 提示區域樣式 */
+#hintArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#reflectionArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#hintContent,
+#reflectionContent {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* 按鈕組樣式 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;  /* 增加底部间距 */
+}
+
+/* 提交按鈕水平置中 */
+.submit-button {
+    display: block; /* 將按鈕變成塊級元素 */
+    margin: 20px auto;  /* 設定上下間距為 20px，左右自動 */
+    text-align: center;  /* 確保按鈕文字水平置中 */
+}
+
+/* 進度步驟樣式 */
+.progress-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #8ab0ab;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.step-description {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.progress-step.inactive .step-number {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
+
+/* 反思區塊樣式 */
+.theory-base {
+    background-color: #fff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.theory-base h4 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.validation-info {
+    background-color: #f0f7ff;
+    border-left: 4px solid #46A3FF;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.validation-info h3,
+.solution-steps h3 {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.validation-info p {
+    margin: 5px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.validation-info p:last-child {
+    border-bottom: none;
+}
+
+/* 解題步驟樣式 */
+.solution-steps {
+    background-color: #f8f9fa;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 8px;
+}
+
+.solution-steps ol {
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.solution-steps li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+/* 手機版樣式調整 */
+@media (max-width: 768px) {
+    .statistics-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .header .menu-toggle {
+        display: block;
+    }
+    
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        height: 100vh;
+    }
+    
+    .sidebar.show {
+        left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding-top: 50px;
+        height: calc(100vh - 50px);
+    }
+
+    .chat-window {
+        flex: 1;
+        height: auto;
+        max-height: calc(100vh - 180px);
+        overflow-y: auto;
+        margin-top: 0;
+        padding-top: 10px;
+    }
+
+    .toolbar {
+        padding: 8px 5px;
+        gap: 3px;
+    }
+
+    .mode-indicator {
+        padding: 4px 8px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .toolbar .modern-button {
+        padding: 6px 12px;
+        font-size: 13px;
+        min-width: 60px;
+        height: 32px;
+    }
+
+    .toolbar .modern-button i {
+        display: none;
+    }
+
+    .message {
+        max-width: 85%;
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .option-button {
+        padding: 6px 12px;
+        font-size: 13px;
+        min-width: 80px;
+        max-width: 120px;
+        height: 28px;
+    }
+
+    .message-options {
+        gap: 6px;
+    }
+
+    .tab-switch {
+        flex-direction: row;   /* 設定為水平排列 */
+        overflow-x: auto;       /* 允許水平滾動 */
+        white-space: nowrap;   /* 防止選項換行 */
+        padding-bottom: 5px;     /* 增加底部內距 */
+        display: flex;          /* 確保使用 Flexbox */
+        width: 100%;             /* 設定總寬度與頁面內容一致 */
+    }
+
+    .tab-button {
+        width: auto;              /* 設定為自動寬度 */
+        flex: 1;                 /* 修改：使所有 Tab 均分寬度 */
+        border-bottom: none;      /* 移除底部邊框 */
+        text-align: center;      /* 確保 Tab 文字置中 */
+    }
+
+    .external-content {
+        padding: 10px;
+        box-sizing: border-box;
+        height: calc(100vh - 50px);
+        width: 100%;
+    }
+
+    .feature-container {
+        padding: 15px;
+        box-sizing: border-box;
+        max-height: calc(100vh - 100px); /* 限制最大高度 */
+        overflow-y: auto; /* 確保內部內容可以滾動 */
+        width: 100%;
+        max-width:none;
+    }
+
+    .result-area {
+        max-height: calc(100vh - 200px);
+    }
+
+    .input-area {
+        padding: 8px;
+    }
+
+    #user-input {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    #send-button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* 適配超小屏幕 */
+@media (max-width: 320px) {
+    .toolbar .modern-button {
+        font-size: 10px;
+        padding: 4px 6px;
+    }
+
+    .mode-indicator {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+
+    #user-input {
+        font-size: 12px;
+    }
+
+    .message {
+        font-size: 12px;
+        max-width: 95%;
+    }
+}
+
+/* 動畫效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* 滾動條樣式 */
+.chat-window {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.chat-window::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+/* 載入和錯誤提示樣式 */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+.loading::after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 2px solid #8ab0ab;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+/* 提示區域樣式 */
+#hintArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#reflectionArea {
+    display: none;
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#hintContent,
+#reflectionContent {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* 按鈕組樣式 */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* 提交按鈕水平置中 */
+.submit-button {
+    display: block; /* 將按鈕變成塊級元素 */
+    margin: 20px auto;  /* 設定上下間距為 20px，左右自動 */
+    text-align: center;  /* 確保按鈕文字水平置中 */
+}
+
+/* 進度步驟樣式 */
+.progress-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #8ab0ab;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.step-description {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.progress-step.inactive .step-number {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
+
+/* 反思區塊樣式 */
+.theory-base {
+    background-color: #fff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.theory-base h4 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.validation-info {
+    background-color: #f0f7ff;
+    border-left: 4px solid #46A3FF;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.validation-info h3,
+.solution-steps h3 {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.validation-info p {
+    margin: 5px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.validation-info p:last-child {
+    border-bottom: none;
+}
+
+/* 解題步驟樣式 */
+.solution-steps {
+    background-color: #f8f9fa;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 8px;
+}
+
+.solution-steps ol {
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.solution-steps li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group .form-input {
+    width: 100%;
+    margin-bottom: 15px;  /* 增加輸入框與按鈕的垂直間距 */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;  /* 水平置中 */
+    margin-top: 10px;  /* 額外的上方間距 */
+}
+
+.toolbar .modern-button.note-button {
+    background-color: #FFBB77;  /* 溫暖的橙色 */
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.toolbar .modern-button.note-button:hover {
+    background-color: #FFA042;  /* 深橙色 */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(245, 124, 0, 0.3);
+}
+
+.toolbar .modern-button.note-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(245, 124, 0, 0.2);
+}
+.button-container .modern-button {
+    min-width: 120px;  /* 設定按鈕最小寬度 */
+}
+
+@media (max-width: 768px) {
+
+    /* 针对特定功能区域的容器调整 */
+    #ai-generator-content .feature-container,
+    #solve-problem-content .feature-container,
+    #my-records-content .feature-container {
+        width: 100vw; /* 使用视窗宽度 */
+        max-width: none;
+        margin: 0;
+        padding: 10px;
+        border-radius: 0;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        box-sizing: border-box;
+    }
+
+    #ai-generator-content .modern-container,
+    #solve-problem-content .modern-container,
+    #my-records-content .modern-container {
+        padding: 0;
+        max-width: none;
+        width: 100%;
+    }
+
+    /* 确保内部元素也是全宽 */
+    #ai-generator-content .form-group,
+    #solve-problem-content .form-group,
+    #my-records-content .form-group,
+    #ai-generator-content .question-card,
+    #solve-problem-content .result-area,
+    #my-records-content .note-card {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        box-sizing: border-box;
+    }
+
+    /* 修正外部内容区域的样式 */
+    .external-content {
+        padding: 0;
+        box-sizing: border-box;
+        height: calc(100vh - 50px);
+        width: 100%;
+    }
+    /* 聊天訊息文字 */
+    .message {
+        font-size: 16px;
+        line-height: 1.6;
+        padding: 12px 16px;
+    }
+
+    /* 工具列文字 */
+    .toolbar .modern-button {
+        font-size: 15px;
+        padding: 8px 16px;
+    }
+
+    .mode-indicator {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+
+    /* 輸入區域文字 */
+    #user-input {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* 選項按鈕文字 */
+    .option-button {
+        font-size: 15px;
+        padding: 8px 16px;
+    }
+
+    /* 題目卡片文字 */
+    .question-card {
+        font-size: 16px;
+        padding: 16px;
+    }
+
+    .question-options label {
+        font-size: 15px;
+        padding: 14px;
+    }
+
+    /* 筆記卡片文字 */
+    .note-card {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .note-header {
+        font-size: 18px;
+    }
+
+    /* 提示區域文字 */
+    #hintContent,
+    #reflectionContent {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    /* 表單元素文字 */
+    input[type="text"],
+    textarea,
+    select {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* 統計卡片文字 */
+    .statistic-number {
+        font-size: 24px;
+    }
+
+    .statistic-label {
+        font-size: 14px;
+    }
+
+    /* Tab文字 */
+    .tab-button {
+        font-size: 15px;
+        padding: 12px 16px;
+    }
+
+    /* 其他標題文字 */
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+}
+
+/* 超小屏幕額外調整 */
+@media (max-width: 320px) {
+    .message {
+        font-size: 15px;
+        padding: 10px 14px;
+    }
+
+    .toolbar .modern-button {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .statistic-number {
+        font-size: 20px;
+    }
+}
