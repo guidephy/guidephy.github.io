@@ -306,58 +306,79 @@ async function analyzeInput() {
                 throw new Error('API 回應格式不正確');
             }
 
-            const answer = responseData.candidates[0].content.parts[0].text;
-            console.log('原始回應:', answer); // 用於調試
+           const answer = responseData.candidates[0].content.parts[0].text;
+        console.log('原始回應:', answer);
 
-            // 定義五個部分的標題
-            const sections = ['題意分析', '相關知識與理論', '解題流程', '答案', '學習反思'];
-            const splitContent = answer.split(/\d\.\s+/).filter(s => s.trim());
-            solutionSteps = []; // 清空現有步驟
+        // 定義要搜尋的部分
+        const parts = {
+            '題意分析': '',
+            '相關知識與理論': '',
+            '解題流程': '',
+            '答案': '',
+            '學習反思': ''
+        };
 
-            // 確保有5個部分
-            if (splitContent.length >= 5) {
-                // 對每個部分進行處理
-                solutionSteps = sections.map((title, index) => {
-                    // 使用冒號分割，取得內容部分
-                    const content = splitContent[index].split(/[：:]/);
-                    // 如果有分割成功，取第二部分，否則使用整個內容
-                    return content.length > 1 ? content[1].trim() : splitContent[index].trim();
-                });
-            }
+        // 分割成行
+        const lines = answer.split('\n');
+        let currentPart = '';
 
-            resultArea.innerHTML = '';
-            hintArea.style.display = 'block';
+        // 遍歷每一行，找到對應的部分
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
 
-            // 顯示第一部分
-            if (solutionSteps.length === 5) {
-                hintContent.innerHTML = `<h3>${sections[0]}</h3><p>${formatText(solutionSteps[0])}</p>`;
-                currentStepIndex = 0;
-                showNextHintButton.style.display = 'inline-block';
-            } else {
-                throw new Error('回應格式不符合預期的五個部分');
-            }
-
-            // 修改下一步按鈕的點擊事件
-            showNextHintButton.onclick = function() {
-                currentStepIndex++;
-                if (currentStepIndex < 5) {
-                    // 每次只顯示當前部分，不累加
-                    hintContent.innerHTML = `<h3>${sections[currentStepIndex]}</h3><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+            // 檢查是否是新的部分開始
+            const partMatch = line.match(/^\d+\.\s*(題意分析|相關知識與理論|解題流程|答案|學習反思)/);
+            if (partMatch) {
+                currentPart = partMatch[1];
+                // 去除標題，只保留冒號後的內容
+                const content = line.split(/[：:]/)[1];
+                if (content) {
+                    parts[currentPart] = content.trim();
                 }
-
-                // 當到達最後一個部分時
-                if (currentStepIndex === 4) {
-                    showNextHintButton.style.display = 'none';
-                }
-            };
-
-        } catch (error) {
-            console.error('分析題目時發生錯誤:', error);
-            resultArea.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
-        } finally {
-            button.innerText = '分析題目';
-            button.disabled = false;
+            } else if (currentPart && parts[currentPart]) {
+                // 將這行加入到當前部分
+                parts[currentPart] += '\n' + line;
+            }
         }
+
+        // 將內容轉換為陣列
+        solutionSteps = Object.values(parts).map(content => content.trim());
+
+        resultArea.innerHTML = '';
+        hintArea.style.display = 'block';
+
+        // 顯示第一部分
+        if (solutionSteps.every(step => step)) {
+            const titles = Object.keys(parts);
+            hintContent.innerHTML = `<h3>${titles[0]}</h3><p>${formatText(solutionSteps[0])}</p>`;
+            currentStepIndex = 0;
+            showNextHintButton.style.display = 'inline-block';
+        } else {
+            throw new Error('無法正確解析所有部分的內容');
+        }
+
+        // 修改下一步按鈕的點擊事件
+        showNextHintButton.onclick = function() {
+            currentStepIndex++;
+            if (currentStepIndex < 5) {
+                const titles = Object.keys(parts);
+                hintContent.innerHTML = `<h3>${titles[currentStepIndex]}</h3><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+            }
+
+            // 當到達最後一個部分時
+            if (currentStepIndex === 4) {
+                showNextHintButton.style.display = 'none';
+            }
+        };
+
+    } catch (error) {
+        console.error('分析題目時發生錯誤:', error);
+        resultArea.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
+    } finally {
+        button.innerText = '分析題目';
+        button.disabled = false;
+    }
     }
 
     
