@@ -446,7 +446,8 @@ function formatText(text) {
     formatted = formatted.replace(/^學習反思[：:]/gm, '');
 
     // 處理冒號前的標題為粗體
-    formatted = formatted.replace(/^([^：:]+)[：:]/gm, '<strong>$1：</strong>');
+    // 只匹配行首到冒號的文字，確保只對標題生效
+    formatted = formatted.replace(/^([^：\n]+)[：:]/gm, '<strong>$1：</strong>');
 
     // 處理星號項目為粗體
     formatted = formatted.replace(/\*\s*([^：:]+)[：:]/g, '<strong>$1：</strong>');
