@@ -302,11 +302,11 @@ async function analyzeInput() {
                     parts: [{
                         text: `請以繁體中文回答。請扮演該領域中具有嚴謹教學素養的資深教師。對於以下題目，請依照以下格式詳盡解題並確保最終答案與推導過程無誤：
 
-1. 題意分析：
-2. 相關知識與理論：
-3. 解題流程：
-4. 答案：
-5. 學習反思：
+1. 題意分析：清楚解釋題目所問與重點。
+2. 相關知識與理論：列出解題所需的正確理論或概念。
+3. 解題流程：逐步邏輯推導，不得有不合理跳躍，確保每個步驟正確無誤。
+4. 答案：給出唯一正確的答案，並保證答案絕對正確，與前面推導完全一致。
+5. 學習反思：提供延伸思考方向或避免錯誤的建議。
 
 題目內容：${textContent}`
                     }]
@@ -416,7 +416,7 @@ async function analyzeInput() {
                         <hr class="step-divider">
                         <div class="step-container">
                             <div class="step-header">
-                                
+                                學習反思
                             </div>
                             <div class="step-content">
                                 ${formatText(reflectionStep)}
