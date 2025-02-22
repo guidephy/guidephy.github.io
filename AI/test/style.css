@@ -811,12 +811,15 @@ select {
     }
 
     .feature-container {
-        padding: 15px;
-        box-sizing: border-box;
-        max-height: calc(100vh - 100px); /* 限制最大高度 */
-        overflow-y: auto; /* 確保內部內容可以滾動 */
-        width: 100%;
-        max-width:none;
+    height: auto;
+    max-height: calc(100vh - 100px);
+    margin: 0;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    overflow-y: auto;
     }
 
     .result-area {
@@ -1483,6 +1486,50 @@ select {
 }
 
 @media (max-width: 768px) {
+
+    /* 针对特定功能区域的容器调整 */
+    #ai-generator-content .feature-container,
+    #solve-problem-content .feature-container,
+    #my-records-content .feature-container {
+        width: 100vw; /* 使用视窗宽度 */
+        max-width: none;
+        margin: 0;
+        padding: 10px;
+        border-radius: 0;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        box-sizing: border-box;
+    }
+
+    #ai-generator-content .modern-container,
+    #solve-problem-content .modern-container,
+    #my-records-content .modern-container {
+        padding: 0;
+        max-width: none;
+        width: 100%;
+    }
+
+    /* 确保内部元素也是全宽 */
+    #ai-generator-content .form-group,
+    #solve-problem-content .form-group,
+    #my-records-content .form-group,
+    #ai-generator-content .question-card,
+    #solve-problem-content .result-area,
+    #my-records-content .note-card {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        box-sizing: border-box;
+    }
+
+    /* 修正外部内容区域的样式 */
+    .external-content {
+        padding: 0;
+        box-sizing: border-box;
+        height: calc(100vh - 50px);
+        width: 100%;
+    }
     /* 聊天訊息文字 */
     .message {
         font-size: 16px;
@@ -1594,3 +1641,4 @@ select {
         font-size: 20px;
     }
 }
+
