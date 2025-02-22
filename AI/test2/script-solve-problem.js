@@ -251,152 +251,113 @@ async function analyzeInput() {
                 contents: [{
                     parts: [{
                         text: `請以繁體中文回答，不得使用簡體字。請扮演該領域中具有嚴謹教學素養的資深教師。對於給定的題目，請依照下列格式詳盡解題並確保最終答案與推導過程無誤：
-
-1. 題意分析：請先說明題目中的已知條件和問題要求。
+1. 題意分析：清楚解釋題目所問與重點。
 2. 相關知識與理論：列出解題所需的正確理論或概念。
 3. 解題流程：逐步邏輯推導，不得有不合理跳躍，確保每個步驟正確無誤。
 4. 答案：給出唯一正確的答案，並保證答案絕對正確，與前面推導完全一致。
-5. 學習反思：提供延伸思考方向或避免錯誤的建議。
-
-請依照此五點格式回答，每點請以數字標號開頭。`
-                    }, {
-                        inline_data: {
-                            mime_type: 'image/jpeg',
-                            data: base64Image
-                        }
+5. 學習反思：提供延伸思考方向或避免錯誤的建議。`
+                        }, {
+                            inline_data: {
+                                mime_type: 'image/jpeg',
+                                data: base64Image
+                            }
+                        }]
                     }]
-                }]
-            };
-        } else {
-            // 文字模式
-            const textContent = textInput.value.trim();
-            if (!textContent) {
-                throw new Error('請輸入題目內容！');
-            }
-
-            payload = {
-                contents: [{
-                    parts: [{
-                        text: `請以繁體中文回答，不得使用簡體字。請扮演該領域中具有嚴謹教學素養的資深教師。對於以下題目，請依照以下格式詳盡解題並確保最終答案與推導過程無誤：
-
-1. 題意分析：請先說明題目中的已知條件和問題要求。
-2. 相關知識與理論：列出解題所需的正確理論或概念。
-3. 解題流程：逐步邏輯推導，不得有不合理跳躍，確保每個步驟正確無誤。
-4. 答案：給出唯一正確的答案，並保證答案絕對正確，與前面推導完全一致。
-5. 學習反思：提供延伸思考方向或避免錯誤的建議。
-
-題目內容：${textContent}
-
-請依照此五點格式回答，每點請以數字標號開頭。`
-                    }]
-                }]
-            };
-        }
-
-        const response = await fetch(geminiurl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const responseData = await response.json();
-        if (!responseData.candidates || !responseData.candidates[0].content || 
-            !responseData.candidates[0].content.parts || !responseData.candidates[0].content.parts[0].text) {
-            throw new Error('API 回應格式不正確');
-        }
-
-        const answer = responseData.candidates[0].content.parts[0].text;
-        console.log('API回應:', answer); // 調試用
-
-        // 定義標題關鍵字
-        const titles = ['題意分析', '相關知識與理論', '解題流程', '答案', '學習反思'];
-        const sections = [];
-
-        // 用於儲存當前處理的部分
-        let currentContent = '';
-        let currentIndex = -1;
-
-        // 依行處理內容
-        const lines = answer.split('\n');
-        for (let line of lines) {
-            line = line.trim();
-            if (!line) continue;
-
-            // 檢查是否是新的部分開始
-            for (let i = 0; i < titles.length; i++) {
-                const regex = new RegExp(`${i + 1}\\.\\s*${titles[i]}`);
-                if (line.match(regex)) {
-                    // 如果有前一部分的內容，保存它
-                    if (currentIndex !== -1 && currentContent) {
-                        sections[currentIndex] = currentContent.trim();
-                    }
-                    // 開始新的部分
-                    currentIndex = i;
-                    // 移除標題，只保留冒號後的內容
-                    currentContent = line.split(/[：:]/)[1] || '';
-                    line = ''; // 已處理此行
-                    break;
+                };
+            } else {
+                // 文字模式
+                const textContent = textInput.value.trim();
+                if (!textContent) {
+                    throw new Error('請輸入題目內容！');
                 }
+
+                payload = {
+                    contents: [{
+                        parts: [{
+                            text: `請以繁體中文回答。請扮演該領域中具有嚴謹教學素養的資深教師。對於以下題目，請依照以下格式詳盡解題並確保最終答案與推導過程無誤：
+
+1. 題意分析：
+2. 相關知識與理論：
+3. 解題流程：
+4. 答案：
+5. 學習反思：
+
+題目內容：${textContent}`
+                        }]
+                    }]
+                };
             }
 
-            // 將非標題行加入當前內容
-            if (line && currentIndex !== -1) {
-                currentContent += (currentContent ? '\n' : '') + line;
-            }
-        }
+            const response = await fetch(geminiurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
 
-        // 保存最後一部分的內容
-        if (currentIndex !== -1 && currentContent) {
-            sections[currentIndex] = currentContent.trim();
-        }
-
-        // 檢查是否所有部分都有內容
-        if (sections.length !== titles.length || sections.some(s => !s)) {
-            console.error('sections:', sections); // 調試用
-            throw new Error('無法正確解析所有部分的內容');
-        }
-
-        // 建立最終的步驟陣列
-        solutionSteps = sections.map((content, index) => `${titles[index]}：\n${content}`);
-
-        // 顯示第一個部分
-        resultArea.innerHTML = '';
-        hintArea.style.display = 'block';
-        
-        if (solutionSteps.length > 0) {
-            hintContent.innerHTML = `<p>${formatText(solutionSteps[0])}</p>`;
-            currentStepIndex = 0;
-        }
-
-        if (solutionSteps.length > 1) {
-            showNextHintButton.style.display = 'inline-block';
-        }
-
-        // 修改點擊下一步按鈕的處理邏輯
-        showNextHintButton.onclick = function() {
-            currentStepIndex++;
-            if (currentStepIndex < solutionSteps.length) {
-                hintContent.innerHTML = `<p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // 當顯示到最後一個部分時
-            if (currentStepIndex === solutionSteps.length - 1) {
-                showNextHintButton.style.display = 'none';
+            const responseData = await response.json();
+            if (!responseData.candidates || !responseData.candidates[0].content || 
+                !responseData.candidates[0].content.parts || !responseData.candidates[0].content.parts[0].text) {
+                throw new Error('API 回應格式不正確');
             }
-        };
 
-    } catch (error) {
-        console.error('分析題目時發生錯誤:', error);
-        resultArea.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
-    } finally {
-        button.innerText = '分析題目';
-        button.disabled = false;
+            const answer = responseData.candidates[0].content.parts[0].text;
+            console.log('原始回應:', answer); // 用於調試
+
+            // 定義五個部分的標題
+            const sections = ['題意分析', '相關知識與理論', '解題流程', '答案', '學習反思'];
+            const splitContent = answer.split(/\d\.\s+/).filter(s => s.trim());
+            solutionSteps = []; // 清空現有步驟
+
+            // 確保有5個部分
+            if (splitContent.length >= 5) {
+                // 對每個部分進行處理
+                solutionSteps = sections.map((title, index) => {
+                    // 使用冒號分割，取得內容部分
+                    const content = splitContent[index].split(/[：:]/);
+                    // 如果有分割成功，取第二部分，否則使用整個內容
+                    return content.length > 1 ? content[1].trim() : splitContent[index].trim();
+                });
+            }
+
+            resultArea.innerHTML = '';
+            hintArea.style.display = 'block';
+
+            // 顯示第一部分
+            if (solutionSteps.length === 5) {
+                hintContent.innerHTML = `<h3>${sections[0]}</h3><p>${formatText(solutionSteps[0])}</p>`;
+                currentStepIndex = 0;
+                showNextHintButton.style.display = 'inline-block';
+            } else {
+                throw new Error('回應格式不符合預期的五個部分');
+            }
+
+            // 修改下一步按鈕的點擊事件
+            showNextHintButton.onclick = function() {
+                currentStepIndex++;
+                if (currentStepIndex < 5) {
+                    // 每次只顯示當前部分，不累加
+                    hintContent.innerHTML = `<h3>${sections[currentStepIndex]}</h3><p>${formatText(solutionSteps[currentStepIndex])}</p>`;
+                }
+
+                // 當到達最後一個部分時
+                if (currentStepIndex === 4) {
+                    showNextHintButton.style.display = 'none';
+                }
+            };
+
+        } catch (error) {
+            console.error('分析題目時發生錯誤:', error);
+            resultArea.innerHTML = `<p class="error-message">錯誤：${error.message}</p>`;
+        } finally {
+            button.innerText = '分析題目';
+            button.disabled = false;
+        }
     }
 }
     
