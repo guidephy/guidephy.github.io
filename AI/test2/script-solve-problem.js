@@ -416,7 +416,7 @@ async function analyzeInput() {
                         <hr class="step-divider">
                         <div class="step-container">
                             <div class="step-header">
-                                學習反思
+                                
                             </div>
                             <div class="step-content">
                                 ${formatText(reflectionStep)}
