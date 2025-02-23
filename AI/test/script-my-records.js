@@ -53,13 +53,12 @@ const myRecordsModule = (() => {
         if (!text) return '';
         
         let formatted = text;
-        // 處理段落
+        // 處理時間戳
+        formatted = formatted.replace(/時間：(.*?)\n\n/g, '<div class="note-timestamp">$1</div>');
+        // 處理其他格式
         formatted = formatted.replace(/\n/g, '<br>');
-        // 處理粗體
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        // 處理【】標題
         formatted = formatted.replace(/【(.*?)】/g, '<h3 class="note-section">$1</h3>');
-        // 處理項目符號
         formatted = formatted.replace(/•\s(.*?)(?=(\n|$))/g, '<li class="note-item">$1</li>');
         
         return formatted;
@@ -73,38 +72,35 @@ const myRecordsModule = (() => {
             return;
         }
 
-        if (!notesDisplayArea) {
-            console.error('找不到筆記顯示區域');
-            return;
-        }
-
+        notesDisplayArea.style.display = 'block';
         notesDisplayArea.innerHTML = '<p class="loading">載入中...</p>';
 
         try {
-            const result = await new Promise((resolve, reject) => {
-                google.script.run
-                    .withSuccessHandler(resolve)
-                    .withFailureHandler(reject)
-                    .getNotes(username);
-            });
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (result.status === 'success') {
+                        const notes = result.notes;
+                        if (notes.length === 0) {
+                            notesDisplayArea.innerHTML = '<p style="text-align: center;">目前還沒有任何筆記。</p>';
+                            return;
+                        }
 
-            if (result.status === 'success') {
-                const notes = result.notes;
-                if (notes.length === 0) {
-                    notesDisplayArea.innerHTML = '<p style="text-align: center;">目前還沒有任何筆記。</p>';
-                    return;
-                }
-
-                // 顯示筆記
-                notesDisplayArea.innerHTML = notes.map((note, index) => `
-                    <div class="note-card">
-                        <div class="note-header">筆記 ${index + 1}</div>
-                        <div class="note-content">${formatText(note)}</div>
-                    </div>
-                `).join('');
-            } else {
-                notesDisplayArea.innerHTML = `<p class="error-message">載入失敗：${result.error}</p>`;
-            }
+                        // 顯示筆記
+                        notesDisplayArea.innerHTML = notes.map((note, index) => `
+                            <div class="note-card">
+                                <div class="note-header">筆記 ${index + 1}</div>
+                                <div class="note-content">${formatText(note)}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        notesDisplayArea.innerHTML = `<p class="error-message">載入失敗：${result.error}</p>`;
+                    }
+                })
+                .withFailureHandler((error) => {
+                    console.error('載入筆記時發生錯誤:', error);
+                    notesDisplayArea.innerHTML = `<p class="error-message">載入失敗：${error.message}</p>`;
+                })
+                .getNotes(username);
         } catch (error) {
             console.error('載入筆記時發生錯誤:', error);
             notesDisplayArea.innerHTML = `<p class="error-message">載入失敗：${error.message}</p>`;
@@ -123,53 +119,54 @@ const myRecordsModule = (() => {
         recordsOptionsDiv.style.display = 'none';
 
         try {
-            const result = await new Promise((resolve, reject) => {
-                google.script.run
-                    .withSuccessHandler(resolve)
-                    .withFailureHandler(reject)
-                    .getTestRecords(username);
-            });
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (result.status === 'success') {
+                        allQuestions = result.allQuestions;
+                        wrongQuestions = result.wrongQuestions;
 
-            if (result.status === 'success') {
-                allQuestions = result.allQuestions;
-                wrongQuestions = result.wrongQuestions;
+                        if (allQuestions.length === 0) {
+                            recordsQuizArea.innerHTML = '<p style="text-align: center;">尚無測驗記錄。</p>';
+                            return;
+                        }
 
-                if (allQuestions.length === 0) {
-                    recordsQuizArea.innerHTML = '<p style="text-align: center;">尚無測驗記錄。</p>';
-                    return;
-                }
+                        recordsOptionsDiv.style.display = 'flex';
+                        recordsQuizArea.innerHTML = '';
 
-                recordsOptionsDiv.style.display = 'flex';
-                recordsQuizArea.innerHTML = '';
+                        // 顯示測驗統計資訊
+                        const totalQuestions = allQuestions.length;
+                        const totalWrong = wrongQuestions.length;
+                        const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
 
-                // 顯示測驗統計資訊
-                const totalQuestions = allQuestions.length;
-                const totalWrong = wrongQuestions.length;
-                const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
-
-                recordsQuizArea.innerHTML = `
-                    <div class="statistics-cards">
-                        <div class="statistic-card">
-                            <div class="statistic-number">${totalQuestions}</div>
-                            <div class="statistic-label">總題數</div>
-                        </div>
-                        <div class="statistic-card">
-                            <div class="statistic-number">${totalQuestions - totalWrong}</div>
-                            <div class="statistic-label">答對題數</div>
-                        </div>
-                        <div class="statistic-card">
-                            <div class="statistic-number">${totalWrong}</div>
-                            <div class="statistic-label">答錯題數</div>
-                        </div>
-                        <div class="statistic-card">
-                            <div class="statistic-number">${correctRate}%</div>
-                            <div class="statistic-label">正確率</div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                recordsQuizArea.innerHTML = `<p class="error-message">載入失敗：${result.error}</p>`;
-            }
+                        recordsQuizArea.innerHTML = `
+                            <div class="statistics-cards">
+                                <div class="statistic-card">
+                                    <div class="statistic-number">${totalQuestions}</div>
+                                    <div class="statistic-label">總題數</div>
+                                </div>
+                                <div class="statistic-card">
+                                    <div class="statistic-number">${totalQuestions - totalWrong}</div>
+                                    <div class="statistic-label">答對題數</div>
+                                </div>
+                                <div class="statistic-card">
+                                    <div class="statistic-number">${totalWrong}</div>
+                                    <div class="statistic-label">答錯題數</div>
+                                </div>
+                                <div class="statistic-card">
+                                    <div class="statistic-number">${correctRate}%</div>
+                                    <div class="statistic-label">正確率</div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        recordsQuizArea.innerHTML = `<p class="error-message">載入失敗：${result.error}</p>`;
+                    }
+                })
+                .withFailureHandler((error) => {
+                    console.error('載入測驗記錄時發生錯誤:', error);
+                    recordsQuizArea.innerHTML = `<p class="error-message">載入失敗：${error.message}</p>`;
+                })
+                .getTestRecords(username);
         } catch (error) {
             recordsQuizArea.innerHTML = `<p class="error-message">載入失敗：${error.message}</p>`;
         }
@@ -197,7 +194,7 @@ const myRecordsModule = (() => {
                         <p><strong>${i + 1}. ${q.question}</strong></p>
                         <div class="question-options">
                             ${q.options.map((option, j) => `
-                                <label>
+                                <label class="option-label">
                                     <input type="radio" name="question${i}" value="${j}" required>
                                     <span>${option}</span>
                                 </label>
@@ -206,7 +203,7 @@ const myRecordsModule = (() => {
                     </div>
                 `).join('')}
                 <div class="button-group">
-                    <button type="submit" class="submit-button">提交答案</button>
+                    <button type="submit" class="modern-button primary">提交答案</button>
                 </div>
             </form>
         `;
@@ -263,7 +260,7 @@ const myRecordsModule = (() => {
                     <p><strong>${i + 1}. ${result.question}</strong></p>
                     <div class="question-options">
                         ${options.map((option, j) => `
-                            <label style="
+                            <label class="option-label" style="
                                 background-color: ${j === correctAnswerIndex ? '#d4edda' :
                                     (j === userAnswerIndex && j !== correctAnswerIndex ? '#f8d7da' : '#f8f9fa')};
                                 color: ${(j === correctAnswerIndex || j === userAnswerIndex) ? '#000' : '#444'};
@@ -313,7 +310,7 @@ const myRecordsModule = (() => {
             ${statisticsHtml}
             ${resultsHtml}
             <div class="button-group">
-                <button onclick="myRecordsModule.retryQuiz()" class="feature-button">重新測驗</button>
+                <button onclick="myRecordsModule.retryQuiz()" class="modern-button primary">重新測驗</button>
             </div>
         `;
     }
@@ -391,4 +388,6 @@ const myRecordsModule = (() => {
 })();
 
 // 初始化模組
-myRecordsModule.init();
+document.addEventListener('DOMContentLoaded', () => {
+    myRecordsModule.init();
+});
