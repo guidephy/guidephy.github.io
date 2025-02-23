@@ -160,19 +160,32 @@ sendButton.addEventListener('click', async () => {
                     }
                     
                     showLoadingIndicator();
-                    
+
+                    // 系統提示和歷史對話
+                    const systemMessage = {
+                        role: 'user',
+                        parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }]
+                    };
+
                     // 準備發送給 Gemini 的數據
                     const payload = {
-                        contents: [{
-                            parts: [{
-                                text: `請以繁體中文回答，請描述這張圖片，並根據圖片內容${message ? `回答以下問題：${message}` : '，告訴我這是什麼，並且分析其內容。'}`
-                            }, {
-                                inline_data: {
-                                    mime_type: 'image/jpeg',
-                                    data: base64Data
-                                }
-                            }]
-                        }]
+                        contents: [
+                            systemMessage,
+                            {
+                                role: 'user',
+                                parts: [
+                                    {
+                                        text: `請描述這張圖片，並根據圖片內容${message ? `回答以下問題：${message}` : '，告訴我這是什麼，並且分析其內容。'}`
+                                    },
+                                    {
+                                        inline_data: {
+                                            mime_type: 'image/jpeg',
+                                            data: base64Data
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     };
 
                     // 發送請求到 Gemini API
@@ -191,15 +204,11 @@ sendButton.addEventListener('click', async () => {
                         const reply = data.candidates[0].content.parts[0].text;
                         appendMessage(reply, 'bot-message');
                         
-                        // 更新對話記錄
+                        // 更新對話記錄，只保存文字內容
                         thread.push({
                             role: 'user',
-                            parts: [{
-                                text: message || '請描述這張圖片',
-                                inline_data: {
-                                    mime_type: 'image/jpeg',
-                                    data: base64Data
-                                }
+                            parts: [{ 
+                                text: message || '請描述這張圖片的內容' 
                             }]
                         });
                         thread.push({
@@ -245,44 +254,66 @@ sendButton.addEventListener('click', async () => {
     }
 
     // 處理使用者文字訊息
-    async function handleUserTextMessage(message) {
-        if (isStudyPlanActive) {
-            if (message && message.trim()) {
-                handleStudyPlanInput(message);
-                userInput.value = '';
-            }
-            return;
+async function handleUserTextMessage(message) {
+    if (isStudyPlanActive) {
+        if (message && message.trim()) {
+            handleStudyPlanInput(message);
+            userInput.value = '';
         }
-
-        if (message) {
-            appendMessage(message, 'user-message');
-            thread.push({
-                role: 'user',
-                parts: [{ text: message }]
-            });
-        }
-
-        userInput.value = '';
-        showLoadingIndicator();
-
-        try {
-            let botReply;
-            if (translationMode) {
-                botReply = await fetchTranslation(message);
-            } else {
-                botReply = await fetchBotReply(thread);
-            }
-            hideLoadingIndicator();
-            appendMessage(botReply, 'bot-message');
-            thread.push({
-                role: 'model',
-                parts: [{ text: botReply }]
-            });
-        } catch (error) {
-            hideLoadingIndicator();
-            appendMessage(`錯誤：${error.message}`, 'bot-message');
-        }
+        return;
     }
+
+    if (message) {
+        appendMessage(message, 'user-message');
+        thread.push({
+            role: 'user',
+            parts: [{ text: message }]
+        });
+    }
+
+    userInput.value = '';
+    showLoadingIndicator();
+
+    try {
+        let botReply;
+        if (translationMode) {
+            botReply = await fetchTranslation(message);
+        } else {
+            const systemMessage = {
+                role: 'user',
+                parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }]
+            };
+
+            const newThread = [systemMessage, ...thread];
+
+            const response = await fetch(geminiurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: newThread
+                })
+            });
+
+            const data = await response.json();
+            if (data.candidates && data.candidates.length > 0) {
+                botReply = data.candidates[0].content.parts[0].text;
+            } else {
+                botReply = '很抱歉，我現在無法理解您的問題。請換個方式提問，或稍後再試。';
+            }
+        }
+        hideLoadingIndicator();
+        appendMessage(botReply, 'bot-message');
+        thread.push({
+            role: 'model',
+            parts: [{ text: botReply }]
+        });
+    } catch (error) {
+        hideLoadingIndicator();
+        appendMessage(`錯誤：${error.message}`, 'bot-message');
+    }
+}
 
     // 顯示載入指示器
     function showLoadingIndicator() {
