@@ -131,6 +131,7 @@ const chatModule = (() => {
     }
 
     // 聊天發送
+// 聊天發送
 sendButton.addEventListener('click', async () => {
     if (isInputDisabled) return;
     const message = userInput.value.trim();
@@ -140,55 +141,76 @@ sendButton.addEventListener('click', async () => {
         const file = uploadImage.files[0];
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const imageBase64 = e.target.result;
-            // 從 base64 中獲取實際的圖片數據部分（移除 "data:image/jpeg;base64," 等前綴）
-            const base64Data = imageBase64.split(',')[1];
-            
-            appendMessage('（圖片已傳送）', 'user-message');
-            
-            // 準備發送的數據
-            let messageData = {
-                contents: [{
-                    parts: []
-                }]
-            };
-
-            // 添加圖片數據
-            messageData.contents[0].parts.push({
-                inlineData: {
-                    data: base64Data,
-                    mimeType: file.type
-                }
-            });
-
-            // 如果有文字訊息，也添加進去
-            if (message) {
-                messageData.contents[0].parts.push({ text: message });
-            }
-
-            showLoadingIndicator();
             try {
-                const response = await fetch(geminiurl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(messageData)
-                });
+                // 建立 canvas 來處理圖片
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 獲取 base64 圖片數據
+                    const base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
+                    
+                    appendMessage('（圖片已傳送）', 'user-message');
+                    if (message) {
+                        appendMessage(message, 'user-message');
+                    }
+                    
+                    showLoadingIndicator();
+                    
+                    // 準備發送給 Gemini 的數據
+                    const payload = {
+                        contents: [{
+                            parts: [{
+                                text: `請以繁體中文回答，請描述這張圖片，並根據圖片內容${message ? `回答以下問題：${message}` : '，告訴我這是什麼，並且分析其內容。'}`
+                            }, {
+                                inline_data: {
+                                    mime_type: 'image/jpeg',
+                                    data: base64Data
+                                }
+                            }]
+                        }]
+                    };
 
-                const data = await response.json();
-                if (data.candidates && data.candidates.length > 0) {
-                    const reply = data.candidates[0].content.parts[0].text;
-                    hideLoadingIndicator();
-                    appendMessage(reply, 'bot-message');
-                    thread.push({
-                        role: 'model',
-                        parts: [{ text: reply }]
+                    // 發送請求到 Gemini API
+                    const response = await fetch(geminiurl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
                     });
-                } else {
+
+                    const data = await response.json();
                     hideLoadingIndicator();
-                    appendMessage('無法理解圖片內容，請再試一次。', 'bot-message');
-                }
+
+                    if (data.candidates && data.candidates.length > 0) {
+                        const reply = data.candidates[0].content.parts[0].text;
+                        appendMessage(reply, 'bot-message');
+                        
+                        // 更新對話記錄
+                        thread.push({
+                            role: 'user',
+                            parts: [{
+                                text: message || '請描述這張圖片',
+                                inline_data: {
+                                    mime_type: 'image/jpeg',
+                                    data: base64Data
+                                }
+                            }]
+                        });
+                        thread.push({
+                            role: 'model',
+                            parts: [{ text: reply }]
+                        });
+                    } else {
+                        appendMessage('無法解析圖片內容，請再試一次。', 'bot-message');
+                    }
+                };
+                img.src = e.target.result;
             } catch (error) {
                 hideLoadingIndicator();
                 appendMessage(`處理圖片時發生錯誤：${error.message}`, 'bot-message');
