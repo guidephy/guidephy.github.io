@@ -1738,12 +1738,25 @@ select {
 }
 
 #image-upload-button {
-    padding: 10px;
-    border-radius: 50%; /* 變成圓形 */
+    padding: 0;
+    border-radius: 50%;
     width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.2em;
+    border: 2px solid #8ab0ab;  /* 添加邊框，使用網站的主色調 */
+    background: transparent;     /* 背景透明 */
+    color: #8ab0ab;             /* 加號顏色與邊框相同 */
+    cursor: pointer;            /* 滑鼠變成指針 */
+    transition: all 0.3s ease;  /* 平滑過渡效果 */
+}
+
+#image-upload-button:hover {
+    background: rgba(138, 176, 171, 0.1);  /* 懸停時顯示淡色背景 */
+}
+
+#image-upload-button:active {
+    transform: scale(0.95);     /* 點擊時的縮小效果 */
 }
