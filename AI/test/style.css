@@ -1736,3 +1736,14 @@ select {
         font-size: 20px;
     }
 }
+
+#image-upload-button {
+    padding: 10px;
+    border-radius: 50%; /* 變成圓形 */
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+}
