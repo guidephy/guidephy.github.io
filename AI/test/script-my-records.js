@@ -23,11 +23,6 @@ const myRecordsModule = (() => {
         recordsQuizArea = document.getElementById('records-quiz-area');
         notesDisplayArea = document.getElementById('notes-display-area');
 
-        // 初始化時隱藏結果區域
-        if (recordsOptionsDiv) recordsOptionsDiv.style.display = 'none';
-        if (recordsQuizArea) recordsQuizArea.innerHTML = '';
-        if (notesDisplayArea) notesDisplayArea.innerHTML = '';
-
         // 檢查是否所有必要元素都存在
         if (!notesTab || !testRecordsTab || !notesContent || !testRecordsContent || 
             !loadNotesButton || !loadRecordsButton || !notesDisplayArea) {
@@ -51,11 +46,6 @@ const myRecordsModule = (() => {
         
         if (selectedTab) selectedTab.classList.add('active');
         if (selectedContent) selectedContent.classList.add('active');
-
-        // 切換 Tab 時清空顯示區域
-        if (recordsOptionsDiv) recordsOptionsDiv.style.display = 'none';
-        if (recordsQuizArea) recordsQuizArea.innerHTML = '';
-        if (notesDisplayArea) notesDisplayArea.innerHTML = '';
     }
 
     // 格式化文字
@@ -77,8 +67,6 @@ const myRecordsModule = (() => {
 
     // 載入筆記函數
     async function loadUserNotes() {
-        
-notesDisplayArea.style.display = 'block';
         const username = document.getElementById('notes-username')?.value?.trim();
         if (!username) {
             alert('請輸入帳號');
@@ -125,7 +113,6 @@ notesDisplayArea.style.display = 'block';
 
     // 載入測驗記錄
     async function loadTestRecords() {
-        recordsQuizArea.style.display = 'block';
         const username = document.getElementById('records-username')?.value?.trim();
         if (!username) {
             alert('請輸入帳號');
@@ -390,12 +377,6 @@ notesDisplayArea.style.display = 'block';
         }
         
         initializeEventListeners();
-
-        // 確保初始狀態下結果區域是隱藏的
-        if (recordsOptionsDiv) recordsOptionsDiv.style.display = 'none';
-        if (recordsQuizArea) recordsQuizArea.innerHTML = '';
-        if (notesDisplayArea) notesDisplayArea.innerHTML = '';
-        
         console.log('My Records Module initialized successfully');
     }
 
