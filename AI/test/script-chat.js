@@ -131,29 +131,78 @@ const chatModule = (() => {
     }
 
     // 聊天發送
-    sendButton.addEventListener('click', async () => {
-        if (isInputDisabled) return;
-        const message = userInput.value.trim();
-        if (!message && !uploadImage.value) return;
+sendButton.addEventListener('click', async () => {
+    if (isInputDisabled) return;
+    const message = userInput.value.trim();
+    if (!message && !uploadImage.files[0]) return;
 
-        if (uploadImage.files && uploadImage.files[0]) {
-            const file = uploadImage.files[0];
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const selectedImageBase64 = e.target.result;
-                appendMessage('（圖片已傳送）', 'user-message');
-                thread.push({
-                    role: 'user',
-                    parts: [{ text: '圖片訊息', image: selectedImageBase64 }],
-                });
-                clearImage();
-                await handleUserTextMessage(message);
+    if (uploadImage.files && uploadImage.files[0]) {
+        const file = uploadImage.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const imageBase64 = e.target.result;
+            // 從 base64 中獲取實際的圖片數據部分（移除 "data:image/jpeg;base64," 等前綴）
+            const base64Data = imageBase64.split(',')[1];
+            
+            appendMessage('（圖片已傳送）', 'user-message');
+            
+            // 準備發送的數據
+            let messageData = {
+                contents: [{
+                    parts: []
+                }]
             };
-            reader.readAsDataURL(file);
-        } else {
-            await handleUserTextMessage(message);
-        }
-    });
+
+            // 添加圖片數據
+            messageData.contents[0].parts.push({
+                inlineData: {
+                    data: base64Data,
+                    mimeType: file.type
+                }
+            });
+
+            // 如果有文字訊息，也添加進去
+            if (message) {
+                messageData.contents[0].parts.push({ text: message });
+            }
+
+            showLoadingIndicator();
+            try {
+                const response = await fetch(geminiurl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(messageData)
+                });
+
+                const data = await response.json();
+                if (data.candidates && data.candidates.length > 0) {
+                    const reply = data.candidates[0].content.parts[0].text;
+                    hideLoadingIndicator();
+                    appendMessage(reply, 'bot-message');
+                    thread.push({
+                        role: 'model',
+                        parts: [{ text: reply }]
+                    });
+                } else {
+                    hideLoadingIndicator();
+                    appendMessage('無法理解圖片內容，請再試一次。', 'bot-message');
+                }
+            } catch (error) {
+                hideLoadingIndicator();
+                appendMessage(`處理圖片時發生錯誤：${error.message}`, 'bot-message');
+            }
+
+            clearImage();
+            userInput.value = '';
+        };
+        reader.readAsDataURL(file);
+    } else if (message) {
+        // 純文字訊息的處理
+        await handleUserTextMessage(message);
+    }
+});
 
     // 添加訊息到聊天視窗
     function appendMessage(content, className) {
