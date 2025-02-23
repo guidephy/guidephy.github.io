@@ -131,7 +131,6 @@ const chatModule = (() => {
     }
 
     // 聊天發送
-// 聊天發送
 sendButton.addEventListener('click', async () => {
     if (isInputDisabled) return;
     const message = userInput.value.trim();
@@ -142,7 +141,6 @@ sendButton.addEventListener('click', async () => {
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                // 建立 canvas 來處理圖片
                 const img = new Image();
                 img.onload = async function() {
                     const canvas = document.createElement('canvas');
@@ -151,7 +149,6 @@ sendButton.addEventListener('click', async () => {
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
                     
-                    // 獲取 base64 圖片數據
                     const base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
                     
                     appendMessage('（圖片已傳送）', 'user-message');
@@ -161,22 +158,20 @@ sendButton.addEventListener('click', async () => {
                     
                     showLoadingIndicator();
 
-                    // 系統提示和歷史對話
-                    const systemMessage = {
-                        role: 'user',
-                        parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }]
-                    };
+                    const imagePrompt = message 
+                        ? `請描述這張圖片，並回答問題：${message}`
+                        : '請描述這張圖片的內容，並進行分析。';
 
-                    // 準備發送給 Gemini 的數據
-                    const payload = {
-                        contents: [
-                            systemMessage,
-                            {
+                    const response = await fetch(geminiurl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [{
                                 role: 'user',
                                 parts: [
-                                    {
-                                        text: `請描述這張圖片，並根據圖片內容${message ? `回答以下問題：${message}` : '，告訴我這是什麼，並且分析其內容。'}`
-                                    },
+                                    { text: imagePrompt },
                                     {
                                         inline_data: {
                                             mime_type: 'image/jpeg',
@@ -184,17 +179,8 @@ sendButton.addEventListener('click', async () => {
                                         }
                                     }
                                 ]
-                            }
-                        ]
-                    };
-
-                    // 發送請求到 Gemini API
-                    const response = await fetch(geminiurl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
+                            }]
+                        })
                     });
 
                     const data = await response.json();
@@ -204,12 +190,10 @@ sendButton.addEventListener('click', async () => {
                         const reply = data.candidates[0].content.parts[0].text;
                         appendMessage(reply, 'bot-message');
                         
-                        // 更新對話記錄，只保存文字內容
+                        // 更新對話歷史，不包含圖片數據
                         thread.push({
                             role: 'user',
-                            parts: [{ 
-                                text: message || '請描述這張圖片的內容' 
-                            }]
+                            parts: [{ text: imagePrompt }]
                         });
                         thread.push({
                             role: 'model',
@@ -230,7 +214,6 @@ sendButton.addEventListener('click', async () => {
         };
         reader.readAsDataURL(file);
     } else if (message) {
-        // 純文字訊息的處理
         await handleUserTextMessage(message);
     }
 });
@@ -263,55 +246,38 @@ async function handleUserTextMessage(message) {
         return;
     }
 
-    if (message) {
-        appendMessage(message, 'user-message');
-        thread.push({
-            role: 'user',
-            parts: [{ text: message }]
-        });
-    }
-
-    userInput.value = '';
-    showLoadingIndicator();
-
     try {
+        if (message) {
+            appendMessage(message, 'user-message');
+            // 添加用戶訊息到對話歷史
+            thread.push({
+                role: 'user',
+                parts: [{ text: message }]
+            });
+        }
+
+        userInput.value = '';
+        showLoadingIndicator();
+
         let botReply;
         if (translationMode) {
             botReply = await fetchTranslation(message);
         } else {
-            const systemMessage = {
-                role: 'user',
-                parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }]
-            };
-
-            const newThread = [systemMessage, ...thread];
-
-            const response = await fetch(geminiurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: newThread
-                })
-            });
-
-            const data = await response.json();
-            if (data.candidates && data.candidates.length > 0) {
-                botReply = data.candidates[0].content.parts[0].text;
-            } else {
-                botReply = '很抱歉，我現在無法理解您的問題。請換個方式提問，或稍後再試。';
-            }
+            botReply = await fetchBotReply(thread);
         }
+
         hideLoadingIndicator();
         appendMessage(botReply, 'bot-message');
+
+        // 添加機器人回覆到對話歷史
         thread.push({
             role: 'model',
             parts: [{ text: botReply }]
         });
     } catch (error) {
         hideLoadingIndicator();
-        appendMessage(`錯誤：${error.message}`, 'bot-message');
+        console.error('handleUserTextMessage error:', error);
+        appendMessage(`抱歉，處理訊息時發生錯誤，請再試一次。`, 'bot-message');
     }
 }
 
@@ -351,13 +317,24 @@ async function handleUserTextMessage(message) {
     }
 
     // 獲取機器人回覆
-    async function fetchBotReply(thread) {
+async function fetchBotReply(thread) {
+    try {
+        // 處理 thread 中的內容，確保格式正確
+        const processedThread = thread.map(item => ({
+            role: item.role,
+            parts: item.parts.map(part => {
+                // 只保留文字內容
+                return { text: part.text || '' };
+            })
+        }));
+
+        // 添加系統提示
         const systemMessage = {
             role: 'user',
             parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }]
         };
 
-        const newThread = [systemMessage, ...thread];
+        const fullThread = [systemMessage, ...processedThread];
 
         const response = await fetch(geminiurl, {
             method: 'POST',
@@ -365,17 +342,27 @@ async function handleUserTextMessage(message) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                contents: newThread
+                contents: fullThread
             })
         });
 
         const data = await response.json();
-        if (data.candidates && data.candidates.length > 0) {
-            return data.candidates[0].content.parts[0].text || '未能獲取有效回應';
-        } else {
-            return '未能獲取有效回應';
+        
+        if (!response.ok) {
+            throw new Error('API 請求失敗');
         }
+
+        if (data.candidates && data.candidates.length > 0) {
+            return data.candidates[0].content.parts[0].text;
+        } else {
+            console.error('API 回應無效:', data);
+            throw new Error('未能獲取有效回應');
+        }
+    } catch (error) {
+        console.error('fetchBotReply error:', error);
+        throw new Error(error.message);
     }
+}
 
     // 翻譯功能
     async function fetchTranslation(text) {
