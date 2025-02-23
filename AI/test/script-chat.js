@@ -2,6 +2,7 @@
 const chatModule = (() => {
     // 獲取 DOM 元素
     const uploadImage = document.getElementById('upload-image');
+    const imageUploadButton = document.getElementById('image-upload-button');
     const imagePreviewContainer = document.getElementById('image-preview-container');
     const sendButton = document.getElementById('send-button');
     const userInput = document.getElementById('user-input');
@@ -49,6 +50,11 @@ const chatModule = (() => {
         uploadImage.disabled = disabled;
     }
 
+    // 新增圖片上傳按鈕事件
+    imageUploadButton.addEventListener('click', () => {
+        uploadImage.click();
+    });
+
     // 圖片上傳
     uploadImage.addEventListener('change', (event) => {
         const file = event.target.files[0];
@@ -57,8 +63,10 @@ const chatModule = (() => {
             reader.onload = (e) => {
                 const selectedImage = e.target.result;
                 imagePreviewContainer.innerHTML = `
-                    <img src="${selectedImage}" alt="圖片預覽">
-                    <div class="delete-button" onclick="chatModule.clearImage()">x</div>
+                    <div class="preview-wrapper">
+                        <img src="${selectedImage}" alt="圖片預覽" class="preview-image">
+                        <button class="delete-button" onclick="chatModule.clearImage()">×</button>
+                    </div>
                 `;
                 imagePreviewContainer.style.display = 'flex';
             };
@@ -67,6 +75,53 @@ const chatModule = (() => {
             imagePreviewContainer.style.display = 'none';
         }
     });
+
+    // 添加樣式
+    const style = document.createElement('style');
+    style.textContent = `
+        .preview-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .preview-image {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 4px;
+        }
+        
+        .delete-button {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .delete-button:hover {
+            background-color: #cc0000;
+        }
+        
+        #image-preview-container {
+            display: none;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    `;
+    document.head.appendChild(style);
 
     // 清除圖片
     function clearImage() {
@@ -99,6 +154,7 @@ const chatModule = (() => {
             await handleUserTextMessage(message);
         }
     });
+
     // 添加訊息到聊天視窗
     function appendMessage(content, className) {
         const message = document.createElement('div');
@@ -196,7 +252,7 @@ const chatModule = (() => {
     async function fetchBotReply(thread) {
         const systemMessage = {
             role: 'user',
-            parts: [{ text: '請以繁體中文回答，並以教師的口吻回答問題' }]
+            parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }]
         };
 
         const newThread = [systemMessage, ...thread];
@@ -280,37 +336,38 @@ ${text}
             return `翻譯過程中發生錯誤：${error.message}`;
         }
     }
+
     // 生成筆記
-async function generateNotes() {
-    if (thread.length === 0) {
-        alert('目前無聊天記錄，無法生成筆記。');
-        return;
-    }
+    async function generateNotes() {
+        if (thread.length === 0) {
+            alert('目前無聊天記錄，無法生成筆記。');
+            return;
+        }
 
-    const username = prompt('請輸入您的帳號：');
-    if (!username) {
-        alert('必須輸入帳號才能生成筆記。');
-        return;
-    }
+        const username = prompt('請輸入您的帳號：');
+        if (!username) {
+            alert('必須輸入帳號才能生成筆記。');
+            return;
+        }
 
-    // 獲取聊天記錄 (去除系統訊息)
-    const chatLog = thread
-        .filter(msg => msg.role !== 'system')
-        .map(entry => `${entry.role}: ${entry.parts[0].text}`)
-        .join('\n');
+        // 獲取聊天記錄 (去除系統訊息)
+        const chatLog = thread
+            .filter(msg => msg.role !== 'system')
+            .map(entry => `${entry.role}: ${entry.parts[0].text}`)
+            .join('\n');
 
-    appendMessage('正在生成筆記...', 'bot-message');
+        appendMessage('正在生成筆記...', 'bot-message');
 
-    try {
-        const summaryResponse = await fetch(geminiurl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: `請以繁體中文回答，不得使用簡體字。
+        try {
+            const summaryResponse = await fetch(geminiurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `請以繁體中文回答，不得使用簡體字。
 作為一位專業的教學助理，請幫我將以下對話內容整理成簡潔的學習筆記。請注意以下要求：
 
 1. 篇幅控制：
@@ -331,79 +388,79 @@ async function generateNotes() {
 ${chatLog}
 
 請依照上述格式整理出精簡的學習筆記。`
+                        }]
                     }]
-                }]
-            })
-        });
-
-        const summaryData = await summaryResponse.json();
-        const summary = summaryData.candidates[0].content.parts[0].text;
-
-        // 儲存到 Google Apps Script
-        await new Promise((resolve, reject) => {
-            google.script.run
-                .withSuccessHandler(result => {
-                    removeLastBotMessage();
-                    if (result && result.status === 'success') {
-                        appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
-                        thread = []; // 清空聊天記錄
-                    } else {
-                        appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
-                    }
-                    resolve(result);
                 })
-                .withFailureHandler(error => {
-                    removeLastBotMessage();
-                    appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
-                    reject(error);
-                })
-                .doPost({
-                    username: username,
-                    chatLog: summary
-                });
-        });
+            });
 
-    } catch (error) {
-        removeLastBotMessage();
-        appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+            const summaryData = await summaryResponse.json();
+            const summary = summaryData.candidates[0].content.parts[0].text;
+
+            // 儲存到 Google Apps Script
+            await new Promise((resolve, reject) => {
+                google.script.run
+                    .withSuccessHandler(result => {
+                        removeLastBotMessage();
+                        if (result && result.status === 'success') {
+                            appendMessage('筆記生成成功！已儲存至 Google 試算表。\n您可以在「我的筆記」中查看所有筆記。', 'bot-message');
+                            thread = []; // 清空聊天記錄
+                        } else {
+                            appendMessage(`筆記生成失敗：${result ? result.error : '未知錯誤'}`, 'bot-message');
+                        }
+                        resolve(result);
+                    })
+                    .withFailureHandler(error => {
+                        removeLastBotMessage();
+                        appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+                        reject(error);
+                    })
+                    .doPost({
+                        username: username,
+                        chatLog: summary
+                    });
+            });
+
+        } catch (error) {
+            removeLastBotMessage();
+            appendMessage(`筆記生成失敗：${error.message}`, 'bot-message');
+        }
     }
-}
 
-// 修改筆記顯示函數，讓筆記呈現更有結構
-function formatNoteDisplay(note) {
-    // 將筆記文本轉換為 HTML 格式
-    let formattedNote = note.replace(/【(.+?)】/g, '<h3 class="note-section">$1</h3>');
-    formattedNote = formattedNote.replace(/•\s(.*?)(?=(\n|$))/g, '<li class="note-item">$1</li>');
-    formattedNote = formattedNote.replace(/\n\n/g, '<br>');
+    // 修改筆記顯示函數，讓筆記呈現更有結構
+    function formatNoteDisplay(note) {
+        // 將筆記文本轉換為 HTML 格式
+        let formattedNote = note.replace(/【(.+?)】/g, '<h3 class="note-section">$1</h3>');
+        formattedNote = formattedNote.replace(/•\s(.*?)(?=(\n|$))/g, '<li class="note-item">$1</li>');
+        formattedNote = formattedNote.replace(/\n\n/g, '<br>');
 
-    return `
-        <div class="note-content">
-            ${formattedNote}
-        </div>
-        <style>
-            .note-section {
-                color: #8ab0ab;
-                font-size: 1.2em;
-                margin-top: 15px;
-                margin-bottom: 10px;
-                border-bottom: 2px solid #8ab0ab;
-                padding-bottom: 5px;
-            }
-            .note-item {
-                margin: 8px 0;
-                list-style-type: none;
-                position: relative;
-                padding-left: 20px;
-            }
-            .note-item:before {
-                content: "•";
-                color: #8ab0ab;
-                position: absolute;
-                left: 0;
-            }
-        </style>
-    `;
-}
+        return `
+            <div class="note-content">
+                ${formattedNote}
+            </div>
+            <style>
+                .note-section {
+                    color: #8ab0ab;
+                    font-size: 1.2em;
+                    margin-top: 15px;
+                    margin-bottom: 10px;
+                    border-bottom: 2px solid #8ab0ab;
+                    padding-bottom: 5px;
+                }
+                .note-item {
+                    margin: 8px 0;
+                    list-style-type: none;
+                    position: relative;
+                    padding-left: 20px;
+                }
+                .note-item:before {
+                    content: "•";
+                    color: #8ab0ab;
+                    position: absolute;
+                    left: 0;
+                }
+            </style>
+        `;
+    }
 
     // 啟動專題計畫
     function startStudyPlan() {
@@ -474,6 +531,7 @@ function formatNoteDisplay(note) {
             });
         }
     }
+
     // 載入用戶筆記
     async function loadUserNotes() {
         const username = document.getElementById('notes-username').value.trim();
@@ -599,6 +657,7 @@ function formatNoteDisplay(note) {
             behavior: 'smooth'
         });
     }
+
     // 生成主題選項
     async function generateTopicOptions(field) {
         const topics = await fetchOptions(`與${field}相關的主題`);
@@ -726,7 +785,7 @@ function formatNoteDisplay(note) {
                     });
                     break;
                 case 3:
-                    studyPlanData.level = selectedOption;
+                    studyPlanData.level= selectedOption;
                     studyPlanStep = 4;
                     appendMessage(`明白了。最後，你有沒有特別想在哪個時間點達成什麼學習目標？（例如：學期結束前掌握基本概念、半年後能參加科展比賽、高二投稿小論文…等）`, "bot-message");
                     break;
@@ -745,9 +804,9 @@ function formatNoteDisplay(note) {
     }
 
     // 生成學習計畫
-async function generateStudyPlan(data) {
-    showLoadingIndicator();
-    const prompt = `請以繁體中文回答，不得使用簡體字。
+    async function generateStudyPlan(data) {
+        showLoadingIndicator();
+        const prompt = `請以繁體中文回答，不得使用簡體字。
 請扮演一位具有豐富教學經驗的老師，為學生制定一份為期18週的專題計畫。
 
 學生資訊：
@@ -785,170 +844,168 @@ async function generateStudyPlan(data) {
 
 請確保內容具體可行，並配合學生程度安排適當的進度。`;
 
-    try {
-        const response = await fetch(geminiurl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
-        });
+        try {
+            const response = await fetch(geminiurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
 
-        const responseData = await response.json();
-        hideLoadingIndicator();
-        
-        if (responseData.candidates && responseData.candidates[0].content && 
-            responseData.candidates[0].content.parts && responseData.candidates[0].content.parts[0].text) {
-            // 格式化回應文字
-            let planText = responseData.candidates[0].content.parts[0].text;
+            const responseData = await response.json();
+            hideLoadingIndicator();
             
-            // 將回應文字轉換為 HTML 格式
-            planText = planText.replace(/^第(\d+)週$/gm, '<div class="week-header">第$1週</div>');
-            planText = planText.replace(/^[-｜]{3,}$/gm, '');
-            planText = planText.replace(/^｜([^｜]+)｜/gm, '<div class="plan-row"><strong>$1</strong>');
-            planText = planText.replace(/(\d+\. .+?)(?=\d+\.|$)/g, '<div class="plan-item">$1</div>');
-            
-            // 添加樣式
-            const styledPlan = `
-                <div class="study-plan">
-                    ${planText}
-                </div>
-                <style>
-                    .study-plan {
-                        background: white;
-                        padding: 20px;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    }
-                    .week-header {
-                        background: #8ab0ab;
-                        color: white;
-                        padding: 10px;
-                        margin: 20px 0 10px 0;
-                        border-radius: 4px;
-                        font-weight: bold;
-                    }
-                    .plan-row {
-                        display: grid;
-                        grid-template-columns: 100px 1fr;
-                        padding: 10px;
-                        border-bottom: 1px solid #eee;
-                    }
-                    .plan-item {
-                        margin: 5px 0;
-                        padding-left: 20px;
-                    }
-                </style>
-            `;
-            
-            return styledPlan;
+            if (responseData.candidates && responseData.candidates[0].content && 
+                responseData.candidates[0].content.parts && responseData.candidates[0].content.parts[0].text) {
+                // 格式化回應文字
+                let planText = responseData.candidates[0].content.parts[0].text;
+                
+                // 將回應文字轉換為 HTML 格式
+                planText = planText.replace(/^第(\d+)週$/gm, '<div class="week-header">第$1週</div>');
+                planText = planText.replace(/^[-｜]{3,}$/gm, '');
+                planText = planText.replace(/^｜([^｜]+)｜/gm, '<div class="plan-row"><strong>$1</strong>');
+                planText = planText.replace(/(\d+\. .+?)(?=\d+\.|$)/g, '<div class="plan-item">$1</div>');
+                
+                // 添加樣式
+                const styledPlan = `
+                    <div class="study-plan">
+                        ${planText}
+                    </div>
+                    <style>
+                        .study-plan {
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .week-header {
+                            background: #8ab0ab;
+                            color: white;
+                            padding: 10px;
+                            margin: 20px 0 10px 0;
+                            border-radius: 4px;
+                            font-weight: bold;
+                        }
+                        .plan-row {
+                            display: grid;
+                            grid-template-columns: 100px 1fr;
+                            padding: 10px;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .plan-item {
+                            margin: 5px 0;
+                            padding-left: 20px;
+                        }
+                    </style>
+                `;
+                
+                return styledPlan;
+            }
+            return '無法生成學習計畫，請再試一次。';
+        } catch (error) {
+            hideLoadingIndicator();
+            return `生成學習計畫時發生錯誤：${error.message}`;
         }
-        return '無法生成學習計畫，請再試一次。';
-    } catch (error) {
-        hideLoadingIndicator();
-        return `生成學習計畫時發生錯誤：${error.message}`;
     }
-}
 
     // 初始化
-// 初始化
-function init() {
-    thread = [];
-    const greeting = getGreeting();
-    updateModeDisplay('聊天');
-    userInput.placeholder = "輸入訊息...";
-    
-    // 檢查聊天窗口是否已經有內容
-    if (chatWindow.children.length === 0) {
-        appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
-    }
-    
-    setInputState(false);
-
-    // 移除所有已存在的事件監聽器
-    const cloneLoadNotesButton = document.getElementById('load-notes-button').cloneNode(true);
-    document.getElementById('load-notes-button').parentNode.replaceChild(cloneLoadNotesButton, document.getElementById('load-notes-button'));
-    
-    const cloneGenerateNotesButton = generateNotesButton.cloneNode(true);
-    generateNotesButton.parentNode.replaceChild(cloneGenerateNotesButton, generateNotesButton);
-    
-    const cloneTranslateButton = translateButton.cloneNode(true);
-    translateButton.parentNode.replaceChild(cloneTranslateButton, translateButton);
-    
-    const cloneReturnToChatButton = returnToChatButton.cloneNode(true);
-    returnToChatButton.parentNode.replaceChild(cloneReturnToChatButton, returnToChatButton);
-    
-    const cloneStudyPlanButton = studyPlanButton.cloneNode(true);
-    studyPlanButton.parentNode.replaceChild(cloneStudyPlanButton, studyPlanButton);
-
-    // 重新綁定事件監聽器
-    cloneLoadNotesButton.addEventListener('click', loadUserNotes);
-    cloneGenerateNotesButton.addEventListener('click', generateNotes);
-
-    // 翻譯按鈕事件
-    cloneTranslateButton.addEventListener("click", () => {
-        translationMode = true;
-        cloneReturnToChatButton.style.display = "inline-block";
-        cloneTranslateButton.style.display = "none";
-        setInputState(false);
-        isStudyPlanActive = false;
-        studyPlanStep = 0;
-        studyPlanData = {};
-        hasIdea = null;
+    function init() {
         thread = [];
-        updateModeDisplay('中英翻譯');
-        userInput.placeholder = "請輸入要翻譯的內容...";
-        
-        // 清空聊天窗口後再添加消息
-        chatWindow.innerHTML = '';
-        appendMessage("請輸入想查的中文或英文", "bot-message");
-    });
-
-    // 返回聊天按鈕事件
-    cloneReturnToChatButton.addEventListener("click", () => {
-        translationMode = false;
-        cloneReturnToChatButton.style.display = "none";
-        cloneTranslateButton.style.display = "inline-block";
-        cloneStudyPlanButton.style.display = "inline-block";
-        setInputState(false);
-        isStudyPlanActive = false;
-        studyPlanStep = 0;
-        studyPlanData = {};
-        hasIdea = null;
-        thread = [];
+        const greeting = getGreeting();
         updateModeDisplay('聊天');
         userInput.placeholder = "輸入訊息...";
         
-        // 清空聊天窗口後再添加消息
-        chatWindow.innerHTML = '';
-        appendMessage("已返回聊天模式。", "bot-message");
-    });
-
-    // 學習計畫按鈕事件
-    cloneStudyPlanButton.addEventListener('click', () => {
-        translationMode = false;
-        cloneReturnToChatButton.style.display = 'inline-block';
-        cloneTranslateButton.style.display = 'inline-block';
-        cloneStudyPlanButton.style.display = 'none';
-        setInputState(false);
-        thread = [];
-        updateModeDisplay('專題計畫');
-        userInput.placeholder = "請依照指示回答...";
+        // 檢查聊天窗口是否已經有內容
+        if (chatWindow.children.length === 0) {
+            appendMessage(`${greeting} 今天想要討論什麼呢？`, 'bot-message');
+        }
         
-        // 清空聊天窗口後再開始學習計畫
-        chatWindow.innerHTML = '';
-        startStudyPlan();
-    });
+        setInputState(false);
 
-    // 更新按鈕引用
-    translateButton = cloneTranslateButton;
-    returnToChatButton = cloneReturnToChatButton;
-    studyPlanButton = cloneStudyPlanButton;
-    generateNotesButton = cloneGenerateNotesButton;
-}
-    
+        // 移除所有已存在的事件監聽器
+        const cloneLoadNotesButton = document.getElementById('load-notes-button').cloneNode(true);
+        document.getElementById('load-notes-button').parentNode.replaceChild(cloneLoadNotesButton, document.getElementById('load-notes-button'));
+        
+        const cloneGenerateNotesButton = generateNotesButton.cloneNode(true);
+        generateNotesButton.parentNode.replaceChild(cloneGenerateNotesButton, generateNotesButton);
+        
+        const cloneTranslateButton = translateButton.cloneNode(true);
+        translateButton.parentNode.replaceChild(cloneTranslateButton, translateButton);
+        
+        const cloneReturnToChatButton = returnToChatButton.cloneNode(true);
+        returnToChatButton.parentNode.replaceChild(cloneReturnToChatButton, returnToChatButton);
+        
+        const cloneStudyPlanButton = studyPlanButton.cloneNode(true);
+        studyPlanButton.parentNode.replaceChild(cloneStudyPlanButton, studyPlanButton);
+
+        // 重新綁定事件監聽器
+        cloneLoadNotesButton.addEventListener('click', loadUserNotes);
+        cloneGenerateNotesButton.addEventListener('click', generateNotes);
+
+        // 翻譯按鈕事件
+        cloneTranslateButton.addEventListener("click", () => {
+            translationMode = true;
+            cloneReturnToChatButton.style.display = "inline-block";
+            cloneTranslateButton.style.display = "none";
+            setInputState(false);
+            isStudyPlanActive = false;
+            studyPlanStep = 0;
+            studyPlanData = {};
+            hasIdea = null;
+            thread = [];
+            updateModeDisplay('中英翻譯');
+            userInput.placeholder = "請輸入要翻譯的內容...";
+            
+            // 清空聊天窗口後再添加消息
+            chatWindow.innerHTML = '';
+            appendMessage("請輸入想查的中文或英文", "bot-message");
+        });
+
+        // 返回聊天按鈕事件
+        cloneReturnToChatButton.addEventListener("click", () => {
+            translationMode = false;
+            cloneReturnToChatButton.style.display = "none";
+            cloneTranslateButton.style.display = "inline-block";
+            cloneStudyPlanButton.style.display = "inline-block";
+            setInputState(false);
+            isStudyPlanActive = false;
+            studyPlanStep = 0;
+            studyPlanData = {};
+            hasIdea = null;
+            thread = [];
+            updateModeDisplay('聊天');
+            userInput.placeholder = "輸入訊息...";
+            
+            // 清空聊天窗口後再添加消息
+            chatWindow.innerHTML = '';
+            appendMessage("已返回聊天模式。", "bot-message");
+        });
+
+        // 學習計畫按鈕事件
+        cloneStudyPlanButton.addEventListener('click', () => {
+            translationMode = false;
+            cloneReturnToChatButton.style.display = 'inline-block';
+            cloneTranslateButton.style.display = 'inline-block';
+            cloneStudyPlanButton.style.display = 'none';
+            setInputState(false);
+            thread = [];
+            updateModeDisplay('專題計畫');
+            userInput.placeholder = "請依照指示回答...";
+            
+            // 清空聊天窗口後再開始學習計畫
+            chatWindow.innerHTML = '';
+            startStudyPlan();
+        });
+
+        // 更新按鈕引用
+        translateButton = cloneTranslateButton;
+        returnToChatButton = cloneReturnToChatButton;
+        studyPlanButton = cloneStudyPlanButton;
+        generateNotesButton = cloneGenerateNotesButton;
+    }
 
     // 取得問候語
     function getGreeting() {
