@@ -196,7 +196,7 @@ const chatModule = (() => {
     async function fetchBotReply(thread) {
         const systemMessage = {
             role: 'user',
-            parts: [{ text: '請以繁體中文回答，不得使用簡體字。' }]
+            parts: [{ text: '請以繁體中文回答，並以教師的口吻回答問題' }]
         };
 
         const newThread = [systemMessage, ...thread];
