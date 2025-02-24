@@ -105,6 +105,7 @@ const myRecordsModule = (() => {
     }
 
     // 載入測驗記錄
+// 載入測驗記錄
     async function loadTestRecords() {
         const username = document.getElementById('records-username')?.value?.trim();
         if (!username) {
@@ -133,7 +134,7 @@ const myRecordsModule = (() => {
                         const totalWrong = wrongQuestions.length;
                         const correctRate = ((totalQuestions - totalWrong) / totalQuestions * 100).toFixed(1);
 
-                        // 顯示按鈕和統計資訊
+                        // 只顯示統計資訊和按鈕
                         recordsOptionsDiv.style.display = 'flex';
                         recordsQuizArea.innerHTML = `
                             <div class="statistics-cards">
@@ -154,31 +155,7 @@ const myRecordsModule = (() => {
                                     <div class="statistic-label">正確率</div>
                                 </div>
                             </div>
-                            <div id="quiz-content"></div>
                         `;
-
-                        // 顯示答題記錄
-                        const quizContent = document.getElementById('quiz-content');
-                        if (quizContent) {
-                            quizContent.innerHTML = allQuestions.map((q, index) => `
-                                <div class="question-card">
-                                    <p><strong>題目 ${index + 1}：${q.question}</strong></p>
-                                    <div class="options-list">
-                                        ${q.options.map((opt, i) => `
-                                            <div class="option ${q.correctAnswer.startsWith(opt.charAt(0)) ? 'correct' : ''} 
-                                                              ${q.userAnswer === opt.charAt(0) ? 'selected' : ''}">
-                                                ${opt}
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                    <div class="result-info">
-                                        <div>您的答案：${q.userAnswer || '未作答'}</div>
-                                        <div>正確答案：${q.correctAnswer}</div>
-                                        ${q.explanation ? `<div class="explanation">解釋：${q.explanation}</div>` : ''}
-                                    </div>
-                                </div>
-                            `).join('');
-                        }
                     } else {
                         recordsQuizArea.innerHTML = `<p class="error-message">載入失敗：${result.error}</p>`;
                     }
