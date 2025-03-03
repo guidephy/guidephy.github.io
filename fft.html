@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高頻範圍頻譜分析工具</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 0 auto;
+            max-width: 1200px;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .chart-container { 
+            width: 100%; 
+            margin: 20px auto;
+            height: 400px;
+        }
+        .chart-wrapper {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2, h3 {
+            color: #333;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+        .file-upload {
+            display: inline-block;
+        }
+        .file-upload label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .file-upload label:hover {
+            background: #45a049;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        #fileStatus {
+            margin-left: 10px;
+            font-style: italic;
+        }
+        input[type="number"], input[type="text"] {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0b7dda;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .frequency-ranges {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .frequency-range {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .frequency-range.active {
+            background: #e3f2fd;
+            border-color: #2196F3;
+            font-weight: bold;
+        }
+        .custom-range {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 0 10px;
+        }
+        #frequencyInfo {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .peak-table {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        .peak-table th, .peak-table td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .peak-table th {
+            background: #f5f5f5;
+        }
+        .peak-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .peak-highlight {
+            background-color: #ffefd5 !important;
+            font-weight: bold;
+        }
+        .loading {
+            display: none;
+            margin: 0 10px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tabs {
+            display: flex;
+            margin: 20px 0 0 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+            background: #f5f5f5;
+        }
+        .tab.active {
+            background: white;
+            border-color: #ddd;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .top-peaks {
+            margin: 20px auto;
+            padding: 15px;
+            background: #fff8e1;
+            border-radius: 8px;
+            line-height: 1.6;
+            max-width: 800px;
+            border-left: 4px solid #ffc107;
+        }
+        .top-peak-item {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 8px 12px;
+            background: #ffecb3;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .sampling-info {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #e8eaf6;
+            border-radius: 4px;
+            font-style: italic;
+            display: none;
+        }
+        .axis-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .axis-btn {
+            padding: 5px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #f5f5f5;
+            transition: all 0.3s;
+        }
+        .axis-btn.active {
+            background: #e3f2fd;
+            border-color: #2196F3;
+            font-weight: bold;
+        }
+        .panel {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        .data-preview {
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            background: #f5f5f5;
+        }
+        .column-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        .column-item {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: white;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            text-align: left;
+        }
+        
+        /* 響應式設計優化 */
+        @media (max-width: 768px) {
+            .controls, .frequency-ranges {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .custom-range {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>高頻範圍頻譜分析工具</h2>
+        
+        <div class="controls">
+            <div class="file-upload">
+                <label for="fileInput">選擇數據檔案</label>
+                <input type="file" id="fileInput" accept=".txt,.csv">
+            </div>
+            <span id="fileStatus">尚未選擇檔案</span>
+            <div id="loading" class="loading"></div>
+            
+            <div class="control-group">
+                <label for="samplingRate">採樣率 (Hz):</label>
+                <input type="number" id="samplingRate" value="1000" min="1" step="1">
+                <div id="samplingInfo" class="sampling-info"></div>
+                
+                <button id="analyzeBtn">分析數據</button>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <strong>注意:</strong> 要分析高頻率範圍，採樣率必須足夠高。根據奈奎斯特定理：
+            <ul>
+                <li>採樣率必須至少是您想要分析的最高頻率的2倍</li>
+                <li>例如：如果要分析200-300Hz範圍，採樣率至少需要600Hz</li>
+                <li>建議：採樣率設為最高目標頻率的5-10倍以獲得更準確的結果</li>
+            </ul>
+            <strong>當前可分析的最高頻率：</strong> <span id="maxFreqSpan">500 Hz</span> (採樣率/2)
+        </div>
+        
+        <div id="filePreviewPanel" style="display: none;" class="panel">
+            <h3>數據預覽</h3>
+            <div id="dataPreview" class="data-preview"></div>
+            
+            <div id="columnSelector" class="column-selector">
+                <!-- 欄位選擇器將在這裡動態生成 -->
+            </div>
+            
+            <div class="control-group" style="justify-content: center; margin-top: 10px;">
+                <button id="confirmColumnsBtn">確認欄位並分析</button>
+            </div>
+        </div>
+        
+        <div id="analysisPanel" style="display: none;">
+            <div class="axis-selector">
+                <div class="axis-btn active" data-axis="z">Z軸數據</div>
+                <div class="axis-btn" data-axis="x">X軸數據</div>
+                <div class="axis-btn" data-axis="y">Y軸數據</div>
+            </div>
+            
+            <div class="panel">
+                <div id="dataInfo"></div>
+            </div>
+            
+            <div class="chart-wrapper chart-container">
+                <h3>時域圖</h3>
+                <canvas id="accelerationChart"></canvas>
+            </div>
+            
+            <div id="topPeaksContainer" class="top-peaks" style="display: none;">
+                <h3>前5個最強頻率</h3>
+                <div id="topPeaks"></div>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="frequency">頻率分析</div>
+                <div class="tab" data-tab="details">詳細結果</div>
+            </div>
+            
+            <div id="frequencyTab" class="tab-content active">
+                <div class="frequency-ranges">
+                    <div class="frequency-range active" data-max="all">全頻率範圍</div>
+                    <div class="frequency-range" data-max="100">0-100 Hz</div>
+                    <div class="frequency-range" data-max="200">0-200 Hz</div>
+                    <div class="frequency-range" data-max="300">0-300 Hz</div>
+                    <div class="frequency-range" data-max="500">0-500 Hz</div>
+                    <div class="frequency-range" data-max="1000">0-1000 Hz</div>
+                    
+                    <div class="custom-range">
+                        <label for="minFreq">自定義:</label>
+                        <input type="number" id="minFreq" placeholder="最小" min="0" step="1" value="0">
+                        <span>至</span>
+                        <input type="number" id="maxFreq" placeholder="最大" min="1" step="1">
+                        <button id="applyRangeBtn">應用</button>
+                    </div>
+                </div>
+                
+                <div class="chart-wrapper chart-container">
+                    <canvas id="frequencyChart"></canvas>
+                </div>
+            </div>
+            
+            <div id="detailsTab" class="tab-content">
+                <div id="frequencyInfo"></div>
+                
+                <table class="peak-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>頻率 (Hz)</th>
+                            <th>幅度</th>
+                            <th>相對強度 (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="peakTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取DOM元素
+            const fileInput = document.getElementById('fileInput');
+            const fileStatus = document.getElementById('fileStatus');
+            const loading = document.getElementById('loading');
+            const samplingRateInput = document.getElementById('samplingRate');
+            const samplingInfo = document.getElementById('samplingInfo');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const frequencyInfoElement = document.getElementById('frequencyInfo');
+            const peakTableBody = document.getElementById('peakTableBody');
+            const dataInfoElement = document.getElementById('dataInfo');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const frequencyRanges = document.querySelectorAll('.frequency-range');
+            const minFreqInput = document.getElementById('minFreq');
+            const maxFreqInput = document.getElementById('maxFreq');
+            const applyRangeBtn = document.getElementById('applyRangeBtn');
+            const topPeaksContainer = document.getElementById('topPeaksContainer');
+            const topPeaksElement = document.getElementById('topPeaks');
+            const axisBtns = document.querySelectorAll('.axis-btn');
+            const filePreviewPanel = document.getElementById('filePreviewPanel');
+            const dataPreview = document.getElementById('dataPreview');
+            const columnSelector = document.getElementById('columnSelector');
+            const confirmColumnsBtn = document.getElementById('confirmColumnsBtn');
+            const analysisPanel = document.getElementById('analysisPanel');
+            const maxFreqSpan = document.getElementById('maxFreqSpan');
+            
+            // 存儲圖表實例和數據
+            let accelerationChartInstance = null;
+            let frequencyChartInstance = null;
+            let allFrequencies = [];
+            let currentMinFreq = 0;
+            let currentMaxFreq = 'all';
+            let fullDataSet = { x: [], y: [], z: [] };
+            let timestamps = [];
+            let samplingRate = 1000;
+            let detectedSamplingRate = null;
+            let currentAxis = 'z';
+            let fileContent = null;
+            let columnData = {
+                xIndex: -1,
+                yIndex: -1,
+                zIndex: -1,
+                timeIndex: -1
+            };
+            let parsedData = null;
+            
+            // 監聽採樣率變更以更新最大可檢測頻率
+            samplingRateInput.addEventListener('input', function() {
+                const rate = parseFloat(this.value) || 1000;
+                const maxFreq = rate / 2;
+                maxFreqSpan.textContent = `${maxFreq.toFixed(1)} Hz`;
+            });
+            
+            // 初始更新最大頻率顯示
+            maxFreqSpan.textContent = `${(parseFloat(samplingRateInput.value) / 2).toFixed(1)} Hz`;
+            
+            // 軸選擇功能
+            axisBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    axisBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    currentAxis = btn.getAttribute('data-axis');
+                    
+                    if (fullDataSet[currentAxis].length > 0) {
+                        // 更新時域圖
+                        drawAccelerationChart(fullDataSet[currentAxis], samplingRate);
+                        
+                        // 分析頻率
+                        analyzeFrequency(fullDataSet[currentAxis], samplingRate);
+                    }
+                });
+            });
+            
+            // 標籤切換功能
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // 更新標籤狀態
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // 更新內容狀態
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(tabId + 'Tab').classList.add('active');
+                });
+            });
+            
+            // 頻率範圍切換功能
+            frequencyRanges.forEach(range => {
+                range.addEventListener('click', () => {
+                    frequencyRanges.forEach(r => r.classList.remove('active'));
+                    range.classList.add('active');
+                    
+                    currentMaxFreq = range.getAttribute('data-max');
+                    currentMinFreq = 0;
+                    
+                    if (allFrequencies.length > 0) {
+                        updateFrequencyChart();
+                    }
+                });
+            });
+            
+            // 自定義範圍功能
+            applyRangeBtn.addEventListener('click', () => {
+                const minFreq = parseFloat(minFreqInput.value) || 0;
+                const maxFreq = parseFloat(maxFreqInput.value);
+                
+                if (!isNaN(maxFreq) && maxFreq > minFreq) {
+                    frequencyRanges.forEach(r => r.classList.remove('active'));
+                    
+                    currentMinFreq = minFreq;
+                    currentMaxFreq = maxFreq;
+                    
+                    // 檢查最高頻率是否超過奈奎斯特頻率
+                    const nyquistFreq = samplingRate / 2;
+                    if (maxFreq > nyquistFreq) {
+                        alert(`警告：您指定的最高頻率 ${maxFreq} Hz 超過了奈奎斯特頻率 ${nyquistFreq} Hz。\n根據採樣定理，只能可靠檢測到不超過採樣率一半的頻率。\n請增加採樣率或降低分析頻率上限。`);
+                    }
+                    
+                    if (allFrequencies.length > 0) {
+                        updateFrequencyChart();
+                    }
+                } else {
+                    alert('請輸入有效的頻率範圍（最大值需大於最小值）');
+                }
+            });
+            
+            // 綁定文件選擇事件
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    fileStatus.textContent = `已選擇檔案: ${file.name}`;
+                    
+                    // 讀取檔案預覽
+                    loading.style.display = 'inline-block';
+                    setTimeout(() => {
+                        readFilePreview(file);
+                    }, 50);
+                }
+            });
+            
+            // 綁定分析按鈕事件
+            analyzeBtn.addEventListener('click', function() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('請先選擇數據檔案');
+                    return;
+                }
+                
+                samplingRate = parseFloat(samplingRateInput.value) || 1000;
+                if (samplingRate <= 0) {
+                    alert('請輸入有效的採樣率');
+                    return;
+                }
+                
+                // 更新最大可檢測頻率
+                maxFreqSpan.textContent = `${(samplingRate / 2).toFixed(1)} Hz`;
+                
+                loading.style.display = 'inline-block';
+                fileStatus.textContent = '分析中...';
+                
+                // 讀取檔案預覽
+                setTimeout(() => {
+                    readFilePreview(file);
+                }, 50);
+            });
+            
+            // 綁定確認欄位按鈕事件
+            confirmColumnsBtn.addEventListener('click', function() {
+                // 獲取選擇的列索引
+                const xSelect = document.getElementById('xColumnSelect');
+                const ySelect = document.getElementById('yColumnSelect');
+                const zSelect = document.getElementById('zColumnSelect');
+                
+                columnData.xIndex = parseInt(xSelect.value);
+                columnData.yIndex = parseInt(ySelect.value);
+                columnData.zIndex = parseInt(zSelect.value);
+                
+                // 處理數據
+                processParsedData();
+            });
+            
+            // 讀取檔案預覽
+            function readFilePreview(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fileContent = e.target.result;
+                    
+                    // 解析數據
+                    parseFileData(fileContent);
+                    
+                    // 顯示預覽並讓用戶選擇欄位
+                    showDataPreview();
+                    
+                    loading.style.display = 'none';
+                };
+                reader.onerror = function() {
+                    loading.style.display = 'none';
+                    fileStatus.textContent = '讀取檔案時發生錯誤';
+                };
+                reader.readAsText(file);
+            }
+            
+            // 解析檔案數據
+            function parseFileData(content) {
+                // 獲取前幾行來檢測格式
+                const lines = content.split('\n').filter(line => line.trim().length > 0);
+                
+                // 檢測最可能的分隔符
+                const delimiters = ['\t', ',', ' ', ';'];
+                let bestDelimiter = '\t';
+                let mostConsistentColumns = 0;
+                
+                for (const delimiter of delimiters) {
+                    // 檢查前10行的列數是否一致
+                    const columnsCount = lines.slice(0, Math.min(10, lines.length))
+                        .map(line => line.split(delimiter).length);
+                    
+                    // 計算最常見的列數
+                    const counts = {};
+                    columnsCount.forEach(count => {
+                        counts[count] = (counts[count] || 0) + 1;
+                    });
+                    
+                    let maxCount = 0;
+                    let mostCommonColumns = 0;
+                    for (const count in counts) {
+                        if (counts[count] > maxCount) {
+                            maxCount = counts[count];
+                            mostCommonColumns = parseInt(count);
+                        }
+                    }
+                    
+                    // 如果這個分隔符產生的列數更一致，則選擇它
+                    if (maxCount > mostConsistentColumns && mostCommonColumns > 1) {
+                        mostConsistentColumns = maxCount;
+                        bestDelimiter = delimiter;
+                    }
+                }
+                
+                // 解析數據行
+                const headerLine = lines[0];
+                const headers = headerLine.split(bestDelimiter).map(h => h.trim());
+                
+                // 解析所有數據行
+                const dataRows = [];
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const values = line.split(bestDelimiter).map(v => v.trim());
+                    
+                    // 檢查是否有足夠的列
+                    if (values.length > 1) {
+                        dataRows.push(values);
+                    }
+                }
+                
+                // 嘗試識別加速度數據列
+                let timeIndex = -1;
+                let xIndex = -1;
+                let yIndex = -1;
+                let zIndex = -1;
+                
+                // 檢查標題行是否包含關鍵詞
+                for (let i = 0; i < headers.length; i++) {
+                    const header = headers[i].toLowerCase();
+                    if (header.includes('time') || header.includes('時間')) {
+                        timeIndex = i;
+                    } else if (header.includes('x') && (header.includes('acc') || header.includes('加速'))) {
+                        xIndex = i;
+                    } else if (header.includes('y') && (header.includes('acc') || header.includes('加速'))) {
+                        yIndex = i;
+                    } else if (header.includes('z') && (header.includes('acc') || header.includes('加速'))) {
+                        zIndex = i;
+                    }
+                }
+                
+                // 如果標題識別失敗，則嘗試基於數據特性識別可能的列
+                if (xIndex === -1 && yIndex === -1 && zIndex === -1) {
+                    // 找出數值列
+                    const numericColumns = [];
+                    for (let i = 0; i < headers.length; i++) {
+                        let numericCount = 0;
+                        for (let j = 0; j < Math.min(dataRows.length, 10); j++) {
+                            if (dataRows[j].length > i && !isNaN(parseFloat(dataRows[j][i]))) {
+                                numericCount++;
+                            }
+                        }
+                        if (numericCount > dataRows.length * 0.8) {
+                            numericColumns.push(i);
+                        }
+                    }
+                    
+                    // 假設前三個數值列是X, Y, Z（如果有的話）
+                    if (numericColumns.length >= 3) {
+                        xIndex = numericColumns[0];
+                        yIndex = numericColumns[1];
+                        zIndex = numericColumns[2];
+                    } else if (numericColumns.length > 0) {
+                        // 至少選擇一個作為Z軸
+                        zIndex = numericColumns[0];
+                    }
+                }
+                
+                // 存儲解析結果
+                parsedData = {
+                    headers,
+                    dataRows,
+                    delimiter: bestDelimiter,
+                    timeIndex,
+                    xIndex,
+                    yIndex,
+                    zIndex
+                };
+                
+                // 更新欄位數據
+                columnData.timeIndex = timeIndex;
+                columnData.xIndex = xIndex;
+                columnData.yIndex = yIndex;
+                columnData.zIndex = zIndex;
+                
+                // 嘗試從時間戳估計採樣率
+                if (timeIndex !== -1) {
+                    estimateSamplingRateFromTimestamps();
+                }
+            }
+            
+            // 顯示數據預覽
+            function showDataPreview() {
+                if (!parsedData) return;
+                
+                // 顯示前10行的數據預覽
+                let previewHtml = '';
+                for (let i = 0; i < Math.min(10, parsedData.dataRows.length); i++) {
+                    previewHtml += parsedData.dataRows[i].join(' | ') + '<br>';
+                }
+                dataPreview.innerHTML = previewHtml;
+                
+                // 創建欄位選擇器
+                createColumnSelectors();
+                
+                // 顯示預覽面板
+                filePreviewPanel.style.display = 'block';
+                analysisPanel.style.display = 'none';
+            }
+            
+            // 創建欄位選擇器
+            function createColumnSelectors() {
+                const headers = parsedData.headers;
+                let html = '';
+                
+                // X軸選擇器
+                html += '<div class="column-item">';
+                html += '<label for="xColumnSelect">X軸數據:</label>';
+                html += '<select id="xColumnSelect">';
+                html += '<option value="-1">無</option>';
+                for (let i = 0; i < headers.length; i++) {
+                    html += `<option value="${i}" ${i === columnData.xIndex ? 'selected' : ''}>${i + 1}: ${headers[i]}</option>`;
+                }
+                html += '</select></div>';
+                
+                // Y軸選擇器
+                html += '<div class="column-item">';
+                html += '<label for="yColumnSelect">Y軸數據:</label>';
+                html += '<select id="yColumnSelect">';
+                html += '<option value="-1">無</option>';
+                for (let i = 0; i < headers.length; i++) {
+                    html += `<option value="${i}" ${i === columnData.yIndex ? 'selected' : ''}>${i + 1}: ${headers[i]}</option>`;
+                }
+                html += '</select></div>';
+                
+                // Z軸選擇器
+                html += '<div class="column-item">';
+                html += '<label for="zColumnSelect">Z軸數據:</label>';
+                html += '<select id="zColumnSelect">';
+                html += '<option value="-1">無</option>';
+                for (let i = 0; i < headers.length; i++) {
+                    html += `<option value="${i}" ${i === columnData.zIndex ? 'selected' : ''}>${i + 1}: ${headers[i]}</option>`;
+                }
+                html += '</select></div>';
+                
+                columnSelector.innerHTML = html;
+            }
+            
+            // 從時間戳估計採樣率
+            function estimateSamplingRateFromTimestamps() {
+                if (!parsedData || parsedData.timeIndex === -1) return;
+                
+                const timestamps = [];
+                const timeIntervals = [];
+                
+                // 嘗試解析不同格式的時間戳
+                for (let i = 0; i < Math.min(parsedData.dataRows.length, 100); i++) {
+                    const row = parsedData.dataRows[i];
+                    if (row.length <= parsedData.timeIndex) continue;
+                    
+                    const timeValue = row[parsedData.timeIndex];
+                    
+                    // 嘗試直接解析為數字（可能是秒數或毫秒數）
+                    let timestamp = parseFloat(timeValue);
+                    if (!isNaN(timestamp)) {
+                        timestamps.push(timestamp);
+                    } else {
+                        // 嘗試解析為日期時間格式
+                        try {
+                            const dateObj = new Date(timeValue);
+                            if (!isNaN(dateObj.getTime())) {
+                                timestamps.push(dateObj.getTime());
+                            }
+                        } catch (e) {
+                            // 無法解析此時間戳
+                        }
+                    }
+                }
+                
+                // 計算時間間隔
+                if (timestamps.length >= 2) {
+                    for (let i = 1; i < timestamps.length; i++) {
+                        const interval = timestamps[i] - timestamps[i - 1];
+                        if (interval > 0) {
+                            timeIntervals.push(interval);
+                        }
+                    }
+                }
+                
+                // 計算平均間隔和採樣率
+                if (timeIntervals.length > 0) {
+                    // 過濾極端值
+                    const sortedIntervals = [...timeIntervals].sort((a, b) => a - b);
+                    const filteredIntervals = sortedIntervals.slice(
+                        Math.floor(sortedIntervals.length * 0.1),
+                        Math.ceil(sortedIntervals.length * 0.9)
+                    );
+                    
+                    // 計算平均間隔
+                    const avgInterval = filteredIntervals.reduce((a, b) => a + b, 0) / filteredIntervals.length;
+                    
+                    // 判斷是毫秒還是秒
+                    let calculatedRate;
+                    if (avgInterval > 0.001 && avgInterval < 1) {
+                        // 假設間隔是秒
+                        calculatedRate = Math.round(1 / avgInterval);
+                    } else if (avgInterval >= 1 && avgInterval < 1000) {
+                        // 假設間隔是毫秒
+                        calculatedRate = Math.round(1000 / avgInterval);
+                    } else {
+                        return; // 無法確定間隔單位
+                    }
+                    
+                    if (calculatedRate > 0 && calculatedRate <= 10000) {
+                        detectedSamplingRate = calculatedRate;
+                        samplingRateInput.value = detectedSamplingRate;
+                        samplingInfo.textContent = `從數據中檢測到採樣率: ${detectedSamplingRate} Hz`;
+                        samplingInfo.style.display = 'block';
+                        
+                        // 更新最大可檢測頻率
+                        maxFreqSpan.textContent = `${(detectedSamplingRate / 2).toFixed(1)} Hz`;
+                    }
+                }
+            }
+            
+            // 處理解析後的數據
+            function processParsedData() {
+                if (!parsedData) return;
+                
+                // 提取每個軸的數據
+                fullDataSet = { x: [], y: [], z: [] };
+                timestamps = [];
+                
+                for (let i = 0; i < parsedData.dataRows.length; i++) {
+                    const row = parsedData.dataRows[i];
+                    
+                    // 提取時間戳（如果有）
+                    if (columnData.timeIndex !== -1 && row.length > columnData.timeIndex) {
+                        timestamps.push(row[columnData.timeIndex]);
+                    } else {
+                        timestamps.push(i);
+                    }
+                    
+                    // 提取X軸數據
+                    if (columnData.xIndex !== -1 && row.length > columnData.xIndex) {
+                        const xValue = parseFloat(row[columnData.xIndex]);
+                        if (!isNaN(xValue)) {
+                            fullDataSet.x.push(xValue);
+                        }
+                    }
+                    
+                    // 提取Y軸數據
+                    if (columnData.yIndex !== -1 && row.length > columnData.yIndex) {
+                        const yValue = parseFloat(row[columnData.yIndex]);
+                        if (!isNaN(yValue)) {
+                            fullDataSet.y.push(yValue);
+                        }
+                    }
+                    
+                    // 提取Z軸數據
+                    if (columnData.zIndex !== -1 && row.length > columnData.zIndex) {
+                        const zValue = parseFloat(row[columnData.zIndex]);
+                        if (!isNaN(zValue)) {
+                            fullDataSet.z.push(zValue);
+                        }
+                    }
+                }
+                
+                // 獲取當前選擇的軸
+                const axisData = fullDataSet[currentAxis];
+                
+                // 檢查是否有足夠的數據
+                if (axisData.length === 0) {
+                    // 嘗試使用任何有數據的軸
+                    if (fullDataSet.x.length > 0) {
+                        currentAxis = 'x';
+                    } else if (fullDataSet.y.length > 0) {
+                        currentAxis = 'y';
+                    } else if (fullDataSet.z.length > 0) {
+                        currentAxis = 'z';
+                    } else {
+                        alert('未能從檔案中提取有效數據，請檢查欄位選擇');
+                        return;
+                    }
+                    
+                    // 更新按鈕狀態
+                    axisBtns.forEach(btn => {
+                        if (btn.getAttribute('data-axis') === currentAxis) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                }
+                
+                // 使用選定的軸數據
+                const currentData = fullDataSet[currentAxis];
+                
+                // 獲取採樣率
+                samplingRate = parseFloat(samplingRateInput.value) || 1000;
+                
+                // 更新數據信息
+                updateDataInfo();
+                
+                // 繪製時域圖
+                drawAccelerationChart(currentData, samplingRate);
+                
+                // 分析頻率
+                analyzeFrequency(currentData, samplingRate);
+                
+                // 顯示完成信息
+                fileStatus.textContent = `分析完成: ${currentData.length} 個數據點`;
+                
+                // 顯示分析面板
+                filePreviewPanel.style.display = 'none';
+                analysisPanel.style.display = 'block';
+                
+                // 滾動到分析結果
+                analysisPanel.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // 更新數據信息
+            function updateDataInfo() {
+                // 計算每個軸的統計信息
+                let xStats = { min: 0, max: 0, mean: 0, stdDev: 0 };
+                let yStats = { min: 0, max: 0, mean: 0, stdDev: 0 };
+                let zStats = { min: 0, max: 0, mean: 0, stdDev: 0 };
+                
+                if (fullDataSet.x.length > 0) xStats = calculateStats(fullDataSet.x);
+                if (fullDataSet.y.length > 0) yStats = calculateStats(fullDataSet.y);
+                if (fullDataSet.z.length > 0) zStats = calculateStats(fullDataSet.z);
+                
+                // 準備顯示內容
+                let html = '<h3>數據統計信息</h3>';
+                html += `<p><strong>總數據點數:</strong> ${parsedData.dataRows.length}</p>`;
+                html += `<p><strong>採樣率:</strong> ${samplingRate} Hz (可檢測頻率上限: ${samplingRate/2} Hz)</p>`;
+                
+                // 建立表格顯示統計信息
+                html += '<table style="width:100%; border-collapse:collapse; margin:10px 0;">';
+                html += '<tr style="background:#f5f5f5">';
+                html += '<th style="padding:8px; border:1px solid #ddd;">軸</th>';
+                html += '<th style="padding:8px; border:1px solid #ddd;">數據點</th>';
+                html += '<th style="padding:8px; border:1px solid #ddd;">最小值</th>';
+                html += '<th style="padding:8px; border:1px solid #ddd;">最大值</th>';
+                html += '<th style="padding:8px; border:1px solid #ddd;">平均值</th>';
+                html += '<th style="padding:8px; border:1px solid #ddd;">標準差</th>';
+                html += '</tr>';
+                
+                // X軸
+                if (fullDataSet.x.length > 0) {
+                    html += '<tr>';
+                    html += '<td style="padding:8px; border:1px solid #ddd;">X軸</td>';
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${fullDataSet.x.length}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${xStats.min.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${xStats.max.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${xStats.mean.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${xStats.stdDev.toFixed(4)}</td>`;
+                    html += '</tr>';
+                }
+                
+                // Y軸
+                if (fullDataSet.y.length > 0) {
+                    html += '<tr>';
+                    html += '<td style="padding:8px; border:1px solid #ddd;">Y軸</td>';
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${fullDataSet.y.length}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${yStats.min.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${yStats.max.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${yStats.mean.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${yStats.stdDev.toFixed(4)}</td>`;
+                    html += '</tr>';
+                }
+                
+                // Z軸
+                if (fullDataSet.z.length > 0) {
+                    html += '<tr>';
+                    html += '<td style="padding:8px; border:1px solid #ddd;">Z軸</td>';
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${fullDataSet.z.length}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${zStats.min.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${zStats.max.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${zStats.mean.toFixed(4)}</td>`;
+                    html += `<td style="padding:8px; border:1px solid #ddd;">${zStats.stdDev.toFixed(4)}</td>`;
+                    html += '</tr>';
+                }
+                
+                html += '</table>';
+                html += `<p><small>點擊上方按鈕切換分析軸向 (當前: ${currentAxis.toUpperCase()}軸)</small></p>`;
+                
+                dataInfoElement.innerHTML = html;
+            }
+            
+            // 計算統計數據
+            function calculateStats(data) {
+                if (data.length === 0) {
+                    return { min: 0, max: 0, mean: 0, stdDev: 0 };
+                }
+                
+                const min = Math.min(...data);
+                const max = Math.max(...data);
+                const sum = data.reduce((a, b) => a + b, 0);
+                const mean = sum / data.length;
+                
+                // 計算標準差
+                const squaredDiffs = data.map(value => Math.pow(value - mean, 2));
+                const variance = squaredDiffs.reduce((a, b) => a + b, 0) / data.length;
+                const stdDev = Math.sqrt(variance);
+                
+                return { min, max, mean, stdDev };
+            }
+            
+            // 繪製加速度時域圖
+            function drawAccelerationChart(data, samplingRate) {
+                const ctx = document.getElementById('accelerationChart').getContext('2d');
+                
+                // 如果圖表已存在，則銷毀它
+                if (accelerationChartInstance) {
+                    accelerationChartInstance.destroy();
+                }
+                
+                // 限制數據點數，避免瀏覽器崩潰
+                const maxPoints = 10000;
+                let displayData, timeLabels;
+                
+                if (data.length > maxPoints) {
+                    const skipFactor = Math.ceil(data.length / maxPoints);
+                    displayData = data.filter((_, i) => i % skipFactor === 0);
+                    timeLabels = displayData.map((_, i) => ((i * skipFactor) / samplingRate).toFixed(3));
+                } else {
+                    displayData = data;
+                    timeLabels = data.map((_, i) => (i / samplingRate).toFixed(3));
+                }
+                
+                // 創建新圖表
+                accelerationChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: timeLabels,
+                        datasets: [{
+                            label: `${currentAxis.toUpperCase()} 軸數據`,
+                            data: displayData,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 1,
+                            fill: false,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `${currentAxis.toUpperCase()} 軸數據隨時間變化`
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '時間 (秒)'
+                                },
+                                ticks: {
+                                    maxTicksLimit: 10
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '數值'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 分析頻率 - 改進的FFT算法
+            function analyzeFrequency(data, samplingRate) {
+                // 預處理數據 - 移除直流分量並應用窗函數
+                const processedData = preprocessData(data);
+                
+                // 計算FFT
+                const fftResult = computeFFT(processedData);
+                
+                // 計算頻率分辨率
+                const frequencyResolution = samplingRate / processedData.length;
+                
+                // 創建頻率數組
+                allFrequencies = fftResult.map((amp, index) => ({
+                    freq: index * frequencyResolution,
+                    amp: amp
+                }));
+                
+                // 去除0頻率(DC分量)，保留到奈奎斯特頻率
+                const nyquistFreq = samplingRate / 2;
+                allFrequencies = allFrequencies.filter(f => f.freq > 0 && f.freq <= nyquistFreq);
+                
+                // 按幅度排序並獲取全局的頻率排名
+                const sortedIndices = [...allFrequencies].map((f, i) => i)
+                    .sort((a, b) => allFrequencies[b].amp - allFrequencies[a].amp);
+                
+                // 給每個頻率添加全局排名
+                const globalRankings = new Map();
+                sortedIndices.forEach((index, rank) => {
+                    globalRankings.set(index, rank);
+                });
+                
+                // 獲取前20個峰值頻率（全局）
+                const topPeaks = sortedIndices.slice(0, 20)
+                    .map(index => ({
+                        freq: allFrequencies[index].freq,
+                        amp: allFrequencies[index].amp,
+                        index: index
+                    }));
+                
+                // 計算相對強度（相對於最大峰值的百分比）
+                const maxAmp = topPeaks.length > 0 ? topPeaks[0].amp : 1;
+                topPeaks.forEach(peak => {
+                    peak.relativeStrength = (peak.amp / maxAmp) * 100;
+                });
+                
+                // 找到能量集中的頻率範圍
+                const totalEnergy = allFrequencies.reduce((sum, f) => sum + f.amp * f.amp, 0);
+                let cumulativeEnergy = 0;
+                let energyRanges = {
+                    '50%': 0,
+                    '75%': 0,
+                    '90%': 0,
+                    '95%': 0,
+                    '99%': 0
+                };
+                
+                // 計算不同能量百分比對應的頻率
+                for (let i = 0; i < allFrequencies.length; i++) {
+                    cumulativeEnergy += allFrequencies[i].amp * allFrequencies[i].amp;
+                    const energyPercent = (cumulativeEnergy / totalEnergy) * 100;
+                    
+                    if (energyPercent >= 50 && !energyRanges['50%']) 
+                        energyRanges['50%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 75 && !energyRanges['75%']) 
+                        energyRanges['75%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 90 && !energyRanges['90%']) 
+                        energyRanges['90%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 95 && !energyRanges['95%']) 
+                        energyRanges['95%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 99 && !energyRanges['99%']) 
+                        energyRanges['99%'] = allFrequencies[i].freq;
+                }
+                
+                // 顯示頻率信息
+                displayFrequencyInfo(topPeaks, energyRanges, frequencyResolution, samplingRate, nyquistFreq);
+                
+                // 顯示前5個最強頻率
+                showTopPeaks(topPeaks.slice(0, 5));
+                
+                // 更新頻率圖表
+                updateFrequencyChart(globalRankings);
+            }
+            
+            // 預處理數據
+            function preprocessData(data) {
+                const processedData = [...data];
+                
+                // 移除直流分量（平均值）
+                const mean = processedData.reduce((sum, val) => sum + val, 0) / processedData.length;
+                for (let i = 0; i < processedData.length; i++) {
+                    processedData[i] -= mean;
+                }
+                
+                // 應用漢寧窗函數
+                const N = processedData.length;
+                for (let i = 0; i < N; i++) {
+                    processedData[i] *= (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)));
+                }
+                
+                return processedData;
+            }
+            
+            // 計算FFT（離散傅立葉變換）- 更高效的實現
+            function computeFFT(data) {
+                const n = data.length;
+                const spectrum = new Array(Math.floor(n / 2) + 1).fill(0);
+                
+                // 直接計算DFT
+                for (let f = 0; f <= Math.floor(n / 2); f++) {
+                    let real = 0, imag = 0;
+                    
+                    for (let t = 0; t < n; t++) {
+                        const angle = (2 * Math.PI * f * t) / n;
+                        real += data[t] * Math.cos(angle);
+                        imag -= data[t] * Math.sin(angle);
+                    }
+                    
+                    // 計算幅度並歸一化 - 保持高頻分量的相對強度
+                    spectrum[f] = 2 * Math.sqrt(real * real + imag * imag) / n;
+                }
+                
+                // DC分量（f=0）不需要乘以2
+                if (spectrum.length > 0) {
+                    spectrum[0] /= 2;
+                }
+                
+                return spectrum;
+            }
+            
+            // 顯示前5個最強頻率
+            function showTopPeaks(top5Peaks) {
+                let html = '';
+                
+                top5Peaks.forEach((peak, index) => {
+                    html += `<div class="top-peak-item">
+                        ${index + 1}. ${peak.freq.toFixed(2)} Hz (強度: ${peak.amp.toFixed(6)})
+                    </div>`;
+                });
+                
+                topPeaksElement.innerHTML = html;
+                topPeaksContainer.style.display = 'block';
+            }
+            
+            // 顯示頻率信息
+            function displayFrequencyInfo(topPeaks, energyRanges, resolution, samplingRate, nyquistFreq) {
+                // 更新頻率信息區域
+                let infoHtml = `
+                    <h3>頻譜分析結果 (${currentAxis.toUpperCase()}軸)</h3>
+                    <p><strong>數據信息：</strong> 採樣率 ${samplingRate} Hz, 頻率分辨率 ${resolution.toFixed(4)} Hz, 奈奎斯特頻率 ${nyquistFreq.toFixed(1)} Hz</p>
+                    <p><strong>能量分布：</strong></p>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>50% 能量集中在 0-${energyRanges['50%'].toFixed(2)} Hz</li>
+                        <li>75% 能量集中在 0-${energyRanges['75%'].toFixed(2)} Hz</li>
+                        <li>90% 能量集中在 0-${energyRanges['90%'].toFixed(2)} Hz</li>
+                        <li>95% 能量集中在 0-${energyRanges['95%'].toFixed(2)} Hz</li>
+                        <li>99% 能量集中在 0-${energyRanges['99%'].toFixed(2)} Hz</li>
+                    </ul>
+                    <p><strong>注意：</strong> 表格顯示按幅度排序的前20個頻率峰值，前5個用黃色標出。</p>
+                `;
+                
+                frequencyInfoElement.innerHTML = infoHtml;
+                
+                // 更新峰值表格
+                peakTableBody.innerHTML = '';
+                topPeaks.forEach((peak, index) => {
+                    const row = document.createElement('tr');
+                    if (index < 5) {
+                        row.className = 'peak-highlight';
+                    }
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${peak.freq.toFixed(2)}</td>
+                        <td>${peak.amp.toFixed(6)}</td>
+                        <td>${peak.relativeStrength.toFixed(1)}%</td>
+                    `;
+                    peakTableBody.appendChild(row);
+                });
+            }
+            
+            // 更新頻率圖表
+            function updateFrequencyChart(globalRankings) {
+                const ctx = document.getElementById('frequencyChart').getContext('2d');
+                
+                // 如果圖表已存在，則銷毀它
+                if (frequencyChartInstance) {
+                    frequencyChartInstance.destroy();
+                }
+                
+                // 根據選擇的範圍篩選頻率
+                let displayFrequencies = [...allFrequencies];
+                let maxFreq = Infinity;
+                let minFreq = currentMinFreq;
+                
+                if (currentMaxFreq !== 'all') {
+                    maxFreq = parseFloat(currentMaxFreq);
+                }
+                
+                displayFrequencies = allFrequencies.filter(f => f.freq >= minFreq && f.freq <= maxFreq);
+                
+                // 獲取篩選後範圍內的前10個峰值
+                const localSortedIndices = [...displayFrequencies].map((f, i) => i)
+                    .sort((a, b) => displayFrequencies[b].amp - displayFrequencies[a].amp);
+                
+                const top10Local = localSortedIndices.slice(0, 10)
+                    .map(index => displayFrequencies[index].freq);
+                
+                // 獲取全局的前10個峰值頻率
+                const top10Global = [...allFrequencies].map((f, i) => ({ freq: f.freq, amp: f.amp, index: i }))
+                    .sort((a, b) => b.amp - a.amp)
+                    .slice(0, 10)
+                    .map(f => f.freq);
+                
+                // 如果數據點過多，進行抽樣
+                const maxDataPoints = 2000;
+                let sampledFrequencies = [...displayFrequencies];
+                
+                if (displayFrequencies.length > maxDataPoints) {
+                    // 確保保留重要的峰值
+                    const importantFreqs = new Set([...top10Local, ...top10Global.filter(f => f >= minFreq && f <= maxFreq)]);
+                    
+                    // 計算抽樣間隔
+                    const skipFactor = Math.ceil(displayFrequencies.length / maxDataPoints);
+                    
+                    // 抽樣點 + 重要點
+                    sampledFrequencies = displayFrequencies.filter((f, i) => {
+                        return importantFreqs.has(f.freq) || i % skipFactor === 0;
+                    });
+                    
+                    // 確保點按頻率排序
+                    sampledFrequencies.sort((a, b) => a.freq - b.freq);
+                }
+                
+                // 準備顏色數組 - 標記峰值
+                const backgroundColor = sampledFrequencies.map(f => {
+                    // 檢查是否是前5個全局峰值
+                    const isTop5Global = top10Global.slice(0, 5).some(peakFreq => Math.abs(f.freq - peakFreq) < 0.001);
+                    const isTop10Global = !isTop5Global && top10Global.slice(5).some(peakFreq => Math.abs(f.freq - peakFreq) < 0.001);
+                    
+                    if (isTop5Global) return 'rgba(255, 99, 132, 0.8)'; // 紅色 - 前5個
+                    if (isTop10Global) return 'rgba(255, 159, 64, 0.8)'; // 橙色 - 6-10個
+                    return 'rgba(54, 162, 235, 0.5)'; // 藍色 - 其他
+                });
+                
+                // 設置頻譜圖標題
+                let chartTitle = `${currentAxis.toUpperCase()}軸頻譜分析`;
+                if (currentMaxFreq === 'all') {
+                    if (minFreq > 0) {
+                        chartTitle = `${currentAxis.toUpperCase()}軸頻譜分析 (${minFreq} Hz 以上)`;
+                    } else {
+                        chartTitle = `${currentAxis.toUpperCase()}軸完整頻譜分析`;
+                    }
+                } else {
+                    chartTitle = `${currentAxis.toUpperCase()}軸頻譜分析 (${minFreq}-${maxFreq} Hz)`;
+                }
+                
+                // 創建新圖表
+                frequencyChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: sampledFrequencies.map(f => f.freq.toFixed(1)),
+                        datasets: [{
+                            label: '頻譜幅度',
+                            data: sampledFrequencies.map(f => f.amp),
+                            backgroundColor: backgroundColor,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: chartTitle
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return `頻率: ${tooltipItems[0].label} Hz`;
+                                    },
+                                    label: function(context) {
+                                        const isTop5 = backgroundColor[context.dataIndex] === 'rgba(255, 99, 132, 0.8)';
+                                        const isTop10 = backgroundColor[context.dataIndex] === 'rgba(255, 159, 64, 0.8)';
+                                        
+                                        if (isTop5) return `幅度: ${context.raw.toFixed(6)} (前5大頻率)`;
+                                        if (isTop10) return `幅度: ${context.raw.toFixed(6)} (前10大頻率)`;
+                                        return `幅度: ${context.raw.toFixed(6)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '頻率 (Hz)'
+                                },
+                                ticks: {
+                                    maxTicksLimit: 20
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '幅度'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
