@@ -1025,15 +1025,28 @@ JSON格式如下：
         console.log("英語學習模組初始化成功");
     }
     
-    // 添加到側邊欄
-    function addToSidebar() {
-        // 獲取側邊欄菜單
-        const sidebarMenu = document.querySelector('.sidebar-menu');
+// 修改 addToSidebar 函數
+function addToSidebar() {
+    // 確保DOM已完全加載
+    setTimeout(() => {
+        // 獲取側邊欄菜單 - 使用更精確的選擇器
+        const sidebarMenu = document.querySelector('.sidebar .sidebar-menu');
         if (!sidebarMenu) {
-            console.error('找不到側邊欄菜單');
-            return;
+            console.error('找不到側邊欄菜單，嘗試備用選擇器');
+            // 嘗試備用選擇器
+            const altSidebarMenu = document.querySelector('.sidebar-menu');
+            if (!altSidebarMenu) {
+                console.error('使用備用選擇器仍找不到側邊欄菜單');
+                return;
+            }
+            addMenuItem(altSidebarMenu);
+        } else {
+            addMenuItem(sidebarMenu);
         }
-        
+    }, 500); // 延遲500毫秒確保DOM已加載
+    
+    // 添加菜單項的函數
+    function addMenuItem(menu) {
         // 檢查是否已存在英語學習菜單項
         if (document.getElementById('open-english')) {
             return;
@@ -1051,10 +1064,10 @@ JSON格式如下：
         // 插入到計算機前面
         const calculatorItem = document.getElementById('open-calculator');
         if (calculatorItem) {
-            sidebarMenu.insertBefore(englishMenuItem, calculatorItem);
+            menu.insertBefore(englishMenuItem, calculatorItem);
         } else {
             // 如果找不到計算機項目，直接追加到末尾
-            sidebarMenu.appendChild(englishMenuItem);
+            menu.appendChild(englishMenuItem);
         }
         
         // 綁定點擊事件
@@ -1089,7 +1102,10 @@ JSON格式如下：
             if (inputArea) inputArea.style.display = 'none';
             if (toolbar) toolbar.style.display = 'none';
         });
+        
+        console.log('英語學習選項已成功添加到側邊欄');
     }
+}
     
     // 添加需要的樣式
     function addStyles() {
