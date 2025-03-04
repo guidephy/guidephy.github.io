@@ -27,6 +27,8 @@ const englishLearningModule = (() => {
 
     // 初始化 DOM 元素
     function initializeDOMElements() {
+        console.log("初始化英語學習DOM元素...");
+        
         // 主要區域
         mainSelection = document.getElementById('english-main-selection');
         levelSelection = document.getElementById('english-level-selection');
@@ -43,51 +45,52 @@ const englishLearningModule = (() => {
         vocabularyBtn = document.getElementById('vocabulary-btn');
         conversationBtn = document.getElementById('conversation-btn');
         levelBtns = document.querySelectorAll('#english-level-selection .modern-button');
-        scenarioBtns = document.querySelectorAll('#english-scenario-selection .modern-button');
+        scenarioBtns = document.querySelectorAll('.scenario-btn');
         backFromVocabulary = document.getElementById('back-from-vocabulary');
         backFromConversation = document.getElementById('back-from-conversation');
         newVocabularyContentBtn = document.getElementById('new-vocabulary-content');
         newConversationContentBtn = document.getElementById('new-conversation-content');
         
         // 檢查必要元素是否存在
-        const requiredElements = [
-            { element: mainSelection, name: 'mainSelection' },
-            { element: levelSelection, name: 'levelSelection' },
-            { element: vocabularyBtn, name: 'vocabularyBtn' },
-            { element: conversationBtn, name: 'conversationBtn' }
-        ];
-
-        const missingElements = requiredElements
-            .filter(({ element, name }) => !element)
-            .map(({ name }) => name);
-
-        if (missingElements.length > 0) {
-            console.error('找不到必要的 DOM 元素:', missingElements.join(', '));
-            return false;
-        }
-
-        return true;
+        console.log("檢查DOM元素:");
+        console.log("主選單:", mainSelection);
+        console.log("等級選擇:", levelSelection);
+        console.log("情境選擇:", scenarioSelection);
+        console.log("單字按鈕:", vocabularyBtn);
+        console.log("對話按鈕:", conversationBtn);
+        
+        // 返回檢查結果
+        return !!(mainSelection && levelSelection && scenarioSelection && 
+                 vocabularyBtn && conversationBtn);
     }
 
     // 綁定事件處理函數
     function bindEventHandlers() {
+        console.log("綁定英語學習事件處理函數...");
+        
         // 單字學習按鈕點擊事件
-        vocabularyBtn.addEventListener('click', () => {
-            console.log("單字學習按鈕被點擊");
-            selectedCategory = 'vocabulary';
-            showLevelSelection();
-            vocabularyBtn.classList.add('active');
-            conversationBtn.classList.remove('active');
-        });
+        if (vocabularyBtn) {
+            vocabularyBtn.addEventListener('click', () => {
+                console.log("單字學習按鈕被點擊");
+                selectedCategory = 'vocabulary';
+                showLevelSelection();
+                vocabularyBtn.classList.add('active');
+                conversationBtn.classList.remove('active');
+            });
+            console.log("單字學習按鈕事件已綁定");
+        }
 
         // 對話練習按鈕點擊事件
-        conversationBtn.addEventListener('click', () => {
-            console.log("對話練習按鈕被點擊");
-            selectedCategory = 'conversation';
-            showScenarioSelection();
-            conversationBtn.classList.add('active');
-            vocabularyBtn.classList.remove('active');
-        });
+        if (conversationBtn) {
+            conversationBtn.addEventListener('click', () => {
+                console.log("對話練習按鈕被點擊");
+                selectedCategory = 'conversation';
+                showScenarioSelection();
+                conversationBtn.classList.add('active');
+                vocabularyBtn.classList.remove('active');
+            });
+            console.log("對話練習按鈕事件已綁定");
+        }
 
         // 等級選擇按鈕點擊事件
         levelBtns.forEach(btn => {
@@ -123,6 +126,7 @@ const englishLearningModule = (() => {
                 }
             });
         });
+        console.log("等級選擇按鈕事件已綁定, 按鈕數量:", levelBtns.length);
 
         // 情境選擇按鈕點擊事件
         scenarioBtns.forEach(btn => {
@@ -158,69 +162,85 @@ const englishLearningModule = (() => {
                 }
             });
         });
+        console.log("情境選擇按鈕事件已綁定, 按鈕數量:", scenarioBtns.length);
 
         // 返回按鈕點擊事件
-        backFromVocabulary.addEventListener('click', () => {
-            vocabularyContent.style.display = 'none';
-            showMainSelection();
-        });
+        if (backFromVocabulary) {
+            backFromVocabulary.addEventListener('click', () => {
+                vocabularyContent.style.display = 'none';
+                showMainSelection();
+            });
+            console.log("單字返回按鈕事件已綁定");
+        }
 
-        backFromConversation.addEventListener('click', () => {
-            conversationContent.style.display = 'none';
-            showMainSelection();
-        });
+        if (backFromConversation) {
+            backFromConversation.addEventListener('click', () => {
+                conversationContent.style.display = 'none';
+                showMainSelection();
+            });
+            console.log("對話返回按鈕事件已綁定");
+        }
 
         // 產生新內容按鈕點擊事件
-        newVocabularyContentBtn.addEventListener('click', async () => {
-            console.log("點擊產生新單字學習內容按鈕");
-            loadingSection.style.display = 'block';
-            vocabularyContent.style.display = 'none';
+        if (newVocabularyContentBtn) {
+            newVocabularyContentBtn.addEventListener('click', async () => {
+                console.log("點擊產生新單字學習內容按鈕");
+                loadingSection.style.display = 'block';
+                vocabularyContent.style.display = 'none';
 
-            try {
-                const apiContent = await fetchGeminiContent(selectedLevel, selectedCategory);
-                loadingSection.style.display = 'none';
+                try {
+                    const apiContent = await fetchGeminiContent(selectedLevel, selectedCategory);
+                    loadingSection.style.display = 'none';
 
-                if (apiContent) {
-                    updateVocabularyContent(apiContent);
+                    if (apiContent) {
+                        updateVocabularyContent(apiContent);
+                        vocabularyContent.style.display = 'block';
+                        setupAudioElements();
+                    } else {
+                        console.error("fetchGeminiContent 回傳 null");
+                        alert("無法取得AI內容，請稍後再試。");
+                    }
+                } catch (error) {
+                    console.error("取得AI內容時發生錯誤:", error);
+                    alert("無法取得AI內容，請稍後再試。");
+                    loadingSection.style.display = 'none';
                     vocabularyContent.style.display = 'block';
-                    setupAudioElements();
-                } else {
-                    console.error("fetchGeminiContent 回傳 null");
-                    alert("無法取得AI內容，請稍後再試。");
                 }
-            } catch (error) {
-                console.error("取得AI內容時發生錯誤:", error);
-                alert("無法取得AI內容，請稍後再試。");
-                loadingSection.style.display = 'none';
-                vocabularyContent.style.display = 'block';
-            }
-        });
+            });
+            console.log("產生新單字按鈕事件已綁定");
+        }
 
-        newConversationContentBtn.addEventListener('click', async () => {
-            console.log("點擊產生新對話練習內容按鈕");
-            loadingSection.style.display = 'block';
-            conversationContent.style.display = 'none';
+        if (newConversationContentBtn) {
+            newConversationContentBtn.addEventListener('click', async () => {
+                console.log("點擊產生新對話練習內容按鈕");
+                loadingSection.style.display = 'block';
+                conversationContent.style.display = 'none';
 
-            try {
-                const apiContent = await fetchGeminiScenarioContent(selectedScenario);
-                loadingSection.style.display = 'none';
+                try {
+                    const apiContent = await fetchGeminiScenarioContent(selectedScenario);
+                    loadingSection.style.display = 'none';
 
-                if (apiContent) {
-                    updateConversationContent(apiContent);
+                    if (apiContent) {
+                        updateConversationContent(apiContent);
+                        conversationContent.style.display = 'block';
+                        setupAudioElements();
+                    } else {
+                        console.error("fetchGeminiScenarioContent 回傳 null");
+                        alert("無法取得AI內容，請稍後再試。");
+                    }
+                } catch (error) {
+                    console.error("取得AI情境對話內容時發生錯誤:", error);
+                    alert("無法取得AI內容，請稍後再試。");
+                    loadingSection.style.display = 'none';
                     conversationContent.style.display = 'block';
-                    setupAudioElements();
-                } else {
-                    console.error("fetchGeminiScenarioContent 回傳 null");
-                    alert("無法取得AI內容，請稍後再試。");
                 }
-            } catch (error) {
-                console.error("取得AI情境對話內容時發生錯誤:", error);
-                alert("無法取得AI內容，請稍後再試。");
-                loadingSection.style.display = 'none';
-                conversationContent.style.display = 'block';
-            }
-        });
+            });
+            console.log("產生新對話按鈕事件已綁定");
+        }
+        
+        console.log("所有英語學習事件處理函數綁定完成");
     }
+
     // 顯示等級選擇
     function showLevelSelection() {
         console.log("顯示等級選擇");
@@ -237,6 +257,7 @@ const englishLearningModule = (() => {
 
     // 顯示主選單
     function showMainSelection() {
+        console.log("返回主選單");
         mainSelection.style.display = 'block';
         selectedCategory = '';
         selectedLevel = '';
@@ -448,7 +469,8 @@ JSON格式如下：
 
         return prompt;
     }
-   // 創建情境對話的 Gemini API 提示詞
+
+    // 創建情境對話的 Gemini API 提示詞
     function createGeminiScenarioPrompt(scenario) {
         let scenarioDesc = '';
         
@@ -660,718 +682,3 @@ JSON格式如下：
             throw error;
         }
     }
-    // 更新單字學習內容
-    function updateVocabularyContent(data) {
-        console.log("更新單字學習內容", data);
-        
-        // 檢查數據完整性
-        if (!data || !data.article || !data.words || !data.grammar_point) {
-            console.error("數據不完整:", data);
-            alert("獲取的學習內容不完整，請重試。");
-            return;
-        }
-        
-        // 提取文法句子
-        const grammarSentence = data.grammar_point.example_sentence.trim();
-        console.log("文法句子:", grammarSentence);
-        
-        // 更新文章，標記單字和文法高亮
-        const articleText = document.getElementById('vocabulary-article-text');
-        let article = data.article;
-
-        // 移除文章中所有 HTML 標籤
-        article = article.replace(/<[^>]*>?/gm, '');
-        
-        // 如果文章中包含文法句子，使用特殊標記替換它
-        let hasHighlightedGrammar = false;
-        if (article.includes(grammarSentence)) {
-            // 使用特殊標記替換文法句子，以便後續處理
-            const marker = "__GRAMMAR_HIGHLIGHT__";
-            article = article.replace(grammarSentence, marker);
-            hasHighlightedGrammar = true;
-        }
-        
-        // 為文章中的目標單字添加高亮標記
-        data.words.forEach(word => {
-            const regex = new RegExp(`\\b${word.english}(s|ed|ing)?\\b`, 'gi');
-            article = article.replace(regex, match => `<a href="#" class="highlight">${match}</a>`);
-        });
-        
-        // 如果找到了文法句子，處理它的高亮
-        if (hasHighlightedGrammar) {
-            // 準備高亮版本的文法句子
-            let highlightedSentence = grammarSentence;
-            
-            // 確保文法句子中的單字也被高亮
-            data.words.forEach(word => {
-                const regex = new RegExp(`\\b${word.english}(s|ed|ing)?\\b`, 'gi');
-                highlightedSentence = highlightedSentence.replace(regex, match => `<a href="#" class="highlight">${match}</a>`);
-            });
-            
-            // 將特殊標記替換為帶有文法高亮的句子
-            article = article.replace("__GRAMMAR_HIGHLIGHT__", `<span class="grammar-highlight" title="${data.grammar_point.title}">${highlightedSentence}</span>`);
-        } else {
-            // 如果沒有找到精確匹配的文法句子，嘗試更寬鬆的匹配
-            console.log("未找到精確匹配的文法句子，嘗試寬鬆匹配");
-            
-            // 去除標點符號進行比較
-            const cleanGrammar = grammarSentence.replace(/[^\w\s]/g, '').toLowerCase().trim();
-            
-            // 將文章拆分為句子
-            const sentences = article.split(/[.!?]+/).map(s => s.trim());
-            
-            // 尋找最佳匹配句子
-            for (const sentence of sentences) {
-                const cleanSentence = sentence.replace(/[^\w\s]/g, '').toLowerCase().trim();
-                if (cleanSentence.includes(cleanGrammar) || cleanGrammar.includes(cleanSentence)) {
-                    console.log("找到模糊匹配的句子:", sentence);
-                    
-                    // 完整句子，包括標點符號
-                    const fullSentence = sentence + '.';
-                    
-                    // 替換為高亮版本
-                    article = article.replace(fullSentence, `<span class="grammar-highlight" title="${data.grammar_point.title}">${fullSentence}</span>`);
-                    hasHighlightedGrammar = true;
-                    break;
-                }
-            }
-            
-            // 如果仍然沒有找到匹配，在文章末尾添加例句
-            if (!hasHighlightedGrammar) {
-                console.log("在文章中未找到匹配的文法句子，添加例句區域");
-                
-                // 準備高亮版本的文法句子
-                let highlightedSentence = grammarSentence;
-                
-                // 確保文法句子中的單字也被高亮
-                data.words.forEach(word => {
-                    const regex = new RegExp(`\\b${word.english}(s|ed|ing)?\\b`, 'gi');
-                    highlightedSentence = highlightedSentence.replace(regex, match => `<a href="#" class="highlight">${match}</a>`);
-                });
-                
-                // 添加例句區域
-                article += '\n\n<div style="margin-top:15px;border-top:1px dashed #ccc;padding-top:10px;">';
-                article += `<p><strong>文法點示例：</strong> <span class="grammar-highlight" title="${data.grammar_point.title}">${highlightedSentence}</span></p>`;
-                article += '</div>';
-            }
-        }
-        
-        // 更新DOM
-        articleText.innerHTML = article;
-        
-        // 更新單字列表
-        const vocabItems = document.getElementById('vocabulary-items');
-        vocabItems.innerHTML = '';
-
-        data.words.forEach(word => {
-            const item = document.createElement('div');
-            item.className = 'vocabulary-item';
-            item.innerHTML = `
-                <div class="word-english">${word.english} <i class="fas fa-volume-up listen-word"></i></div>
-                <div class="pronunciation">${word.pronunciation}</div>
-                <div class="word-part-of-speech">${word.part_of_speech}</div>
-                <div class="word-chinese">${word.chinese}</div>
-                <div class="word-example">${word.example}</div>
-            `;
-            vocabItems.appendChild(item);
-        });
-
-        // 更新文法重點
-        const grammarContent = document.getElementById('vocabulary-grammar');
-        grammarContent.innerHTML = '';
-
-        const grammarPoint = document.createElement('div');
-        grammarPoint.className = 'grammar-point';
-        grammarPoint.innerHTML = `
-            <div class="grammar-title">${data.grammar_point.title}</div>
-            <div class="grammar-explanation">${data.grammar_point.explanation}</div>
-            <div class="grammar-example"><em>例句：</em> <span class="grammar-highlight">${data.grammar_point.example_sentence}</span></div>
-        `;
-        grammarContent.appendChild(grammarPoint);
-    }
-    // 更新對話學習內容 
-    function updateConversationContent(data) {
-        console.log("更新對話學習內容", data);
-        
-        // 檢查數據完整性
-        if (!data) {
-            console.error("對話數據為空");
-            alert("獲取的對話學習內容為空，請重試。");
-            return;
-        }
-        
-        if (!data.conversation || !Array.isArray(data.conversation) || data.conversation.length === 0) {
-            console.error("對話數據格式不正確:", data);
-            alert("對話數據格式不正確，請重試。");
-            return;
-        }
-        
-        if (!data.grammar_point || !data.grammar_point.example_sentence) {
-            console.error("文法點數據不完整:", data);
-            alert("文法點數據不完整，請重試。");
-            return;
-        }
-        
-        // 提取文法句子
-        const grammarSentence = data.grammar_point.example_sentence.trim();
-        console.log("對話文法句子:", grammarSentence);
-        
-        // 更新對話
-        const dialogueContainer = document.getElementById('dialogue-container');
-        dialogueContainer.innerHTML = '';
-        
-        // 標記哪個對話包含文法句子
-        let foundGrammarInDialogue = false;
-        
-        // 處理對話段落
-        data.conversation.forEach((item, index) => {
-            const speakerClass = index % 2 === 0 ? 'speaker-a' : 'speaker-b';
-            let dialogueText = item.text;
-            
-            // 移除對話文字中所有 HTML 標籤
-            dialogueText = dialogueText.replace(/<[^>]*>?/gm, '');
-            
-            // 標記是否需要高亮此對話
-            let highlightThisDialogue = false;
-            
-            // 檢查這個對話是否包含文法句子
-            if (!foundGrammarInDialogue && dialogueText.includes(grammarSentence)) {
-                console.log(`對話 ${index+1} 包含文法句子`);
-                highlightThisDialogue = true;
-                foundGrammarInDialogue = true;
-            }
-            
-            // 為對話中的目標單字添加高亮標記
-            data.words.forEach(word => {
-                const regex = new RegExp(`\\b${word.english}(s|ed|ing)?\\b`, 'gi');
-                dialogueText = dialogueText.replace(regex, match => `<a href="#" class="highlight">${match}</a>`);
-            });
-            
-            // 如果需要高亮，添加高亮標記
-            if (highlightThisDialogue) {
-                // 只有包含文法句子的部分需要高亮，而不是整個對話
-                // 先檢查精確的文法句子
-                if (dialogueText.includes(grammarSentence)) {
-                    // 用特殊標記替換文法句子
-                    const marker = "__GRAMMAR_HIGHLIGHT__";
-                    dialogueText = dialogueText.replace(grammarSentence, marker);
-                    
-                    // 確保文法句子中的單字也被高亮
-                    let highlightedSentence = grammarSentence;
-                    data.words.forEach(word => {
-                        const regex = new RegExp(`\\b${word.english}(s|ed|ing)?\\b`, 'gi');
-                        highlightedSentence = highlightedSentence.replace(regex, match => `<a href="#" class="highlight">${match}</a>`);
-                    });
-                    
-                    // 將特殊標記替換為帶有文法高亮的句子
-                    dialogueText = dialogueText.replace(marker, `<span class="grammar-highlight" title="${data.grammar_point.title}">${highlightedSentence}</span>`);
-                }
-            }
-            
-            // 創建對話元素
-            const dialogue = document.createElement('div');
-            dialogue.className = speakerClass;
-            dialogue.innerHTML = `
-                <div class="speaker">${item.speaker}</div>
-                <div class="dialogue">
-                    <div class="dialogue-text">${dialogueText}</div>
-                    <div class="listen-dialogue">
-                        <i class="fas fa-volume-up"></i> 點擊聆聽
-                    </div>
-                </div>
-            `;
-            dialogueContainer.appendChild(dialogue);
-        });
-        
-        // 如果沒有找到包含文法句子的對話，嘗試在所有對話中搜尋相似句子
-        if (!foundGrammarInDialogue) {
-            console.log("未找到完全匹配的文法句子，嘗試模糊匹配");
-            
-            // 去除標點符號的文法句子
-            const cleanGrammar = grammarSentence.replace(/[^\w\s]/g, '').toLowerCase().trim();
-            
-            // 尋找最佳匹配
-            const dialogueTexts = dialogueContainer.querySelectorAll('.dialogue-text');
-            let foundMatch = false;
-            
-            dialogueTexts.forEach(dialogueElement => {
-                if (foundMatch) return; // 如果已找到匹配則跳過
-                
-                const dialogueText = dialogueElement.textContent;
-                
-                // 將對話拆分為句子
-                const sentences = dialogueText.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
-                
-                // 尋找最佳匹配句子
-                for (const sentence of sentences) {
-                    const cleanSentence = sentence.replace(/[^\w\s]/g, '').toLowerCase().trim();
-                    
-                    if (cleanSentence.includes(cleanGrammar) || cleanGrammar.includes(cleanSentence)) {
-                        console.log("找到模糊匹配的句子:", sentence);
-                        
-                      // 在對話中高亮該句子
-                        let highlightedHtml = dialogueElement.innerHTML;
-                        const sentenceWithPunc = sentence + '.'; // 添加標點
-                        
-                        // 將句子替換為高亮版本
-                        highlightedHtml = highlightedHtml.replace(
-                            new RegExp(sentenceWithPunc.replace(/[.*+?^${}()|[\]\\]/g, '\\// 更新對話學習內容 
-    function updateConversationContent(data) {
-        console.log("更新對話學習內容", data);
-        
-        // 檢查數據完整性
-        if (!data) {
-            console.error("對話數據為空");
-            alert("獲取的對話學習內容為空，請重試。");
-            return;
-        }
-        
-        if (!data.conversation || !Array.isArray(data.conversation) || data.conversation.length === 0) {
-            console.error("對話數據格式不正確:", data);
-            alert("對話數據格式不正確，請重試。");
-            return;
-        }
-        
-        if (!data.grammar_point || !data.grammar_point.example_sentence) {
-            console.error("文法點數據不完整:", data);
-            alert("文法點數據不完整，請重試。");
-            return;
-        }
-        
-        // 提取文法句子
-        const grammarSentence = data.grammar_point.example_sentence.trim();
-        console.log("對話文法句子:", grammarSentence);
-        
-        // 更新對話
-        const dialogueContainer = document.getElementById('dialogue-container');
-        dialogueContainer.innerHTML = '';
-        
-        // 標記哪個對話包含文法句子
-        let foundGrammarInDialogue = false;
-        
-        // 處理對話段落
-        data.conversation.forEach((item, index) => {
-            const speakerClass = index % 2 === 0 ? 'speaker-a' : 'speaker-b';
-            let dialogueText = item.text;
-            
-            // 移除對話文字中所有 HTML 標'), 'g'), 
-                            `<span class="grammar-highlight" title="${data.grammar_point.title}">${sentenceWithPunc}</span>`
-                        );
-                        
-                        dialogueElement.innerHTML = highlightedHtml;
-                        foundMatch = true;
-                        break;
-                    }
-                }
-            });
-            
-            // 如果仍然沒有找到匹配，高亮整個第一個對話
-            if (!foundMatch && dialogueTexts.length > 0) {
-                console.log("未找到匹配句子，高亮第一個對話");
-                const firstDialogue = dialogueTexts[0];
-                firstDialogue.innerHTML = `<span class="grammar-highlight" title="${data.grammar_point.title}">${firstDialogue.innerHTML}</span>`;
-            }
-        }
-        
-        // 更新單字列表
-        const vocabItems = document.getElementById('conversation-items');
-        vocabItems.innerHTML = '';
-
-        data.words.forEach(word => {
-            const item = document.createElement('div');
-            item.className = 'vocabulary-item';
-            item.innerHTML = `
-                <div class="word-english">${word.english} <i class="fas fa-volume-up listen-word"></i></div>
-                <div class="pronunciation">${word.pronunciation}</div>
-                <div class="word-part-of-speech">${word.part_of_speech}</div>
-                <div class="word-chinese">${word.chinese}</div>
-                <div class="word-example">${word.example}</div>
-            `;
-            vocabItems.appendChild(item);
-        });
-
-        // 更新文法重點
-        const grammarContent = document.getElementById('conversation-grammar');
-        grammarContent.innerHTML = '';
-
-        const grammarPoint = document.createElement('div');
-        grammarPoint.className = 'grammar-point';
-        grammarPoint.innerHTML = `
-            <div class="grammar-title">${data.grammar_point.title}</div>
-            <div class="grammar-explanation">${data.grammar_point.explanation}</div>
-            <div class="grammar-example"><em>例句：</em> <span class="grammar-highlight">${data.grammar_point.example_sentence}</span></div>
-        `;
-        grammarContent.appendChild(grammarPoint);
-    }
-    // 初始化功能
-    function init() {
-        console.log("初始化英語學習模組...");
-        
-        // 初始化DOM元素
-        if (!initializeDOMElements()) {
-            console.error('初始化英語學習模組DOM元素失敗');
-            return;
-        }
-        
-        // 綁定事件處理函數
-        bindEventHandlers();
-        
-        // 添加自定義 CSS 樣式
-        addStyles();
-        
-        // 將英語學習添加到側邊欄
-        addToSidebar();
-        
-        console.log("英語學習模組初始化成功");
-    }
-    
-// 修改 addToSidebar 函數
-function addToSidebar() {
-    // 確保DOM已完全加載
-    setTimeout(() => {
-        // 獲取側邊欄菜單 - 使用更精確的選擇器
-        const sidebarMenu = document.querySelector('.sidebar .sidebar-menu');
-        if (!sidebarMenu) {
-            console.error('找不到側邊欄菜單，嘗試備用選擇器');
-            // 嘗試備用選擇器
-            const altSidebarMenu = document.querySelector('.sidebar-menu');
-            if (!altSidebarMenu) {
-                console.error('使用備用選擇器仍找不到側邊欄菜單');
-                return;
-            }
-            addMenuItem(altSidebarMenu);
-        } else {
-            addMenuItem(sidebarMenu);
-        }
-    }, 500); // 延遲500毫秒確保DOM已加載
-    
-    // 添加菜單項的函數
-    function addMenuItem(menu) {
-        // 檢查是否已存在英語學習菜單項
-        if (document.getElementById('open-english')) {
-            return;
-        }
-        
-        // 創建英語學習菜單項
-        const englishMenuItem = document.createElement('div');
-        englishMenuItem.className = 'menu-item';
-        englishMenuItem.id = 'open-english';
-        englishMenuItem.innerHTML = `
-            <i class="fas fa-language"></i>
-            英語學習
-        `;
-        
-        // 插入到計算機前面
-        const calculatorItem = document.getElementById('open-calculator');
-        if (calculatorItem) {
-            menu.insertBefore(englishMenuItem, calculatorItem);
-        } else {
-            // 如果找不到計算機項目，直接追加到末尾
-            menu.appendChild(englishMenuItem);
-        }
-        
-        // 綁定點擊事件
-        englishMenuItem.addEventListener('click', () => {
-            // 隱藏所有工具內容
-            const externalContents = document.querySelectorAll('.external-content');
-            externalContents.forEach(content => {
-                content.style.display = 'none';
-            });
-            
-            // 獲取返回聊天按鈕並顯示
-            const returnChat = document.getElementById('return-chat');
-            if (returnChat) {
-                returnChat.classList.remove('hidden');
-            }
-            
-            // 顯示英語學習內容
-            const englishContent = document.getElementById('english-content');
-            if (englishContent) {
-                englishContent.style.display = 'block';
-            }
-            
-            // 隱藏側邊欄和遮罩
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            if (sidebar) sidebar.classList.remove('show');
-            if (overlay) overlay.classList.remove('show');
-            
-            // 隱藏輸入區域和工具列
-            const inputArea = document.querySelector('.input-area');
-            const toolbar = document.getElementById('toolbar');
-            if (inputArea) inputArea.style.display = 'none';
-            if (toolbar) toolbar.style.display = 'none';
-        });
-        
-        console.log('英語學習選項已成功添加到側邊欄');
-    }
-}
-    
-    // 添加需要的樣式
-    function addStyles() {
-        // 檢查是否已存在樣式，避免重複添加
-        if (document.getElementById('english-learning-styles')) {
-            return;
-        }
-        
-        const englishStyles = document.createElement('style');
-        englishStyles.id = 'english-learning-styles';
-        englishStyles.textContent = `
-            /* 英語學習區域 */
-            .selection-heading, .level-heading, .scenario-heading {
-                margin-bottom: 20px;
-                color: #333;
-                text-align: center;
-            }
-            
-            .category-buttons, .level-buttons, .scenario-buttons {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
-                margin-bottom: 30px;
-            }
-            
-            .scenario-buttons {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 10px;
-            }
-            
-            .content-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-            
-            .content-level {
-                display: inline-block;
-                padding: 5px 15px;
-                border-radius: 15px;
-                color: white;
-                font-weight: bold;
-            }
-            
-            .vocabulary-container, .conversation-container {
-                background: white;
-                border-radius: 8px;
-                padding: 20px;
-                margin-bottom: 20px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            
-            .article-container, .dialogue-container {
-                margin-bottom: 20px;
-                padding-bottom: 20px;
-                border-bottom: 1px solid #eee;
-            }
-            
-            .article-text, .dialogue-text {
-                line-height: 1.6;
-                margin-bottom: 10px;
-            }
-            
-            .listen-article, .listen-dialogue {
-                cursor: pointer;
-                color: #3498db;
-                font-size: 14px;
-            }
-            
-            .listen-article:hover, .listen-dialogue:hover {
-                text-decoration: underline;
-            }
-            
-            .vocabulary-list, .grammar-container {
-                margin-top: 20px;
-            }
-            
-            .vocabulary-heading, .grammar-heading {
-                font-size: 18px;
-                margin-bottom: 10px;
-                padding-bottom: 5px;
-                border-bottom: 1px dashed #ddd;
-            }
-            
-            .vocabulary-item {
-                background: #f8f9fa;
-                padding: 15px;
-                margin-bottom: 10px;
-                border-radius: 5px;
-                transition: background-color 0.3s;
-            }
-            
-            .word-english {
-                font-size: 18px;
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 5px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            .pronunciation {
-                font-family: monospace;
-                color: #666;
-                margin-bottom: 5px;
-            }
-            
-            .word-part-of-speech {
-                font-style: italic;
-                color: #666;
-                margin-bottom: 5px;
-            }
-            
-            .word-chinese {
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 5px;
-            }
-            
-            .word-example {
-                color: #333;
-                padding-left: 10px;
-                border-left: 3px solid #ddd;
-                font-style: italic;
-            }
-            
-            .listen-word {
-                cursor: pointer;
-                color: #3498db;
-                font-size: 16px;
-            }
-            
-            .grammar-point {
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 5px;
-            }
-            
-            .grammar-title {
-                font-size: 16px;
-                font-weight: bold;
-                margin-bottom: 10px;
-                color: #333;
-            }
-            
-            .grammar-explanation {
-                line-height: 1.6;
-                margin-bottom: 10px;
-            }
-            
-            .grammar-example {
-                font-style: italic;
-                color: #333;
-                padding-left: 10px;
-                border-left: 3px solid #ddd;
-            }
-            
-            .highlight {
-                background-color: #fffacd;
-                padding: 2px 4px;
-                border-radius: 3px;
-                cursor: pointer;
-                text-decoration: none;
-                color: #333;
-                transition: background-color 0.3s;
-            }
-            
-            .highlight:hover {
-                background-color: #fff176;
-            }
-            
-            .grammar-highlight {
-                background-color: #e8f4fc;
-                padding: 2px 4px;
-                border-radius: 3px;
-                border-bottom: 2px solid #3498db;
-            }
-            
-            .speaker-a, .speaker-b {
-                display: flex;
-                margin-bottom: 20px;
-            }
-            
-            .speaker-a {
-                justify-content: flex-start;
-            }
-            
-            .speaker-b {
-                justify-content: flex-end;
-                flex-direction: row-reverse;
-            }
-            
-            .speaker {
-                margin: 0 10px;
-                align-self: flex-start;
-                background: #eee;
-                padding: 5px 10px;
-                border-radius: 15px;
-                font-weight: bold;
-            }
-            
-            .dialogue {
-                max-width: 70%;
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 10px;
-                position: relative;
-            }
-            
-            .speaker-a .dialogue:before {
-                content: '';
-                position: absolute;
-                left: -10px;
-                top: 10px;
-                border-width: 10px 10px 10px 0;
-                border-style: solid;
-                border-color: transparent #f8f9fa transparent transparent;
-            }
-            
-            .speaker-b .dialogue:before {
-                content: '';
-                position: absolute;
-                right: -10px;
-                top: 10px;
-                border-width: 10px 0 10px 10px;
-                border-style: solid;
-                border-color: transparent transparent transparent #f8f9fa;
-            }
-
-            @media (max-width: 768px) {
-                .category-buttons, .level-buttons {
-                    flex-direction: column;
-                    gap: 10px;
-                }
-
-                .scenario-buttons {
-                    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                }
-
-                .dialogue {
-                    max-width: 85%;
-                }
-            }
-        `;
-        document.head.appendChild(englishStyles);
-    }
-    
-    // 返回公開的函數
-    return {
-        init,
-        clearImage: () => {
-            // 清除圖片預覽的公開接口
-            if (imagePreviewContainer) {
-                imagePreviewContainer.innerHTML = '';
-                imagePreviewContainer.style.display = 'none';
-            }
-            if (uploadImage) {
-                uploadImage.value = '';
-            }
-        }
-    };
-})();
-
-// 初始化模組
-englishLearningModule.init();
