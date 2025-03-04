@@ -24,9 +24,14 @@ const englishLearningModule = (() => {
     let selectedCategory = '';
     let selectedLevel = '';
     let selectedScenario = '';
+    
+    // 確保 API URL 可用，如果全局變量不存在，使用默認值
+    const apiUrl = typeof geminiurl !== 'undefined' ? geminiurl : 
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyA2AoyuEsDitjNZvcxWoTfuNPOdQQ8hw68';
 
     // 初始化 DOM 元素
     function initializeDOMElements() {
+        console.log("initializeDOMElements 開始執行");
         // 主要區域
         mainSelection = document.getElementById('english-main-selection');
         levelSelection = document.getElementById('english-level-selection');
@@ -48,6 +53,16 @@ const englishLearningModule = (() => {
         backFromConversation = document.getElementById('back-from-conversation');
         newVocabularyContentBtn = document.getElementById('new-vocabulary-content');
         newConversationContentBtn = document.getElementById('new-conversation-content');
+        
+        console.log("DOM元素參考:", {
+            mainSelection: !!mainSelection,
+            levelSelection: !!levelSelection,
+            scenarioSelection: !!scenarioSelection,
+            vocabularyBtn: !!vocabularyBtn,
+            conversationBtn: !!conversationBtn,
+            levelBtns: levelBtns ? levelBtns.length : 0,
+            scenarioBtns: scenarioBtns ? scenarioBtns.length : 0
+        });
         
         // 檢查必要元素是否存在
         const requiredElements = [
@@ -71,6 +86,13 @@ const englishLearningModule = (() => {
 
     // 綁定事件處理函數
     function bindEventHandlers() {
+        console.log("bindEventHandlers 開始執行");
+        
+        if (!vocabularyBtn || !conversationBtn) {
+            console.error("無法找到必要的按鈕元素，無法綁定事件");
+            return;
+        }
+        
         // 單字學習按鈕點擊事件
         vocabularyBtn.addEventListener('click', () => {
             console.log("單字學習按鈕被點擊");
@@ -89,6 +111,8 @@ const englishLearningModule = (() => {
             vocabularyBtn.classList.remove('active');
         });
 
+        console.log("為", levelBtns ? levelBtns.length : 0, "個等級按鈕綁定事件");
+        
         // 等級選擇按鈕點擊事件
         levelBtns.forEach(btn => {
             btn.addEventListener('click', async function() {
@@ -100,6 +124,9 @@ const englishLearningModule = (() => {
 
                 try {
                     console.log("正在請求 API 內容...");
+                    console.log("使用的API URL:", apiUrl);
+                    console.log("請求參數:", {level, category: selectedCategory});
+                    
                     const apiContent = await fetchGeminiContent(level, selectedCategory);
                     console.log("API 內容獲取成功:", apiContent);
 
@@ -124,6 +151,8 @@ const englishLearningModule = (() => {
             });
         });
 
+        console.log("為", scenarioBtns ? scenarioBtns.length : 0, "個情境按鈕綁定事件");
+        
         // 情境選擇按鈕點擊事件
         scenarioBtns.forEach(btn => {
             btn.addEventListener('click', async function() {
@@ -135,6 +164,9 @@ const englishLearningModule = (() => {
 
                 try {
                     console.log("正在請求情境對話 API 內容...");
+                    console.log("使用的API URL:", apiUrl);
+                    console.log("請求參數:", {scenario});
+                    
                     const apiContent = await fetchGeminiScenarioContent(scenario);
                     console.log("情境對話 API 內容獲取成功:", apiContent);
 
@@ -160,93 +192,109 @@ const englishLearningModule = (() => {
         });
 
         // 返回按鈕點擊事件
-        backFromVocabulary.addEventListener('click', () => {
-            vocabularyContent.style.display = 'none';
-            showMainSelection();
-        });
+        if (backFromVocabulary) {
+            backFromVocabulary.addEventListener('click', () => {
+                vocabularyContent.style.display = 'none';
+                showMainSelection();
+            });
+        }
 
-        backFromConversation.addEventListener('click', () => {
-            conversationContent.style.display = 'none';
-            showMainSelection();
-        });
+        if (backFromConversation) {
+            backFromConversation.addEventListener('click', () => {
+                conversationContent.style.display = 'none';
+                showMainSelection();
+            });
+        }
 
         // 產生新內容按鈕點擊事件
-        newVocabularyContentBtn.addEventListener('click', async () => {
-            console.log("點擊產生新單字學習內容按鈕");
-            loadingSection.style.display = 'block';
-            vocabularyContent.style.display = 'none';
+        if (newVocabularyContentBtn) {
+            newVocabularyContentBtn.addEventListener('click', async () => {
+                console.log("點擊產生新單字學習內容按鈕");
+                loadingSection.style.display = 'block';
+                vocabularyContent.style.display = 'none';
 
-            try {
-                const apiContent = await fetchGeminiContent(selectedLevel, selectedCategory);
-                loadingSection.style.display = 'none';
+                try {
+                    const apiContent = await fetchGeminiContent(selectedLevel, selectedCategory);
+                    loadingSection.style.display = 'none';
 
-                if (apiContent) {
-                    updateVocabularyContent(apiContent);
+                    if (apiContent) {
+                        updateVocabularyContent(apiContent);
+                        vocabularyContent.style.display = 'block';
+                        setupAudioElements();
+                    } else {
+                        console.error("fetchGeminiContent 回傳 null");
+                        alert("無法取得AI內容，請稍後再試。");
+                    }
+                } catch (error) {
+                    console.error("取得AI內容時發生錯誤:", error);
+                    alert("無法取得AI內容，請稍後再試。");
+                    loadingSection.style.display = 'none';
                     vocabularyContent.style.display = 'block';
-                    setupAudioElements();
-                } else {
-                    console.error("fetchGeminiContent 回傳 null");
-                    alert("無法取得AI內容，請稍後再試。");
                 }
-            } catch (error) {
-                console.error("取得AI內容時發生錯誤:", error);
-                alert("無法取得AI內容，請稍後再試。");
-                loadingSection.style.display = 'none';
-                vocabularyContent.style.display = 'block';
-            }
-        });
+            });
+        }
 
-        newConversationContentBtn.addEventListener('click', async () => {
-            console.log("點擊產生新對話練習內容按鈕");
-            loadingSection.style.display = 'block';
-            conversationContent.style.display = 'none';
+        if (newConversationContentBtn) {
+            newConversationContentBtn.addEventListener('click', async () => {
+                console.log("點擊產生新對話練習內容按鈕");
+                loadingSection.style.display = 'block';
+                conversationContent.style.display = 'none';
 
-            try {
-                const apiContent = await fetchGeminiScenarioContent(selectedScenario);
-                loadingSection.style.display = 'none';
+                try {
+                    const apiContent = await fetchGeminiScenarioContent(selectedScenario);
+                    loadingSection.style.display = 'none';
 
-                if (apiContent) {
-                    updateConversationContent(apiContent);
+                    if (apiContent) {
+                        updateConversationContent(apiContent);
+                        conversationContent.style.display = 'block';
+                        setupAudioElements();
+                    } else {
+                        console.error("fetchGeminiScenarioContent 回傳 null");
+                        alert("無法取得AI內容，請稍後再試。");
+                    }
+                } catch (error) {
+                    console.error("取得AI情境對話內容時發生錯誤:", error);
+                    alert("無法取得AI內容，請稍後再試。");
+                    loadingSection.style.display = 'none';
                     conversationContent.style.display = 'block';
-                    setupAudioElements();
-                } else {
-                    console.error("fetchGeminiScenarioContent 回傳 null");
-                    alert("無法取得AI內容，請稍後再試。");
                 }
-            } catch (error) {
-                console.error("取得AI情境對話內容時發生錯誤:", error);
-                alert("無法取得AI內容，請稍後再試。");
-                loadingSection.style.display = 'none';
-                conversationContent.style.display = 'block';
-            }
-        });
+            });
+        }
+        
+        console.log("所有事件處理函數綁定完成");
     }
+    
     // 顯示等級選擇
     function showLevelSelection() {
         console.log("顯示等級選擇");
-        mainSelection.style.display = 'none';
-        levelSelection.style.display = 'block';
+        if (mainSelection) mainSelection.style.display = 'none';
+        if (levelSelection) levelSelection.style.display = 'block';
     }
 
     // 顯示情境選擇
     function showScenarioSelection() {
         console.log("顯示情境選擇");
-        mainSelection.style.display = 'none';
-        scenarioSelection.style.display = 'block';
+        if (mainSelection) mainSelection.style.display = 'none';
+        if (scenarioSelection) scenarioSelection.style.display = 'block';
     }
 
     // 顯示主選單
     function showMainSelection() {
-        mainSelection.style.display = 'block';
+        if (mainSelection) mainSelection.style.display = 'block';
         selectedCategory = '';
         selectedLevel = '';
         selectedScenario = '';
-        vocabularyBtn.classList.remove('active');
-        conversationBtn.classList.remove('active');
+        if (vocabularyBtn) vocabularyBtn.classList.remove('active');
+        if (conversationBtn) conversationBtn.classList.remove('active');
     }
 
     // 更新等級顯示
     function updateLevelDisplay(element, level) {
+        if (!element) {
+            console.error("updateLevelDisplay: element 不存在");
+            return;
+        }
+        
         switch (level) {
             case 'a':
                 element.textContent = '初級 (A)';
@@ -265,6 +313,11 @@ const englishLearningModule = (() => {
 
     // 更新情境顯示
     function updateScenarioDisplay(element, scenario) {
+        if (!element) {
+            console.error("updateScenarioDisplay: element 不存在");
+            return;
+        }
+        
         let bgColor;
         let displayText;
 
@@ -517,15 +570,22 @@ JSON格式如下：
         return prompt;
     }
 
-    // 使用 Gemini API 獲取單字學習內容
+    // 使用 Gemini API 獲取單字學習內容 - 修正版
     async function fetchGeminiContent(level, type) {
         const prompt = createGeminiPrompt(level, type);
 
         try {
             console.log("發送請求到 Gemini API...");
+            console.log("使用的API URL:", apiUrl);
+
+            // 使用全局API URL或默認URL
+            const url = apiUrl;
+            
+            console.log("完整請求URL:", url);
+            console.log("請求內容:", prompt.substring(0, 100) + "...");
 
             // 使用全局API URL和相同的請求格式
-            const response = await fetch(geminiurl, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -540,6 +600,8 @@ JSON格式如下：
                 })
             });
 
+            console.log("API 回應狀態:", response.status);
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error(`API 請求失敗: ${response.status} - ${errorText}`);
@@ -552,21 +614,26 @@ JSON格式如下：
             // 處理 Gemini API 的回應
             if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
                 const textContent = data.candidates[0].content.parts[0].text;
+                console.log("API 回應文字:", textContent.substring(0, 100) + "...");
 
                 // 嘗試解析JSON
                 try {
                     const parsedData = JSON.parse(textContent);
-                    console.log("成功解析 JSON 回應", parsedData);
+                    console.log("成功解析 JSON 回應");
                     return parsedData;
                 } catch (parseError) {
                     // 嘗試尋找JSON部分
                     console.log("直接解析失敗，嘗試尋找 JSON 部分");
+                    console.error("解析錯誤:", parseError);
+                    
                     const jsonMatch = textContent.match(/\{[\s\S]*\}/);
 
                     if (jsonMatch) {
                         try {
-                            const parsedData = JSON.parse(jsonMatch[0]);
-                            console.log("從文本中提取並解析 JSON 成功", parsedData);
+                            const jsonText = jsonMatch[0];
+                            console.log("提取到的JSON文本:", jsonText.substring(0, 100) + "...");
+                            const parsedData = JSON.parse(jsonText);
+                            console.log("從文本中提取並解析 JSON 成功");
                             return parsedData;
                         } catch (extractError) {
                             console.error("無法從文本中提取 JSON:", extractError);
@@ -589,15 +656,22 @@ JSON格式如下：
         }
     }
 
-    // 使用 Gemini API 獲取情境對話內容
+    // 使用 Gemini API 獲取情境對話內容 - 修正版
     async function fetchGeminiScenarioContent(scenario) {
         const prompt = createGeminiScenarioPrompt(scenario);
 
         try {
             console.log("發送情境對話請求到 Gemini API...");
+            console.log("使用的API URL:", apiUrl);
+            
+            // 使用全局API URL或默認URL
+            const url = apiUrl;
+            
+            console.log("完整請求URL:", url);
+            console.log("請求情境:", scenario);
 
             // 使用全局API URL和相同的請求格式
-            const response = await fetch(geminiurl, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -612,6 +686,8 @@ JSON格式如下：
                 })
             });
 
+            console.log("情境對話 API 回應狀態:", response.status);
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error(`情境對話 API 請求失敗: ${response.status} - ${errorText}`);
@@ -624,21 +700,26 @@ JSON格式如下：
             // 處理回應
             if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
                 const textContent = data.candidates[0].content.parts[0].text;
+                console.log("情境對話 API 回應文字:", textContent.substring(0, 100) + "...");
 
                 // 嘗試解析JSON
                 try {
                     const parsedData = JSON.parse(textContent);
-                    console.log("成功解析情境對話 JSON 回應", parsedData);
+                    console.log("成功解析情境對話 JSON 回應");
                     return parsedData;
                 } catch (parseError) {
                     // 嘗試尋找JSON部分
                     console.log("直接解析失敗，嘗試尋找 JSON 部分");
+                    console.error("解析錯誤:", parseError);
+                    
                     const jsonMatch = textContent.match(/\{[\s\S]*\}/);
 
                     if (jsonMatch) {
                         try {
-                            const parsedData = JSON.parse(jsonMatch[0]);
-                            console.log("從文本中提取並解析情境對話 JSON 成功", parsedData);
+                            const jsonText = jsonMatch[0];
+                            console.log("提取到的JSON文本:", jsonText.substring(0, 100) + "...");
+                            const parsedData = JSON.parse(jsonText);
+                            console.log("從文本中提取並解析情境對話 JSON 成功");
                             return parsedData;
                         } catch (extractError) {
                             console.error("無法從文本中提取情境對話 JSON:", extractError);
@@ -660,6 +741,7 @@ JSON格式如下：
             throw error;
         }
     }
+    
     // 更新單字學習內容
     function updateVocabularyContent(data) {
         console.log("更新單字學習內容", data);
@@ -677,6 +759,11 @@ JSON格式如下：
         
         // 更新文章，標記單字和文法高亮
         const articleText = document.getElementById('vocabulary-article-text');
+        if (!articleText) {
+            console.error("找不到 vocabulary-article-text 元素");
+            return;
+        }
+        
         let article = data.article;
 
         // 移除文章中所有 HTML 標籤
@@ -761,6 +848,11 @@ JSON格式如下：
         
         // 更新單字列表
         const vocabItems = document.getElementById('vocabulary-items');
+        if (!vocabItems) {
+            console.error("找不到 vocabulary-items 元素");
+            return;
+        }
+        
         vocabItems.innerHTML = '';
 
         data.words.forEach(word => {
@@ -778,6 +870,11 @@ JSON格式如下：
 
         // 更新文法重點
         const grammarContent = document.getElementById('vocabulary-grammar');
+        if (!grammarContent) {
+            console.error("找不到 vocabulary-grammar 元素");
+            return;
+        }
+        
         grammarContent.innerHTML = '';
 
         const grammarPoint = document.createElement('div');
@@ -789,6 +886,7 @@ JSON格式如下：
         `;
         grammarContent.appendChild(grammarPoint);
     }
+    
     // 更新對話學習內容 
     function updateConversationContent(data) {
         console.log("更新對話學習內容", data);
@@ -818,6 +916,11 @@ JSON格式如下：
         
         // 更新對話
         const dialogueContainer = document.getElementById('dialogue-container');
+        if (!dialogueContainer) {
+            console.error("找不到 dialogue-container 元素");
+            return;
+        }
+        
         dialogueContainer.innerHTML = '';
         
         // 標記哪個對話包含文法句子
@@ -913,15 +1016,19 @@ JSON格式如下：
                         let highlightedHtml = dialogueElement.innerHTML;
                         const sentenceWithPunc = sentence + '.'; // 添加標點
                         
-                        // 將句子替換為高亮版本
-                        highlightedHtml = highlightedHtml.replace(
-                            new RegExp(sentenceWithPunc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), 
-                            `<span class="grammar-highlight" title="${data.grammar_point.title}">${sentenceWithPunc}</span>`
-                        );
-                        
-                        dialogueElement.innerHTML = highlightedHtml;
-                        foundMatch = true;
-                        break;
+                        try {
+                            // 將句子替換為高亮版本
+                            highlightedHtml = highlightedHtml.replace(
+                                new RegExp(sentenceWithPunc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), 
+                                `<span class="grammar-highlight" title="${data.grammar_point.title}">${sentenceWithPunc}</span>`
+                            );
+                            
+                            dialogueElement.innerHTML = highlightedHtml;
+                            foundMatch = true;
+                            break;
+                        } catch (e) {
+                            console.error("替換句子時出錯:", e);
+                        }
                     }
                 }
             });
@@ -936,6 +1043,11 @@ JSON格式如下：
         
         // 更新單字列表
         const vocabItems = document.getElementById('conversation-items');
+        if (!vocabItems) {
+            console.error("找不到 conversation-items 元素");
+            return;
+        }
+        
         vocabItems.innerHTML = '';
 
         data.words.forEach(word => {
@@ -953,6 +1065,11 @@ JSON格式如下：
 
         // 更新文法重點
         const grammarContent = document.getElementById('conversation-grammar');
+        if (!grammarContent) {
+            console.error("找不到 conversation-grammar 元素");
+            return;
+        }
+        
         grammarContent.innerHTML = '';
 
         const grammarPoint = document.createElement('div');
@@ -1219,6 +1336,9 @@ JSON格式如下：
     function init() {
         console.log("初始化英語學習模組...");
         
+        // 添加自定義 CSS 樣式
+        addStyles();
+        
         // 初始化DOM元素
         if (!initializeDOMElements()) {
             console.error('初始化英語學習模組DOM元素失敗');
@@ -1228,9 +1348,6 @@ JSON格式如下：
         // 綁定事件處理函數
         bindEventHandlers();
         
-        // 添加自定義 CSS 樣式
-        addStyles();
-        
         console.log("英語學習模組初始化成功");
     }
     
@@ -1239,10 +1356,12 @@ JSON格式如下：
         init,
         clearImage: () => {
             // 清除圖片預覽的公開接口
+            const imagePreviewContainer = document.getElementById('image-preview-container');
             if (imagePreviewContainer) {
                 imagePreviewContainer.innerHTML = '';
                 imagePreviewContainer.style.display = 'none';
             }
+            const uploadImage = document.getElementById('upload-image');
             if (uploadImage) {
                 uploadImage.value = '';
             }
@@ -1251,4 +1370,7 @@ JSON格式如下：
 })();
 
 // 初始化模組
-englishLearningModule.init();
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM已完全加載，初始化英語學習模組");
+    englishLearningModule.init();
+});
