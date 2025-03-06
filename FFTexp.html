@@ -69,6 +69,7 @@ button {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s;
+    margin-right: 10px;
 }
 
 button:hover {
@@ -145,6 +146,99 @@ th {
 .canvas-container {
     overflow-x: auto;
     margin-top: 10px;
+    position: relative;
+}
+
+/* 新增：波形預覽與選擇區域樣式 */
+.preview-container {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.preview-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.waveform-preview {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.selection-overlay {
+    position: absolute;
+    top: 0;
+    background-color: rgba(52, 152, 219, 0.3);
+    border: 1px solid rgba(52, 152, 219, 0.7);
+    height: 100%;
+    pointer-events: none;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.time-display {
+    margin: 0 10px;
+    min-width: 120px;
+    text-align: center;
+}
+
+.slider {
+    flex-grow: 1;
+    margin: 0 10px;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+.button-container {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.debug-info {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    font-family: monospace;
+}
+
+.analyze-button-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.analyze-button-container button {
+    padding: 12px 30px;
+    font-size: 18px;
+    background-color: #27ae60;
+}
+
+.analyze-button-container button:hover {
+    background-color: #2ecc71;
+}
+
+.analyze-button-container button:disabled {
+    background-color: #95a5a6;
+}
+
+.status-message {
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
 }
 </style>
 </head>
@@ -157,7 +251,8 @@ th {
         <ol>
             <li>上傳第一個音檔：純桌面被敲擊的聲音</li>
             <li>上傳第二個音檔：待測物體放在桌面上被敲擊的聲音</li>
-            <li>點擊「分析」按鈕進行處理</li>
+            <li>選擇每個音檔中要分析的波形區段</li>
+            <li>點擊「分析選定範圍」按鈕進行處理</li>
         </ol>
         <p>系統會顯示兩個音檔的波形圖、頻譜分析（FFT）和功率譜密度（PSD），並識別第二個音檔中獨有的頻率成分，這些頻率即為待測物體的自然頻率。</p>
     </div>
@@ -189,8 +284,59 @@ th {
                 <p class="file-name" id="fileName2"></p>
             </div>
         </div>
+    </div>
+    
+    <!-- 新增：波形預覽與範圍選擇區域 -->
+    <div class="container" id="previewContainer" style="display:none;">
+        <h2>波形預覽與範圍選擇</h2>
+        <p>請在下方波形圖上選擇要分析的時間範圍：</p>
         
-        <button id="analyzeBtn" disabled>分析</button>
+        <div class="preview-container">
+            <div class="preview-title">第一個音檔（純桌面）</div>
+            <div class="waveform-preview">
+                <canvas id="preview1"></canvas>
+                <div id="selection1" class="selection-overlay"></div>
+            </div>
+            <div class="slider-container">
+                <span>起始：</span>
+                <input type="range" id="start1" min="0" max="100" value="0" class="slider">
+                <span class="time-display" id="startTime1">0.00 秒</span>
+                <span>結束：</span>
+                <input type="range" id="end1" min="0" max="100" value="100" class="slider">
+                <span class="time-display" id="endTime1">0.00 秒</span>
+            </div>
+            <div class="button-container">
+                <button id="playSelection1">播放選擇區域</button>
+                <button id="zoomSelection1">放大選擇區域</button>
+                <button id="resetZoom1">重設縮放</button>
+            </div>
+        </div>
+        
+        <div class="preview-container">
+            <div class="preview-title">第二個音檔（物體+桌面）</div>
+            <div class="waveform-preview">
+                <canvas id="preview2"></canvas>
+                <div id="selection2" class="selection-overlay"></div>
+            </div>
+            <div class="slider-container">
+                <span>起始：</span>
+                <input type="range" id="start2" min="0" max="100" value="0" class="slider">
+                <span class="time-display" id="startTime2">0.00 秒</span>
+                <span>結束：</span>
+                <input type="range" id="end2" min="0" max="100" value="100" class="slider">
+                <span class="time-display" id="endTime2">0.00 秒</span>
+            </div>
+            <div class="button-container">
+                <button id="playSelection2">播放選擇區域</button>
+                <button id="zoomSelection2">放大選擇區域</button>
+                <button id="resetZoom2">重設縮放</button>
+            </div>
+        </div>
+        
+        <div class="analyze-button-container">
+            <button id="analyzeBtn">分析選定範圍</button>
+            <div id="statusMessage" class="status-message"></div>
+        </div>
         
         <div class="loading" id="loadingIndicator">
             <p>正在處理音頻數據，請稍候...</p>
@@ -264,12 +410,40 @@ th {
         </ul>
         <p><strong>實驗建議：</strong></p>
         <ul>
-            <li>確保兩次敲擊的力度和位置儘量一致，以獲得更準確的結果。</li>
-            <li>使用良好的錄音設備和安靜的環境進行實驗。</li>
-            <li>測試不同材質、形狀的物體，觀察其自然頻率的差異。</li>
-            <li>嘗試用不同的方式敲擊物體，可能會激發出不同的振動模式。</li>
+            <li><strong>選擇波形</strong>：選擇波形時，建議選擇敲擊後的瞬態衰減部分（通常是0.1-0.5秒之間的範圍），避免選到雜訊或多次敲擊。</li>
+            <li><strong>敲擊方式</strong>：
+                <ul>
+                    <li>先錄製純桌面的敲擊聲，再錄製物體放在桌面上敲擊的聲音</li>
+                    <li>兩次敲擊的力度和位置應儘量一致</li>
+                    <li>建議使用硬物（如金屬棒或硬塑料筆）敲擊，可激發更多頻率成分</li>
+                    <li>嘗試在物體的不同位置敲擊，可能會激發不同的振動模式</li>
+                </ul>
+            </li>
+            <li><strong>測試物體選擇</strong>：
+                <ul>
+                    <li>開始時建議使用金屬、玻璃或陶瓷物體進行測試，這些材料通常有明顯的自然頻率</li>
+                    <li>嘗試測試不同形狀的物體：圓形、方形、長條形等</li>
+                    <li>物體大小會影響其自然頻率 - 較大的物體通常有較低的自然頻率</li>
+                </ul>
+            </li>
+            <li><strong>提高準確度</strong>：
+                <ul>
+                    <li>在安靜的環境中進行實驗，減少背景噪音</li>
+                    <li>使用高質量麥克風或錄音設備</li>
+                    <li>多次重複測量並比較結果，找出一致出現的頻率</li>
+                    <li>結合振幅比例和置信度，優先關注「高」和「非常高」置信度的頻率</li>
+                </ul>
+            </li>
+            <li><strong>特殊應用建議</strong>：
+                <ul>
+                    <li>測試音樂器材（如鼓、木琴、鐘）的音色特性</li>
+                    <li>分析建築材料或結構部件的共振特性</li>
+                    <li>進行聲學材料的比較研究</li>
+                    <li>探索不同液體容器的聲學特性</li>
+                </ul>
+            </li>
         </ul>
-        <p>此工具使用Web Audio API進行音頻處理，並通過自定義FFT算法實現頻譜分析。</p>
+        <p>此工具使用Web Audio API進行音頻處理，並使用自適應演算法識別物體的自然頻率，適用於各種類型的物體和材料。</p>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -278,10 +452,24 @@ th {
 let audioContext;
 let file1Data = null;
 let file2Data = null;
+let audioBuffer1 = null;
+let audioBuffer2 = null;
 let charts = {};
+let audioSource1 = null;
+let audioSource2 = null;
+
+// 選擇範圍變量
+let selectedRange1 = { start: 0, end: 1 };
+let selectedRange2 = { start: 0, end: 1 };
+
+// 縮放變量
+let zoom1 = { start: 0, end: 1 };
+let zoom2 = { start: 0, end: 1 };
 
 // 初始化頁面
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("初始化頁面");
+    
     // 檢查瀏覽器是否支持Web Audio API
     try {
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -304,8 +492,52 @@ document.addEventListener('DOMContentLoaded', function() {
     setupDragAndDrop('file2', 'fileName2');
     
     // 分析按鈕事件
-    document.getElementById('analyzeBtn').addEventListener('click', analyzeAudio);
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    analyzeBtn.addEventListener('click', function() {
+        console.log("分析按鈕被點擊");
+        analyzeAudio();
+    });
+    
+    // 範圍選擇事件
+    setupRangeSelection(1);
+    setupRangeSelection(2);
+    
+    // 播放選擇區域事件
+    document.getElementById('playSelection1').addEventListener('click', function() {
+        playSelectedAudio(1);
+    });
+    document.getElementById('playSelection2').addEventListener('click', function() {
+        playSelectedAudio(2);
+    });
+    
+    // 縮放事件
+    document.getElementById('zoomSelection1').addEventListener('click', function() {
+        zoomToSelection(1);
+    });
+    document.getElementById('zoomSelection2').addEventListener('click', function() {
+        zoomToSelection(2);
+    });
+    
+    // 重設縮放
+    document.getElementById('resetZoom1').addEventListener('click', function() {
+        resetZoom(1);
+    });
+    document.getElementById('resetZoom2').addEventListener('click', function() {
+        resetZoom(2);
+    });
+    
+    // 確保初始狀態下分析按鈕是禁用的
+    analyzeBtn.disabled = true;
+    updateStatusMessage("請上傳兩個音檔後再進行分析");
 });
+
+// 更新狀態消息
+function updateStatusMessage(message) {
+    const statusElement = document.getElementById('statusMessage');
+    if (statusElement) {
+        statusElement.textContent = message;
+    }
+}
 
 // 處理文件上傳
 function handleFileUpload(event, fileId, fileNameId) {
@@ -313,17 +545,20 @@ function handleFileUpload(event, fileId, fileNameId) {
     if (!file) return;
     
     document.getElementById(fileNameId).textContent = file.name;
+    updateStatusMessage(`正在載入 ${file.name}...`);
     
     const reader = new FileReader();
     reader.onload = function(e) {
         if (fileId === 'file1') {
             file1Data = e.target.result;
+            decodeAndPreview(file1Data, 1);
         } else {
             file2Data = e.target.result;
+            decodeAndPreview(file2Data, 2);
         }
-        
-        // 檢查兩個文件是否都已上傳
-        checkFilesReady();
+    };
+    reader.onerror = function() {
+        updateStatusMessage(`讀取文件 ${file.name} 時出錯`);
     };
     reader.readAsArrayBuffer(file);
 }
@@ -353,38 +588,364 @@ function setupDragAndDrop(fileId, fileNameId) {
         if (file && file.type.startsWith('audio/')) {
             document.getElementById(fileId).files = e.dataTransfer.files;
             document.getElementById(fileNameId).textContent = file.name;
+            updateStatusMessage(`正在載入 ${file.name}...`);
             
             const reader = new FileReader();
             reader.onload = function(event) {
                 if (fileId === 'file1') {
                     file1Data = event.target.result;
+                    decodeAndPreview(file1Data, 1);
                 } else {
                     file2Data = event.target.result;
+                    decodeAndPreview(file2Data, 2);
                 }
-                
-                // 檢查兩個文件是否都已上傳
-                checkFilesReady();
+            };
+            reader.onerror = function() {
+                updateStatusMessage(`讀取文件 ${file.name} 時出錯`);
             };
             reader.readAsArrayBuffer(file);
         }
     });
 }
 
-// 檢查兩個文件是否都已上傳
-function checkFilesReady() {
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    if (file1Data && file2Data) {
-        analyzeBtn.disabled = false;
-    } else {
-        analyzeBtn.disabled = true;
+// 解碼音頻並預覽
+async function decodeAndPreview(audioData, fileNumber) {
+    try {
+        // 顯示預覽容器 (在嘗試解碼前就顯示)
+        document.getElementById('previewContainer').style.display = 'block';
+        
+        // 解碼音頻
+        console.log(`開始解碼音頻 ${fileNumber}`);
+        const audioBuffer = await decodeAudio(audioData);
+        console.log(`音頻 ${fileNumber} 解碼完成，時長: ${audioBuffer.duration} 秒`);
+        
+        if (fileNumber === 1) {
+            audioBuffer1 = audioBuffer;
+            // 初始化選擇範圍
+            selectedRange1 = { start: 0, end: audioBuffer.duration };
+            zoom1 = { start: 0, end: audioBuffer.duration };
+            
+            // 更新滑塊
+            updateSliderValues(1, 0, audioBuffer.duration);
+        } else {
+            audioBuffer2 = audioBuffer;
+            // 初始化選擇範圍
+            selectedRange2 = { start: 0, end: audioBuffer.duration };
+            zoom2 = { start: 0, end: audioBuffer.duration };
+            
+            // 更新滑塊
+            updateSliderValues(2, 0, audioBuffer.duration);
+        }
+        
+        // 繪製預覽波形
+        console.log(`繪製音頻 ${fileNumber} 的波形`);
+        drawPreviewWaveform(audioBuffer, fileNumber);
+        
+        // 檢查兩個文件是否都已上傳
+        checkFilesReady();
+        
+    } catch (error) {
+        console.error(`解碼音頻 ${fileNumber} 時發生錯誤:`, error);
+        updateStatusMessage(`無法解碼音頻文件 ${fileNumber}: ${error.message}`);
     }
 }
 
+// 更新滑塊值
+function updateSliderValues(fileNumber, minTime, maxTime) {
+    const startSlider = document.getElementById(`start${fileNumber}`);
+    const endSlider = document.getElementById(`end${fileNumber}`);
+    const startDisplay = document.getElementById(`startTime${fileNumber}`);
+    const endDisplay = document.getElementById(`endTime${fileNumber}`);
+    
+    // 重置滑塊範圍
+    startSlider.min = 0;
+    startSlider.max = 100;
+    startSlider.value = 0;
+    
+    endSlider.min = 0;
+    endSlider.max = 100;
+    endSlider.value = 100;
+    
+    // 更新時間顯示
+    startDisplay.textContent = minTime.toFixed(2) + ' 秒';
+    endDisplay.textContent = maxTime.toFixed(2) + ' 秒';
+    
+    // 更新選擇覆蓋層
+    updateSelectionOverlay(fileNumber);
+}
+
+// 設置範圍選擇
+function setupRangeSelection(fileNumber) {
+    const startSlider = document.getElementById(`start${fileNumber}`);
+    const endSlider = document.getElementById(`end${fileNumber}`);
+    
+    startSlider.addEventListener('input', function() {
+        handleRangeChange(fileNumber);
+    });
+    
+    endSlider.addEventListener('input', function() {
+        handleRangeChange(fileNumber);
+    });
+}
+
+// 處理範圍變化
+function handleRangeChange(fileNumber) {
+    const startSlider = document.getElementById(`start${fileNumber}`);
+    const endSlider = document.getElementById(`end${fileNumber}`);
+    const startDisplay = document.getElementById(`startTime${fileNumber}`);
+    const endDisplay = document.getElementById(`endTime${fileNumber}`);
+    
+    // 確保開始值不超過結束值
+    if (parseFloat(startSlider.value) > parseFloat(endSlider.value)) {
+        startSlider.value = endSlider.value;
+    }
+    
+    // 獲取當前縮放範圍
+    const zoomRange = fileNumber === 1 ? zoom1 : zoom2;
+    const duration = zoomRange.end - zoomRange.start;
+    
+    // 計算選擇的實際時間範圍
+    const startPercent = parseFloat(startSlider.value) / 100;
+    const endPercent = parseFloat(endSlider.value) / 100;
+    const startTime = zoomRange.start + (duration * startPercent);
+    const endTime = zoomRange.start + (duration * endPercent);
+    
+    // 更新顯示
+    startDisplay.textContent = startTime.toFixed(2) + ' 秒';
+    endDisplay.textContent = endTime.toFixed(2) + ' 秒';
+    
+    // 更新選擇範圍
+    if (fileNumber === 1) {
+        selectedRange1 = { start: startTime, end: endTime };
+    } else {
+        selectedRange2 = { start: startTime, end: endTime };
+    }
+    
+    // 更新選擇覆蓋層
+    updateSelectionOverlay(fileNumber);
+}
+
+// 更新選擇覆蓋層
+function updateSelectionOverlay(fileNumber) {
+    const canvas = document.getElementById(`preview${fileNumber}`);
+    const overlay = document.getElementById(`selection${fileNumber}`);
+    const range = fileNumber === 1 ? selectedRange1 : selectedRange2;
+    const zoomRange = fileNumber === 1 ? zoom1 : zoom2;
+    const duration = zoomRange.end - zoomRange.start;
+    
+    // 計算相對於當前縮放的百分比
+    const startPercent = (range.start - zoomRange.start) / duration * 100;
+    const endPercent = (range.end - zoomRange.start) / duration * 100;
+    
+    // 更新覆蓋層位置和寬度
+    overlay.style.left = `${startPercent}%`;
+    overlay.style.width = `${endPercent - startPercent}%`;
+}
+
+// 縮放到選擇範圍
+function zoomToSelection(fileNumber) {
+    const range = fileNumber === 1 ? selectedRange1 : selectedRange2;
+    
+    if (fileNumber === 1) {
+        zoom1 = { start: range.start, end: range.end };
+        drawPreviewWaveform(audioBuffer1, 1);
+        updateSliderValues(1, range.start, range.end);
+    } else {
+        zoom2 = { start: range.start, end: range.end };
+        drawPreviewWaveform(audioBuffer2, 2);
+        updateSliderValues(2, range.start, range.end);
+    }
+    
+    // 重置選擇滑塊為全範圍
+    document.getElementById(`start${fileNumber}`).value = 0;
+    document.getElementById(`end${fileNumber}`).value = 100;
+    
+    // 更新選擇範圍
+    if (fileNumber === 1) {
+        selectedRange1 = { start: range.start, end: range.end };
+    } else {
+        selectedRange2 = { start: range.start, end: range.end };
+    }
+    
+    // 更新覆蓋層
+    updateSelectionOverlay(fileNumber);
+}
+
+// 重設縮放
+function resetZoom(fileNumber) {
+    const buffer = fileNumber === 1 ? audioBuffer1 : audioBuffer2;
+    if (!buffer) return;
+    
+    if (fileNumber === 1) {
+        zoom1 = { start: 0, end: buffer.duration };
+        drawPreviewWaveform(buffer, 1);
+        updateSliderValues(1, 0, buffer.duration);
+    } else {
+        zoom2 = { start: 0, end: buffer.duration };
+        drawPreviewWaveform(buffer, 2);
+        updateSliderValues(2, 0, buffer.duration);
+    }
+}
+
+// 播放選擇的音頻
+function playSelectedAudio(fileNumber) {
+    // 停止當前正在播放的音頻
+    if (fileNumber === 1 && audioSource1) {
+        audioSource1.stop();
+        audioSource1 = null;
+    } else if (fileNumber === 2 && audioSource2) {
+        audioSource2.stop();
+        audioSource2 = null;
+    }
+    
+    const buffer = fileNumber === 1 ? audioBuffer1 : audioBuffer2;
+    const range = fileNumber === 1 ? selectedRange1 : selectedRange2;
+    
+    if (!buffer) return;
+    
+    try {
+        // 確保AudioContext處於運行狀態
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        
+        // 創建音頻源
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        
+        // 存儲音頻源以便之後停止
+        if (fileNumber === 1) {
+            audioSource1 = source;
+        } else {
+            audioSource2 = source;
+        }
+        
+        // 播放選擇的部分
+        source.start(0, range.start, range.end - range.start);
+        
+        // 播放完成後清理
+        source.onended = function() {
+            if (fileNumber === 1) {
+                audioSource1 = null;
+            } else {
+                audioSource2 = null;
+            }
+        };
+    } catch (error) {
+        console.error('播放音頻時發生錯誤:', error);
+        updateStatusMessage(`播放音頻時發生錯誤: ${error.message}`);
+    }
+}
+
+// 檢查兩個文件是否都已上傳
+function checkFilesReady() {
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    
+    if (audioBuffer1 && audioBuffer2) {
+        console.log("兩個音頻檔案都已上傳並解碼完成，啟用分析按鈕");
+        analyzeBtn.disabled = false;
+        updateStatusMessage("兩個音檔已上傳，可以進行分析");
+    } else {
+        console.log("尚未上傳完兩個音頻檔案，分析按鈕保持禁用");
+        analyzeBtn.disabled = true;
+        if (audioBuffer1) {
+            updateStatusMessage("已上傳第一個音檔，請上傳第二個音檔");
+        } else if (audioBuffer2) {
+            updateStatusMessage("已上傳第二個音檔，請上傳第一個音檔");
+        } else {
+            updateStatusMessage("請上傳兩個音檔後再進行分析");
+        }
+    }
+}
+
+// 繪製預覽波形
+function drawPreviewWaveform(audioBuffer, fileNumber) {
+    const canvas = document.getElementById(`preview${fileNumber}`);
+    if (!canvas) {
+        console.error(`Canvas element preview${fileNumber} not found`);
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error(`Could not get 2D context for canvas preview${fileNumber}`);
+        return;
+    }
+    
+    // 獲取音頻數據
+    const channelData = audioBuffer.getChannelData(0);
+    const sampleRate = audioBuffer.sampleRate;
+    
+    // 設置畫布大小
+    const parentWidth = canvas.parentNode.clientWidth || 600; // 預設寬度以防父元素寬度未設置
+    canvas.width = parentWidth;
+    canvas.height = 150;
+    
+    // 清除畫布
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 獲取當前縮放範圍
+    const zoomRange = fileNumber === 1 ? zoom1 : zoom2;
+    const startSample = Math.floor(zoomRange.start * sampleRate);
+    const endSample = Math.min(Math.floor(zoomRange.end * sampleRate), channelData.length);
+    
+    // 計算每個像素對應的樣本數
+    const samplesPerPixel = Math.max(1, Math.ceil((endSample - startSample) / canvas.width));
+    
+    // 繪製波形
+    ctx.strokeStyle = '#3498db';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    
+    for (let i = 0; i < canvas.width; i++) {
+        // 計算當前像素對應的樣本範圍
+        const sampleStart = startSample + i * samplesPerPixel;
+        const sampleEnd = Math.min(sampleStart + samplesPerPixel, endSample);
+        
+        // 在樣本範圍內尋找最大和最小值
+        let min = Infinity;
+        let max = -Infinity;
+        
+        for (let j = sampleStart; j < sampleEnd; j++) {
+            if (j < channelData.length) {
+                const value = channelData[j];
+                if (value < min) min = value;
+                if (value > max) max = value;
+            }
+        }
+        
+        // 如果沒有找到有效值，設置為0
+        if (min === Infinity) min = 0;
+        if (max === -Infinity) max = 0;
+        
+        // 將值映射到畫布高度
+        const y1 = (1 + min) * canvas.height / 2;
+        const y2 = (1 + max) * canvas.height / 2;
+        
+        // 繪製垂直線段
+        ctx.moveTo(i, y1);
+        ctx.lineTo(i, y2);
+    }
+    
+    ctx.stroke();
+}
+
 // 分析音頻
-async function analyzeAudio() {
+function analyzeAudio() {
+    console.log("執行音頻分析");
+    
+    // 確保有可分析的數據
+    if (!audioBuffer1 || !audioBuffer2) {
+        console.error("缺少音頻數據，無法分析");
+        alert('請先上傳兩個音頻文件。');
+        return;
+    }
+    
     // 顯示載入指示器
     document.getElementById('loadingIndicator').style.display = 'block';
     document.getElementById('analyzeBtn').disabled = true;
+    updateStatusMessage("正在分析音頻數據...");
     
     // 清除先前的圖表
     Object.values(charts).forEach(chart => {
@@ -392,39 +953,53 @@ async function analyzeAudio() {
     });
     
     try {
-        // 解碼音頻數據
-        const audioBuffer1 = await decodeAudio(file1Data);
-        const audioBuffer2 = await decodeAudio(file2Data);
+        console.log("提取選定範圍的數據");
+        // 提取選定範圍的數據
+        const selectedData1 = extractSelectedData(audioBuffer1, selectedRange1);
+        const selectedData2 = extractSelectedData(audioBuffer2, selectedRange2);
         
+        console.log("繪製波形圖");
         // 繪製波形圖
-        drawWaveform(audioBuffer1, 'waveform1', '純桌面波形');
-        drawWaveform(audioBuffer2, 'waveform2', '物體+桌面波形');
+        drawWaveform(selectedData1, 'waveform1', '純桌面波形');
+        drawWaveform(selectedData2, 'waveform2', '物體+桌面波形');
         
+        console.log("計算FFT");
         // 進行FFT分析
-        const fftData1 = calculateFFT(audioBuffer1);
-        const fftData2 = calculateFFT(audioBuffer2);
+        const fftData1 = calculateFFT(selectedData1);
+        const fftData2 = calculateFFT(selectedData2);
         
+        console.log("繪製FFT圖");
         // 繪製FFT圖
         drawFFT(fftData1, 'fft1', '純桌面頻譜');
         drawFFT(fftData2, 'fft2', '物體+桌面頻譜');
         
+        console.log("計算PSD");
         // 計算PSD
-        const psdData1 = calculatePSD(audioBuffer1);
-        const psdData2 = calculatePSD(audioBuffer2);
+        const psdData1 = calculatePSD(selectedData1);
+        const psdData2 = calculatePSD(selectedData2);
         
+        console.log("繪製PSD圖");
         // 繪製PSD圖
         drawPSD(psdData1, 'psd1', '純桌面功率譜密度');
         drawPSD(psdData2, 'psd2', '物體+桌面功率譜密度');
         
+        console.log("識別自然頻率");
         // 識別自然頻率
         identifyNaturalFrequencies(fftData1, fftData2, psdData1, psdData2);
         
+        console.log("顯示結果容器");
         // 顯示結果容器
         document.getElementById('resultsContainer').style.display = 'block';
+        
+        // 滾動到結果區域
+        document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+        
+        updateStatusMessage("分析完成");
         
     } catch (error) {
         console.error('分析過程中發生錯誤:', error);
         alert('分析過程中發生錯誤: ' + error.message);
+        updateStatusMessage(`分析過程中發生錯誤: ${error.message}`);
     } finally {
         // 隱藏載入指示器
         document.getElementById('loadingIndicator').style.display = 'none';
@@ -432,10 +1007,63 @@ async function analyzeAudio() {
     }
 }
 
+// 從AudioBuffer中提取選定範圍的數據
+function extractSelectedData(audioBuffer, range) {
+    const channelData = audioBuffer.getChannelData(0);
+    const sampleRate = audioBuffer.sampleRate;
+    
+    // 計算選擇的樣本範圍
+    const startSample = Math.floor(range.start * sampleRate);
+    const endSample = Math.min(Math.floor(range.end * sampleRate), channelData.length);
+    const sampleCount = endSample - startSample;
+    
+    if (sampleCount <= 0) {
+        throw new Error("選擇的範圍無效或太小");
+    }
+    
+    // 創建新的AudioBuffer
+    const newBuffer = audioContext.createBuffer(
+        audioBuffer.numberOfChannels,
+        sampleCount,
+        sampleRate
+    );
+    
+    // 複製選擇範圍的數據
+    const newChannelData = newBuffer.getChannelData(0);
+    for (let i = 0; i < sampleCount; i++) {
+        newChannelData[i] = channelData[startSample + i];
+    }
+    
+    return newBuffer;
+}
+
 // 解碼音頻
 async function decodeAudio(audioData) {
     return new Promise((resolve, reject) => {
-        audioContext.decodeAudioData(audioData.slice(0), resolve, reject);
+        try {
+            // 確保有有效的音頻數據
+            if (!audioData || audioData.byteLength === 0) {
+                reject(new Error("無效的音頻數據"));
+                return;
+            }
+            
+            // 嘗試解碼
+            audioContext.decodeAudioData(
+                audioData.slice(0), 
+                (buffer) => {
+                    if (buffer) {
+                        resolve(buffer);
+                    } else {
+                        reject(new Error("解碼音頻失敗"));
+                    }
+                },
+                (error) => {
+                    reject(error || new Error("解碼音頻時發生未知錯誤"));
+                }
+            );
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
@@ -449,7 +1077,8 @@ function drawWaveform(audioBuffer, canvasId, label) {
     const sampleRate = audioBuffer.sampleRate;
     
     // 設置畫布大小
-    canvas.width = Math.min(channelData.length, 2000);
+    const parentWidth = canvas.parentNode.clientWidth || 600;
+    canvas.width = parentWidth;
     canvas.height = 200;
     
     // 清除畫布
@@ -461,7 +1090,7 @@ function drawWaveform(audioBuffer, canvasId, label) {
     }
     
     // 對數據進行下採樣以適應畫布寬度
-    const downsampleFactor = Math.ceil(channelData.length / canvas.width);
+    const downsampleFactor = Math.max(1, Math.ceil(channelData.length / canvas.width));
     const downsampledData = [];
     
     for (let i = 0; i < canvas.width; i++) {
@@ -473,12 +1102,22 @@ function drawWaveform(audioBuffer, canvasId, label) {
         let max = -Infinity;
         
         for (let j = startIndex; j < endIndex; j++) {
-            const value = channelData[j];
-            if (value < min) min = value;
-            if (value > max) max = value;
+            if (j < channelData.length) {
+                const value = channelData[j];
+                if (value < min) min = value;
+                if (value > max) max = value;
+            }
         }
         
-        downsampledData.push({x: i, min: min, max: max});
+        // 如果沒有找到有效值，設置為0
+        if (min === Infinity) min = 0;
+        if (max === -Infinity) max = 0;
+        
+        downsampledData.push({
+            x: i / canvas.width * audioBuffer.duration,
+            min: min,
+            max: max
+        });
     }
     
     // 使用Chart.js創建波形圖
@@ -505,7 +1144,7 @@ function drawWaveform(audioBuffer, canvasId, label) {
                     type: 'linear',
                     title: {
                         display: true,
-                        text: '時間 (樣本)'
+                        text: '時間 (秒)'
                     }
                 },
                 y: {
@@ -700,7 +1339,8 @@ function drawFFT(fftData, canvasId, label) {
     const ctx = canvas.getContext('2d');
     
     // 設置畫布大小
-    canvas.width = Math.min(fftData.frequencies.length, 1000);
+    const parentWidth = canvas.parentNode.clientWidth || 600;
+    canvas.width = parentWidth;
     canvas.height = 200;
     
     // 清除畫布
@@ -771,7 +1411,8 @@ function drawPSD(psdData, canvasId, label) {
     const ctx = canvas.getContext('2d');
     
     // 設置畫布大小
-    canvas.width = Math.min(psdData.frequencies.length, 1000);
+    const parentWidth = canvas.parentNode.clientWidth || 600;
+    canvas.width = parentWidth;
     canvas.height = 200;
     
     // 清除畫布
@@ -836,132 +1477,112 @@ function drawPSD(psdData, canvasId, label) {
     });
 }
 
-// 識別自然頻率 - 進一步優化版
+// 識別自然頻率 - 通用版，不偏好特定頻率區間
 function identifyNaturalFrequencies(fftData1, fftData2, psdData1, psdData2) {
-    // 大幅放寬檢測條件
-    const differenceThreshold = 1.05;    // 降低到1.05，幾乎任何微小增強都會被檢測
-    const frequencyTolerance = 5;        // 增加到5Hz，考慮到頻率可能有小幅偏移
-    const noiseFloor = 0.0001;           // 大幅降低噪聲下限，捕獲更多可能的頻率
+    // 動態計算噪聲下限
+    let sumMag = 0;
+    for (let i = 0; i < fftData2.magnitudes.length; i++) {
+        sumMag += fftData2.magnitudes[i];
+    }
+    const avgMag = sumMag / fftData2.magnitudes.length;
     
-    // 特定要關注的頻率區間 (基於您提供的圖片)
-    const interestFrequencies = [
-        {min: 1400, max: 1600},  // 約1500Hz處有明顯峰值
-        {min: 3200, max: 3500},  // 約3300Hz處有非常明顯的峰值
-        {min: 650, max: 850},    // 約750Hz處有峰值
-        {min: 50, max: 150},     // 低頻區域也有變化
-        {min: 3800, max: 4000},  // 約3900Hz附近也有峰值
-        {min: 4400, max: 4700}   // 約4500Hz附近也有變化
-    ];
+    // 設定參數 - 根據信號特性自適應調整
+    const noiseFloor = avgMag * 0.05;               // 噪聲下限為平均振幅的5%
+    const frequencyTolerance = 5;                   // 頻率容許誤差
+    const localPeakRange = Math.max(3, Math.floor(fftData2.frequencies.length / 1000));  // 局部峰值檢測範圍
     
+    // 自適應振幅比例閾值
+    let amplitudeRatios = [];
+    for (let i = 0; i < fftData2.frequencies.length; i++) {
+        const freq2 = fftData2.frequencies[i];
+        if (freq2 < 30) continue; // 忽略極低頻
+        
+        // 找到第一個FFT中對應的頻率
+        let closestIndex = -1;
+        let minFreqDiff = Infinity;
+        
+        for (let j = 0; j < fftData1.frequencies.length; j++) {
+            const freqDiff = Math.abs(fftData1.frequencies[j] - freq2);
+            if (freqDiff < minFreqDiff && freqDiff <= frequencyTolerance) {
+                minFreqDiff = freqDiff;
+                closestIndex = j;
+            }
+        }
+        
+        if (closestIndex >= 0) {
+            const mag1 = fftData1.magnitudes[closestIndex];
+            const mag2 = fftData2.magnitudes[i];
+            if (mag1 > noiseFloor && mag2 > noiseFloor) {
+                amplitudeRatios.push(mag2 / (mag1 + 0.000001));
+            }
+        }
+    }
+    
+    // 計算振幅比例分佈
+    amplitudeRatios.sort((a, b) => a - b);
+    const ratioMedian = amplitudeRatios[Math.floor(amplitudeRatios.length / 2)] || 1;
+    const ratioQ3 = amplitudeRatios[Math.floor(amplitudeRatios.length * 0.75)] || ratioMedian * 1.5;
+    
+    // 設定自適應閾值
+    const differenceThreshold = Math.max(1.05, ratioMedian);
+    const highRatioThreshold = Math.max(1.5, ratioQ3);
+    
+    // 尋找所有峰值頻率
     const naturalFrequencies = [];
     
-    // 首先處理特定感興趣的頻率區間
-    interestFrequencies.forEach(range => {
-        // 在每個感興趣區間找尋最大峰值
-        let maxMag2 = 0;
-        let maxFreq2 = 0;
-        let maxIndex2 = -1;
-        
-        // 在第二個檔案(物體+桌面)中尋找該區間的最大峰值
-        for (let i = 0; i < fftData2.frequencies.length; i++) {
-            const freq = fftData2.frequencies[i];
-            const mag = fftData2.magnitudes[i];
-            
-            if (freq >= range.min && freq <= range.max && mag > maxMag2) {
-                maxMag2 = mag;
-                maxFreq2 = freq;
-                maxIndex2 = i;
-            }
-        }
-        
-        // 如果在該區間找到峰值
-        if (maxIndex2 >= 0) {
-            // 尋找第一個檔案(純桌面)中對應的頻率
-            let closestIndex1 = -1;
-            let minFreqDiff = Infinity;
-            
-            for (let j = 0; j < fftData1.frequencies.length; j++) {
-                const freqDiff = Math.abs(fftData1.frequencies[j] - maxFreq2);
-                if (freqDiff < minFreqDiff && freqDiff <= frequencyTolerance) {
-                    minFreqDiff = freqDiff;
-                    closestIndex1 = j;
-                }
-            }
-            
-            // 計算放大比例
-            let amplitudeRatio = 1;
-            let confidence = "低";
-            
-            if (closestIndex1 >= 0) {
-                const mag1 = fftData1.magnitudes[closestIndex1];
-                amplitudeRatio = maxMag2 / (mag1 + 0.000001);
-                
-                // 根據該區間在興趣列表中的位置(重要性)和振幅比決定置信度
-                if (amplitudeRatio >= 1.5) {
-                    confidence = "非常高";
-                } else if (amplitudeRatio >= 1.3) {
-                    confidence = "高";
-                } else if (amplitudeRatio >= 1.1) {
-                    confidence = "中";
-                } else if (amplitudeRatio >= 1.05) {
-                    confidence = "低";
-                } else {
-                    // 即使比例不是很大，但如果在關注區間內，也標記為"參考"
-                    confidence = "參考";
-                }
-            } else {
-                // 在第一個FFT中沒有找到對應頻率，這是新增的頻率
-                amplitudeRatio = Infinity;
-                confidence = "非常高";
-            }
-            
-            // 加入PSD比值作為額外依據
-            let psdRatio = 1;
-            if (maxIndex2 < psdData2.psd.length && closestIndex1 >= 0 && closestIndex1 < psdData1.psd.length) {
-                psdRatio = (psdData2.psd[maxIndex2] + 1e-10) / (psdData1.psd[closestIndex1] + 1e-10);
-                
-                // 如果PSD比值高但振幅比低，提升置信度
-                if (psdRatio > 2 && confidence === "參考") {
-                    confidence = "低";
-                } else if (psdRatio > 5 && confidence === "低") {
-                    confidence = "中";
-                } else if (psdRatio > 10 && confidence === "中") {
-                    confidence = "高";
-                }
-            }
-            
-            // 將找到的峰值添加到自然頻率列表
-            naturalFrequencies.push({
-                frequency: maxFreq2.toFixed(1),
-                amplitudeRatio: amplitudeRatio === Infinity ? "新增頻率" : amplitudeRatio.toFixed(2),
-                confidence: confidence,
-                psdRatio: psdRatio.toFixed(2),
-                isInterestRegion: true
-            });
-        }
-    });
-    
-    // 再進行常規的全頻段掃描，找出其他可能的頻率
-    for (let i = 2; i < fftData2.frequencies.length; i++) {
+    // 分析所有頻率
+    for (let i = 5; i < fftData2.frequencies.length; i++) {
         const freq2 = fftData2.frequencies[i];
         const mag2 = fftData2.magnitudes[i];
         
-        // 檢查該頻率是否已經在興趣區間中被識別過
-        let alreadyIdentified = false;
-        for (const freq of naturalFrequencies) {
-            if (Math.abs(parseFloat(freq.frequency) - freq2) <= frequencyTolerance) {
-                alreadyIdentified = true;
-                break;
-            }
-        }
-        
-        // 如果已經識別過，則跳過
-        if (alreadyIdentified) continue;
+        // 忽略極低頻率（<30Hz，通常是環境噪聲或裝置振動）
+        if (freq2 < 30) continue;
         
         // 忽略低於噪聲下限的振幅
         if (mag2 < noiseFloor) continue;
         
-        // 找到最接近的頻率在第一個FFT中的指數
+        // 峰值檢測 - 使用改進的算法
+        let isPeak = false;
+        
+        // 1. 局部最大值檢測（左右各localPeakRange點範圍內的最大值）
+        let isLocalMax = true;
+        for (let j = Math.max(0, i - localPeakRange); j <= Math.min(fftData2.magnitudes.length - 1, i + localPeakRange); j++) {
+            if (j !== i && fftData2.magnitudes[j] > mag2) {
+                isLocalMax = false;
+                break;
+            }
+        }
+        
+        // 2. 相對於局部平均值的突出度
+        const localRangeWider = Math.max(10, Math.floor(fftData2.frequencies.length / 500));
+        let sum = 0;
+        let count = 0;
+        
+        for (let j = Math.max(0, i - localRangeWider); j <= Math.min(fftData2.magnitudes.length - 1, i + localRangeWider); j++) {
+            if (Math.abs(j - i) > localPeakRange) { // 排除中心點附近的值
+                sum += fftData2.magnitudes[j];
+                count++;
+            }
+        }
+        
+        const localAvg = count > 0 ? sum / count : 0;
+        // 自適應突出度閾值 - 基於信號整體特性
+        const prominenceThreshold = Math.max(1.5, 3 * (1 - Math.exp(-localAvg * 10)));
+        const significantlyAboveAvg = mag2 > localAvg * prominenceThreshold;
+        
+        // 3. 觀察導數變化 - 檢測峰值的形狀
+        let derivativePeak = false;
+        if (i > 0 && i < fftData2.magnitudes.length - 1) {
+            const leftDeriv = mag2 - fftData2.magnitudes[i-1];
+            const rightDeriv = fftData2.magnitudes[i+1] - mag2;
+            // 左導數為正，右導數為負，表示這是一個峰值
+            derivativePeak = (leftDeriv > 0 && rightDeriv < 0);
+        }
+        
+        // 綜合多種峰值檢測方法
+        isPeak = isLocalMax || significantlyAboveAvg || derivativePeak;
+        
+        // 找到最接近的頻率在第一個FFT中的索引
         let closestIndex = -1;
         let minFreqDiff = Infinity;
         
@@ -980,15 +1601,17 @@ function identifyNaturalFrequencies(fftData1, fftData2, psdData1, psdData2) {
             const mag1 = fftData1.magnitudes[closestIndex];
             amplitudeRatio = mag2 / (mag1 + 0.000001);
             
-            // 放寬置信度標準
-            if (amplitudeRatio >= 1.5) {
+            // 自適應置信度標準 - 基於信號特性
+            if (amplitudeRatio >= highRatioThreshold * 2) {
+                confidence = "非常高";
+            } else if (amplitudeRatio >= highRatioThreshold) {
                 confidence = "高";
-            } else if (amplitudeRatio >= 1.2) {
+            } else if (amplitudeRatio >= differenceThreshold * 1.5) {
                 confidence = "中";
             } else if (amplitudeRatio >= differenceThreshold) {
                 confidence = "低";
             } else {
-                continue; // 仍然忽略過小的比值
+                continue; // 忽略過小的比值
             }
         } else {
             // 在第一個FFT中沒有找到對應頻率，這是新增的頻率
@@ -996,86 +1619,75 @@ function identifyNaturalFrequencies(fftData1, fftData2, psdData1, psdData2) {
             confidence = "非常高";
         }
         
-        // 放寬峰值檢測條件，使用更寬鬆的局部峰值定義
-        let isPeak = false;
-        
-        // 檢查是否為局部峰值（左右各3點範圍內的最大值）
-        const checkRange = 3;
-        let isLocalMax = true;
-        
-        for (let j = Math.max(0, i - checkRange); j <= Math.min(fftData2.magnitudes.length - 1, i + checkRange); j++) {
-            if (j !== i && fftData2.magnitudes[j] > mag2) {
-                isLocalMax = false;
-                break;
-            }
-        }
-        
-        // 或者檢查是否明顯高於局部平均值
-        const localRangeWider = 10;
-        let sum = 0;
-        let count = 0;
-        
-        for (let j = Math.max(0, i - localRangeWider); j <= Math.min(fftData2.magnitudes.length - 1, i + localRangeWider); j++) {
-            if (Math.abs(j - i) > 2) { // 排除中心點附近的值
-                sum += fftData2.magnitudes[j];
-                count++;
-            }
-        }
-        
-        const localAvg = count > 0 ? sum / count : 0;
-        const significantlyAboveAvg = mag2 > localAvg * 1.5;
-        
-        isPeak = isLocalMax || significantlyAboveAvg;
-        
         // 結合PSD數據進行判斷
         let psdRatio = 1;
         if (closestIndex >= 0 && closestIndex < psdData1.psd.length && i < psdData2.psd.length) {
             psdRatio = (psdData2.psd[i] + 1e-10) / (psdData1.psd[closestIndex] + 1e-10);
-            if (psdRatio > 1.5) {
-                isPeak = true; // 如果PSD比值足夠高，也認為是有效峰值
+            
+            // 根據PSD比值調整置信度
+            if (psdRatio > 5) {
+                if (confidence === "低") confidence = "中";
+                else if (confidence === "中") confidence = "高";
+            } else if (psdRatio < 1.2 && confidence !== "非常高") {
+                if (confidence === "高") confidence = "中";
+                else if (confidence === "中") confidence = "低";
             }
         }
         
-        // 添加到結果列表，使用更寬鬆的標準
+        // 添加到結果列表
         if ((amplitudeRatio >= differenceThreshold || amplitudeRatio === Infinity) && isPeak) {
             naturalFrequencies.push({
                 frequency: freq2.toFixed(1),
                 amplitudeRatio: amplitudeRatio === Infinity ? "新增頻率" : amplitudeRatio.toFixed(2),
                 confidence: confidence,
                 psdRatio: psdRatio.toFixed(2),
-                isInterestRegion: false
+                magnitude: mag2,
+                index: i
             });
         }
     }
     
-    // 根據頻率排序
-    naturalFrequencies.sort((a, b) => parseFloat(a.frequency) - parseFloat(b.frequency));
+    // 避免報告過多頻率，自適應選擇最顯著的峰值
+    naturalFrequencies.sort((a, b) => {
+        // 首先按照幅值和置信度的組合排序
+        const aScore = a.magnitude * getConfidenceScore(a.confidence);
+        const bScore = b.magnitude * getConfidenceScore(b.confidence);
+        return bScore - aScore;
+    });
     
-    // 移除過於接近的頻率（可能是同一峰值），但更寬鬆
+    // 取前15個最顯著的峰值
+    const significantFreqs = naturalFrequencies.slice(0, 15);
+    
+    // 按頻率排序用於顯示
+    significantFreqs.sort((a, b) => parseFloat(a.frequency) - parseFloat(b.frequency));
+    
+    // 移除過於接近的頻率，視為同一峰值的不同表現
     const uniqueFrequencies = [];
-    for (let i = 0; i < naturalFrequencies.length; i++) {
+    for (let i = 0; i < significantFreqs.length; i++) {
         if (i === 0) {
-            uniqueFrequencies.push(naturalFrequencies[i]);
+            uniqueFrequencies.push(significantFreqs[i]);
         } else {
             const prevFreq = parseFloat(uniqueFrequencies[uniqueFrequencies.length - 1].frequency);
-            const currFreq = parseFloat(naturalFrequencies[i].frequency);
+            const currFreq = parseFloat(significantFreqs[i].frequency);
             
-            // 如果當前頻率與上一個的差距小於10Hz
-            if (Math.abs(currFreq - prevFreq) <= 10) {
-                // 僅當當前頻率比上一個更重要時才替換
-                const curr = naturalFrequencies[i];
+            // 自適應頻率合併閾值 - 對於高頻允許更大的差距
+            const mergeThreshold = Math.min(20, 5 + currFreq / 500);
+            
+            // 如果當前頻率與上一個的差距小於閾值
+            if (Math.abs(currFreq - prevFreq) <= mergeThreshold) {
+                // 保留振幅更大或置信度更高的頻率
+                const curr = significantFreqs[i];
                 const prev = uniqueFrequencies[uniqueFrequencies.length - 1];
                 
-                // 根據多種條件評估重要性
-                const currImportance = getImportanceFactor(curr);
-                const prevImportance = getImportanceFactor(prev);
+                const currScore = curr.magnitude * getConfidenceScore(curr.confidence);
+                const prevScore = prev.magnitude * getConfidenceScore(prev.confidence);
                 
-                if (currImportance > prevImportance) {
+                if (currScore > prevScore) {
                     uniqueFrequencies.pop();
                     uniqueFrequencies.push(curr);
                 }
             } else {
-                uniqueFrequencies.push(naturalFrequencies[i]);
+                uniqueFrequencies.push(significantFreqs[i]);
             }
         }
     }
@@ -1104,8 +1716,12 @@ function identifyNaturalFrequencies(fftData1, fftData2, psdData1, psdData2) {
             
             const confCell = document.createElement('td');
             confCell.textContent = freq.confidence;
-            if (freq.isInterestRegion) {
-                // 對於特別關注的頻率區間，用加粗標示
+            
+            // 根據置信度設置行樣式
+            if (freq.confidence === "非常高") {
+                row.style.fontWeight = 'bold';
+                row.style.backgroundColor = '#d4edda';
+            } else if (freq.confidence === "高") {
                 row.style.fontWeight = 'bold';
             }
             
@@ -1117,39 +1733,15 @@ function identifyNaturalFrequencies(fftData1, fftData2, psdData1, psdData2) {
         });
     }
     
-    // 輔助函數：計算頻率重要性因子
-    function getImportanceFactor(freqObj) {
-        // 根據多種因素評估頻率的重要性
-        let factor = 0;
-        
-        // 1. 置信度
-        if (freqObj.confidence === "非常高") factor += 5;
-        else if (freqObj.confidence === "高") factor += 4;
-        else if (freqObj.confidence === "中") factor += 3;
-        else if (freqObj.confidence === "低") factor += 2;
-        else factor += 1;
-        
-        // 2. 振幅比例
-        if (freqObj.amplitudeRatio === "新增頻率") factor += 5;
-        else {
-            const ratio = parseFloat(freqObj.amplitudeRatio);
-            if (ratio > 2) factor += 4;
-            else if (ratio > 1.5) factor += 3;
-            else if (ratio > 1.2) factor += 2;
-            else factor += 1;
+    // 輔助函數：獲取置信度分數
+    function getConfidenceScore(confidence) {
+        switch (confidence) {
+            case "非常高": return 4;
+            case "高": return 3;
+            case "中": return 2;
+            case "低": return 1;
+            default: return 0.5;
         }
-        
-        // 3. PSD比例
-        const psdRatio = parseFloat(freqObj.psdRatio);
-        if (psdRatio > 10) factor += 4;
-        else if (psdRatio > 5) factor += 3;
-        else if (psdRatio > 2) factor += 2;
-        else if (psdRatio > 1.2) factor += 1;
-        
-        // 4. 是否在特定關注區域
-        if (freqObj.isInterestRegion) factor += 3;
-        
-        return factor;
     }
 }
     </script>    
