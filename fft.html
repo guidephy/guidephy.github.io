@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精確頻率分析工具</title>
+    <title>高頻範圍頻譜分析工具</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     <style>
         body { 
@@ -276,30 +276,6 @@
             border-radius: 4px;
             text-align: left;
         }
-        .advanced-settings {
-            margin: 15px 0;
-            padding: 15px;
-            background: #f1f8e9;
-            border-radius: 8px;
-            border-left: 4px solid #8bc34a;
-        }
-        .advanced-settings-toggle {
-            color: #2196F3;
-            cursor: pointer;
-            text-decoration: underline;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-        .advanced-settings-content {
-            display: none;
-        }
-        .real-time-chart {
-            position: relative;
-            height: 150px;
-            margin: 20px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
         
         /* 響應式設計優化 */
         @media (max-width: 768px) {
@@ -316,7 +292,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>精確頻率分析工具</h2>
+        <h2>高頻範圍頻譜分析工具</h2>
         
         <div class="controls">
             <div class="file-upload">
@@ -328,7 +304,7 @@
             
             <div class="control-group">
                 <label for="samplingRate">採樣率 (Hz):</label>
-                <input type="number" id="samplingRate" value="200" min="1" step="1">
+                <input type="number" id="samplingRate" value="1000" min="1" step="1">
                 <div id="samplingInfo" class="sampling-info"></div>
                 
                 <button id="analyzeBtn">分析數據</button>
@@ -336,66 +312,13 @@
         </div>
         
         <div class="warning">
-            <strong>重要提示:</strong> 您的裝置採樣率為200Hz，這意味著：
+            <strong>注意:</strong> 要分析高頻率範圍，採樣率必須足夠高。根據奈奎斯特定理：
             <ul>
-                <li>您能夠可靠檢測的最高頻率是100Hz（即採樣率的一半）</li>
-                <li>為了正確識別頻率，請確保您有足夠的數據點</li>
-                <li>當測量接近100Hz的頻率時，可能需要更長的數據樣本以獲得準確結果</li>
+                <li>採樣率必須至少是您想要分析的最高頻率的2倍</li>
+                <li>例如：如果要分析200-300Hz範圍，採樣率至少需要600Hz</li>
+                <li>建議：採樣率設為最高目標頻率的5-10倍以獲得更準確的結果</li>
             </ul>
-        </div>
-        
-        <div class="advanced-settings">
-            <span class="advanced-settings-toggle" id="advancedSettingsToggle">顯示高級設置</span>
-            <div class="advanced-settings-content" id="advancedSettingsContent">
-                <div class="control-group" style="justify-content: center; margin-bottom: 10px;">
-                    <label for="windowSize">FFT視窗大小:</label>
-                    <select id="windowSize">
-                        <option value="auto">自動（自適應）</option>
-                        <option value="128">128點</option>
-                        <option value="256">256點</option>
-                        <option value="512">512點</option>
-                        <option value="1024">1024點</option>
-                        <option value="2048">2048點</option>
-                        <option value="4096">4096點</option>
-                    </select>
-                    
-                    <label for="windowFunction">視窗函數:</label>
-                    <select id="windowFunction">
-                        <option value="hann">漢寧窗（Hanning）</option>
-                        <option value="hamming">漢明窗（Hamming）</option>
-                        <option value="blackman">布萊克曼窗（Blackman）</option>
-                        <option value="rectangular">矩形窗（無窗函數）</option>
-                    </select>
-                    
-                    <label for="zeroPadding">零填充:</label>
-                    <select id="zeroPadding">
-                        <option value="1">不填充</option>
-                        <option value="2" selected>2倍</option>
-                        <option value="4">4倍</option>
-                        <option value="8">8倍</option>
-                    </select>
-                </div>
-                
-                <div class="control-group" style="justify-content: center;">
-                    <label for="interpolation">頻率插值:</label>
-                    <select id="interpolation">
-                        <option value="none">無</option>
-                        <option value="quadratic" selected>二次（改善精度）</option>
-                        <option value="gaussian">高斯（最高精度）</option>
-                    </select>
-                    
-                    <label for="peakDetection">峰值檢測敏感度:</label>
-                    <select id="peakDetection">
-                        <option value="low">低（只檢測主要峰值）</option>
-                        <option value="medium" selected>中等</option>
-                        <option value="high">高（檢測更多峰值）</option>
-                    </select>
-                </div>
-                
-                <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                    <strong>提示:</strong> 增加FFT窗口大小和零填充可提高頻率分辨率。使用插值可獲得更精確的頻率估計。
-                </div>
-            </div>
+            <strong>當前可分析的最高頻率：</strong> <span id="maxFreqSpan">500 Hz</span> (採樣率/2)
         </div>
         
         <div id="filePreviewPanel" style="display: none;" class="panel">
@@ -427,10 +350,6 @@
                 <canvas id="accelerationChart"></canvas>
             </div>
             
-            <div class="real-time-chart">
-                <canvas id="realTimeChart"></canvas>
-            </div>
-            
             <div id="topPeaksContainer" class="top-peaks" style="display: none;">
                 <h3>前5個最強頻率</h3>
                 <div id="topPeaks"></div>
@@ -439,22 +358,22 @@
             <div class="tabs">
                 <div class="tab active" data-tab="frequency">頻率分析</div>
                 <div class="tab" data-tab="details">詳細結果</div>
-                <div class="tab" data-tab="debug">診斷信息</div>
             </div>
             
             <div id="frequencyTab" class="tab-content active">
                 <div class="frequency-ranges">
                     <div class="frequency-range active" data-max="all">全頻率範圍</div>
-                    <div class="frequency-range" data-max="25">0-25 Hz</div>
-                    <div class="frequency-range" data-max="50">0-50 Hz</div>
-                    <div class="frequency-range" data-max="75">0-75 Hz</div>
                     <div class="frequency-range" data-max="100">0-100 Hz</div>
+                    <div class="frequency-range" data-max="200">0-200 Hz</div>
+                    <div class="frequency-range" data-max="300">0-300 Hz</div>
+                    <div class="frequency-range" data-max="500">0-500 Hz</div>
+                    <div class="frequency-range" data-max="1000">0-1000 Hz</div>
                     
                     <div class="custom-range">
                         <label for="minFreq">自定義:</label>
-                        <input type="number" id="minFreq" placeholder="最小" min="0" step="0.1" value="0">
+                        <input type="number" id="minFreq" placeholder="最小" min="0" step="1" value="0">
                         <span>至</span>
-                        <input type="number" id="maxFreq" placeholder="最大" min="0.1" step="0.1">
+                        <input type="number" id="maxFreq" placeholder="最大" min="1" step="1">
                         <button id="applyRangeBtn">應用</button>
                     </div>
                 </div>
@@ -472,7 +391,6 @@
                         <tr>
                             <th>排名</th>
                             <th>頻率 (Hz)</th>
-                            <th>精確頻率 (Hz)</th>
                             <th>幅度</th>
                             <th>相對強度 (%)</th>
                         </tr>
@@ -480,16 +398,6 @@
                     <tbody id="peakTableBody">
                     </tbody>
                 </table>
-            </div>
-            
-            <div id="debugTab" class="tab-content">
-                <h3>診斷信息</h3>
-                <div id="fftDiagnostics" class="data-preview"></div>
-                
-                <div class="chart-wrapper" style="height: 250px;">
-                    <h4>原始波形和采样点</h4>
-                    <canvas id="waveformChart"></canvas>
-                </div>
             </div>
         </div>
     </div>
@@ -520,37 +428,17 @@
             const columnSelector = document.getElementById('columnSelector');
             const confirmColumnsBtn = document.getElementById('confirmColumnsBtn');
             const analysisPanel = document.getElementById('analysisPanel');
-            const advancedSettingsToggle = document.getElementById('advancedSettingsToggle');
-            const advancedSettingsContent = document.getElementById('advancedSettingsContent');
-            const windowSizeSelect = document.getElementById('windowSize');
-            const windowFunctionSelect = document.getElementById('windowFunction');
-            const zeroPaddingSelect = document.getElementById('zeroPadding');
-            const interpolationSelect = document.getElementById('interpolation');
-            const peakDetectionSelect = document.getElementById('peakDetection');
-            const fftDiagnostics = document.getElementById('fftDiagnostics');
-            
-            // 高級設置切換
-            advancedSettingsToggle.addEventListener('click', function() {
-                if (advancedSettingsContent.style.display === 'block') {
-                    advancedSettingsContent.style.display = 'none';
-                    advancedSettingsToggle.textContent = '顯示高級設置';
-                } else {
-                    advancedSettingsContent.style.display = 'block';
-                    advancedSettingsToggle.textContent = '隱藏高級設置';
-                }
-            });
+            const maxFreqSpan = document.getElementById('maxFreqSpan');
             
             // 存儲圖表實例和數據
             let accelerationChartInstance = null;
             let frequencyChartInstance = null;
-            let realTimeChartInstance = null;
-            let waveformChartInstance = null;
             let allFrequencies = [];
             let currentMinFreq = 0;
             let currentMaxFreq = 'all';
             let fullDataSet = { x: [], y: [], z: [] };
             let timestamps = [];
-            let samplingRate = 200;
+            let samplingRate = 1000;
             let detectedSamplingRate = null;
             let currentAxis = 'z';
             let fileContent = null;
@@ -561,19 +449,16 @@
                 timeIndex: -1
             };
             let parsedData = null;
-            let fftWindowSize = 'auto';
-            let fftResults = {
-                rawSpectrum: [],
-                frequencies: [],
-                spectrum: [],
-                peaks: [],
-                fftSize: 0,
-                zeroPadded: false,
-                windowFunction: 'hann',
-                frequencyResolution: 0,
-                effectiveResolution: 0,
-                diagnostics: ''
-            };
+            
+            // 監聽採樣率變更以更新最大可檢測頻率
+            samplingRateInput.addEventListener('input', function() {
+                const rate = parseFloat(this.value) || 1000;
+                const maxFreq = rate / 2;
+                maxFreqSpan.textContent = `${maxFreq.toFixed(1)} Hz`;
+            });
+            
+            // 初始更新最大頻率顯示
+            maxFreqSpan.textContent = `${(parseFloat(samplingRateInput.value) / 2).toFixed(1)} Hz`;
             
             // 軸選擇功能
             axisBtns.forEach(btn => {
@@ -589,9 +474,6 @@
                         
                         // 分析頻率
                         analyzeFrequency(fullDataSet[currentAxis], samplingRate);
-                        
-                        // 更新波形圖
-                        drawWaveformChart(fullDataSet[currentAxis], samplingRate);
                     }
                 });
             });
@@ -640,7 +522,7 @@
                     // 檢查最高頻率是否超過奈奎斯特頻率
                     const nyquistFreq = samplingRate / 2;
                     if (maxFreq > nyquistFreq) {
-                        alert(`警告：您指定的最高頻率 ${maxFreq} Hz 超過了奈奎斯特頻率 ${nyquistFreq} Hz。\n根據採樣定理，只能可靠檢測到不超過採樣率一半的頻率。`);
+                        alert(`警告：您指定的最高頻率 ${maxFreq} Hz 超過了奈奎斯特頻率 ${nyquistFreq} Hz。\n根據採樣定理，只能可靠檢測到不超過採樣率一半的頻率。\n請增加採樣率或降低分析頻率上限。`);
                     }
                     
                     if (allFrequencies.length > 0) {
@@ -673,11 +555,14 @@
                     return;
                 }
                 
-                samplingRate = parseFloat(samplingRateInput.value) || 200;
+                samplingRate = parseFloat(samplingRateInput.value) || 1000;
                 if (samplingRate <= 0) {
                     alert('請輸入有效的採樣率');
                     return;
                 }
+                
+                // 更新最大可檢測頻率
+                maxFreqSpan.textContent = `${(samplingRate / 2).toFixed(1)} Hz`;
                 
                 loading.style.display = 'inline-block';
                 fileStatus.textContent = '分析中...';
@@ -699,18 +584,8 @@
                 columnData.yIndex = parseInt(ySelect.value);
                 columnData.zIndex = parseInt(zSelect.value);
                 
-                // 更新採樣率
-                samplingRate = parseFloat(samplingRateInput.value) || 200;
-                
-                // 獲取FFT參數
-                fftWindowSize = windowSizeSelect.value;
-                const windowFunction = windowFunctionSelect.value;
-                const zeroPadding = parseInt(zeroPaddingSelect.value) || 1;
-                const interpolation = interpolationSelect.value;
-                const peakDetection = peakDetectionSelect.value;
-                
                 // 處理數據
-                processParsedData(windowFunction, zeroPadding, interpolation, peakDetection);
+                processParsedData();
             });
             
             // 讀取檔案預覽
@@ -984,12 +859,15 @@
                         samplingRateInput.value = detectedSamplingRate;
                         samplingInfo.textContent = `從數據中檢測到採樣率: ${detectedSamplingRate} Hz`;
                         samplingInfo.style.display = 'block';
+                        
+                        // 更新最大可檢測頻率
+                        maxFreqSpan.textContent = `${(detectedSamplingRate / 2).toFixed(1)} Hz`;
                     }
                 }
             }
             
             // 處理解析後的數據
-            function processParsedData(windowFunction = 'hann', zeroPadding = 2, interpolation = 'quadratic', peakDetection = 'medium') {
+            function processParsedData() {
                 if (!parsedData) return;
                 
                 // 提取每個軸的數據
@@ -1061,17 +939,17 @@
                 // 使用選定的軸數據
                 const currentData = fullDataSet[currentAxis];
                 
+                // 獲取採樣率
+                samplingRate = parseFloat(samplingRateInput.value) || 1000;
+                
                 // 更新數據信息
                 updateDataInfo();
                 
                 // 繪製時域圖
                 drawAccelerationChart(currentData, samplingRate);
                 
-                // 繪製波形圖
-                drawWaveformChart(currentData, samplingRate);
-                
                 // 分析頻率
-                analyzeFrequency(currentData, samplingRate, fftWindowSize, windowFunction, zeroPadding, interpolation, peakDetection);
+                analyzeFrequency(currentData, samplingRate);
                 
                 // 顯示完成信息
                 fileStatus.textContent = `分析完成: ${currentData.length} 個數據點`;
@@ -1097,27 +975,8 @@
                 
                 // 準備顯示內容
                 let html = '<h3>數據統計信息</h3>';
-                
-                // 添加數據長度和樣本時間
-                const sampleDuration = fullDataSet[currentAxis].length / samplingRate;
-                html += `<p><strong>總數據點數:</strong> ${fullDataSet[currentAxis].length} 點`;
-                html += ` (樣本時間: ${sampleDuration.toFixed(2)} 秒)</p>`;
-                
-                // 添加採樣率和可檢測頻率
-                const nyquistFreq = samplingRate / 2;
-                html += `<p><strong>採樣率:</strong> ${samplingRate} Hz`;
-                html += ` (可檢測頻率上限: ${nyquistFreq} Hz)</p>`;
-                
-                // 添加頻率分辨率信息
-                const baseResolution = samplingRate / fullDataSet[currentAxis].length;
-                html += `<p><strong>基本頻率分辨率:</strong> ${baseResolution.toFixed(3)} Hz`;
-                
-                // 如果有FFT結果，添加精確分辨率
-                if (fftResults.effectiveResolution) {
-                    html += ` (優化後: ${fftResults.effectiveResolution.toFixed(4)} Hz)</p>`;
-                } else {
-                    html += `</p>`;
-                }
+                html += `<p><strong>總數據點數:</strong> ${parsedData.dataRows.length}</p>`;
+                html += `<p><strong>採樣率:</strong> ${samplingRate} Hz (可檢測頻率上限: ${samplingRate/2} Hz)</p>`;
                 
                 // 建立表格顯示統計信息
                 html += '<table style="width:100%; border-collapse:collapse; margin:10px 0;">';
@@ -1258,439 +1117,109 @@
                 });
             }
             
-            // 繪製波形圖（用於診斷）
-            function drawWaveformChart(data, samplingRate) {
-                const ctx = document.getElementById('waveformChart').getContext('2d');
-                
-                // 如果圖表已存在，則銷毀它
-                if (waveformChartInstance) {
-                    waveformChartInstance.destroy();
-                }
-                
-                // 只取一小段數據進行繪製，確保可以看到波形
-                const maxSamplesToDraw = 200; 
-                let sampleData;
-                
-                if (data.length > maxSamplesToDraw) {
-                    // 找到信號波動最大的一段數據
-                    let maxVariation = 0;
-                    let bestStartIndex = 0;
-                    
-                    for (let i = 0; i < data.length - maxSamplesToDraw; i += maxSamplesToDraw / 4) {
-                        const segment = data.slice(i, i + maxSamplesToDraw);
-                        const segmentMax = Math.max(...segment);
-                        const segmentMin = Math.min(...segment);
-                        const variation = segmentMax - segmentMin;
-                        
-                        if (variation > maxVariation) {
-                            maxVariation = variation;
-                            bestStartIndex = i;
-                        }
-                    }
-                    
-                    sampleData = data.slice(bestStartIndex, bestStartIndex + maxSamplesToDraw);
-                } else {
-                    sampleData = [...data];
-                }
-                
-                // 生成時間標籤
-                const timeLabels = sampleData.map((_, i) => (i / samplingRate).toFixed(4));
-                
-                // 生成波形插值點 - 100倍密度
-                const interpolationFactor = 100;
-                const interpolatedTimePoints = [];
-                const continuousWaveform = [];
-                
-                for (let i = 0; i < sampleData.length - 1; i++) {
-                    for (let j = 0; j < interpolationFactor; j++) {
-                        const t = i + j / interpolationFactor;
-                        interpolatedTimePoints.push(t / samplingRate);
-                        
-                        // 使用線性插值
-                        const alpha = j / interpolationFactor;
-                        const value = sampleData[i] * (1 - alpha) + sampleData[i + 1] * alpha;
-                        continuousWaveform.push(value);
-                    }
-                }
-                
-                // 創建新圖表
-                waveformChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: [
-                            {
-                                label: '連續波形（估計）',
-                                data: interpolatedTimePoints.map((x, i) => ({ x, y: continuousWaveform[i] })),
-                                borderColor: 'rgba(54, 162, 235, 0.5)',
-                                borderWidth: 1,
-                                pointRadius: 0,
-                                fill: false
-                            },
-                            {
-                                label: '採樣點',
-                                data: timeLabels.map((x, i) => ({ x: parseFloat(x), y: sampleData[i] })),
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
-                                showLine: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '波形採樣示意圖'
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const datasetLabel = context.dataset.label || '';
-                                        const value = context.parsed.y;
-                                        const time = context.parsed.x;
-                                        return `${datasetLabel}: ${value.toFixed(4)} @ ${time.toFixed(4)}秒`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                type: 'linear',
-                                title: {
-                                    display: true,
-                                    text: '時間 (秒)'
-                                },
-                                ticks: {
-                                    maxTicksLimit: 10
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: '數值'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // 應用窗函數
-            function applyWindowFunction(data, windowType) {
-                const N = data.length;
-                const windowed = new Array(N);
-                
-                switch (windowType) {
-                    case 'hamming':
-                        // 漢明窗 w(n) = 0.54 - 0.46 * cos(2πn/(N-1))
-                        for (let i = 0; i < N; i++) {
-                            windowed[i] = data[i] * (0.54 - 0.46 * Math.cos(2 * Math.PI * i / (N - 1)));
-                        }
-                        break;
-                    case 'blackman':
-                        // 布萊克曼窗 w(n) = 0.42 - 0.5 * cos(2πn/(N-1)) + 0.08 * cos(4πn/(N-1))
-                        for (let i = 0; i < N; i++) {
-                            windowed[i] = data[i] * (0.42 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)) + 0.08 * Math.cos(4 * Math.PI * i / (N - 1)));
-                        }
-                        break;
-                    case 'rectangular':
-                        // 矩形窗（不應用窗函數）
-                        windowed = [...data];
-                        break;
-                    case 'hann':
-                    default:
-                        // 漢寧窗 w(n) = 0.5 * (1 - cos(2πn/(N-1)))
-                        for (let i = 0; i < N; i++) {
-                            windowed[i] = data[i] * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)));
-                        }
-                        break;
-                }
-                
-                return windowed;
-            }
-            
-            // 決定最佳FFT窗口大小
-            function determineBestWindowSize(dataLength, userSpecified) {
-                if (userSpecified !== 'auto') {
-                    return parseInt(userSpecified);
-                }
-                
-                // 尋找最佳的窗口大小
-                // 盡量使用接近數據長度的2的冪次
-                const powerOfTwo = Math.floor(Math.log2(dataLength));
-                let bestSize = Math.pow(2, powerOfTwo);
-                
-                // 如果數據長度超過了2的冪次的1.5倍，則使用更大的窗口
-                if (dataLength > bestSize * 1.5 && powerOfTwo < 20) {
-                    bestSize = Math.pow(2, powerOfTwo + 1);
-                }
-                
-                return bestSize;
-            }
-            
-            // 分析頻率 - 優化FFT實現
-            function analyzeFrequency(data, samplingRate, windowSize, windowFunction, zeroPadding, interpolation, peakDetection) {
-                // 清除之前的診斷信息
-                let diagnostics = '';
-                
-                // 驗證數據
-                if (data.length < 8) {
-                    diagnostics += `警告: 數據點數過少 (${data.length}), 無法進行可靠的頻率分析\n`;
-                    fftDiagnostics.textContent = diagnostics;
-                    return;
-                }
-                
-                // 確定窗口大小
-                const actualWindowSize = determineBestWindowSize(data.length, windowSize);
-                diagnostics += `FFT窗口大小: ${actualWindowSize} 點`;
-                
-                // 如果需要截取數據
-                let processedData;
-                if (data.length > actualWindowSize) {
-                    // 使用中間部分的數據以避免開頭和結尾的數據質量問題
-                    const startIdx = Math.floor((data.length - actualWindowSize) / 2);
-                    processedData = data.slice(startIdx, startIdx + actualWindowSize);
-                    diagnostics += ` (使用了數據的中間 ${actualWindowSize}/${data.length} 點)\n`;
-                } else {
-                    processedData = [...data];
-                    if (data.length < actualWindowSize) {
-                        // 如果數據點不夠，填充0至窗口大小
-                        processedData = [...data, ...new Array(actualWindowSize - data.length).fill(0)];
-                        diagnostics += ` (數據不足, 已填充0至 ${actualWindowSize} 點)\n`;
-                    } else {
-                        diagnostics += ` (使用全部 ${data.length} 個數據點)\n`;
-                    }
-                }
-                
-                // 移除直流分量（平均值）
-                const mean = processedData.reduce((sum, val) => sum + val, 0) / processedData.length;
-                processedData = processedData.map(val => val - mean);
-                diagnostics += `移除平均值: ${mean.toFixed(6)}\n`;
-                
-                // 應用窗函數
-                processedData = applyWindowFunction(processedData, windowFunction);
-                diagnostics += `應用窗函數: ${windowFunction}\n`;
-                
-                // 如果開啟零填充
-                let paddedData = [...processedData];
-                let isPadded = false;
-                if (zeroPadding > 1) {
-                    const paddingLength = (processedData.length * zeroPadding) - processedData.length;
-                    paddedData = [...processedData, ...new Array(paddingLength).fill(0)];
-                    isPadded = true;
-                    diagnostics += `應用零填充: ${zeroPadding}倍 (${processedData.length} → ${paddedData.length} 點)\n`;
-                } else {
-                    diagnostics += `未應用零填充\n`;
-                }
+            // 分析頻率 - 改進的FFT算法
+            function analyzeFrequency(data, samplingRate) {
+                // 預處理數據 - 移除直流分量並應用窗函數
+                const processedData = preprocessData(data);
                 
                 // 計算FFT
-                const fftResult = computeFFT(paddedData);
+                const fftResult = computeFFT(processedData);
                 
                 // 計算頻率分辨率
-                const baseResolution = samplingRate / processedData.length;
-                const effectiveResolution = isPadded ? samplingRate / paddedData.length : baseResolution;
-                
-                diagnostics += `基本頻率分辨率: ${baseResolution.toFixed(4)} Hz\n`;
-                diagnostics += `有效頻率分辨率: ${effectiveResolution.toFixed(4)} Hz\n`;
+                const frequencyResolution = samplingRate / processedData.length;
                 
                 // 創建頻率數組
-                const frequencies = fftResult.map((amp, index) => ({
-                    freq: index * effectiveResolution,
-                    amp: amp,
-                    index: index
+                allFrequencies = fftResult.map((amp, index) => ({
+                    freq: index * frequencyResolution,
+                    amp: amp
                 }));
                 
                 // 去除0頻率(DC分量)，保留到奈奎斯特頻率
                 const nyquistFreq = samplingRate / 2;
-                let filteredFrequencies = frequencies.filter(f => f.freq > 0 && f.freq <= nyquistFreq);
+                allFrequencies = allFrequencies.filter(f => f.freq > 0 && f.freq <= nyquistFreq);
                 
-                // 檢測峰值
-                const peakThresholds = {
-                    'low': 0.3,    // 只檢測主要峰值
-                    'medium': 0.1, // 中等靈敏度
-                    'high': 0.05   // 高靈敏度
+                // 按幅度排序並獲取全局的頻率排名
+                const sortedIndices = [...allFrequencies].map((f, i) => i)
+                    .sort((a, b) => allFrequencies[b].amp - allFrequencies[a].amp);
+                
+                // 給每個頻率添加全局排名
+                const globalRankings = new Map();
+                sortedIndices.forEach((index, rank) => {
+                    globalRankings.set(index, rank);
+                });
+                
+                // 獲取前20個峰值頻率（全局）
+                const topPeaks = sortedIndices.slice(0, 20)
+                    .map(index => ({
+                        freq: allFrequencies[index].freq,
+                        amp: allFrequencies[index].amp,
+                        index: index
+                    }));
+                
+                // 計算相對強度（相對於最大峰值的百分比）
+                const maxAmp = topPeaks.length > 0 ? topPeaks[0].amp : 1;
+                topPeaks.forEach(peak => {
+                    peak.relativeStrength = (peak.amp / maxAmp) * 100;
+                });
+                
+                // 找到能量集中的頻率範圍
+                const totalEnergy = allFrequencies.reduce((sum, f) => sum + f.amp * f.amp, 0);
+                let cumulativeEnergy = 0;
+                let energyRanges = {
+                    '50%': 0,
+                    '75%': 0,
+                    '90%': 0,
+                    '95%': 0,
+                    '99%': 0
                 };
                 
-                const threshold = peakThresholds[peakDetection] || 0.1;
-                const peaks = detectPeaks(filteredFrequencies, threshold);
-                
-                // 應用頻率插值以提高精度
-                if (interpolation !== 'none') {
-                    diagnostics += `應用頻率插值: ${interpolation}\n`;
-                    peaks.forEach(peak => {
-                        // 使用二次或高斯插值提高頻率估計精度
-                        const interpolatedFreq = interpolatePeakFrequency(
-                            filteredFrequencies,
-                            peak.index,
-                            effectiveResolution,
-                            interpolation
-                        );
-                        peak.exactFreq = interpolatedFreq;
-                    });
+                // 計算不同能量百分比對應的頻率
+                for (let i = 0; i < allFrequencies.length; i++) {
+                    cumulativeEnergy += allFrequencies[i].amp * allFrequencies[i].amp;
+                    const energyPercent = (cumulativeEnergy / totalEnergy) * 100;
+                    
+                    if (energyPercent >= 50 && !energyRanges['50%']) 
+                        energyRanges['50%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 75 && !energyRanges['75%']) 
+                        energyRanges['75%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 90 && !energyRanges['90%']) 
+                        energyRanges['90%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 95 && !energyRanges['95%']) 
+                        energyRanges['95%'] = allFrequencies[i].freq;
+                    if (energyPercent >= 99 && !energyRanges['99%']) 
+                        energyRanges['99%'] = allFrequencies[i].freq;
                 }
-                
-                // 按幅度排序
-                peaks.sort((a, b) => b.amp - a.amp);
-                
-                // 計算相對強度
-                if (peaks.length > 0) {
-                    const maxAmp = peaks[0].amp;
-                    peaks.forEach(peak => {
-                        peak.relativeStrength = (peak.amp / maxAmp) * 100;
-                    });
-                }
-                
-                // 保存FFT結果用於其他地方引用
-                fftResults = {
-                    rawSpectrum: fftResult,
-                    frequencies: filteredFrequencies,
-                    peaks,
-                    fftSize: paddedData.length,
-                    zeroPadded: isPadded,
-                    windowFunction,
-                    frequencyResolution: baseResolution,
-                    effectiveResolution: effectiveResolution,
-                    diagnostics
-                };
-                
-                // 更新診斷信息
-                if (peaks.length > 0) {
-                    diagnostics += `檢測到的峰值數量: ${peaks.length}\n`;
-                    diagnostics += `最強峰值頻率: ${peaks[0].exactFreq ? peaks[0].exactFreq.toFixed(4) : peaks[0].freq.toFixed(4)} Hz (幅度: ${peaks[0].amp.toFixed(6)})\n`;
-                    
-                    // 添加子諧波和諧波分析
-                    const fundamentalFreq = peaks[0].exactFreq || peaks[0].freq;
-                    diagnostics += `\n可能的諧波關係:\n`;
-                    
-                    // 檢查前5個峰值是否有諧波關係
-                    for (let i = 0; i < Math.min(5, peaks.length); i++) {
-                        const peakFreq = peaks[i].exactFreq || peaks[i].freq;
-                        
-                        // 檢查是否為基頻的倍數或分數
-                        for (let n = 1; n <= 5; n++) {
-                            const harmonicFreq = fundamentalFreq * n;
-                            const subharmonicFreq = fundamentalFreq / n;
-                            
-                            // 計算與諧波的誤差百分比
-                            const harmonicError = Math.abs((peakFreq - harmonicFreq) / harmonicFreq) * 100;
-                            const subharmonicError = Math.abs((peakFreq - subharmonicFreq) / subharmonicFreq) * 100;
-                            
-                            // 如果誤差小於5%，則認為是諧波關係
-                            if (harmonicError < 5 && n > 1) {
-                                diagnostics += `- ${peakFreq.toFixed(2)} Hz 可能是 ${fundamentalFreq.toFixed(2)} Hz 的 ${n} 次諧波 (誤差: ${harmonicError.toFixed(2)}%)\n`;
-                            }
-                            if (subharmonicError < 5 && n > 1) {
-                                diagnostics += `- ${peakFreq.toFixed(2)} Hz 可能是 ${fundamentalFreq.toFixed(2)} Hz 的 1/${n} 子諧波 (誤差: ${subharmonicError.toFixed(2)}%)\n`;
-                            }
-                        }
-                    }
-                    
-                    // 如果最強峰值接近25Hz，而100Hz比較弱，可能是採樣問題
-                    const freq25Peak = peaks.find(p => Math.abs((p.exactFreq || p.freq) - 25) < 2);
-                    const freq100Peak = peaks.find(p => Math.abs((p.exactFreq || p.freq) - 100) < 2);
-                    
-                    if (freq25Peak && (!freq100Peak || freq25Peak.amp > freq100Peak.amp * 2)) {
-                        diagnostics += `\n注意: 檢測到強烈的25Hz信號，而100Hz信號較弱或不存在。\n`;
-                        diagnostics += `這可能是由於採樣率（${samplingRate}Hz）接近信號頻率的兩倍所導致的混疊或相位問題。\n`;
-                        diagnostics += `建議: 嘗試增加採樣率或收集更長時間的數據以提高頻率估計的準確性。\n`;
-                    }
-                    
-                    // 數據長度警告
-                    const minSamplesNeeded = samplingRate / 10; // 至少需要0.1秒的數據才能可靠檢測10Hz以上的頻率
-                    if (data.length < minSamplesNeeded) {
-                        diagnostics += `\n警告: 數據長度過短 (${data.length} 點)，可能不足以可靠檢測低於 ${(10).toFixed(1)} Hz 的頻率。\n`;
-                        diagnostics += `建議: 收集至少 ${Math.ceil(minSamplesNeeded)} 個數據點以獲得更可靠的結果。\n`;
-                    }
-                } else {
-                    diagnostics += `未檢測到顯著峰值，可能需要調整峰值檢測敏感度或增加數據長度。\n`;
-                }
-                
-                fftDiagnostics.textContent = diagnostics;
                 
                 // 顯示頻率信息
-                displayFrequencyInfo(peaks, effectiveResolution, samplingRate, nyquistFreq);
+                displayFrequencyInfo(topPeaks, energyRanges, frequencyResolution, samplingRate, nyquistFreq);
                 
                 // 顯示前5個最強頻率
-                showTopPeaks(peaks.slice(0, 5));
+                showTopPeaks(topPeaks.slice(0, 5));
                 
                 // 更新頻率圖表
-                updateFrequencyChart(filteredFrequencies, peaks);
+                updateFrequencyChart(globalRankings);
             }
             
-            // 峰值檢測函數
-            function detectPeaks(frequencies, threshold) {
-                const peaks = [];
-                const minPeakSpacing = 2; // 最小峰值間隔為2個bin
+            // 預處理數據
+            function preprocessData(data) {
+                const processedData = [...data];
                 
-                // 計算最大幅度以確定閾值
-                const maxAmp = Math.max(...frequencies.map(f => f.amp));
-                const minAmp = maxAmp * threshold;
-                
-                for (let i = 1; i < frequencies.length - 1; i++) {
-                    const prev = frequencies[i - 1].amp;
-                    const curr = frequencies[i].amp;
-                    const next = frequencies[i + 1].amp;
-                    
-                    // 檢查是否為局部最大值且高於閾值
-                    if (curr > prev && curr > next && curr > minAmp) {
-                        // 檢查是否與已有峰值太近
-                        const tooClose = peaks.some(peak => Math.abs(peak.index - frequencies[i].index) < minPeakSpacing);
-                        
-                        if (!tooClose) {
-                            peaks.push({
-                                freq: frequencies[i].freq,
-                                amp: frequencies[i].amp,
-                                index: frequencies[i].index
-                            });
-                        }
-                    }
+                // 移除直流分量（平均值）
+                const mean = processedData.reduce((sum, val) => sum + val, 0) / processedData.length;
+                for (let i = 0; i < processedData.length; i++) {
+                    processedData[i] -= mean;
                 }
                 
-                return peaks;
+                // 應用漢寧窗函數
+                const N = processedData.length;
+                for (let i = 0; i < N; i++) {
+                    processedData[i] *= (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)));
+                }
+                
+                return processedData;
             }
             
-            // 頻率插值函數（提高峰值頻率估計的精度）
-            function interpolatePeakFrequency(frequencies, peakIndex, resolution, method) {
-                // 確保我們有前後的點用於插值
-                if (peakIndex <= 0 || peakIndex >= frequencies.length - 1) {
-                    return frequencies[peakIndex].freq;
-                }
-                
-                const prevBin = frequencies[peakIndex - 1];
-                const peakBin = frequencies[peakIndex];
-                const nextBin = frequencies[peakIndex + 1];
-                
-                if (method === 'quadratic') {
-                    // 二次插值 (抛物線擬合)
-                    const alpha = prevBin.amp;
-                    const beta = peakBin.amp;
-                    const gamma = nextBin.amp;
-                    
-                    // 計算峰值位置的偏移量
-                    const p = 0.5 * (alpha - gamma) / (alpha - 2 * beta + gamma);
-                    
-                    // 加上偏移量到原始頻率
-                    return peakBin.freq + p * resolution;
-                } else if (method === 'gaussian') {
-                    // 對數高斯插值 (更高精度，適用於窗函數處理過的數據)
-                    const prevAmp = Math.log(Math.max(prevBin.amp, 1e-10));
-                    const peakAmp = Math.log(Math.max(peakBin.amp, 1e-10));
-                    const nextAmp = Math.log(Math.max(nextBin.amp, 1e-10));
-                    
-                    // 高斯擬合的峰值位置偏移量
-                    const p = 0.5 * (prevAmp - nextAmp) / (prevAmp - 2 * peakAmp + nextAmp);
-                    
-                    return peakBin.freq + p * resolution;
-                } else {
-                    // 不插值
-                    return peakBin.freq;
-                }
-            }
-            
-            // 計算FFT（離散傅立葉變換）- 更高精度的實現
+            // 計算FFT（離散傅立葉變換）- 更高效的實現
             function computeFFT(data) {
                 const n = data.length;
                 const spectrum = new Array(Math.floor(n / 2) + 1).fill(0);
@@ -1721,67 +1250,45 @@
             function showTopPeaks(top5Peaks) {
                 let html = '';
                 
-                if (top5Peaks.length === 0) {
-                    html = '<div class="top-peak-item">未檢測到顯著的頻率峰值</div>';
-                } else {
-                    top5Peaks.forEach((peak, index) => {
-                        const exactFreq = peak.exactFreq || peak.freq;
-                        html += `<div class="top-peak-item">
-                            ${index + 1}. ${exactFreq.toFixed(3)} Hz (強度: ${peak.amp.toFixed(6)})
-                        </div>`;
-                    });
-                }
+                top5Peaks.forEach((peak, index) => {
+                    html += `<div class="top-peak-item">
+                        ${index + 1}. ${peak.freq.toFixed(2)} Hz (強度: ${peak.amp.toFixed(6)})
+                    </div>`;
+                });
                 
                 topPeaksElement.innerHTML = html;
                 topPeaksContainer.style.display = 'block';
             }
             
             // 顯示頻率信息
-            function displayFrequencyInfo(peaks, resolution, samplingRate, nyquistFreq) {
+            function displayFrequencyInfo(topPeaks, energyRanges, resolution, samplingRate, nyquistFreq) {
                 // 更新頻率信息區域
                 let infoHtml = `
                     <h3>頻譜分析結果 (${currentAxis.toUpperCase()}軸)</h3>
                     <p><strong>數據信息：</strong> 採樣率 ${samplingRate} Hz, 頻率分辨率 ${resolution.toFixed(4)} Hz, 奈奎斯特頻率 ${nyquistFreq.toFixed(1)} Hz</p>
+                    <p><strong>能量分布：</strong></p>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>50% 能量集中在 0-${energyRanges['50%'].toFixed(2)} Hz</li>
+                        <li>75% 能量集中在 0-${energyRanges['75%'].toFixed(2)} Hz</li>
+                        <li>90% 能量集中在 0-${energyRanges['90%'].toFixed(2)} Hz</li>
+                        <li>95% 能量集中在 0-${energyRanges['95%'].toFixed(2)} Hz</li>
+                        <li>99% 能量集中在 0-${energyRanges['99%'].toFixed(2)} Hz</li>
+                    </ul>
+                    <p><strong>注意：</strong> 表格顯示按幅度排序的前20個頻率峰值，前5個用黃色標出。</p>
                 `;
-                
-                if (peaks.length > 0) {
-                    infoHtml += `<p><strong>最強頻率：</strong> ${(peaks[0].exactFreq || peaks[0].freq).toFixed(3)} Hz (幅度: ${peaks[0].amp.toFixed(6)})</p>`;
-                    
-                    // 檢查是否有100Hz附近的峰值（考慮頻率分辨率）
-                    const freq100 = peaks.find(p => Math.abs((p.exactFreq || p.freq) - 100) < resolution * 2);
-                    if (freq100) {
-                        const freq100Index = peaks.indexOf(freq100);
-                        infoHtml += `<p><strong>100Hz附近的頻率：</strong> ${(freq100.exactFreq || freq100.freq).toFixed(3)} Hz (幅度: ${freq100.amp.toFixed(6)}, 排名: ${freq100Index + 1})</p>`;
-                    } else {
-                        infoHtml += `<p><strong>100Hz附近未檢測到顯著頻率</strong></p>`;
-                    }
-                    
-                    // 檢查是否有25Hz附近的峰值
-                    const freq25 = peaks.find(p => Math.abs((p.exactFreq || p.freq) - 25) < resolution * 2);
-                    if (freq25) {
-                        const freq25Index = peaks.indexOf(freq25);
-                        infoHtml += `<p><strong>25Hz附近的頻率：</strong> ${(freq25.exactFreq || freq25.freq).toFixed(3)} Hz (幅度: ${freq25.amp.toFixed(6)}, 排名: ${freq25Index + 1})</p>`;
-                    }
-                } else {
-                    infoHtml += `<p><strong>未檢測到顯著的頻率峰值</strong> - 嘗試調整峰值檢測敏感度或增加數據長度</p>`;
-                }
-                
-                infoHtml += `<p><strong>注意：</strong> 表格顯示按幅度排序的頻率峰值，前5個用黃色標出。</p>`;
                 
                 frequencyInfoElement.innerHTML = infoHtml;
                 
                 // 更新峰值表格
                 peakTableBody.innerHTML = '';
-                peaks.forEach((peak, index) => {
+                topPeaks.forEach((peak, index) => {
                     const row = document.createElement('tr');
                     if (index < 5) {
                         row.className = 'peak-highlight';
                     }
-                    const exactFreq = peak.exactFreq || peak.freq;
                     row.innerHTML = `
                         <td>${index + 1}</td>
-                        <td>${peak.freq.toFixed(3)}</td>
-                        <td>${exactFreq.toFixed(3)}</td>
+                        <td>${peak.freq.toFixed(2)}</td>
                         <td>${peak.amp.toFixed(6)}</td>
                         <td>${peak.relativeStrength.toFixed(1)}%</td>
                     `;
@@ -1790,7 +1297,7 @@
             }
             
             // 更新頻率圖表
-            function updateFrequencyChart(frequencies, peaks) {
+            function updateFrequencyChart(globalRankings) {
                 const ctx = document.getElementById('frequencyChart').getContext('2d');
                 
                 // 如果圖表已存在，則銷毀它
@@ -1799,7 +1306,7 @@
                 }
                 
                 // 根據選擇的範圍篩選頻率
-                let displayFrequencies = [...frequencies];
+                let displayFrequencies = [...allFrequencies];
                 let maxFreq = Infinity;
                 let minFreq = currentMinFreq;
                 
@@ -1807,75 +1314,50 @@
                     maxFreq = parseFloat(currentMaxFreq);
                 }
                 
-                displayFrequencies = frequencies.filter(f => f.freq >= minFreq && f.freq <= maxFreq);
+                displayFrequencies = allFrequencies.filter(f => f.freq >= minFreq && f.freq <= maxFreq);
+                
+                // 獲取篩選後範圍內的前10個峰值
+                const localSortedIndices = [...displayFrequencies].map((f, i) => i)
+                    .sort((a, b) => displayFrequencies[b].amp - displayFrequencies[a].amp);
+                
+                const top10Local = localSortedIndices.slice(0, 10)
+                    .map(index => displayFrequencies[index].freq);
+                
+                // 獲取全局的前10個峰值頻率
+                const top10Global = [...allFrequencies].map((f, i) => ({ freq: f.freq, amp: f.amp, index: i }))
+                    .sort((a, b) => b.amp - a.amp)
+                    .slice(0, 10)
+                    .map(f => f.freq);
                 
                 // 如果數據點過多，進行抽樣
-                let sampledFrequencies = [...displayFrequencies];
                 const maxDataPoints = 2000;
+                let sampledFrequencies = [...displayFrequencies];
                 
                 if (displayFrequencies.length > maxDataPoints) {
-                    // 創建重要頻率點集合
-                    const importantFreqIndices = new Set();
-                    
-                    // 添加峰值索引到重要點
-                    peaks.forEach(peak => {
-                        for (let i = 0; i < displayFrequencies.length; i++) {
-                            if (Math.abs(displayFrequencies[i].freq - peak.freq) < 0.001) {
-                                importantFreqIndices.add(i);
-                                // 添加峰值附近的點也作為重要點
-                                for (let j = 1; j <= 2; j++) {
-                                    if (i - j >= 0) importantFreqIndices.add(i - j);
-                                    if (i + j < displayFrequencies.length) importantFreqIndices.add(i + j);
-                                }
-                                break;
-                            }
-                        }
-                    });
+                    // 確保保留重要的峰值
+                    const importantFreqs = new Set([...top10Local, ...top10Global.filter(f => f >= minFreq && f <= maxFreq)]);
                     
                     // 計算抽樣間隔
                     const skipFactor = Math.ceil(displayFrequencies.length / maxDataPoints);
                     
                     // 抽樣點 + 重要點
                     sampledFrequencies = displayFrequencies.filter((f, i) => {
-                        return importantFreqIndices.has(i) || i % skipFactor === 0;
+                        return importantFreqs.has(f.freq) || i % skipFactor === 0;
                     });
                     
                     // 確保點按頻率排序
                     sampledFrequencies.sort((a, b) => a.freq - b.freq);
                 }
                 
-                // 獲取峰值頻率用於標記
-                const peakFreqs = peaks.map(p => p.freq);
-                
                 // 準備顏色數組 - 標記峰值
                 const backgroundColor = sampledFrequencies.map(f => {
-                    const isPeak = peakFreqs.some(peakFreq => Math.abs(f.freq - peakFreq) < 0.001);
+                    // 檢查是否是前5個全局峰值
+                    const isTop5Global = top10Global.slice(0, 5).some(peakFreq => Math.abs(f.freq - peakFreq) < 0.001);
+                    const isTop10Global = !isTop5Global && top10Global.slice(5).some(peakFreq => Math.abs(f.freq - peakFreq) < 0.001);
                     
-                    // 找到匹配的峰值索引
-                    let peakIndex = -1;
-                    if (isPeak) {
-                        peakIndex = peaks.findIndex(p => Math.abs(p.freq - f.freq) < 0.001);
-                    }
-                    
-                    if (peakIndex >= 0 && peakIndex < 5) {
-                        // 前5個峰值用紅色
-                        return 'rgba(255, 99, 132, 0.8)';
-                    } else if (peakIndex >= 5 && peakIndex < 10) {
-                        // 6-10個峰值用橙色
-                        return 'rgba(255, 159, 64, 0.8)';
-                    } else if (peakIndex >= 0) {
-                        // 其他峰值用黃色
-                        return 'rgba(255, 205, 86, 0.8)';
-                    } else if (Math.abs(f.freq - 100) < 1) {
-                        // 標記100Hz附近的頻率為綠色
-                        return 'rgba(75, 192, 192, 0.8)';
-                    } else if (Math.abs(f.freq - 25) < 1) {
-                        // 標記25Hz附近的頻率為紫色
-                        return 'rgba(153, 102, 255, 0.8)';
-                    } else {
-                        // 其他點用藍色
-                        return 'rgba(54, 162, 235, 0.5)';
-                    }
+                    if (isTop5Global) return 'rgba(255, 99, 132, 0.8)'; // 紅色 - 前5個
+                    if (isTop10Global) return 'rgba(255, 159, 64, 0.8)'; // 橙色 - 6-10個
+                    return 'rgba(54, 162, 235, 0.5)'; // 藍色 - 其他
                 });
                 
                 // 設置頻譜圖標題
@@ -1894,7 +1376,7 @@
                 frequencyChartInstance = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: sampledFrequencies.map(f => f.freq.toFixed(2)),
+                        labels: sampledFrequencies.map(f => f.freq.toFixed(1)),
                         datasets: [{
                             label: '頻譜幅度',
                             data: sampledFrequencies.map(f => f.amp),
@@ -1916,27 +1398,12 @@
                                         return `頻率: ${tooltipItems[0].label} Hz`;
                                     },
                                     label: function(context) {
-                                        // 檢查是否為峰值
-                                        const isPeak = peakFreqs.some(peakFreq => 
-                                            Math.abs(parseFloat(context.label) - peakFreq) < 0.001);
+                                        const isTop5 = backgroundColor[context.dataIndex] === 'rgba(255, 99, 132, 0.8)';
+                                        const isTop10 = backgroundColor[context.dataIndex] === 'rgba(255, 159, 64, 0.8)';
                                         
-                                        let peakIndex = -1;
-                                        if (isPeak) {
-                                            peakIndex = peaks.findIndex(p => 
-                                                Math.abs(p.freq - parseFloat(context.label)) < 0.001);
-                                        }
-                                        
-                                        let labelText = `幅度: ${context.raw.toFixed(6)}`;
-                                        
-                                        if (peakIndex >= 0 && peakIndex < 5) {
-                                            const peak = peaks[peakIndex];
-                                            const exactFreq = peak.exactFreq || peak.freq;
-                                            labelText += ` (排名 ${peakIndex + 1}, 精確頻率: ${exactFreq.toFixed(3)} Hz)`;
-                                        } else if (peakIndex >= 0) {
-                                            labelText += ` (排名 ${peakIndex + 1})`;
-                                        }
-                                        
-                                        return labelText;
+                                        if (isTop5) return `幅度: ${context.raw.toFixed(6)} (前5大頻率)`;
+                                        if (isTop10) return `幅度: ${context.raw.toFixed(6)} (前10大頻率)`;
+                                        return `幅度: ${context.raw.toFixed(6)}`;
                                     }
                                 }
                             }
