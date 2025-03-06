@@ -70,6 +70,7 @@ button {
     font-size: 16px;
     transition: background-color 0.3s;
     margin-right: 10px;
+    margin-bottom: 10px;
 }
 
 button:hover {
@@ -91,6 +92,12 @@ button:disabled {
     flex: 1;
     min-width: 400px;
     margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .viz-container {
+        min-width: 100%;
+    }
 }
 
 .result-section {
@@ -149,7 +156,73 @@ th {
     position: relative;
 }
 
-/* 新增：波形預覽與選擇區域樣式 */
+/* 錄音相關樣式 */
+.record-option {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.record-button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.record-button {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px;
+}
+
+.record-button.start {
+    background-color: #e74c3c;
+}
+
+.record-button.start:hover {
+    background-color: #c0392b;
+}
+
+.record-button.stop {
+    background-color: #7f8c8d;
+}
+
+.record-button.stop:hover {
+    background-color: #636e72;
+}
+
+.record-button.use {
+    background-color: #27ae60;
+}
+
+.record-button.use:hover {
+    background-color: #2ecc71;
+}
+
+.record-info {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.record-timer {
+    font-weight: bold;
+}
+
+.record-visualization {
+    width: 100%;
+    height: 60px;
+    background-color: #000;
+    border-radius: 5px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 波形預覽與選擇區域樣式 */
 .preview-container {
     margin-top: 20px;
     padding: 10px;
@@ -183,8 +256,25 @@ th {
 
 .slider-container {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     margin: 10px 0;
+}
+
+@media (max-width: 768px) {
+    .slider-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .slider-container .slider {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .slider-container .time-display {
+        margin: 5px 0;
+    }
 }
 
 .time-display {
@@ -207,6 +297,37 @@ input[type="range"] {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+}
+
+.tab-container {
+    margin-bottom: 15px;
+}
+
+.tab-button {
+    border: none;
+    background-color: #f2f2f2;
+    padding: 10px 20px;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin-right: 5px;
+}
+
+.tab-button.active {
+    background-color: #3498db;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 0 5px 5px 5px;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 .debug-info {
@@ -240,6 +361,51 @@ input[type="range"] {
     font-style: italic;
     margin-top: 5px;
 }
+
+.mobile-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 24px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    h3 {
+        font-size: 18px;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+    
+    button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .analyze-button-container button {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+}
+
+.tab-indicator {
+    background-color: #2ecc71;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    margin-left: 5px;
+}
 </style>
 </head>
 <body>
@@ -249,8 +415,8 @@ input[type="range"] {
         <h2>實驗原理說明</h2>
         <p>此工具用於分析物體的自然頻率。使用方法：</p>
         <ol>
-            <li>上傳第一個音檔：純桌面被敲擊的聲音</li>
-            <li>上傳第二個音檔：待測物體放在桌面上被敲擊的聲音</li>
+            <li>上傳第一個音檔：純桌面被敲擊的聲音（也可直接錄製）</li>
+            <li>上傳第二個音檔：待測物體放在桌面上被敲擊的聲音（也可直接錄製）</li>
             <li>選擇每個音檔中要分析的波形區段</li>
             <li>點擊「分析選定範圍」按鈕進行處理</li>
         </ol>
@@ -258,35 +424,73 @@ input[type="range"] {
     </div>
     
     <div class="container">
-        <h2>上傳音檔</h2>
-        <div class="file-upload">
-            <div class="upload-box">
-                <label class="upload-label" for="file1">
-                    上傳第一個音檔（純桌面）
-                    <br><br>
-                    <i class="fas fa-cloud-upload-alt" style="font-size: 24px;"></i>
-                    <br><br>
-                    點擊或拖放文件到此處
-                </label>
-                <input type="file" id="file1" accept="audio/*">
-                <p class="file-name" id="fileName1"></p>
+        <h2>音頻錄製或上傳</h2>
+        
+        <div class="tab-container">
+            <button class="tab-button active" data-target="upload1">上傳檔案</button>
+            <button class="tab-button" data-target="record1">錄製音頻</button>
+        </div>
+        
+        <div class="tab-content active" id="upload1">
+            <div class="file-upload">
+                <div class="upload-box">
+                    <label class="upload-label" for="file1">
+                        上傳第一個音檔（純桌面）
+                        <br><br>
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 24px;"></i>
+                        <br><br>
+                        點擊或拖放文件到此處
+                    </label>
+                    <input type="file" id="file1" accept="audio/*">
+                    <p class="file-name" id="fileName1"></p>
+                </div>
+                
+                <div class="upload-box">
+                    <label class="upload-label" for="file2">
+                        上傳第二個音檔（物體+桌面）
+                        <br><br>
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 24px;"></i>
+                        <br><br>
+                        點擊或拖放文件到此處
+                    </label>
+                    <input type="file" id="file2" accept="audio/*">
+                    <p class="file-name" id="fileName2"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="record1">
+            <div class="record-option">
+                <h3>錄製第一個音檔（純桌面）<span id="recordStatus1" class="status-message"></span></h3>
+                <div class="record-button-container">
+                    <button id="startRecord1" class="record-button start">開始錄音</button>
+                    <button id="stopRecord1" class="record-button stop" disabled>停止錄音</button>
+                    <button id="playRecorded1" class="record-button" disabled>播放錄音</button>
+                    <button id="useRecording1" class="record-button use" disabled>使用此錄音</button>
+                </div>
+                <div class="record-info">
+                    <p>錄音時間: <span id="recordTime1" class="record-timer">00:00</span></p>
+                </div>
+                <div class="record-visualization" id="recordVisual1"></div>
             </div>
             
-            <div class="upload-box">
-                <label class="upload-label" for="file2">
-                    上傳第二個音檔（物體+桌面）
-                    <br><br>
-                    <i class="fas fa-cloud-upload-alt" style="font-size: 24px;"></i>
-                    <br><br>
-                    點擊或拖放文件到此處
-                </label>
-                <input type="file" id="file2" accept="audio/*">
-                <p class="file-name" id="fileName2"></p>
+            <div class="record-option">
+                <h3>錄製第二個音檔（物體+桌面）<span id="recordStatus2" class="status-message"></span></h3>
+                <div class="record-button-container">
+                    <button id="startRecord2" class="record-button start">開始錄音</button>
+                    <button id="stopRecord2" class="record-button stop" disabled>停止錄音</button>
+                    <button id="playRecorded2" class="record-button" disabled>播放錄音</button>
+                    <button id="useRecording2" class="record-button use" disabled>使用此錄音</button>
+                </div>
+                <div class="record-info">
+                    <p>錄音時間: <span id="recordTime2" class="record-timer">00:00</span></p>
+                </div>
+                <div class="record-visualization" id="recordVisual2"></div>
             </div>
         </div>
     </div>
     
-    <!-- 新增：波形預覽與範圍選擇區域 -->
+    <!-- 波形預覽與範圍選擇區域 -->
     <div class="container" id="previewContainer" style="display:none;">
         <h2>波形預覽與範圍選擇</h2>
         <p>請在下方波形圖上選擇要分析的時間範圍：</p>
@@ -347,6 +551,7 @@ input[type="range"] {
     <div class="container" id="resultsContainer" style="display:none;">
         <h2>分析結果</h2>
         
+        <div class="mobile-responsive">
         <div class="visualizations">
             <div class="viz-container">
                 <h3>波形圖</h3>
@@ -397,6 +602,7 @@ input[type="range"] {
                 </table>
             </div>
         </div>
+        </div>
     </div>
     
     <div class="container">
@@ -434,16 +640,7 @@ input[type="range"] {
                     <li>結合振幅比例和置信度，優先關注「高」和「非常高」置信度的頻率</li>
                 </ul>
             </li>
-            <li><strong>特殊應用建議</strong>：
-                <ul>
-                    <li>測試音樂器材（如鼓、木琴、鐘）的音色特性</li>
-                    <li>分析建築材料或結構部件的共振特性</li>
-                    <li>進行聲學材料的比較研究</li>
-                    <li>探索不同液體容器的聲學特性</li>
-                </ul>
-            </li>
         </ul>
-        <p>此工具使用Web Audio API進行音頻處理，並使用自適應演算法識別物體的自然頻率，適用於各種類型的物體和材料。</p>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -466,6 +663,24 @@ let selectedRange2 = { start: 0, end: 1 };
 let zoom1 = { start: 0, end: 1 };
 let zoom2 = { start: 0, end: 1 };
 
+// 錄音相關變量
+let mediaRecorder1 = null;
+let mediaRecorder2 = null;
+let recordedChunks1 = [];
+let recordedChunks2 = [];
+let recordingStream1 = null;
+let recordingStream2 = null;
+let recordingStartTime1 = 0;
+let recordingStartTime2 = 0;
+let recordingTimer1 = null;
+let recordingTimer2 = null;
+let recordedBlob1 = null;
+let recordedBlob2 = null;
+let visualizer1 = null;
+let visualizer2 = null;
+let recording1Ready = false;
+let recording2Ready = false;
+
 // 初始化頁面
 document.addEventListener('DOMContentLoaded', function() {
     console.log("初始化頁面");
@@ -477,6 +692,14 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) {
         alert('您的瀏覽器不支持Web Audio API。請使用Chrome、Firefox、Safari或Edge的最新版本。');
     }
+    
+    // 檢查瀏覽器是否支持MediaRecorder API
+    if (!window.MediaRecorder) {
+        document.getElementById('record1').innerHTML = '<p>您的瀏覽器不支持錄音功能。請使用Chrome、Firefox、Safari或Edge的最新版本。</p>';
+    }
+    
+    // 設置標籤頁切換
+    setupTabs();
     
     // 文件上傳事件處理
     document.getElementById('file1').addEventListener('change', function(e) {
@@ -490,6 +713,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // 拖放事件
     setupDragAndDrop('file1', 'fileName1');
     setupDragAndDrop('file2', 'fileName2');
+    
+    // 錄音事件處理
+    setupRecording(1);
+    setupRecording(2);
     
     // 分析按鈕事件
     const analyzeBtn = document.getElementById('analyzeBtn');
@@ -528,8 +755,390 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 確保初始狀態下分析按鈕是禁用的
     analyzeBtn.disabled = true;
-    updateStatusMessage("請上傳兩個音檔後再進行分析");
+    updateStatusMessage("請上傳或錄製兩個音檔後再進行分析");
 });
+
+// 設置標籤頁切換
+function setupTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // 取得目標標籤頁ID
+            const targetId = this.getAttribute('data-target');
+            
+            // 移除所有標籤頁按鈕的active類
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 隱藏所有標籤頁內容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 添加當前按鈕的active類
+            this.classList.add('active');
+            
+            // 顯示目標標籤頁內容
+            document.getElementById(targetId).classList.add('active');
+        });
+    });
+}
+
+// 設置錄音功能
+function setupRecording(fileNumber) {
+    const startButton = document.getElementById(`startRecord${fileNumber}`);
+    const stopButton = document.getElementById(`stopRecord${fileNumber}`);
+    const playButton = document.getElementById(`playRecorded${fileNumber}`);
+    const useButton = document.getElementById(`useRecording${fileNumber}`);
+    const statusDisplay = document.getElementById(`recordStatus${fileNumber}`);
+    const timerDisplay = document.getElementById(`recordTime${fileNumber}`);
+    const visualizerContainer = document.getElementById(`recordVisual${fileNumber}`);
+    
+    // 開始錄音按鈕事件
+    startButton.addEventListener('click', function() {
+        startRecording(fileNumber);
+    });
+    
+    // 停止錄音按鈕事件
+    stopButton.addEventListener('click', function() {
+        stopRecording(fileNumber);
+    });
+    
+    // 播放錄音按鈕事件
+    playButton.addEventListener('click', function() {
+        playRecording(fileNumber);
+    });
+    
+    // 使用錄音按鈕事件
+    useButton.addEventListener('click', function() {
+        useRecording(fileNumber);
+    });
+}
+
+// 開始錄音
+async function startRecording(fileNumber) {
+    try {
+        // 請求麥克風權限
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        // 恢復AudioContext（解決移動設備上的問題）
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+        }
+        
+        // 設置錄音器
+        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        
+        // 存儲全局變量
+        if (fileNumber === 1) {
+            recordedChunks1 = [];
+            recordingStream1 = stream;
+            mediaRecorder1 = recorder;
+            recordingStartTime1 = Date.now();
+            
+            // 創建可視化
+            visualizer1 = createVisualizer(stream, 'recordVisual1');
+            
+            // 啟動計時器
+            startTimer(fileNumber);
+            
+            // 更新狀態
+            document.getElementById('recordStatus1').textContent = "正在錄音...";
+            document.getElementById('startRecord1').disabled = true;
+            document.getElementById('stopRecord1').disabled = false;
+            document.getElementById('playRecorded1').disabled = true;
+            document.getElementById('useRecording1').disabled = true;
+        } else {
+            recordedChunks2 = [];
+            recordingStream2 = stream;
+            mediaRecorder2 = recorder;
+            recordingStartTime2 = Date.now();
+            
+            // 創建可視化
+            visualizer2 = createVisualizer(stream, 'recordVisual2');
+            
+            // 啟動計時器
+            startTimer(fileNumber);
+            
+            // 更新狀態
+            document.getElementById('recordStatus2').textContent = "正在錄音...";
+            document.getElementById('startRecord2').disabled = true;
+            document.getElementById('stopRecord2').disabled = false;
+            document.getElementById('playRecorded2').disabled = true;
+            document.getElementById('useRecording2').disabled = true;
+        }
+        
+        // 設置數據處理事件
+        recorder.ondataavailable = function(e) {
+            if (e.data.size > 0) {
+                if (fileNumber === 1) {
+                    recordedChunks1.push(e.data);
+                } else {
+                    recordedChunks2.push(e.data);
+                }
+            }
+        };
+        
+        // 錄音結束事件
+        recorder.onstop = function() {
+            if (fileNumber === 1) {
+                // 停止流和可視化
+                stopMediaTracks(recordingStream1);
+                if (visualizer1) {
+                    visualizer1.disconnect();
+                }
+                
+                // 停止計時器
+                clearInterval(recordingTimer1);
+                
+                // 創建音頻Blob
+                recordedBlob1 = new Blob(recordedChunks1, { type: 'audio/webm' });
+                
+                // 更新狀態
+                document.getElementById('recordStatus1').textContent = "錄音完成";
+                document.getElementById('startRecord1').disabled = false;
+                document.getElementById('stopRecord1').disabled = true;
+                document.getElementById('playRecorded1').disabled = false;
+                document.getElementById('useRecording1').disabled = false;
+                
+                recording1Ready = true;
+            } else {
+                // 停止流和可視化
+                stopMediaTracks(recordingStream2);
+                if (visualizer2) {
+                    visualizer2.disconnect();
+                }
+                
+                // 停止計時器
+                clearInterval(recordingTimer2);
+                
+                // 創建音頻Blob
+                recordedBlob2 = new Blob(recordedChunks2, { type: 'audio/webm' });
+                
+                // 更新狀態
+                document.getElementById('recordStatus2').textContent = "錄音完成";
+                document.getElementById('startRecord2').disabled = false;
+                document.getElementById('stopRecord2').disabled = true;
+                document.getElementById('playRecorded2').disabled = false;
+                document.getElementById('useRecording2').disabled = false;
+                
+                recording2Ready = true;
+            }
+        };
+        
+        // 開始錄音，每100毫秒獲取一次數據
+        recorder.start(100);
+        
+    } catch (error) {
+        console.error(`錄音時發生錯誤 (音檔${fileNumber}):`, error);
+        alert(`無法訪問麥克風，請確保已授予權限。錯誤: ${error.message}`);
+        
+        // 重設按鈕狀態
+        if (fileNumber === 1) {
+            document.getElementById('startRecord1').disabled = false;
+            document.getElementById('stopRecord1').disabled = true;
+            document.getElementById('recordStatus1').textContent = "錄音失敗";
+        } else {
+            document.getElementById('startRecord2').disabled = false;
+            document.getElementById('stopRecord2').disabled = true;
+            document.getElementById('recordStatus2').textContent = "錄音失敗";
+        }
+    }
+}
+
+// 停止錄音
+function stopRecording(fileNumber) {
+    if (fileNumber === 1 && mediaRecorder1 && mediaRecorder1.state !== 'inactive') {
+        mediaRecorder1.stop();
+    } else if (fileNumber === 2 && mediaRecorder2 && mediaRecorder2.state !== 'inactive') {
+        mediaRecorder2.stop();
+    }
+}
+
+// 播放錄音
+function playRecording(fileNumber) {
+    const blob = fileNumber === 1 ? recordedBlob1 : recordedBlob2;
+    
+    if (!blob) {
+        console.error(`沒有可用的錄音 (音檔${fileNumber})`);
+        return;
+    }
+    
+    // 創建音頻元素播放
+    const audioURL = URL.createObjectURL(blob);
+    const audio = new Audio(audioURL);
+    audio.play();
+    
+    // 播放完成後釋放URL
+    audio.onended = function() {
+        URL.revokeObjectURL(audioURL);
+    };
+}
+
+// 使用錄音作為音頻源
+async function useRecording(fileNumber) {
+    const blob = fileNumber === 1 ? recordedBlob1 : recordedBlob2;
+    
+    if (!blob) {
+        console.error(`沒有可用的錄音 (音檔${fileNumber})`);
+        return;
+    }
+    
+    try {
+        // 將Blob轉換為ArrayBuffer
+        const arrayBuffer = await blob.arrayBuffer();
+        
+        // 處理錄音數據
+        if (fileNumber === 1) {
+            file1Data = arrayBuffer;
+            document.getElementById('fileName1').textContent = "已錄製的音頻";
+        } else {
+            file2Data = arrayBuffer;
+            document.getElementById('fileName2').textContent = "已錄製的音頻";
+        }
+        
+        // 解碼並預覽
+        await decodeAndPreview(arrayBuffer, fileNumber);
+        
+        // 更新狀態
+        if (fileNumber === 1) {
+            document.getElementById('recordStatus1').textContent = "已使用此錄音";
+            
+            // 在標籤頁按鈕上添加指示器
+            const tabButton = document.querySelector(`.tab-button[data-target="upload1"]`);
+            if (tabButton) {
+                if (!tabButton.querySelector('.tab-indicator')) {
+                    const indicator = document.createElement('span');
+                    indicator.className = 'tab-indicator';
+                    indicator.textContent = '✓';
+                    tabButton.appendChild(indicator);
+                }
+            }
+        } else {
+            document.getElementById('recordStatus2').textContent = "已使用此錄音";
+        }
+        
+    } catch (error) {
+        console.error(`處理錄音時發生錯誤 (音檔${fileNumber}):`, error);
+        alert(`無法處理錄音。錯誤: ${error.message}`);
+    }
+}
+
+// 啟動錄音計時器
+function startTimer(fileNumber) {
+    const timerDisplay = document.getElementById(`recordTime${fileNumber}`);
+    const startTime = Date.now();
+    
+    if (fileNumber === 1) {
+        // 清除舊計時器
+        if (recordingTimer1) {
+            clearInterval(recordingTimer1);
+        }
+        
+        // 設置新計時器
+        recordingTimer1 = setInterval(function() {
+            const elapsedTime = Date.now() - startTime;
+            const seconds = Math.floor(elapsedTime / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    } else {
+        // 清除舊計時器
+        if (recordingTimer2) {
+            clearInterval(recordingTimer2);
+        }
+        
+        // 設置新計時器
+        recordingTimer2 = setInterval(function() {
+            const elapsedTime = Date.now() - startTime;
+            const seconds = Math.floor(elapsedTime / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+}
+
+// 停止媒體軌道
+function stopMediaTracks(stream) {
+    if (stream) {
+        stream.getTracks().forEach(track => {
+            track.stop();
+        });
+    }
+}
+
+// 創建音頻可視化
+function createVisualizer(stream, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return null;
+    
+    try {
+        // 清空容器
+        container.innerHTML = '';
+        
+        // 創建畫布
+        const canvas = document.createElement('canvas');
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        container.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        
+        // 創建音頻分析器
+        const audioSource = audioContext.createMediaStreamSource(stream);
+        const analyzer = audioContext.createAnalyser();
+        analyzer.fftSize = 256;
+        
+        audioSource.connect(analyzer);
+        
+        const bufferLength = analyzer.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        // 動畫函數
+        function draw() {
+            // 獲取畫布尺寸（可能已更改）
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            requestAnimationFrame(draw);
+            
+            analyzer.getByteFrequencyData(dataArray);
+            
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * canvas.height;
+                
+                // 根據頻率設置顏色漸變
+                const r = 50 + (i * 2);
+                const g = 50 + (i * 1);
+                const b = 200;
+                
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                
+                x += barWidth + 1;
+            }
+        }
+        
+        draw();
+        
+        return audioSource;
+    } catch (error) {
+        console.error('創建可視化時發生錯誤:', error);
+        return null;
+    }
+}
 
 // 更新狀態消息
 function updateStatusMessage(message) {
@@ -552,6 +1161,17 @@ function handleFileUpload(event, fileId, fileNameId) {
         if (fileId === 'file1') {
             file1Data = e.target.result;
             decodeAndPreview(file1Data, 1);
+            
+            // 在標籤頁按鈕上添加指示器
+            const tabButton = document.querySelector(`.tab-button[data-target="upload1"]`);
+            if (tabButton) {
+                if (!tabButton.querySelector('.tab-indicator')) {
+                    const indicator = document.createElement('span');
+                    indicator.className = 'tab-indicator';
+                    indicator.textContent = '✓';
+                    tabButton.appendChild(indicator);
+                }
+            }
         } else {
             file2Data = e.target.result;
             decodeAndPreview(file2Data, 2);
@@ -595,6 +1215,17 @@ function setupDragAndDrop(fileId, fileNameId) {
                 if (fileId === 'file1') {
                     file1Data = event.target.result;
                     decodeAndPreview(file1Data, 1);
+                    
+                    // 在標籤頁按鈕上添加指示器
+                    const tabButton = document.querySelector(`.tab-button[data-target="upload1"]`);
+                    if (tabButton) {
+                        if (!tabButton.querySelector('.tab-indicator')) {
+                            const indicator = document.createElement('span');
+                            indicator.className = 'tab-indicator';
+                            indicator.textContent = '✓';
+                            tabButton.appendChild(indicator);
+                        }
+                    }
                 } else {
                     file2Data = event.target.result;
                     decodeAndPreview(file2Data, 2);
@@ -1648,102 +2279,3 @@ function identifyNaturalFrequencies(fftData1, fftData2, psdData1, psdData2) {
     }
     
     // 避免報告過多頻率，自適應選擇最顯著的峰值
-    naturalFrequencies.sort((a, b) => {
-        // 首先按照幅值和置信度的組合排序
-        const aScore = a.magnitude * getConfidenceScore(a.confidence);
-        const bScore = b.magnitude * getConfidenceScore(b.confidence);
-        return bScore - aScore;
-    });
-    
-    // 取前15個最顯著的峰值
-    const significantFreqs = naturalFrequencies.slice(0, 15);
-    
-    // 按頻率排序用於顯示
-    significantFreqs.sort((a, b) => parseFloat(a.frequency) - parseFloat(b.frequency));
-    
-    // 移除過於接近的頻率，視為同一峰值的不同表現
-    const uniqueFrequencies = [];
-    for (let i = 0; i < significantFreqs.length; i++) {
-        if (i === 0) {
-            uniqueFrequencies.push(significantFreqs[i]);
-        } else {
-            const prevFreq = parseFloat(uniqueFrequencies[uniqueFrequencies.length - 1].frequency);
-            const currFreq = parseFloat(significantFreqs[i].frequency);
-            
-            // 自適應頻率合併閾值 - 對於高頻允許更大的差距
-            const mergeThreshold = Math.min(20, 5 + currFreq / 500);
-            
-            // 如果當前頻率與上一個的差距小於閾值
-            if (Math.abs(currFreq - prevFreq) <= mergeThreshold) {
-                // 保留振幅更大或置信度更高的頻率
-                const curr = significantFreqs[i];
-                const prev = uniqueFrequencies[uniqueFrequencies.length - 1];
-                
-                const currScore = curr.magnitude * getConfidenceScore(curr.confidence);
-                const prevScore = prev.magnitude * getConfidenceScore(prev.confidence);
-                
-                if (currScore > prevScore) {
-                    uniqueFrequencies.pop();
-                    uniqueFrequencies.push(curr);
-                }
-            } else {
-                uniqueFrequencies.push(significantFreqs[i]);
-            }
-        }
-    }
-    
-    // 將結果顯示在表格中
-    const tableBody = document.getElementById('frequencyTableBody');
-    tableBody.innerHTML = '';
-    
-    if (uniqueFrequencies.length === 0) {
-        const row = document.createElement('tr');
-        const cell = document.createElement('td');
-        cell.colSpan = 3;
-        cell.textContent = '未檢測到明顯的自然頻率。';
-        cell.style.textAlign = 'center';
-        row.appendChild(cell);
-        tableBody.appendChild(row);
-    } else {
-        uniqueFrequencies.forEach(freq => {
-            const row = document.createElement('tr');
-            
-            const freqCell = document.createElement('td');
-            freqCell.textContent = freq.frequency + ' Hz';
-            
-            const ratioCell = document.createElement('td');
-            ratioCell.textContent = freq.amplitudeRatio;
-            
-            const confCell = document.createElement('td');
-            confCell.textContent = freq.confidence;
-            
-            // 根據置信度設置行樣式
-            if (freq.confidence === "非常高") {
-                row.style.fontWeight = 'bold';
-                row.style.backgroundColor = '#d4edda';
-            } else if (freq.confidence === "高") {
-                row.style.fontWeight = 'bold';
-            }
-            
-            row.appendChild(freqCell);
-            row.appendChild(ratioCell);
-            row.appendChild(confCell);
-            
-            tableBody.appendChild(row);
-        });
-    }
-    
-    // 輔助函數：獲取置信度分數
-    function getConfidenceScore(confidence) {
-        switch (confidence) {
-            case "非常高": return 4;
-            case "高": return 3;
-            case "中": return 2;
-            case "低": return 1;
-            default: return 0.5;
-        }
-    }
-}
-    </script>    
-</body>
-</html>
