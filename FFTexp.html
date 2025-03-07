@@ -2761,40 +2761,58 @@ function prepareAIPrompt(resultFrequencies, fftData1, fftData2, psdData1, psdDat
     // 添加結果數據
     prompt += `\n\n已識別的可能自然頻率：\n${JSON.stringify(resultFrequencies, null, 2)}\n\n`;
     
-    // 添加分析請求
+    // 添加分析請求 - 僅要求表格分析，移除分析總結部分
     prompt += `請根據以上數據分析：
 1. 用純數字百分比表示可信度 (例如：95%)
-2. 每個自然頻率提供簡短說明，包含以下信息：
+2. 每個自然頻率提供詳細說明，包含以下信息：
    - 此頻率在FFT中表現（是否為顯著峰值）
    - 此頻率在PSD中是否得到確認
    - 此頻率相較於純桌面敲擊時是否顯著增強（如果有兩個音檔）
-3. 最後提供一段淺顯易懂的分析總結，解釋：
-   - 這些自然頻率代表什麼物理含義
-   - 根據結果有何推論（物體可能是什麼材質、形狀等）
-   - 測試結果的整體可靠性評估
-   - 簡單說明可信度百分比的計算方式
+   - 為何此頻率可能是物體的自然頻率的具體理由
 
 回應格式：
-1. 繁體中文表格，包含頻率、可信度(%)和說明，請依可信度百分比由高至低排序
-2. 淺顯易懂的分析總結 (包含可信度計算方式的簡要說明)`;
+- 僅提供繁體中文表格，包含頻率、可信度(%)和說明，請依可信度百分比由高至低排序
+- 表格下方不需要提供額外的分析總結`;
 
     return prompt;
 }
 
-// 修改 formatTableResponse 函數以正確顯示百分比並依照可信度排序
+PR// 簡化並修正 formatTableResponse 函數，解決堆疊溢出問題
 function formatTableResponse(text) {
-    // 提取表格部分
-    const tableMatch = text.match(/\|\s*頻率[\s\S]*?(?=\n\n|$)/);
-    const summaryMatch = text.match(/(?:分析總結|總結分析|總結).+(?:\n.+)*/g);
-    
-    let htmlContent = `<div class="ai-analysis-title">物體自然頻率分析結果</div>`;
-    
-    // 處理表格部分
-    if (tableMatch) {
-        const tableContent = tableMatch[0];
+    try {
+        // 提取表格部分，使用更簡單的方法
+        let tableContent = '';
+        const lines = text.split('\n');
+        let tableStarted = false;
+        let tableEnded = false;
         
-        // 轉換Markdown表格為HTML表格
+        // 安全地提取表格行
+        for (const line of lines) {
+            if (line.trim().startsWith('|') && line.includes('頻率')) {
+                tableStarted = true;
+                tableContent += line + '\n';
+            } else if (tableStarted && line.trim().startsWith('|')) {
+                tableContent += line + '\n';
+            } else if (tableStarted && !line.trim().startsWith('|') && line.trim().length > 0) {
+                tableEnded = true;
+                break;
+            }
+        }
+        
+        // 如果沒有找到表格，返回簡單的消息
+        if (!tableStarted || tableContent.trim() === '') {
+            return `<div class="ai-analysis-title">物體自然頻率分析結果</div><p>無法解析分析結果，請重試。</p>`;
+        }
+        
+        let htmlContent = `<div class="ai-analysis-title">物體自然頻率分析結果</div>`;
+        
+        // 解析表格
         const rows = tableContent.split('\n').filter(row => row.trim().length > 0);
+        
+        // 確保有足夠的行來處理
+        if (rows.length < 2) {
+            return htmlContent + `<p>表格數據不完整，請重試。</p>`;
+        }
         
         let htmlTable = `
             <table class="natural-freq-table" style="width:100%; border-collapse:collapse; margin:20px 0;">
@@ -2802,82 +2820,204 @@ function formatTableResponse(text) {
         `;
         
         // 處理表頭
-        if (rows.length > 0) {
-            const headerCells = rows[0].split('|').filter(cell => cell.trim().length > 0);
+        const headerCells = rows[0].split('|').filter(cell => cell.trim().length > 0);
+        htmlTable += '<tr>';
+        for (const cell of headerCells) {
+            htmlTable += `<th style="padding:8px; border:1px solid #ddd; text-align:center;">${cell.trim()}</th>`;
+        }
+        htmlTable += '</tr></thead><tbody>';
+        
+        // 跳過分隔符行和表頭，處理數據行
+        const dataRowsStart = rows[1].includes('-|-') ? 2 : 1;
+        for (let i = dataRowsStart; i < Math.min(rows.length, dataRowsStart + 5); i++) {
+            const cells = rows[i].split('|').filter(cell => cell.trim().length > 0);
+            if (cells.length < 2) continue; // 跳過不完整的行
+            
             htmlTable += '<tr>';
-            headerCells.forEach(cell => {
-                htmlTable += `<th style="padding:8px; border:1px solid #ddd; text-align:center;">${cell.trim()}</th>`;
-            });
-            htmlTable += '</tr></thead><tbody>';
             
-            // 跳過分隔符行和表頭，處理數據行
-            const dataRows = rows.slice(2);
-            const maxRows = Math.min(5, dataRows.length);
-            
-            for (let i = 0; i < maxRows; i++) {
-                const cells = dataRows[i].split('|').filter(cell => cell.trim().length > 0);
-                if (cells.length < 3) continue; // 跳過不完整的行
-                
-                htmlTable += '<tr>';
-                
-                cells.forEach((cell, index) => {
-                    // 對頻率列應用特殊樣式
-                    if (index === 0) {
-                        htmlTable += `<td style="padding:8px; border:1px solid #ddd; font-weight:bold; color:#9b59b6; text-align:center;">${cell.trim()}</td>`;
-                    } 
-                    // 對可信度列應用特殊樣式（百分比）
-                    else if (index === 1) {
-                        // 用進度條樣式顯示百分比
-                        const percentValue = parseInt(cell.trim().replace(/%/g, ''));
-                        const barWidth = Math.max(5, Math.min(100, percentValue)); // 確保進度條至少有5%寬度並且不超過100%
-                        
-                        htmlTable += `
-                            <td style="padding:8px; border:1px solid #ddd; text-align:center;">
-                                <div style="position:relative; width:100%; height:20px; background-color:#f0f0f0; border-radius:10px; overflow:hidden;">
-                                    <div style="position:absolute; width:${barWidth}%; height:100%; background-color:#9b59b6; border-radius:10px;"></div>
-                                    <div style="position:relative; text-align:center; color:#000; line-height:20px; font-weight:bold;">${cell.trim()}</div>
+            for (let j = 0; j < cells.length; j++) {
+                const cell = cells[j];
+                // 對頻率列應用特殊樣式
+                if (j === 0) {
+                    htmlTable += `<td style="padding:8px; border:1px solid #ddd; font-weight:bold; color:#9b59b6; text-align:center;">${cell.trim()}</td>`;
+                } 
+                // 對可信度列應用特殊樣式（百分比）
+                else if (j === 1) {
+                    // 安全地解析百分比值
+                    let percentValue = 0;
+                    try {
+                        percentValue = parseInt(cell.trim().replace(/%/g, '')) || 0;
+                        percentValue = Math.max(0, Math.min(100, percentValue)); // 限制在0-100範圍內
+                    } catch (e) {
+                        console.error("解析百分比時出錯:", e);
+                    }
+                    
+                    htmlTable += `
+                        <td style="padding:8px; border:1px solid #ddd; text-align:center;">
+                            <div style="display:flex; align-items:center; width:100%;">
+                                <span style="flex:0 0 auto; margin-right:8px; font-weight:bold; white-space:nowrap;">${cell.trim()}</span>
+                                <div style="flex:1; height:16px; background-color:#f0f0f0; border-radius:8px; overflow:hidden;">
+                                    <div style="width:${percentValue}%; height:100%; background-color:#9b59b6; border-radius:8px;"></div>
                                 </div>
-                            </td>`;
-                    }
-                    // 對說明列應用普通樣式
-                    else {
-                        htmlTable += `<td style="padding:8px; border:1px solid #ddd;">${cell.trim()}</td>`;
-                    }
-                });
-                
-                htmlTable += '</tr>';
+                            </div>
+                        </td>`;
+                }
+                // 對說明列應用普通樣式
+                else {
+                    htmlTable += `<td style="padding:8px; border:1px solid #ddd;">${cell.trim()}</td>`;
+                }
             }
             
-            htmlTable += '</tbody></table>';
-            htmlContent += htmlTable;
+            htmlTable += '</tr>';
         }
+        
+        htmlTable += '</tbody></table>';
+        htmlContent += htmlTable;
+        
+        return htmlContent;
+        
+    } catch (error) {
+        console.error("格式化表格時發生錯誤:", error);
+        return `<div class="ai-analysis-title">物體自然頻率分析結果</div><p>格式化結果時發生錯誤: ${error.message}</p>`;
+    }
+}
+
+// 簡化 prepareAIPrompt 函數，避免可能的問題
+function prepareAIPrompt(resultFrequencies, fftData1, fftData2, psdData1, psdData2) {
+    try {
+        // 準備頻率數據JSON
+        let freqDataJson = "[]";
+        try {
+            freqDataJson = JSON.stringify(resultFrequencies || [], null, 2);
+        } catch (e) {
+            console.error("序列化頻率數據時出錯:", e);
+        }
+        
+        // 基礎提示詞
+        let prompt = `你是一位物理分析專家，特別擅長振動與自然頻率分析。以下是我對物體的振動頻率分析，請幫我解讀分析結果，並用繁體中文撰寫。
+
+【重要】我需要你使用表格格式呈現結果，表格應包含以下列：頻率(Hz)、可信度(%)、說明。說明應該解釋為何該頻率可能是物體的自然頻率。表格內容請依照可信度百分比由高至低排序。
+
+分析方法說明：
+我使用了音頻頻譜分析技術，通過比較敲擊桌面與敲擊桌面上物體的聲音差異，識別物體的自然頻率。分析流程如下：
+1. 先錄製或上傳兩個音頻：純桌面敲擊聲音和物體放在桌面上敲擊的聲音
+2. 使用快速傅立葉變換(FFT)找出頻譜中的峰值頻率，這些可能是自然頻率
+3. 用功率譜密度(PSD)分析來確認這些頻率是否確實能量集中
+4. 比較兩個音頻中同一頻率的強度，如果某頻率在放置物體後明顯增強，則很可能是物體的自然頻率
+
+已識別的可能自然頻率：
+${freqDataJson}
+
+請根據以上數據生成一個簡單的表格，包含以下信息：
+1. 頻率(Hz)
+2. 可信度(%) - 用純數字百分比表示
+3. 說明 - 為何此頻率可能是物體的自然頻率
+
+表格格式示例：
+| 頻率(Hz) | 可信度(%) | 說明 |
+|---------|----------|------|
+| 1234.56 | 95% | 此頻率在FFT中表現為顯著峰值，通過PSD確認為能量集中點，且在放置物體後強度增強了X倍。 |
+
+僅返回表格內容，不需要任何其他分析或總結。`;
+
+        return prompt;
+    } catch (error) {
+        console.error("準備AI提示詞時發生錯誤:", error);
+        return "請分析這些頻率數據並創建一個包含頻率、可信度百分比和說明的表格。";
+    }
+}
+
+// 修改 performAIAnalysis 函數，添加錯誤處理和超時控制
+async function performAIAnalysis() {
+    const aiContentContainer = document.getElementById('aiAnalysisContent');
+    
+    // 檢查是否有頻率數據可以分析
+    if (!fftData2 || !psdData2) {
+        aiContentContainer.innerHTML = '<p>沒有足夠的數據可分析。</p>';
+        return;
     }
     
-    // 添加分析總結
-    if (summaryMatch && summaryMatch.length > 0) {
-        const summaryText = summaryMatch.join(' ').replace(/分析總結[：:]\s*/i, '');
+    // 顯示載入狀態
+    aiContentContainer.innerHTML = `
+        <div class="ai-loading">
+            <div class="spinner"></div>
+            <p>AI正在分析數據，請稍候...</p>
+        </div>
+    `;
+    
+    try {
+        // 設置請求超時
+        const timeout = 30000; // 30秒
         
-        htmlContent += `
-            <div class="ai-suggestion">
-                <p><strong>分析總結：</strong>${summaryText}</p>
+        // 整合FFT和PSD進行分析
+        console.log("整合FFT和PSD進行分析");
+        const resultFrequencies = analyzeFFTAndPSD(fftData1, fftData2, psdData1, psdData2);
+        
+        // 準備AI分析所需的提示文本
+        const promptText = prepareAIPrompt(resultFrequencies, fftData1, fftData2, psdData1, psdData2);
+        
+        // 構建請求數據
+        const requestData = {
+            contents: [{
+                parts: [{
+                    text: promptText
+                }]
+            }]
+        };
+        
+        // 創建AbortController用於超時處理
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        // 發送請求到Gemini API
+        console.log("發送請求到Gemini API");
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDov2Ya3CxuExXJ1sQHnJjgZ0cvxCvIKTI", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData),
+            signal: controller.signal
+        });
+        
+        // 清除超時
+        clearTimeout(timeoutId);
+        
+        const data = await response.json();
+        
+        // 處理響應
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+            const analysisText = data.candidates[0].content.parts[0].text;
+            
+            // 格式化AI回復
+            const formattedAnalysis = formatTableResponse(analysisText);
+            
+            // 顯示結果
+            aiContentContainer.innerHTML = formattedAnalysis;
+        } else {
+            throw new Error("無法獲取AI結果");
+        }
+    } catch (error) {
+        console.error("AI分析過程中發生錯誤:", error);
+        
+        // 更友好的錯誤消息
+        let errorMsg = "分析過程中發生錯誤";
+        if (error.name === "AbortError") {
+            errorMsg = "請求超時，請稍後再試";
+        } else if (error.name === "RangeError" && error.message.includes("Maximum call stack size exceeded")) {
+            errorMsg = "數據處理複雜度過高，請嘗試選擇較短的音頻片段";
+        } else {
+            errorMsg = `${error.message}`;
+        }
+        
+        aiContentContainer.innerHTML = `
+            <div style="padding: 20px; border-left: 4px solid #e74c3c; background-color: #fef5f5;">
+                <p style="margin: 0; color: #e74c3c; font-weight: bold;">分析錯誤</p>
+                <p style="margin-top: 10px;">${errorMsg}</p>
+                <p style="margin-top: 10px;">請稍後再試或選擇不同的音頻範圍。</p>
             </div>
         `;
-    } else {
-        // 如果沒有找到總結，使用整個文本的最後部分
-        const paragraphs = text.split('\n\n');
-        if (paragraphs.length > 0) {
-            const lastParagraph = paragraphs[paragraphs.length - 1];
-            if (lastParagraph.length > 20) {
-                htmlContent += `
-                    <div class="ai-suggestion">
-                        <p><strong>分析總結：</strong>${lastParagraph}</p>
-                    </div>
-                `;
-            }
-        }
     }
-    
-    return htmlContent;
 }
 
 // 輔助函數：找出數據中的前N個峰值
