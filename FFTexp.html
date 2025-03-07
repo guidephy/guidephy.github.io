@@ -704,8 +704,7 @@ input[type="range"] {
         </div>
     </div>
     <script>
-    
-   // 全局變量
+// 全局變量
 let audioContext;
 let file1Data = null;
 let file2Data = null;
@@ -2249,6 +2248,7 @@ function drawFFT(fftData, canvasId, label) {
         container.style.height = targetHeight + 'px';
     }
 }
+
 // 相應地修改PSD圖的繪製函數
 function drawPSD(psdData, canvasId, label) {
     const canvas = document.getElementById(canvasId);
@@ -2352,8 +2352,6 @@ function drawPSD(psdData, canvasId, label) {
     }
 }
 
-
-
 // AI分析頻率數據
 async function performAIAnalysis() {
     const aiContentContainer = document.getElementById('aiAnalysisContent');
@@ -2364,7 +2362,7 @@ async function performAIAnalysis() {
         return;
     }
     
-    // 顯示加載狀態
+    // 顯示載入狀態
     aiContentContainer.innerHTML = `
         <div class="ai-loading">
             <div class="spinner"></div>
@@ -2373,77 +2371,12 @@ async function performAIAnalysis() {
     `;
     
     try {
-        // 準備第二個音檔的峰值信息
-        const fft2Peaks = findTopPeaks(fftData2, 15);
-        const psd2Peaks = findTopPeaks(psdData2, 15, 'psd');
+        // 整合FFT和PSD進行分析
+        console.log("整合FFT和PSD進行分析");
+        const resultFrequencies = analyzeFFTAndPSD(fftData1, fftData2, psdData1, psdData2);
         
-        let promptText = "";
-        let amplitudeRatios = [];
-        let significantFrequencies = [];
-        
-        // 如果有第一個音檔，進行比較分析
-        if (fftData1 && psdData1) {
-            // 尋找顯著增強的頻率區域
-            significantFrequencies = findSignificantFrequencies(fftData1, fftData2);
-            
-            // 準備第一個音檔的峰值信息
-            const fft1Peaks = findTopPeaks(fftData1, 15);
-            const psd1Peaks = findTopPeaks(psdData1, 15, 'psd');
-            
-            // 計算振幅比例
-            amplitudeRatios = calculateAmplitudeRatios(fftData1, fftData2, fft2Peaks);
-            
-            // 構建比較分析的提示詞
-            promptText = `你是一位物理分析專家，特別擅長振動與自然頻率分析。請分析以下FFT和PSD數據，判斷哪些頻率最可能是測試物體的自然頻率。
-
-【重要】我需要你使用表格格式呈現結果，表格應包含以下列：頻率(Hz)、置信度(%)、簡短說明。不要有其他多餘的文字，直接給出表格結果即可。
-
-FFT分析數據：
-- 純桌面波形的主要頻率峰值：${JSON.stringify(fft1Peaks)}
-- 物體+桌面波形的主要頻率峰值：${JSON.stringify(fft2Peaks)}
-
-PSD分析數據：
-- 純桌面波形的PSD峰值：${JSON.stringify(psd1Peaks)}
-- 物體+桌面波形的PSD峰值：${JSON.stringify(psd2Peaks)}
-
-兩個音檔頻率振幅比例：
-${JSON.stringify(amplitudeRatios, null, 2)}
-
-特別顯著的頻率區域：
-${JSON.stringify(significantFrequencies, null, 2)}
-
-請根據以上數據分析：
-
-1. 第二個音檔（物體+桌面）中，找出相對強度比第一個音檔明顯增大的頻率區域，不只是最大的那些峰值。
-2. 將接近的頻率（相差5%以內）歸納為同一個自然頻率結果。
-3. 只列出5個最可能的自然頻率區域，必須按照置信度(%)從高到低排序。
-4. 每個頻率的說明請簡短扼要，不超過25個字。
-5. 只使用簡短的文字回應，直接給出表格結果。`;
-        
-        } else {
-            // 只有第二個音檔時，直接分析其頻率特性
-            // 找出第二個音檔的主要頻率峰值
-            significantFrequencies = findSignificantFrequenciesSingleFile(fftData2);
-            
-            // 構建單音檔分析的提示詞
-            promptText = `你是一位物理分析專家，特別擅長振動與自然頻率分析。請直接分析以下FFT和PSD數據，找出哪些頻率最可能是測試物體的自然頻率。
-
-【重要】我需要你使用表格格式呈現結果，表格應包含以下列：頻率(Hz)、置信度(%)、簡短說明。不要有其他多餘的文字，直接給出表格結果即可。
-
-物體+桌面波形的主要頻率峰值：${JSON.stringify(fft2Peaks)}
-物體+桌面波形的PSD峰值：${JSON.stringify(psd2Peaks)}
-
-特別顯著的頻率區域：
-${JSON.stringify(significantFrequencies, null, 2)}
-
-請根據以上數據分析：
-
-1. 找出第二個音檔（物體+桌面）中最顯著的頻率峰值，這些很可能是測試物體的自然頻率。
-2. 將接近的頻率（相差5%以內）歸納為同一個自然頻率結果。
-3. 只列出5個最可能的自然頻率區域，必須按照置信度(%)從高到低排序。
-4. 每個頻率的說明請簡短扼要，不超過25個字。
-5. 只使用簡短的文字回應，直接給出表格結果。`;
-        }
+        // 準備AI分析所需的提示文本
+        const promptText = prepareAIPrompt(resultFrequencies, fftData1, fftData2, psdData1, psdData2);
         
         // 構建請求數據
         const requestData = {
@@ -2455,6 +2388,7 @@ ${JSON.stringify(significantFrequencies, null, 2)}
         };
         
         // 發送請求到Gemini API
+        console.log("發送請求到Gemini API");
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDov2Ya3CxuExXJ1sQHnJjgZ0cvxCvIKTI", {
             method: "POST",
             headers: {
@@ -2486,161 +2420,376 @@ ${JSON.stringify(significantFrequencies, null, 2)}
     }
 }
 
-// 計算振幅比例
-function calculateAmplitudeRatios(fftData1, fftData2, fft2Peaks) {
-    const amplitudeRatios = [];
-    for (const peak of fft2Peaks) {
-        // 在音頻一中找最接近的頻率
-        let closestIndex = -1;
-        let minFreqDiff = Infinity;
-        const frequencyTolerance = 8; // 頻率匹配容許誤差
+// FFT和PSD結合分析函數
+function analyzeFFTAndPSD(fftData1, fftData2, psdData1, psdData2) {
+    // 結果數組
+    const results = [];
+    
+    // 1. 先從FFT中找出主要峰值
+    const fftPeaks = findSignificantPeaks(fftData2, 20); // 找出20個顯著峰值
+    
+    // 2. 使用PSD來驗證這些峰值是否真實
+    for (const peak of fftPeaks) {
+        // 在PSD數據中尋找對應頻率
+        const psdValue = findPSDValueAtFrequency(psdData2, peak.frequency);
+        const normalizedPSDValue = normalizePSDValue(psdData2, psdValue);
         
-        for (let j = 0; j < fftData1.frequencies.length; j++) {
-            const freqDiff = Math.abs(fftData1.frequencies[j] - peak.frequency);
-            if (freqDiff < minFreqDiff && freqDiff <= frequencyTolerance) {
-                minFreqDiff = freqDiff;
-                closestIndex = j;
-            }
+        // 計算FFT峰值的顯著性
+        const fftSignificance = calculatePeakSignificance(fftData2, peak.index);
+        
+        // 如果PSD在此頻率點也顯示能量集中，則認為此峰值可信
+        const psdConfirmed = isPSDConfirmed(psdData2, peak.frequency);
+        
+        // 如果有第一個音頻數據，計算頻率增強率
+        let enhancementRatio = 1;
+        let isEnhanced = false;
+        
+        if (fftData1) {
+            const result = compareWithFirstFile(fftData1, peak.frequency, peak.magnitude);
+            enhancementRatio = result.ratio;
+            isEnhanced = result.isEnhanced;
         }
         
-        if (closestIndex >= 0) {
-            const mag1 = fftData1.magnitudes[closestIndex];
-            const ratio = mag1 > 0.000001 ? peak.magnitude / mag1 : 100;
-            amplitudeRatios.push({
-                frequency: peak.frequency.toFixed(1),
-                amplitudeRatio: ratio.toFixed(2),
-                magnitude1: mag1,
-                magnitude2: peak.magnitude
-            });
-        } else {
-            // 在音頻一中沒有對應頻率
-            amplitudeRatios.push({
-                frequency: peak.frequency.toFixed(1),
-                amplitudeRatio: "新增頻率",
-                magnitude1: 0,
-                magnitude2: peak.magnitude
+        // 計算可信度
+        const credibility = calculateCredibility(
+            fftSignificance,
+            normalizedPSDValue,
+            psdConfirmed,
+            enhancementRatio,
+            isEnhanced
+        );
+        
+        // 如果可信度足夠高，添加到結果
+        if (credibility > 30) { // 可信度閾值
+            results.push({
+                frequency: peak.frequency,
+                credibility: credibility,
+                fftMagnitude: peak.magnitude,
+                psdValue: psdValue,
+                psdConfirmed: psdConfirmed,
+                enhancementRatio: fftData1 ? enhancementRatio : null,
+                isNew: fftData1 ? (enhancementRatio > 10) : null
             });
         }
     }
-    return amplitudeRatios;
+    
+    // 合併接近的頻率（相差5%內）
+    const mergedResults = mergeCloseFrequencies(results);
+    
+    // 按可信度排序（從高到低）
+    mergedResults.sort((a, b) => b.credibility - a.credibility);
+    
+    // 返回前5個結果
+    return mergedResults.slice(0, 5);
 }
 
-// 尋找顯著增強的頻率區域（比較分析）
-function findSignificantFrequencies(fftData1, fftData2) {
-    const significantFreqs = [];
-    const threshold = 1.5; // 相對增強閾值
-    const groupThreshold = 0.05; // 5%分組閾值
+// 查找顯著峰值
+function findSignificantPeaks(fftData, maxPeaks) {
+    const peaks = [];
+    const minPeakDistance = 5; // 峰值最小間距(Hz)
     
-    // 檢查每個頻率點
-    for (let i = 0; i < fftData2.frequencies.length; i++) {
-        const freq = fftData2.frequencies[i];
-        const mag2 = fftData2.magnitudes[i];
+    // 尋找局部峰值
+    for (let i = 2; i < fftData.frequencies.length - 2; i++) {
+        const freq = fftData.frequencies[i];
+        const mag = fftData.magnitudes[i];
         
-        // 跳過太小的值
-        if (mag2 < 0.0001) continue;
+        // 跳過低頻噪音（低於50Hz）和高頻噪音（高於5000Hz）
+        if (freq < 50 || freq > 5000) continue;
         
-        // 在第一個音頻數據中尋找對應頻率
-        let foundMatch = false;
-        let ratio = 1;
+        // 跳過振幅太小的值
+        if (mag < 0.001) continue;
         
-        for (let j = 0; j < fftData1.frequencies.length; j++) {
-            const freqDiff = Math.abs(fftData1.frequencies[j] - freq);
-            const freqTolerance = freq * 0.01; // 1%容許誤差
+        // 檢查是否是局部峰值 (比左右兩側高)
+        if (mag > fftData.magnitudes[i-2] && 
+            mag > fftData.magnitudes[i-1] && 
+            mag > fftData.magnitudes[i+1] && 
+            mag > fftData.magnitudes[i+2]) {
             
-            if (freqDiff <= freqTolerance) {
-                foundMatch = true;
-                ratio = fftData1.magnitudes[j] > 0.000001 ? mag2 / fftData1.magnitudes[j] : 100;
+            // 檢查是否與已有峰值太接近
+            let tooClose = false;
+            for (const peak of peaks) {
+                if (Math.abs(peak.frequency - freq) < minPeakDistance) {
+                    tooClose = true;
+                    // 如果新峰值更強，替換舊峰值
+                    if (mag > peak.magnitude) {
+                        peak.frequency = freq;
+                        peak.magnitude = mag;
+                        peak.index = i;
+                    }
+                    break;
+                }
+            }
+            
+            // 如果不太接近現有峰值，添加新峰值
+            if (!tooClose) {
+                peaks.push({
+                    frequency: freq,
+                    magnitude: mag,
+                    index: i
+                });
+            }
+        }
+    }
+    
+    // 按振幅排序
+    peaks.sort((a, b) => b.magnitude - a.magnitude);
+    
+    // 返回前N個峰值
+    return peaks.slice(0, maxPeaks);
+}
+
+// 在PSD數據中尋找特定頻率的值
+function findPSDValueAtFrequency(psdData, targetFreq) {
+    let closestIndex = 0;
+    let minDiff = Infinity;
+    
+    // 尋找最接近的頻率點
+    for (let i = 0; i < psdData.frequencies.length; i++) {
+        const diff = Math.abs(psdData.frequencies[i] - targetFreq);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestIndex = i;
+        }
+    }
+    
+    return psdData.psd[closestIndex];
+}
+
+// 歸一化PSD值
+function normalizePSDValue(psdData, value) {
+    // 找出最大PSD值
+    const maxPSD = Math.max(...psdData.psd);
+    
+    // 返回歸一化值（0-100）
+    return value / maxPSD * 100;
+}
+
+// 計算峰值顯著性（相對於周圍的高度）
+function calculatePeakSignificance(fftData, peakIndex) {
+    const peakMag = fftData.magnitudes[peakIndex];
+    const searchRange = 10; // 搜索範圍
+    
+    // 計算周圍區域平均振幅
+    let sum = 0;
+    let count = 0;
+    
+    for (let i = Math.max(0, peakIndex - searchRange); i <= Math.min(fftData.magnitudes.length - 1, peakIndex + searchRange); i++) {
+        if (Math.abs(i - peakIndex) > 2) { // 排除峰值點及其緊鄰點
+            sum += fftData.magnitudes[i];
+            count++;
+        }
+    }
+    
+    const avgMag = count > 0 ? sum / count : 0;
+    
+    // 峰值與周圍區域平均振幅的比率
+    return avgMag > 0 ? peakMag / avgMag : 1;
+}
+
+// 檢查PSD是否確認此頻率點有能量集中
+function isPSDConfirmed(psdData, targetFreq) {
+    // 找出最接近的頻率點
+    let closestIndex = 0;
+    let minDiff = Infinity;
+    
+    for (let i = 0; i < psdData.frequencies.length; i++) {
+        const diff = Math.abs(psdData.frequencies[i] - targetFreq);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestIndex = i;
+        }
+    }
+    
+    // 檢查是否是PSD局部峰值
+    if (closestIndex > 1 && closestIndex < psdData.psd.length - 2) {
+        return (psdData.psd[closestIndex] > psdData.psd[closestIndex-2] &&
+                psdData.psd[closestIndex] > psdData.psd[closestIndex-1] && 
+                psdData.psd[closestIndex] > psdData.psd[closestIndex+1] &&
+                psdData.psd[closestIndex] > psdData.psd[closestIndex+2]);
+    }
+    
+    return false;
+}
+
+// 與第一個音頻文件對比
+function compareWithFirstFile(fftData1, targetFreq, magnitude2) {
+    const freqTolerance = targetFreq * 0.03; // 頻率匹配容許3%誤差
+    
+    // 在第一個音頻中尋找對應頻率
+    let magnitude1 = 0;
+    let found = false;
+    
+    for (let i = 0; i < fftData1.frequencies.length; i++) {
+        if (Math.abs(fftData1.frequencies[i] - targetFreq) <= freqTolerance) {
+            magnitude1 = fftData1.magnitudes[i];
+            found = true;
+            break;
+        }
+    }
+    
+    // 計算振幅比例
+    const ratio = found && magnitude1 > 0.000001 ? magnitude2 / magnitude1 : 10;
+    
+    // 判斷是否顯著增強（比率大於1.5倍）
+    const isEnhanced = ratio > 1.5;
+    
+    return { ratio, isEnhanced, magnitude1 };
+}
+
+// 計算可信度分數
+function calculateCredibility(fftSignificance, normalizedPSD, psdConfirmed, enhancementRatio, isEnhanced) {
+    // 初始化各個分量的分數
+    let fftScore = 0;       // FFT峰值評分
+    let psdScore = 0;       // PSD確認評分
+    let enhancementScore = 0; // 頻率增強評分
+    
+    // 1. FFT峰值顯著性評分 (最高5分)
+    // fftSignificance是峰值與周圍振幅的比例
+    if (fftSignificance < 1.5) {
+        fftScore = 1; // 微弱峰值
+    } else if (fftSignificance < 2.5) {
+        fftScore = 2; // 弱峰值
+    } else if (fftSignificance < 4) {
+        fftScore = 3; // 中等峰值
+    } else if (fftSignificance < 6) {
+        fftScore = 4; // 強峰值
+    } else {
+        fftScore = 5; // 非常顯著的峰值
+    }
+    
+    // 2. PSD確認評分 (最高3分)
+    if (psdConfirmed) {
+        psdScore = 3; // PSD完全確認
+    } else if (normalizedPSD > 50) {
+        psdScore = 2; // PSD有較強能量
+    } else if (normalizedPSD > 20) {
+        psdScore = 1; // PSD有部分能量
+    }
+    
+    // 3. 頻率增強評分 (最高5分，僅在有兩個音檔時適用)
+    if (enhancementRatio !== null) {
+        if (!isEnhanced) {
+            enhancementScore = 0; // 未增強
+        } else if (enhancementRatio < 2) {
+            enhancementScore = 1; // 輕微增強
+        } else if (enhancementRatio < 3) {
+            enhancementScore = 2; // 明顯增強
+        } else if (enhancementRatio < 5) {
+            enhancementScore = 3; // 顯著增強
+        } else if (enhancementRatio < 8) {
+            enhancementScore = 4; // 強烈增強
+        } else {
+            enhancementScore = 5; // 極度增強或新頻率
+        }
+    } else {
+        // 如果沒有比較數據，則對PSD和FFT評分給予更高權重
+        fftScore = Math.min(5, Math.ceil(fftScore * 1.3));
+        psdScore = Math.min(3, Math.ceil(psdScore * 1.3));
+    }
+    
+    // 計算總分
+    const totalScore = fftScore + psdScore + enhancementScore;
+    const maxScore = enhancementRatio !== null ? 13 : 8;
+    
+    // 計算可信度百分比
+    const credibility = Math.min(100, Math.round(totalScore / maxScore * 100));
+    
+    // 直接返回可信度百分比
+    return credibility;
+}
+
+// 合併接近的頻率
+function mergeCloseFrequencies(results) {
+    const merged = [];
+    const threshold = 0.05; // 5%閾值
+    
+    for (const result of results) {
+        let foundGroup = false;
+        
+        for (const group of merged) {
+            // 檢查是否在閾值範圍內
+            if (Math.abs(group.frequency - result.frequency) / group.frequency < threshold) {
+                // 如果新結果可信度更高，更新組信息
+                if (result.credibility > group.credibility) {
+                    group.frequency = result.frequency;
+                    group.fftMagnitude = result.fftMagnitude;
+                    group.psdValue = result.psdValue;
+                    group.psdConfirmed = result.psdConfirmed;
+                    group.enhancementRatio = result.enhancementRatio;
+                    group.isNew = result.isNew;
+                }
+                
+                // 取平均可信度，略微提高
+                group.credibility = Math.min(100, Math.round((group.credibility + result.credibility) / 2 * 1.05));
+                group.count = (group.count || 1) + 1;
+                foundGroup = true;
                 break;
             }
         }
         
-        // 如果頻率明顯增強或是新頻率
-        if (!foundMatch || ratio >= threshold) {
-            // 檢查是否可以併入現有組
-            let merged = false;
-            for (let group of significantFreqs) {
-                if (Math.abs(group.frequency - freq) / freq < groupThreshold) {
-                    // 如果新峰值更強，更新組信息
-                    if (mag2 > group.magnitude) {
-                        group.frequency = freq;
-                        group.magnitude = mag2;
-                    }
-                    group.count++;
-                    merged = true;
-                    break;
-                }
-            }
-            
-            // 如果不能併入現有組，創建新組
-            if (!merged) {
-                significantFreqs.push({
-                    frequency: freq,
-                    magnitude: mag2,
-                    ratio: foundMatch ? ratio : "新增頻率",
-                    count: 1
-                });
-            }
+        // 如果不能合併到現有組，創建新組
+        if (!foundGroup) {
+            merged.push({...result, count: 1});
         }
     }
     
-    // 按振幅排序
-    significantFreqs.sort((a, b) => b.magnitude - a.magnitude);
-    
-    return significantFreqs.slice(0, 10); // 返回前10個顯著區域
+    return merged;
 }
 
-// 尋找單音檔的頻率峰值
-function findSignificantFrequenciesSingleFile(fftData) {
-    const significantFreqs = [];
-    const groupThreshold = 0.05; // 5%分組閾值
+// 修改 prepareAIPrompt 函數，移除星級評分並改用百分比
+function prepareAIPrompt(resultFrequencies, fftData1, fftData2, psdData1, psdData2) {
+    // 基礎提示詞
+    let prompt = `你是一位物理分析專家，特別擅長振動與自然頻率分析。以下是我對物體的振動頻率分析，請幫我解讀分析結果，並用繁體中文撰寫。
+
+【重要】我需要你使用表格格式呈現結果，表格應包含以下列：頻率(Hz)、可信度(%)、說明。說明應該解釋為何該頻率可能是物體的自然頻率。表格內容請依照可信度百分比由高至低排序。
+
+分析方法說明：
+我使用了音頻頻譜分析技術，通過比較敲擊桌面與敲擊桌面上物體的聲音差異，識別物體的自然頻率。分析流程如下：
+1. 先錄製或上傳兩個音頻：純桌面敲擊聲音和物體放在桌面上敲擊的聲音
+2. 使用快速傅立葉變換(FFT)找出頻譜中的峰值頻率，這些可能是自然頻率
+3. 用功率譜密度(PSD)分析來確認這些頻率是否確實能量集中
+4. 比較兩個音頻中同一頻率的強度，如果某頻率在放置物體後明顯增強，則很可能是物體的自然頻率`;
+
+    // 添加有關可信度評分的說明
+    prompt += `\n\n可信度百分比評分系統說明：
+0-20%: 可能是噪聲，幾乎沒有證據支持這是自然頻率
+21-40%: 有弱證據支持，但可能是偶然性峰值
+41-60%: 中等可信度，有一定證據但不夠強烈
+61-80%: 高可信度，多項證據支持這是自然頻率
+81-100%: 極高可信度，幾乎可以確定是物體的自然頻率`;
+
+    // 添加結果數據
+    prompt += `\n\n已識別的可能自然頻率：\n${JSON.stringify(resultFrequencies, null, 2)}\n\n`;
     
-    // 找出所有頻率峰值
-    for (let i = 1; i < fftData.frequencies.length - 1; i++) {
-        const freq = fftData.frequencies[i];
-        const mag = fftData.magnitudes[i];
-        
-        // 跳過太小的值
-        if (mag < 0.0001) continue;
-        
-        // 檢查是否是局部峰值 (比左右兩側高)
-        if (mag > fftData.magnitudes[i-1] && mag > fftData.magnitudes[i+1]) {
-            // 檢查是否可以併入現有組
-            let merged = false;
-            for (let group of significantFreqs) {
-                if (Math.abs(group.frequency - freq) / freq < groupThreshold) {
-                    // 如果新峰值更強，更新組信息
-                    if (mag > group.magnitude) {
-                        group.frequency = freq;
-                        group.magnitude = mag;
-                    }
-                    group.count++;
-                    merged = true;
-                    break;
-                }
-            }
-            
-            // 如果不能併入現有組，創建新組
-            if (!merged) {
-                significantFreqs.push({
-                    frequency: freq,
-                    magnitude: mag,
-                    count: 1
-                });
-            }
-        }
-    }
-    
-    // 按振幅排序
-    significantFreqs.sort((a, b) => b.magnitude - a.magnitude);
-    
-    return significantFreqs.slice(0, 10); // 返回前10個顯著區域
+    // 添加分析請求
+    prompt += `請根據以上數據分析：
+1. 用純數字百分比表示可信度 (例如：95%)
+2. 每個自然頻率提供簡短說明，包含以下信息：
+   - 此頻率在FFT中表現（是否為顯著峰值）
+   - 此頻率在PSD中是否得到確認
+   - 此頻率相較於純桌面敲擊時是否顯著增強（如果有兩個音檔）
+3. 最後提供一段淺顯易懂的分析總結，解釋：
+   - 這些自然頻率代表什麼物理含義
+   - 根據結果有何推論（物體可能是什麼材質、形狀等）
+   - 測試結果的整體可靠性評估
+   - 簡單說明可信度百分比的計算方式
+
+回應格式：
+1. 繁體中文表格，包含頻率、可信度(%)和說明，請依可信度百分比由高至低排序
+2. 淺顯易懂的分析總結 (包含可信度計算方式的簡要說明)`;
+
+    return prompt;
 }
 
-// 格式化表格回應
+// 修改 formatTableResponse 函數以正確顯示百分比並依照可信度排序
 function formatTableResponse(text) {
     // 提取表格部分
     const tableMatch = text.match(/\|\s*頻率[\s\S]*?(?=\n\n|$)/);
+    const summaryMatch = text.match(/(?:分析總結|總結分析|總結).+(?:\n.+)*/g);
     
+    let htmlContent = `<div class="ai-analysis-title">物體自然頻率分析結果</div>`;
+    
+    // 處理表格部分
     if (tableMatch) {
         const tableContent = tableMatch[0];
         
@@ -2648,7 +2797,6 @@ function formatTableResponse(text) {
         const rows = tableContent.split('\n').filter(row => row.trim().length > 0);
         
         let htmlTable = `
-            <div class="ai-analysis-title">物體自然頻率分析結果</div>
             <table class="natural-freq-table" style="width:100%; border-collapse:collapse; margin:20px 0;">
                 <thead style="background-color:#f2f2f2;">
         `;
@@ -2662,7 +2810,7 @@ function formatTableResponse(text) {
             });
             htmlTable += '</tr></thead><tbody>';
             
-            // 跳過分隔符行和表頭，只處理前5行數據
+            // 跳過分隔符行和表頭，處理數據行
             const dataRows = rows.slice(2);
             const maxRows = Math.min(5, dataRows.length);
             
@@ -2677,9 +2825,19 @@ function formatTableResponse(text) {
                     if (index === 0) {
                         htmlTable += `<td style="padding:8px; border:1px solid #ddd; font-weight:bold; color:#9b59b6; text-align:center;">${cell.trim()}</td>`;
                     } 
-                    // 對置信度列應用特殊樣式
+                    // 對可信度列應用特殊樣式（百分比）
                     else if (index === 1) {
-                        htmlTable += `<td style="padding:8px; border:1px solid #ddd; text-align:center;">${cell.trim()}</td>`;
+                        // 用進度條樣式顯示百分比
+                        const percentValue = parseInt(cell.trim().replace(/%/g, ''));
+                        const barWidth = Math.max(5, Math.min(100, percentValue)); // 確保進度條至少有5%寬度並且不超過100%
+                        
+                        htmlTable += `
+                            <td style="padding:8px; border:1px solid #ddd; text-align:center;">
+                                <div style="position:relative; width:100%; height:20px; background-color:#f0f0f0; border-radius:10px; overflow:hidden;">
+                                    <div style="position:absolute; width:${barWidth}%; height:100%; background-color:#9b59b6; border-radius:10px;"></div>
+                                    <div style="position:relative; text-align:center; color:#000; line-height:20px; font-weight:bold;">${cell.trim()}</div>
+                                </div>
+                            </td>`;
                     }
                     // 對說明列應用普通樣式
                     else {
@@ -2691,23 +2849,35 @@ function formatTableResponse(text) {
             }
             
             htmlTable += '</tbody></table>';
-            
-            // 添加簡短說明
-            htmlTable += `
-                <div class="ai-suggestion">
-                    <p><strong>分析說明：</strong>表中列出的頻率是通過分析物體的頻譜特性找出的自然頻率。${fftData1 ? '通過比較純桌面敲擊與物體+桌面敲擊的頻譜，找出在物體放置後明顯增強或新出現的頻率成分。' : '這些頻率代表物體的共振特性。'}置信度基於頻率峰值的相對強度和一致性。</p>
-                </div>
-            `;
-            
-            return htmlTable;
+            htmlContent += htmlTable;
         }
     }
     
-    // 如果無法處理成表格，直接顯示格式化後的文本
-    let formatted = '<div class="ai-analysis-title">物體自然頻率分析結果</div>';
-    formatted += `<div class="ai-freq-highlight">${text.replace(/\n/g, '<br>')}</div>`;
+    // 添加分析總結
+    if (summaryMatch && summaryMatch.length > 0) {
+        const summaryText = summaryMatch.join(' ').replace(/分析總結[：:]\s*/i, '');
+        
+        htmlContent += `
+            <div class="ai-suggestion">
+                <p><strong>分析總結：</strong>${summaryText}</p>
+            </div>
+        `;
+    } else {
+        // 如果沒有找到總結，使用整個文本的最後部分
+        const paragraphs = text.split('\n\n');
+        if (paragraphs.length > 0) {
+            const lastParagraph = paragraphs[paragraphs.length - 1];
+            if (lastParagraph.length > 20) {
+                htmlContent += `
+                    <div class="ai-suggestion">
+                        <p><strong>分析總結：</strong>${lastParagraph}</p>
+                    </div>
+                `;
+            }
+        }
+    }
     
-    return formatted;
+    return htmlContent;
 }
 
 // 輔助函數：找出數據中的前N個峰值
@@ -2731,5 +2901,6 @@ function findTopPeaks(data, n, valueType = 'magnitudes') {
     return topPeaks;
 }
 </script>
+
 </body>
 </html>
