@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水波干涉實驗</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        canvas {
+            border-radius: 0.75rem; /* rounded-xl */
+            background-color: #e0f2f7; /* Light cyan/blue background for water */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #06b6d4; /* cyan-500 */
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background .15s ease-in-out;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #06b6d4; /* cyan-500 */
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background .15s ease-in-out;
+        }
+        input[type="range"]::-webkit-slider-thumb:active,
+        input[type="range"]::-moz-range-thumb:active {
+            background: #0e7490; /* cyan-700 */
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #a5f3fc; /* cyan-200 */
+            border-radius: 4px;
+        }
+        input[type="range"]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #a5f3fc; /* cyan-200 */
+            border-radius: 4px;
+        }
+        .radio-label, .checkbox-label {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #cbd5e1; /* slate-300 */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: #f8fafc; /* slate-50 */
+            user-select: none; /* Prevent text selection */
+        }
+        .radio-label:hover, .checkbox-label:hover {
+            background-color: #e2e8f0; /* slate-200 */
+        }
+        input[type="radio"]:checked + .radio-label,
+        input[type="checkbox"]:checked + .checkbox-label {
+            background-color: #a5f3fc; /* cyan-200 */
+            border-color: #06b6d4; /* cyan-500 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .radio-label span:last-child,
+        .checkbox-label span:last-child {
+             /* Custom checkmark/dot styling */
+             width: 16px;
+             height: 16px;
+             flex-shrink: 0;
+             margin-right: 8px;
+             border: 1px solid #64748b; /* slate-500 */
+             border-radius: 50%; /* For radio */
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             transition: all 0.2s ease-in-out;
+        }
+        input[type="radio"]:checked + .radio-label span:last-child {
+            background-color: #06b6d4; /* cyan-500 */
+            border-color: #06b6d4;
+        }
+        input[type="radio"]:checked + .radio-label span:last-child:after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+        input[type="checkbox"] + .checkbox-label span:last-child {
+            border-radius: 4px; /* For checkbox */
+        }
+        input[type="checkbox"]:checked + .checkbox-label span:last-child {
+            background-color: #06b6d4; /* cyan-500 */
+            border-color: #06b6d4;
+        }
+        input[type="checkbox"]:checked + .checkbox-label span:last-child:after {
+            content: '✔'; /* Checkmark for checkbox */
+            color: white;
+            font-size: 12px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-100 min-h-screen flex items-center justify-center p-4 text-gray-800">
+    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-5xl flex flex-col gap-6">
+
+        <!-- Simulation Area -->
+        <div class="flex flex-col items-center justify-center bg-white rounded-xl p-4 shadow-inner">
+            <h2 class="text-2xl font-bold mb-4 text-cyan-700">水波干涉模擬</h2>
+            <canvas id="waveCanvas" class="w-full max-w-4xl aspect-[4/3]"></canvas>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="bg-cyan-50 rounded-xl p-4 shadow-md w-full">
+            <h3 class="text-xl font-semibold mb-3 text-cyan-700">控制項</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Wave Source Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">波源數量:</label>
+                    <div class="flex gap-4">
+                        <div>
+                            <input type="radio" id="singleSource" name="waveSource" value="single" checked class="hidden" onchange="resetSimulation()">
+                            <label for="singleSource" class="radio-label">
+                                <span></span>
+                                單波源
+                            </label>
+                        </div>
+                        <div>
+                            <input type="radio" id="doubleSource" name="waveSource" value="double" class="hidden" onchange="resetSimulation()">
+                            <label for="doubleSource" class="radio-label">
+                                <span></span>
+                                雙波源
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frequency Slider -->
+                <div>
+                    <label for="frequency" class="block text-sm font-medium text-gray-700 mb-1">頻率 (<span id="frequencyReadout">2.0</span> Hz)</label>
+                    <input type="range" id="frequency" min="0.5" max="10.0" step="0.1" value="2.0" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-cyan-200" oninput="document.getElementById('frequencyReadout').innerText = parseFloat(this.value).toFixed(1); resetSimulation()">
+                </div>
+
+                <!-- Source Gap Slider (only active for double source) -->
+                <div id="sourceGapControl">
+                    <label for="sourceGap" class="block text-sm font-medium text-gray-700 mb-1">波源距離 (<span id="sourceGapReadout">12.5</span> cm)</label>
+                    <input type="range" id="sourceGap" min="1.0" max="28.0" step="0.1" value="12.5" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-cyan-200" oninput="document.getElementById('sourceGapReadout').innerText = parseFloat(this.value).toFixed(1); resetSimulation()">
+                </div>
+
+                <!-- Show Interference Lines Checkbox -->
+                <div>
+                    <label for="showInterferenceLines" class="block text-sm font-medium text-gray-700 mb-2">顯示干涉線:</label>
+                    <input type="checkbox" id="showInterferenceLines" class="hidden" onchange="resetSimulation()">
+                    <label for="showInterferenceLines" class="checkbox-label">
+                        <span></span>
+                        顯示腹/節線
+                    </label>
+                </div>
+
+            </div>
+
+            <button id="resetButton" class="w-full py-2 px-4 bg-cyan-600 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition ease-in-out duration-150 mt-6">
+                重設模擬
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const waveCanvas = document.getElementById('waveCanvas');
+        const ctx = waveCanvas.getContext('2d');
+
+        const singleSourceRadio = document.getElementById('singleSource');
+        const doubleSourceRadio = document.getElementById('doubleSource');
+        const frequencySlider = document.getElementById('frequency');
+        const sourceGapSlider = document.getElementById('sourceGap');
+        const sourceGapControl = document.getElementById('sourceGapControl');
+        const showInterferenceLinesCheckbox = document.getElementById('showInterferenceLines');
+        const resetButton = document.getElementById('resetButton');
+
+        // Physics Constants (公制單位 and pixel scaling)
+        const PIXELS_PER_CM = 20; // 1 公分 = 20 像素
+        const WAVE_SPEED_CM = 30; // 水波在空氣中的速度 (公分/秒)
+        const WAVE_SPEED_PX = WAVE_SPEED_CM * PIXELS_PER_CM; // 轉換為像素/秒
+
+        const AMPLITUDE = 2.0; // 波的振幅
+
+        // Simulation Variables
+        let animationFrameId = null;
+        let startTime = null;
+        let waveSources = []; // Array to hold source positions (in pixels)
+        let currentFrequency = parseFloat(frequencySlider.value);
+        let currentSourceGapCM = parseFloat(sourceGapSlider.value); // 波源間距 (公分)
+        let showInterferenceLines = showInterferenceLinesCheckbox.checked;
+
+        // Function to set up radio/checkbox button styles
+        function setupControlStyling() {
+            document.querySelectorAll('input[name="waveSource"]').forEach(radio => {
+                const labelSpan = radio.nextElementSibling.querySelector('span:first-child');
+                if (radio.checked) {
+                    labelSpan.classList.add('bg-cyan-600', 'border-cyan-600');
+                    labelSpan.innerHTML = '<span class="block w-2 h-2 rounded-full bg-white mx-auto my-auto"></span>';
+                } else {
+                    labelSpan.classList.remove('bg-cyan-600', 'border-cyan-600');
+                    labelSpan.innerHTML = '';
+                }
+            });
+
+            const checkboxLabelSpan = showInterferenceLinesCheckbox.nextElementSibling.querySelector('span:first-child');
+            if (showInterferenceLinesCheckbox.checked) {
+                checkboxLabelSpan.classList.add('bg-cyan-600', 'border-cyan-600');
+                checkboxLabelSpan.innerHTML = '<span class="block w-2 h-2 rounded-full bg-white mx-auto my-auto opacity-100 transform scale-100 transition-all duration-200 ease-in-out">✔</span>'; // Checkmark
+            } else {
+                checkboxLabelSpan.classList.remove('bg-cyan-600', 'border-cyan-600');
+                checkboxLabelSpan.innerHTML = '';
+            }
+
+            // Toggle visibility of sourceGap slider based on wave source selection
+            if (doubleSourceRadio.checked) {
+                sourceGapControl.classList.remove('hidden');
+            } else {
+                sourceGapControl.classList.add('hidden');
+            }
+        }
+
+        // Set initial canvas dimensions based on CSS for responsiveness
+        function resizeCanvas() {
+            waveCanvas.width = waveCanvas.offsetWidth;
+            waveCanvas.height = waveCanvas.offsetHeight;
+
+            // Update max value for sourceGap slider based on new canvas width
+            // Max source gap in cm should be related to the canvas width in cm (e.g., 70% of canvas width)
+            // Ensure a minimum sensible max value even if waveCanvas.width is 0 initially
+            const maxSourceGapInCm = Math.max(5.0, (waveCanvas.width * 0.7) / PIXELS_PER_CM);
+            sourceGapSlider.max = parseFloat(maxSourceGapInCm.toFixed(1)); // Cap to one decimal place
+
+            // If current value is out of new range, reset it
+            if (parseFloat(sourceGapSlider.value) > sourceGapSlider.max) {
+                sourceGapSlider.value = sourceGapSlider.max;
+            }
+
+            resetSimulation(); // Reset simulation to redraw with new dimensions
+        }
+
+        // Initialize canvas sizes and add resize listener
+        window.addEventListener('load', () => {
+            resizeCanvas(); // Set initial canvas size and max source gap
+            window.addEventListener('resize', resizeCanvas);
+            resetSimulation(); // Call reset to initialize all parameters from sliders and start simulation
+        });
+
+        // Helper function to draw a hyperbola branch given 'a' (half path difference) and 'bSq' (b^2)
+        // isPositiveXBranch: true for the branch where x > a, false for x < -a
+        function drawHyperbolaBranch(a_val, bSq_val, isPositiveXBranch, color) {
+            // Only draw if bSq is positive (real hyperbola)
+            if (bSq_val <= 0) return;
+
+            const waveLengthPX = WAVE_SPEED_CM / currentFrequency * PIXELS_PER_CM;
+            const s1 = waveSources[0];
+            const s2 = waveSources[1];
+            const centerX = (s1.x + s2.x) / 2;
+            const centerY = (s1.y + s2.y) / 2;
+
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.0; // Fixed 1-pixel width for all lines
+
+            let firstPoint = true;
+
+            // Determine the x-range for the current branch
+            // The hyperbola exists only where |x_rel| >= |a_val|
+            const x_rel_start = isPositiveXBranch ? Math.abs(a_val) : -Math.abs(a_val);
+            const x_canvas_start = centerX + x_rel_start;
+
+            // Iterate across the canvas width, but only connect points that are part of the hyperbola
+            // Iterate in steps of 1 pixel to ensure smoothness
+            for (let x_canvas = 0; x_canvas <= waveCanvas.width; x_canvas += 1) {
+                const x_rel = x_canvas - centerX; // x coordinate relative to the center of foci
+
+                // Check if the current x_rel is in the valid domain for this branch
+                if ((isPositiveXBranch && x_rel < x_rel_start) || (!isPositiveXBranch && x_rel > x_rel_start)) {
+                    continue; // Skip if outside the branch's valid x-range
+                }
+
+                // Hyperbola equation: y_rel^2 = b^2 * (x_rel^2/a^2 - 1)
+                const termInsideSqrt = (x_rel * x_rel) / (a_val * a_val) - 1;
+
+                // Ensure termInsideSqrt is not negative due to floating point inaccuracies near vertex
+                if (termInsideSqrt < -1e-9) continue; // Use a small negative tolerance
+
+                const y_rel_val = Math.sqrt(Math.max(0, bSq_val * termInsideSqrt)); // Ensure positive before sqrt
+
+                const y_canvas_upper = centerY + y_rel_val;
+                const y_canvas_lower = centerY - y_rel_val;
+
+                // Draw upper part of the branch
+                if (firstPoint) {
+                    ctx.moveTo(x_canvas, y_canvas_upper);
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(x_canvas, y_canvas_upper);
+                }
+            }
+            ctx.stroke();
+
+            // Draw lower part of the branch
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.0; // Fixed 1-pixel width
+
+            firstPoint = true;
+            // Iterate in reverse for the lower branch to draw it separately and smoothly
+            for (let x_canvas = waveCanvas.width; x_canvas >= 0; x_canvas -= 1) {
+                const x_rel = x_canvas - centerX;
+
+                if ((isPositiveXBranch && x_rel < x_rel_start) || (!isPositiveXBranch && x_rel > x_rel_start)) {
+                    continue;
+                }
+
+                const termInsideSqrt = (x_rel * x_rel) / (a_val * a_val) - 1;
+
+                if (termInsideSqrt < -1e-9) continue;
+
+                const y_rel_val = -Math.sqrt(Math.max(0, bSq_val * termInsideSqrt)); // Negative for lower part
+
+                const y_canvas_lower = centerY + y_rel_val;
+
+                if (firstPoint) {
+                    ctx.moveTo(x_canvas, y_canvas_lower);
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(x_canvas, y_canvas_lower);
+                }
+            }
+            ctx.stroke();
+        }
+
+
+        function calculateWavePattern() {
+            // Ensure canvas has valid dimensions before creating ImageData
+            if (waveCanvas.width <= 0 || waveCanvas.height <= 0) {
+                console.warn("Canvas dimensions are invalid, skipping wave pattern calculation.");
+                return;
+            }
+
+            // Get current time for animation
+            const currentTime = (performance.now() - startTime) / 1000; // Convert to seconds
+
+            const waveLengthCM = WAVE_SPEED_CM / currentFrequency; // 波長 (公分)
+            const waveLengthPX = waveLengthCM * PIXELS_PER_CM; // 波長 (像素)
+            const k = (2 * Math.PI) / waveLengthPX; // 波數 (像素單位)
+            const omega = 2 * Math.PI * currentFrequency; // 角頻率
+
+            const imageData = ctx.createImageData(waveCanvas.width, waveCanvas.height);
+            const data = imageData.data;
+
+            // Draw the animated water wave background
+            for (let y = 0; y < waveCanvas.height; y++) {
+                for (let x = 0; x < waveCanvas.width; x++) {
+                    let totalAmplitude = 0;
+
+                    waveSources.forEach(source => {
+                        const dx = x - source.x;
+                        const dy = y - source.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance > 0) {
+                            const dampedAmplitude = AMPLITUDE / (1 + distance / 50);
+                            totalAmplitude += dampedAmplitude * Math.sin(k * distance - omega * currentTime);
+                        }
+                    });
+
+                    // Original color mapping: shades of blue/white based on total amplitude
+                    const normalizedAmplitude = (totalAmplitude / (AMPLITUDE * waveSources.length) + 1) / 2; // Normalize to 0-1 range
+                    const r = Math.floor(normalizedAmplitude * 255);
+                    const g = Math.floor(normalizedAmplitude * 255);
+                    const b = 255; // Keep blue component high for water feel
+
+                    const index = (y * waveCanvas.width + x) * 4;
+                    data[index + 0] = r;
+                    data[index + 1] = g;
+                    data[index + 2] = b;
+                    data[index + 3] = 255; // Alpha (Fully opaque)
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+
+            // Draw wave sources as circles
+            waveSources.forEach(source => {
+                ctx.beginPath();
+                ctx.arc(source.x, source.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#ef4444'; // Red circle for source
+                ctx.fill();
+                ctx.strokeStyle = '#b91c1c'; // Darker red border
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Draw Interference Lines (Antinodal and Nodal) on top
+            if (showInterferenceLines && waveSources.length === 2) {
+                const s1 = waveSources[0];
+                const s2 = waveSources[1];
+                const c_foci_dist = Math.abs(s2.x - s1.x) / 2; // Half distance between foci
+
+                // Draw antinodal lines (constructive interference)
+                // path_diff = n * lambda_PX => 2a = n * lambda_PX
+                // Iterate 'n' from min to max, ensuring |n * lambda_PX / 2| < c_foci_dist (for real hyperbolas)
+                for (let n = -Math.floor(c_foci_dist / waveLengthPX) - 1; n <= Math.floor(c_foci_dist / waveLengthPX) + 1; n++) {
+                    const K = n * waveLengthPX; // Path difference in pixels
+                    const a_val = K / 2;
+
+                    // Special case for n=0: The perpendicular bisector (a straight line)
+                    if (n === 0) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = '#FFFF64'; // Bright Yellow
+                        ctx.lineWidth = 1.0;
+                        ctx.moveTo(waveCanvas.width / 2, 0); // Center X for perpendicular bisector
+                        ctx.lineTo(waveCanvas.width / 2, waveCanvas.height);
+                        ctx.stroke();
+                        continue; // Skip hyperbola drawing for n=0
+                    }
+
+                    // For real hyperbolas: |a| < c
+                    if (Math.abs(a_val) < c_foci_dist) {
+                        const bSq_val = c_foci_dist * c_foci_dist - a_val * a_val;
+                        // Draw both branches of the hyperbola
+                        drawHyperbolaBranch(a_val, bSq_val, true, '#FFFF64'); // Right branch (Yellow)
+                        drawHyperbolaBranch(a_val, bSq_val, false, '#FFFF64'); // Left branch (Yellow)
+                    }
+                }
+
+                // Draw nodal lines (destructive interference)
+                // path_diff = (n + 0.5) * lambda_PX => 2a = (n + 0.5) * lambda_PX
+                for (let n = -Math.floor(c_foci_dist / waveLengthPX) - 1; n <= Math.floor(c_foci_dist / waveLengthPX) + 1; n++) {
+                    const K = (n + 0.5) * waveLengthPX;
+                    const a_val = K / 2;
+
+                    // For real hyperbolas: |a| < c
+                    if (Math.abs(a_val) < c_foci_dist) {
+                        const bSq_val = c_foci_dist * c_foci_dist - a_val * a_val;
+                        if (bSq_val > 0) { // Ensure bSq is positive for real hyperbola
+                            drawHyperbolaBranch(a_val, bSq_val, true, '#000096'); // Right branch (Deep Blue)
+                            drawHyperbolaBranch(a_val, bSq_val, false, '#000096'); // Left branch (Deep Blue)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Animation Loop
+        function animate() {
+            calculateWavePattern();
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        // Reset Simulation
+        function resetSimulation() {
+            cancelAnimationFrame(animationFrameId); // Stop current animation
+            startTime = performance.now(); // Reset animation timer
+
+            currentFrequency = parseFloat(frequencySlider.value);
+            currentSourceGapCM = parseFloat(sourceGapSlider.value); // Read new source gap in CM
+            showInterferenceLines = showInterferenceLinesCheckbox.checked;
+
+            // Update wave sources based on radio button selection
+            waveSources = [];
+            const sourceGapPX = currentSourceGapCM * PIXELS_PER_CM; // Convert gap to pixels
+            if (singleSourceRadio.checked) {
+                waveSources.push({ x: waveCanvas.width / 2, y: waveCanvas.height / 2 });
+            } else { // doubleSourceRadio.checked
+                waveSources.push({ x: waveCanvas.width / 2 - sourceGapPX / 2, y: waveCanvas.height / 2 });
+                waveSources.push({ x: waveCanvas.width / 2 + sourceGapPX / 2, y: waveCanvas.height / 2 });
+            }
+
+            // Update readout for source gap
+            document.getElementById('sourceGapReadout').innerText = currentSourceGapCM.toFixed(1);
+
+            setupControlStyling(); // Re-apply styling and toggle visibility
+            startSimulation(); // Restart with new parameters
+        }
+
+        // Start simulation
+        function startSimulation() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            startTime = performance.now(); // Ensure startTime is set when starting
+            animate();
+        }
+
+        // Event Listeners
+        singleSourceRadio.addEventListener('change', resetSimulation);
+        doubleSourceRadio.addEventListener('change', resetSimulation);
+        frequencySlider.addEventListener('input', resetSimulation);
+        sourceGapSlider.addEventListener('input', resetSimulation); // Add event listener for new slider
+        showInterferenceLinesCheckbox.addEventListener('change', resetSimulation); // Add event listener for new checkbox
+        resetButton.addEventListener('click', resetSimulation);
+
+        // Initial setup and start handled by window.onload
+    </script>
+</body>
+</html>

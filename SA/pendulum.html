@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>單擺模擬器</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and general aesthetics */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        canvas {
+            border-radius: 0.75rem; /* rounded-xl */
+            background-color: #f0f4f8; /* Tailwind gray-100 equivalent */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4f46e5; /* indigo-600 */
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background .15s ease-in-out;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4f46e5; /* indigo-600 */
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background .15s ease-in-out;
+        }
+        input[type="range"]::-webkit-slider-thumb:active,
+        input[type="range"]::-moz-range-thumb:active {
+            background: #3730a3; /* indigo-800 */
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #e0e7ff; /* indigo-100 */
+            border-radius: 4px;
+        }
+        input[type="range"]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #e0e7ff; /* indigo-100 */
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-purple-100 min-h-screen flex items-center justify-center p-4 text-gray-800">
+    <!-- Main container for the overall layout -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-6xl flex flex-col gap-6">
+
+        <!-- Top Section: Pendulum and Energy Graph (ALWAYS side-by-side) -->
+        <!-- The key change here: 'flex flex-row' to force side-by-side layout regardless of screen size -->
+        <div class="flex flex-row flex-wrap gap-6 lg:gap-8">
+            <!-- Left Sub-section: Animation and Energy Values -->
+            <div class="flex-1 min-w-[300px] flex flex-col items-center justify-center bg-white rounded-xl p-4 shadow-inner">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">單擺擺動</h2>
+                <canvas id="pendulumCanvas" class="w-full h-[400px]"></canvas> <!-- Fixed height for consistent alignment -->
+                <div class="mt-4 text-center font-medium">
+                    <p>動能 (KE): <span id="keValue" class="text-green-600">0.00 J</span></p>
+                    <p>位能 (PE): <span id="peValue" class="text-blue-600">0.00 J</span></p>
+                    <p>總能量 (TE): <span id="teValue" class="text-purple-600">0.00 J</span></p>
+                </div>
+            </div>
+
+            <!-- Right Sub-section: Energy Graph -->
+            <div class="flex-1 min-w-[300px] bg-white rounded-xl p-4 shadow-md flex-grow">
+                <h3 class="text-xl font-semibold mb-3 text-indigo-700">能量時間關係圖</h3>
+                <canvas id="energyGraphCanvas" class="w-full h-[400px]"></canvas> <!-- Fixed height for consistent alignment -->
+            </div>
+        </div>
+
+        <!-- Bottom Section: Controls (full width) -->
+        <div class="bg-indigo-50 rounded-xl p-4 shadow-md w-full">
+            <h3 class="text-xl font-semibold mb-3 text-indigo-700">控制項</h3>
+            <!-- Grid for arranging controls in columns -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="mb-2">
+                    <label for="initialAngle" class="block text-sm font-medium text-gray-700 mb-1">初始擺角 (<span id="angleReadout">45</span>°)</label>
+                    <input type="range" id="initialAngle" min="0" max="170" value="45" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-indigo-200" oninput="document.getElementById('angleReadout').innerText = this.value; resetSimulation()">
+                </div>
+                <div class="mb-2">
+                    <label for="airResistance" class="block text-sm font-medium text-gray-700 mb-1">空氣阻力 (<span id="resistanceReadout">0.02</span>)</label>
+                    <input type="range" id="airResistance" min="0" max="0.5" step="0.005" value="0.02" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-indigo-200" oninput="document.getElementById('resistanceReadout').innerText = this.value; resetSimulation()">
+                </div>
+                <div class="mb-2">
+                    <label for="bobMass" class="block text-sm font-medium text-gray-700 mb-1">擺錘質量 (<span id="massReadout">1.0</span> kg)</label>
+                    <input type="range" id="bobMass" min="0.1" max="5.0" step="0.1" value="1.0" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-indigo-200" oninput="document.getElementById('massReadout').innerText = parseFloat(this.value).toFixed(1); resetSimulation()">
+                </div>
+                <div class="mb-2">
+                    <label for="pendulumLength" class="block text-sm font-medium text-gray-700 mb-1">擺長 (<span id="lengthReadout">1.5</span> m)</label>
+                    <input type="range" id="pendulumLength" min="0.5" max="3.0" step="0.1" value="1.5" class="w-full h-2 rounded-lg appearance-none cursor-pointer bg-indigo-200" oninput="document.getElementById('lengthReadout').innerText = parseFloat(this.value).toFixed(1); resetSimulation()">
+                </div>
+            </div>
+            <button id="resetButton" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 mt-4">
+                重設模擬
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get canvas and context for pendulum animation
+        const pendulumCanvas = document.getElementById('pendulumCanvas');
+        const pendulumCtx = pendulumCanvas.getContext('2d');
+
+        // Get canvas and context for energy graph
+        const energyGraphCanvas = document.getElementById('energyGraphCanvas');
+        const energyGraphCtx = energyGraphCanvas.getContext('2d');
+
+        // Get control elements
+        const initialAngleSlider = document.getElementById('initialAngle');
+        const airResistanceSlider = document.getElementById('airResistance');
+        const bobMassSlider = document.getElementById('bobMass');
+        const pendulumLengthSlider = document.getElementById('pendulumLength');
+        const resetButton = document.getElementById('resetButton');
+
+        // Get energy display elements
+        const keValueSpan = document.getElementById('keValue');
+        const peValueSpan = document.getElementById('peValue');
+        const teValueSpan = document.getElementById('teValue');
+
+        // Physics Constants (公制單位)
+        const G = 9.81; // 重力加速度 (m/s^2)
+        let PENDULUM_LENGTH_CURRENT; // 擺長 (m)
+        let BOB_MASS_CURRENT; // 擺錘質量 (kg)
+        const DT = 0.01; // 時間步長 (s) - 用於物理模擬
+
+        // Pendulum State Variables
+        let angle; // 初始角度 (弧度)
+        let angularVelocity = 0; // 角速度 (rad/s)
+        let damping; // 空氣阻尼係數
+        let animationFrameId = null; // 用於取消 requestAnimationFrame
+
+        // Energy Data for Graphing
+        const maxGraphPoints = 500; // 圖表最大顯示點數
+        let keHistory = [];
+        let peHistory = [];
+        let teHistory = [];
+        let timeHistory = [];
+        let simulationTime = 0; // 模擬時間
+
+        // Set initial canvas dimensions based on CSS for responsiveness
+        function resizeCanvas() {
+            // Pendulum Canvas
+            pendulumCanvas.width = pendulumCanvas.offsetWidth;
+            pendulumCanvas.height = pendulumCanvas.offsetHeight;
+            // Energy Graph Canvas
+            energyGraphCanvas.width = energyGraphCanvas.offsetWidth;
+            energyGraphCanvas.height = energyGraphCanvas.offsetHeight;
+
+            // Redraw everything after resizing
+            drawPendulum();
+            drawEnergyGraph();
+        }
+
+        // Initialize canvas sizes and add resize listener
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            resetSimulation(); // Call reset to initialize all parameters from sliders and start simulation
+        });
+
+        /**
+         * Computes the derivatives of angle and angular velocity.
+         * This function defines the system's differential equations.
+         * @param {number} currentAngle - The current angle of the pendulum in radians.
+         * @param {number} currentAngularVelocity - The current angular velocity of the pendulum in rad/s.
+         * @returns {object} An object containing dA (d_angle/dt) and dW (d_angularVelocity/dt).
+         */
+        function getDerivatives(currentAngle, currentAngularVelocity) {
+            const dA = currentAngularVelocity;
+            const dW = - (G / PENDULUM_LENGTH_CURRENT) * Math.sin(currentAngle) - damping * currentAngularVelocity;
+            return { dA, dW };
+        }
+
+        // Physics Calculation using RK4 method
+        function updatePendulumState() {
+            const k1 = getDerivatives(angle, angularVelocity);
+            const angleK2 = angle + 0.5 * DT * k1.dA;
+            const angularVelocityK2 = angularVelocity + 0.5 * DT * k1.dW;
+            const k2 = getDerivatives(angleK2, angularVelocityK2);
+            const angleK3 = angle + 0.5 * DT * k2.dA;
+            const angularVelocityK3 = angularVelocity + 0.5 * DT * k2.dW;
+            const k3 = getDerivatives(angleK3, angularVelocityK3);
+            const angleK4 = angle + DT * k3.dA;
+            const angularVelocityK4 = angularVelocity + DT * k3.dW;
+            const k4 = getDerivatives(angleK4, angularVelocityK4);
+
+            angle += (DT / 6.0) * (k1.dA + 2 * k2.dA + 2 * k3.dA + k4.dA);
+            angularVelocity += (DT / 6.0) * (k1.dW + 2 * k2.dW + 2 * k3.dW + k4.dW);
+            simulationTime += DT;
+        }
+
+        // Energy Calculation
+        function calculateEnergy() {
+            const height = PENDULUM_LENGTH_CURRENT * (1 - Math.cos(angle));
+            const pe = BOB_MASS_CURRENT * G * height;
+            const linearVelocity = PENDULUM_LENGTH_CURRENT * angularVelocity;
+            const ke = 0.5 * BOB_MASS_CURRENT * linearVelocity * linearVelocity;
+            const te = ke + pe;
+
+            if (timeHistory.length >= maxGraphPoints) {
+                timeHistory.shift();
+                keHistory.shift();
+                peHistory.shift();
+                teHistory.shift();
+            }
+            timeHistory.push(simulationTime);
+            keHistory.push(ke);
+            peHistory.push(pe);
+            teHistory.push(te);
+
+            keValueSpan.innerText = `${ke.toFixed(2)} J`;
+            peValueSpan.innerText = `${pe.toFixed(2)} J`;
+            teValueSpan.innerText = `${te.toFixed(2)} J`;
+        }
+
+        // Draw Pendulum
+        function drawPendulum() {
+            pendulumCtx.clearRect(0, 0, pendulumCanvas.width, pendulumCanvas.height);
+            const originX = pendulumCanvas.width / 2;
+            const originY = pendulumCanvas.height * 0.1;
+
+            pendulumCtx.save();
+            pendulumCtx.translate(originX, originY);
+
+            pendulumCtx.beginPath();
+            pendulumCtx.arc(0, 0, 5, 0, Math.PI * 2);
+            pendulumCtx.fillStyle = '#374151';
+            pendulumCtx.fill();
+
+            const displayLength = PENDULUM_LENGTH_CURRENT * 100;
+            const bobX = displayLength * Math.sin(angle);
+            const bobY = displayLength * Math.cos(angle);
+
+            pendulumCtx.beginPath();
+            pendulumCtx.moveTo(0, 0);
+            pendulumCtx.lineTo(bobX, bobY);
+            pendulumCtx.lineWidth = 3;
+            pendulumCtx.strokeStyle = '#6B7280';
+            pendulumCtx.stroke();
+
+            const bobRadius = 15 + (BOB_MASS_CURRENT * 3);
+            pendulumCtx.beginPath();
+            pendulumCtx.arc(bobX, bobY, bobRadius, 0, Math.PI * 2);
+            pendulumCtx.fillStyle = '#4F46E5';
+            pendulumCtx.fill();
+            pendulumCtx.strokeStyle = '#3730A3';
+            pendulumCtx.lineWidth = 2;
+            pendulumCtx.stroke();
+
+            pendulumCtx.restore();
+        }
+
+        // Draw Energy Graph
+        function drawEnergyGraph() {
+            energyGraphCtx.clearRect(0, 0, energyGraphCanvas.width, energyGraphCanvas.height);
+            if (keHistory.length === 0) return;
+
+            const padding = 20;
+            const graphWidth = energyGraphCanvas.width - 2 * padding;
+            const graphHeight = energyGraphCanvas.height - 2 * padding;
+            const maxEnergy = Math.max(...keHistory, ...peHistory, ...teHistory, 0.01);
+
+            energyGraphCtx.beginPath();
+            energyGraphCtx.moveTo(padding, padding);
+            energyGraphCtx.lineTo(padding, padding + graphHeight);
+            energyGraphCtx.strokeStyle = '#9CA3AF';
+            energyGraphCtx.stroke();
+            energyGraphCtx.font = '10px Inter';
+            energyGraphCtx.fillStyle = '#4B5563';
+            energyGraphCtx.fillText('能量 (J)', padding - 15, padding + graphHeight / 2 - 20);
+
+            energyGraphCtx.beginPath();
+            energyGraphCtx.moveTo(padding, padding + graphHeight);
+            energyGraphCtx.lineTo(padding + graphWidth, padding + graphHeight);
+            energyGraphCtx.strokeStyle = '#9CA3AF';
+            energyGraphCtx.stroke();
+            energyGraphCtx.fillText('時間 (s)', padding + graphWidth / 2 + 20, padding + graphHeight + 15);
+
+            const drawLine = (history, color) => {
+                energyGraphCtx.beginPath();
+                energyGraphCtx.strokeStyle = color;
+                energyGraphCtx.lineWidth = 2;
+                const firstX = padding;
+                const firstY = padding + graphHeight - (history[0] / maxEnergy) * graphHeight;
+                energyGraphCtx.moveTo(firstX, firstY);
+
+                for (let i = 1; i < history.length; i++) {
+                    const x = padding + (i / (maxGraphPoints - 1)) * graphWidth;
+                    const y = padding + graphHeight - (history[i] / maxEnergy) * graphHeight;
+                    energyGraphCtx.lineTo(x, y);
+                }
+                energyGraphCtx.stroke();
+            };
+
+            drawLine(keHistory, '#22C55E');
+            drawLine(peHistory, '#3B82F6');
+            drawLine(teHistory, '#8B5CF6');
+
+            energyGraphCtx.font = '12px Inter';
+            energyGraphCtx.fillText('KE (動能)', energyGraphCanvas.width - 80, 20);
+            energyGraphCtx.fillStyle = '#22C55E';
+            energyGraphCtx.fillRect(energyGraphCanvas.width - 95, 12, 10, 10);
+
+            energyGraphCtx.fillStyle = '#4B5563';
+            energyGraphCtx.fillText('PE (位能)', energyGraphCanvas.width - 80, 40);
+            energyGraphCtx.fillStyle = '#3B82F6';
+            energyGraphCtx.fillRect(energyGraphCanvas.width - 95, 32, 10, 10);
+
+            energyGraphCtx.fillStyle = '#4B5563';
+            energyGraphCtx.fillText('TE (總能量)', energyGraphCanvas.width - 80, 60);
+            energyGraphCtx.fillStyle = '#8B5CF6';
+            energyGraphCtx.fillRect(energyGraphCanvas.width - 95, 52, 10, 10);
+        }
+
+        // Main animation loop
+        function animate() {
+            updatePendulumState();
+            calculateEnergy();
+            drawPendulum();
+            drawEnergyGraph();
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        // Reset simulation
+        function resetSimulation() {
+            cancelAnimationFrame(animationFrameId);
+            angle = (parseFloat(initialAngleSlider.value) * Math.PI) / 180;
+            angularVelocity = 0;
+            damping = parseFloat(airResistanceSlider.value);
+            BOB_MASS_CURRENT = parseFloat(bobMassSlider.value);
+            PENDULUM_LENGTH_CURRENT = parseFloat(pendulumLengthSlider.value);
+
+            keHistory = [];
+            peHistory = [];
+            teHistory = [];
+            timeHistory = [];
+            simulationTime = 0;
+
+            startSimulation();
+        }
+
+        // Start simulation
+        function startSimulation() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            animate();
+        }
+
+        // Event Listeners
+        initialAngleSlider.addEventListener('input', resetSimulation);
+        airResistanceSlider.addEventListener('input', resetSimulation);
+        bobMassSlider.addEventListener('input', resetSimulation);
+        pendulumLengthSlider.addEventListener('input', resetSimulation);
+        resetButton.addEventListener('click', resetSimulation);
+
+        // Initial setup and start
+    </script>
+</body>
+</html>
