@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 圖像英語學習工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        /* 避免 input[type=file] 顯示 */
+        #imageUpload {
+            display: none;
+        }
+        /* 讓載入動畫更平滑 */
+        .loader {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* 標籤樣式 */
+        .label {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            pointer-events: none; /* 讓標籤不會干擾滑鼠事件 */
+            white-space: nowrap; /* 避免文字換行 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+        
+        <!-- 標題與介紹 -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">AI 圖像英語學習工具</h1>
+            <p class="text-gray-400 mt-2">拍照或上傳圖片，讓 AI 標註中英單字！</p>
+        </div>
+
+        <!-- 操作按鈕 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <button id="uploadButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-105">
+                <i class="ph-bold ph-upload-simple text-2xl mr-2"></i>
+                上傳圖片
+            </button>
+            <input type="file" id="imageUpload" accept="image/*">
+            
+            <button id="cameraButton" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-105">
+                <i class="ph-bold ph-camera text-2xl mr-2"></i>
+                開啟相機
+            </button>
+        </div>
+
+        <!-- 相機預覽區 -->
+        <div id="cameraView" class="hidden flex-col items-center mb-4">
+            <video id="videoElement" class="w-full rounded-lg mb-4" autoplay playsinline></video>
+            <div class="flex gap-4">
+                <button id="captureButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center transition-colors">
+                    <i class="ph-bold ph-circle-dashed text-2xl mr-2"></i>
+                    拍照
+                </button>
+                <button id="closeCameraButton" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center transition-colors">
+                     <i class="ph-bold ph-x text-2xl mr-2"></i>
+                    關閉
+                </button>
+            </div>
+        </div>
+
+        <!-- 狀態與結果顯示區 -->
+        <div id="status" class="text-center text-gray-400 my-4 h-6"></div>
+
+        <div id="resultContainer" class="w-full aspect-video bg-gray-700 rounded-lg flex items-center justify-center relative overflow-hidden">
+             <!-- 載入動畫 -->
+            <div id="loader" class="hidden loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+            
+            <!-- 初始提示 -->
+            <div id="initialMessage" class="text-center text-gray-500">
+                <i class="ph ph-image text-6xl"></i>
+                <p class="mt-2">這裡將會顯示您的圖片</p>
+            </div>
+
+            <!-- 圖片與標籤容器 -->
+            <div id="imageContainer" class="absolute inset-0">
+                <img id="resultImage" class="w-full h-full object-contain" src="">
+                <div id="labelsContainer" class="absolute inset-0"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM 元素獲取
+        const uploadButton = document.getElementById('uploadButton');
+        const imageUpload = document.getElementById('imageUpload');
+        const cameraButton = document.getElementById('cameraButton');
+        const cameraView = document.getElementById('cameraView');
+        const videoElement = document.getElementById('videoElement');
+        const captureButton = document.getElementById('captureButton');
+        const closeCameraButton = document.getElementById('closeCameraButton');
+        
+        const status = document.getElementById('status');
+        const resultContainer = document.getElementById('resultContainer');
+        const loader = document.getElementById('loader');
+        const initialMessage = document.getElementById('initialMessage');
+        const imageContainer = document.getElementById('imageContainer');
+        const resultImage = document.getElementById('resultImage');
+        const labelsContainer = document.getElementById('labelsContainer');
+
+        let videoStream = null;
+        // API 冷卻機制相關變數
+        let canMakeApiCall = true;
+        const COOLDOWN_SECONDS = 10; // 10秒冷卻時間
+
+        // --- 事件監聽器設定 ---
+        uploadButton.addEventListener('click', () => imageUpload.click());
+        imageUpload.addEventListener('change', handleImageUpload);
+        cameraButton.addEventListener('click', openCamera);
+        closeCameraButton.addEventListener('click', closeCamera);
+        captureButton.addEventListener('click', captureImage);
+
+        // --- 功能函數 ---
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    processImage(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                updateStatus('請選擇一個有效的圖片檔案。', true);
+            }
+        }
+
+        async function openCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    cameraView.classList.remove('hidden');
+                    cameraView.classList.add('flex');
+                    videoElement.srcObject = videoStream;
+                    uploadButton.disabled = true;
+                    cameraButton.disabled = true;
+                } catch (error) {
+                    console.error("相機開啟失敗:", error);
+                    updateStatus("無法啟動相機。請檢查權限或設備。", true);
+                }
+            } else {
+                updateStatus("您的瀏覽器不支援相機功能。", true);
+            }
+        }
+
+        function closeCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            cameraView.classList.add('hidden');
+            cameraView.classList.remove('flex');
+            videoStream = null;
+            uploadButton.disabled = false;
+            cameraButton.disabled = false;
+        }
+
+        function captureImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/png');
+            closeCamera();
+            processImage(dataUrl);
+        }
+
+        function updateStatus(text, isError = false) {
+            status.textContent = text;
+            status.classList.toggle('text-red-400', isError);
+            status.classList.toggle('text-gray-400', !isError);
+        }
+
+        function clearPreviousResults() {
+            resultImage.src = '';
+            labelsContainer.innerHTML = '';
+            imageContainer.classList.add('hidden');
+            initialMessage.classList.remove('hidden');
+        }
+
+        /**
+         * 核心處理流程: 將圖片傳送給 AI 進行分析
+         * @param {string} base64ImageData - Base64 格式的圖片資料
+         */
+        async function processImage(base64ImageData) {
+            // 檢查冷卻時間是否結束
+            if (!canMakeApiCall) {
+                updateStatus(`為避免請求過於頻繁，請稍後再試。`, true);
+                return;
+            }
+
+            // 開始處理，禁用按鈕並設定冷卻狀態
+            canMakeApiCall = false;
+            uploadButton.disabled = true;
+            cameraButton.disabled = true;
+            uploadButton.classList.add('opacity-50', 'cursor-not-allowed');
+            cameraButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            clearPreviousResults();
+            loader.classList.remove('hidden');
+            initialMessage.classList.add('hidden');
+            updateStatus('正在分析圖片並加上標籤...');
+
+            const base64DataOnly = base64ImageData.split(',')[1];
+
+            try {
+                resultImage.src = base64ImageData;
+                imageContainer.classList.remove('hidden');
+
+                const labels = await analyzeAndGetLabels(base64DataOnly);
+
+                renderLabels(labels);
+                updateStatus('處理完成！');
+
+            } catch (error) {
+                console.error('處理流程失敗:', error);
+                updateStatus(error.message || '發生未知錯誤，請稍後再試。', true);
+                clearPreviousResults();
+            } finally {
+                loader.classList.add('hidden');
+                // 在處理結束後（無論成功或失敗），開始計時冷卻時間
+                setTimeout(() => {
+                    canMakeApiCall = true;
+                    uploadButton.disabled = false;
+                    cameraButton.disabled = false;
+                    uploadButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    cameraButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    if (!status.classList.contains('text-red-400')) {
+                       updateStatus('');
+                    }
+                }, COOLDOWN_SECONDS * 1000);
+            }
+        }
+        
+        /**
+         * 呼叫 Gemini API 分析圖片並取得標籤資訊
+         * @param {string} base64Data - 純 Base64 圖片資料
+         * @returns {Promise<Array<object>>} - 包含標籤資訊的物件陣列
+         */
+        async function analyzeAndGetLabels(base64Data) {
+            const apiKey = "AIzaSyCaI996wEZ-SgwreNztKoKX6U9A0C1FNKw"; // 將在 Canvas 環境中自動提供
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            
+            const prompt = `Analyze this image. Identify exactly 5 distinct and interesting objects, actions, or states. For each, provide its English name, its Traditional Chinese name, and its approximate (x, y) coordinates as percentages (from 0.0 to 1.0) where the label should be placed to point at the item without obscuring it. Provide the output in the specified JSON format.
+分析這張圖片。精確辨識出 5 個不同且有趣的物體、動作或狀態。對於每一個，提供它的英文名稱、繁體中文名稱，以及它的大約 (x, y) 座標（以 0.0 到 1.0 的百分比表示），標籤應該放在這個位置以指向該項目而不會遮擋它。請使用指定的 JSON 格式提供輸出。`;
+
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: [
+                        { text: prompt },
+                        { inlineData: { mimeType: "image/png", data: base64Data } }
+                    ]
+                }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        description: "A list of 5 identified items from the image.",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                english: { type: "STRING", description: "The English name of the item." },
+                                chinese: { type: "STRING", description: "The Traditional Chinese name of the item." },
+                                x: { type: "NUMBER", description: "The horizontal position (0.0 to 1.0) from the left." },
+                                y: { type: "NUMBER", description: "The vertical position (0.0 to 1.0) from the top." }
+                            },
+                            required: ["english", "chinese", "x", "y"]
+                        }
+                    }
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                let errorMessage = '圖片分析與標籤生成失敗。';
+                try {
+                    const errorBody = await response.json();
+                    console.error("Gemini API Error:", errorBody);
+                    if (errorBody.error && errorBody.error.message) {
+                        errorMessage += ` (${errorBody.error.message})`;
+                    } else {
+                        errorMessage += ` (狀態碼: ${response.status})`;
+                    }
+                } catch(e) {
+                     errorMessage += ` (無法解析錯誤回應，狀態碼: ${response.status})`;
+                }
+                throw new Error(errorMessage);
+            }
+
+            const result = await response.json();
+            if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
+                try {
+                    return JSON.parse(result.candidates[0].content.parts[0].text);
+                } catch (e) {
+                    throw new Error("無法解析 AI 回傳的標籤資料。");
+                }
+            } else {
+                console.error("API response missing expected data:", result);
+                if(result.candidates && result.candidates[0].finishReason !== 'STOP'){
+                     throw new Error(`圖片分析失敗，原因: ${result.candidates[0].finishReason}`);
+                }
+                throw new Error('從 API 收到的標籤資料格式不正確。');
+            }
+        }
+        
+        /**
+         * 在圖片上渲染標籤
+         * @param {Array<object>} labelsData - 包含標籤資訊的物件陣列
+         */
+        function renderLabels(labelsData) {
+            labelsContainer.innerHTML = ''; // 清空舊標籤
+            labelsData.forEach(item => {
+                const labelElement = document.createElement('div');
+                labelElement.className = 'label';
+                
+                const x = Math.max(0, Math.min(1, item.x));
+                const y = Math.max(0, Math.min(1, item.y));
+
+                labelElement.style.left = `${x * 100}%`;
+                labelElement.style.top = `${y * 100}%`;
+
+                labelElement.innerHTML = `${item.chinese}<br>${item.english}`;
+                labelsContainer.appendChild(labelElement);
+            });
+        }
+
+    </script>
+</body>
+</html>
