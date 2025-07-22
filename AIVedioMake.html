@@ -77,12 +77,23 @@
             <p class="text-lg sm:text-xl text-gray-600">
                 本頁面將引導完成影片專案，提供清晰的工作進度與任務說明，並確保影片品質達成專案目標。
             </p>
-        </header>
+            <br>
+        
+<!-- 首頁導覽區塊 -->
+<nav class="mb-8 flex flex-wrap justify-center gap-4 text-sm sm:text-base">
+    <a href="#part1" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition">前期準備</a>
+    <a href="#part2" class="px-4 py-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition">分鏡與台詞</a>
+    <a href="#part3" class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full hover:bg-yellow-200 transition">動畫製作</a>
+    <a href="#part4" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition">影片製作</a>
+    <a href="#part5" class="px-4 py-2 bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition">影片輸出</a>
+</nav>
+
+</header>
 
         <!-- Project Sections Container -->
         <main id="sections-container">
             <!-- 第一部分：前期準備與腳本規劃 -->
-            <section class="section-content mb-12 p-6 bg-blue-50 rounded-xl shadow-md">
+            <section id="part1" class="section-content mb-12 p-6 bg-blue-50 rounded-xl shadow-md">
                 <h2 class="text-2xl sm:text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 flex items-center">
                     <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M16.364 16.364l.707.707M2.93 11.07l.707.707M3 12H2m14.864-4.864l-.707-.707M12 18h.01M7 11H6.01M12 10a2 2 0 110 4 2 2 0 010-4zm-7 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     第一部分：前期準備與腳本規劃
@@ -136,7 +147,7 @@
             </section>
 
             <!-- 第二部分：分鏡與台詞創作 -->
-            <section class="section-content mb-12 p-6 bg-green-50 rounded-xl shadow-md">
+            <section id="part2" class="section-content mb-12 p-6 bg-green-50 rounded-xl shadow-md">
                 <h2 class="text-2xl sm:text-3xl font-bold text-green-800 mb-6 border-b-2 border-green-300 pb-2 flex items-center">
                     <svg class="w-8 h-8 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h4m10 0h4M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path></svg>
                     第二部分：分鏡與台詞創作
@@ -179,7 +190,7 @@
             </section>
 
             <!-- 第三部分：動畫製作 -->
-            <section class="section-content mb-12 p-6 bg-yellow-50 rounded-xl shadow-md">
+            <section id="part3" class="section-content mb-12 p-6 bg-yellow-50 rounded-xl shadow-md">
                 <h2 class="text-2xl sm:text-3xl font-bold text-yellow-800 mb-6 border-b-2 border-yellow-300 pb-2 flex items-center">
                     <svg class="w-8 h-8 mr-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
                     第三部分：動畫製作
@@ -222,7 +233,7 @@
             </section>
 
             <!-- 第四部分：影片製作 -->
-            <section class="section-content mb-12 p-6 bg-purple-50 rounded-xl shadow-md">
+            <section id="part4" class="section-content mb-12 p-6 bg-purple-50 rounded-xl shadow-md">
                 <h2 class="text-2xl sm:text-3xl font-bold text-purple-800 mb-6 border-b-2 border-purple-300 pb-2 flex items-center">
                     <svg class="w-8 h-8 mr-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     第四部分：影片製作
@@ -275,7 +286,7 @@
             </section>
 
             <!-- 第五部分：影片輸出 -->
-            <section class="section-content p-6 bg-red-50 rounded-xl shadow-md">
+            <section id="part5" class="section-content p-6 bg-red-50 rounded-xl shadow-md">
                 <h2 class="text-2xl sm:text-3xl font-bold text-red-800 mb-6 border-b-2 border-red-300 pb-2 flex items-center">
                     <svg class="w-8 h-8 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     第五部分：影片輸出
@@ -335,62 +346,89 @@
         </footer>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sections = document.querySelectorAll('.section-content');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const progressIndicator = document.getElementById('progressIndicator');
-            let currentSectionIndex = 0;
+    
 
-            // Function to show a specific section and hide others
-            function showSection(index) {
-                sections.forEach((section, i) => {
-                    if (i === index) {
-                        section.classList.add('active');
-                    } else {
-                        section.classList.remove('active');
-                    }
-                });
-                updateNavigationButtons();
-                updateProgressIndicator();
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const sections = document.querySelectorAll('.section-content');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressIndicator = document.getElementById('progressIndicator');
+    const navLinks = document.querySelectorAll('nav a');
+    let currentSectionIndex = 0;
+
+    function showSection(index) {
+        sections.forEach((section, i) => {
+            if (i === index) {
+                section.classList.add('active');
+            } else {
+                section.classList.remove('active');
             }
-
-            // Function to update the state of navigation buttons (enabled/disabled)
-            function updateNavigationButtons() {
-                prevBtn.disabled = currentSectionIndex === 0;
-                nextBtn.disabled = currentSectionIndex === sections.length - 1;
-                // Add Tailwind classes for visual feedback when disabled
-                prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
-                nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
-                prevBtn.classList.toggle('cursor-not-allowed', prevBtn.disabled);
-                nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
-            }
-
-            // Function to update the progress indicator text
-            function updateProgressIndicator() {
-                progressIndicator.textContent = `第 ${currentSectionIndex + 1} / ${sections.length} 部分`;
-            }
-
-            // Event listener for the "Previous" button
-            prevBtn.addEventListener('click', () => {
-                if (currentSectionIndex > 0) {
-                    currentSectionIndex--;
-                    showSection(currentSectionIndex);
-                }
-            });
-
-            // Event listener for the "Next" button
-            nextBtn.addEventListener('click', () => {
-                if (currentSectionIndex < sections.length - 1) {
-                    currentSectionIndex++;
-                    showSection(currentSectionIndex);
-                }
-            });
-
-            // Initialize the display by showing the first section
-            showSection(currentSectionIndex);
         });
-    </script>
+        currentSectionIndex = index;
+        updateNavigationButtons();
+        updateProgressIndicator();
+    }
+
+    function updateNavigationButtons() {
+        prevBtn.disabled = currentSectionIndex === 0;
+        nextBtn.disabled = currentSectionIndex === sections.length - 1;
+        prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+        nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+        prevBtn.classList.toggle('cursor-not-allowed', prevBtn.disabled);
+        nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
+    }
+
+    function updateProgressIndicator() {
+        progressIndicator.textContent = `第 ${currentSectionIndex + 1} / ${sections.length} 部分`;
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (currentSectionIndex > 0) {
+            showSection(currentSectionIndex - 1);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentSectionIndex < sections.length - 1) {
+            showSection(currentSectionIndex + 1);
+        }
+    });
+
+    // 新增：點導覽按鈕切換區塊顯示
+    navLinks.forEach((link, i) => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(i);
+            window.scrollTo({ top: sections[i].offsetTop - 80, behavior: 'smooth' });
+        });
+    });
+
+    // 小螢幕自動折疊設定
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+        sections.forEach((section) => {
+            const header = section.querySelector("h2");
+            if (header) {
+                header.classList.add("cursor-pointer");
+                const content = Array.from(section.children).filter(el => el.tagName !== "H2");
+                content.forEach(el => el.classList.add("mobile-hidden"));
+                header.addEventListener("click", () => {
+                    content.forEach(el => el.classList.toggle("mobile-hidden"));
+                });
+            }
+        });
+    }
+
+    showSection(currentSectionIndex);
+});
+</script>
+<style>
+.mobile-hidden {
+    display: none;
+}
+</style>
+
 </body>
 </html>
