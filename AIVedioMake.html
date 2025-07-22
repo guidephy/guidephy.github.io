@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>以愛同理，為移工發聲</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            color: #334155; /* Darker text color */
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        /* Hide sections by default, JavaScript will show them */
+        .section-content {
+            display: none;
+        }
+        .section-content.active {
+            display: block;
+        }
+        /* Custom styling for list items */
+        .task-item {
+            background-color: #ffffff; /* White background for each task item */
+            border-radius: 0.75rem; /* Rounded corners */
+            padding: 1.25rem; /* Padding inside */
+            margin-bottom: 1rem; /* Space between items */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+            transition: transform 0.2s ease-in-out; /* Smooth hover effect */
+        }
+        .task-item:hover {
+            transform: translateY(-3px); /* Slightly lift on hover */
+        }
+        .task-item:last-child {
+            margin-bottom: 0; /* No margin for the last item */
+        }
+        .task-item ul {
+            list-style: none; /* Remove default list bullets */
+            padding-left: 0;
+        }
+        .task-item li {
+            margin-bottom: 0.5rem; /* Space between sub-items */
+        }
+        .task-item li:last-child {
+            margin-bottom: 0;
+        }
+        /* Styling for the labels like "詳細內容", "工具", "備註" */
+        .task-label {
+            font-weight: bold; /* Make it bold */
+            color: #1e40af; /* A darker blue color for emphasis */
+            margin-right: 0.25rem; /* Small space after the label */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 md:p-12 lg:p-16">
+    <div class="max-w-6xl mx-auto bg-white shadow-xl rounded-2xl p-6 sm:p-8 md:p-10 lg:p-12">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-indigo-700 mb-4 rounded-lg p-2 bg-indigo-50">
+                以愛同理，為移工發聲
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-600">
+                本頁面將引導完成影片專案，提供清晰的工作進度與任務說明，並確保影片品質達成專案目標。
+            </p>
+        </header>
+
+        <!-- Project Sections Container -->
+        <main id="sections-container">
+            <!-- 第一部分：前期準備與腳本規劃 -->
+            <section class="section-content mb-12 p-6 bg-blue-50 rounded-xl shadow-md">
+                <h2 class="text-2xl sm:text-3xl font-bold text-blue-800 mb-6 border-b-2 border-blue-300 pb-2 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M16.364 16.364l.707.707M2.93 11.07l.707.707M3 12H2m14.864-4.864l-.707-.707M12 18h.01M7 11H6.01M12 10a2 2 0 110 4 2 2 0 010-4zm-7 8h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    第一部分：前期準備與腳本規劃
+                </h2>
+
+                <!-- 任務一：專案啟動與角色選定 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務一：專案啟動與角色選定
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：小組討論並選定影片主角的國籍 (泰國、印尼、越南、菲律賓擇一)。</li>
+                        <li class="ml-4 text-gray-600">*範例選擇國家：越南*</li>
+                    </ul>
+                </div>
+
+                <!-- 任務二：資料查詢與背景研究 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務二：資料查詢與背景研究
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>使用<a href="https://www.perplexity.ai/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Perplexity</a>、<a href="https://felo.ai/zh-Hant/search" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Felo</a>等工具，查詢選定國家的家鄉背景、文化特色。</li>
+                                <li>查詢該國移工在台灣主要從事的工作、仲介問題。</li>
+                                <li>了解移工在台灣遇到的困難、偏見、生活不易，並蒐集移工們在台灣的夢想。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://www.perplexity.ai/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Perplexity</a>、<a href="https://felo.ai/zh-Hant/search" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Felo</a>、NGO組織的報告、學術論文、不同立場新聞、移工社群媒體上的真實分享等</li>
+                        <li><span class="task-label">備註</span>：確保資料多元、深入，為腳本提供豐富素材。</li>
+                    </ul>
+                </div>
+
+                <!-- 任務三：腳本撰寫 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務三：腳本撰寫
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>初步構思故事大綱，確認故事弧線與情感走向。</li>
+                                <li>使用<a href="https://chat.openai.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">ChatGPT</a> <span class="mx-1 text-gray-400">|</span> <a href="https://gemini.google.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Gemini</a>等AI工具，根據Prompt範例撰寫腳本。</li>
+                                <li>加強感動元素，確保情感表達。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://chat.openai.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">ChatGPT</a> <span class="mx-1 text-gray-400">|</span> <a href="https://gemini.google.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Gemini</a></li>
+                        <li><span class="task-label">備註</span>：釐清故事主軸。AI生成後務必親自審核與修改。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 第二部分：分鏡與台詞創作 -->
+            <section class="section-content mb-12 p-6 bg-green-50 rounded-xl shadow-md">
+                <h2 class="text-2xl sm:text-3xl font-bold text-green-800 mb-6 border-b-2 border-green-300 pb-2 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h4m10 0h4M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path></svg>
+                    第二部分：分鏡與台詞創作
+                </h2>
+
+                <!-- 任務一：分鏡撰寫 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務一：分鏡撰寫
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>依腳本產生各分鏡 (參考流程說明的分鏡範本)。</li>
+                                <li>小組成員討論並修改。</li>
+                                <li>討論並修改，確保故事流暢與符合情境並加強感動元素。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://chat.openai.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">ChatGPT</a> <span class="mx-1 text-gray-400">|</span> <a href="https://gemini.google.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Gemini</a></li>
+                        <li><span class="task-label">備註</span>：注意各分鏡間的連貫性和關聯。</li>
+                    </ul>
+                </div>
+
+                <!-- 任務二：各分鏡台詞撰寫 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務二：各分鏡台詞撰寫
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>依各分鏡畫面產生適當的台詞 (中、英和該國語言)。</li>
+                                <li>全體成員再次審查所有腳本內容，確認故事情節完整性、邏輯性與情感連貫性。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://chat.openai.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">ChatGPT</a> <span class="mx-1 text-gray-400">|</span> <a href="https://gemini.google.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Gemini</a></li>
+                        <li><span class="task-label">備註</span>：定稿各分鏡的台詞。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 第三部分：動畫製作 -->
+            <section class="section-content mb-12 p-6 bg-yellow-50 rounded-xl shadow-md">
+                <h2 class="text-2xl sm:text-3xl font-bold text-yellow-800 mb-6 border-b-2 border-yellow-300 pb-2 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    第三部分：動畫製作
+                </h2>
+
+                <!-- 任務一：AI圖片生成 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務一：AI圖片生成
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>根據定稿的分鏡，為每個分鏡生成適當的圖片。</li>
+                                <li>人物一致性：將每個人物的特徵仔細描述清楚 (可請AI協助)。</li>
+                                <li>篩選最佳圖片，並進行必要的調整或修飾。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://chat.openai.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">ChatGPT</a> <span class="mx-1 text-gray-400">|</span> <a href="https://gemini.google.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Gemini</a> <span class="mx-1 text-gray-400">|</span> <a href="https://raphaelai.org/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Raphael AI</a><span class="mx-1 text-gray-400">|</span> <a href="https://vheer.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">vheer</a><span class="mx-1 text-gray-400">|</li>
+                        <li><span class="task-label">備註</span>：圖片風格力求一致，符合影片氛圍。</li>
+                    </ul>
+                </div>
+
+                <!-- 任務二：AI圖片轉動畫 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務二：AI圖片轉動畫
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>將生成的靜態圖片轉換為動畫影片片段。</li>
+                                <li>檢查動畫流暢度與效果。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://www.bing.com/images/create" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Bing</a> <span class="mx-1 text-gray-400">|</span> <a href="https://vheer.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">vheer</a><span class="mx-1 text-gray-400"></li>
+                        <li><span class="task-label">備註</span>：確保每個動畫片段都能準確表達分鏡內容。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 第四部分：影片製作 -->
+            <section class="section-content mb-12 p-6 bg-purple-50 rounded-xl shadow-md">
+                <h2 class="text-2xl sm:text-3xl font-bold text-purple-800 mb-6 border-b-2 border-purple-300 pb-2 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    第四部分：影片製作
+                </h2>
+
+                <!-- 任務一：影像編輯與初步剪輯 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務一：影像編輯與初步剪輯
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>將所有動畫片段導入<a href="https://www.canva.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Canva</a>等影像編輯工具。</li>
+                                <li>依照腳本分鏡順序進行初步剪輯，調整畫面長度。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://www.canva.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Canva</a></li>
+                        <li><span class="task-label">備註</span>：確保畫面銜接流暢。</li>
+                    </ul>
+                </div>
+
+                <!-- 任務二：聲音、字幕 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務二：聲音、字幕
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>將台詞轉成聲音為影片配音。<br><span class="task-label">工具</span>：<a href="https://app.aibase.com/tw/details/27893" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Luvvoice</a> <span class="mx-1 text-gray-400">|</span> <a href="https://ttsmaker.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">TTsMaker</a></li>
+                                <li>字幕：使用<a href="https://www.canva.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Canva</a>自動產生中文、英文和移工該國語言字幕。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">備註</span>：確保音量平衡、字幕同步。</li>
+                    </ul>
+                </div>
+
+                <!-- 任務三：背景音樂 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務三：背景音樂
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：從<a href="https://studio.youtube.com/channel/UC/music" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">YouTube免費音樂庫</a> <span class="mx-1 text-gray-400">|</span> <a href="https://www.suno.ai/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Suno AI</a>產生符合影片氛圍的背景音樂並加入。</li>
+                        <li><span class="task-label">工具</span>：<a href="https://www.canva.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Canva</a> <span class="mx-1 text-gray-400">|</span> <a href="https://www.suno.ai/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Suno AI</a></li>
+                        <li><span class="task-label">備註</span>：配合影片的音樂。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 第五部分：影片輸出 -->
+            <section class="section-content p-6 bg-red-50 rounded-xl shadow-md">
+                <h2 class="text-2xl sm:text-3xl font-bold text-red-800 mb-6 border-b-2 border-red-300 pb-2 flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    第五部分：影片輸出
+                </h2>
+
+                <!-- 任務一：影像編輯與剪輯 (最終審閱) -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務一：影像編輯與剪輯 (最終審閱)
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>觀看完整影片，檢查畫面、聲音、字幕、音樂的配合度。</li>
+                                <li>進行最終的調整和優化。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://www.canva.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Canva</a></li>
+                        <li><span class="task-label">備註</span>：細節決定影片品質。</li>
+                    </ul>
+                </div>
+
+                <!-- 任務二：影片輸出與上傳 -->
+                <div class="task-item">
+                    <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
+                        任務二：影片輸出與上傳
+                    </h3>
+                    <ul class="text-gray-700 space-y-2">
+                        <li><span class="task-label">詳細內容</span>：
+                            <ol class="list-decimal list-inside ml-4 mt-2 space-y-1">
+                                <li>輸出最終影片檔案，確認格式與畫質。</li>
+                                <li>製作影片封面。</li>
+                                <li>將影片上傳至<a href="https://www.youtube.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">YouTube平台</a>。</li>
+                                <li>至個人社群網站 (<a href="https://www.instagram.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">IG</a> <span class="mx-1 text-gray-400">|</span> <a href="https://www.threads.net/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Thread</a>) 分享給朋友。</li>
+                            </ol>
+                        </li>
+                        <li><span class="task-label">工具</span>：<a href="https://www.canva.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Canva</a>、<a href="https://www.youtube.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">YouTube</a>、<a href="https://www.instagram.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">IG</a> <span class="mx-1 text-gray-400">|</span> <a href="https://www.threads.net/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Thread</a></li>
+                        <li><span class="task-label">備註</span>：確保影片設定為公開，方便觀看。</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <!-- Navigation Controls -->
+        <div class="flex justify-center items-center mt-8 space-x-4">
+            <button id="prevBtn" class="px-6 py-3 bg-indigo-500 text-white font-bold rounded-full shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75 transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                上一頁
+            </button>
+            <span id="progressIndicator" class="text-lg font-semibold text-gray-700"></span>
+            <button id="nextBtn" class="px-6 py-3 bg-indigo-500 text-white font-bold rounded-full shadow-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75 transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                下一頁
+            </button>
+        </div>
+
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>&copy; 桃園市立觀音高中 物理科 林仟弘 製作</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.section-content');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const progressIndicator = document.getElementById('progressIndicator');
+            let currentSectionIndex = 0;
+
+            // Function to show a specific section and hide others
+            function showSection(index) {
+                sections.forEach((section, i) => {
+                    if (i === index) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+                updateNavigationButtons();
+                updateProgressIndicator();
+            }
+
+            // Function to update the state of navigation buttons (enabled/disabled)
+            function updateNavigationButtons() {
+                prevBtn.disabled = currentSectionIndex === 0;
+                nextBtn.disabled = currentSectionIndex === sections.length - 1;
+                // Add Tailwind classes for visual feedback when disabled
+                prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+                nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+                prevBtn.classList.toggle('cursor-not-allowed', prevBtn.disabled);
+                nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
+            }
+
+            // Function to update the progress indicator text
+            function updateProgressIndicator() {
+                progressIndicator.textContent = `第 ${currentSectionIndex + 1} / ${sections.length} 部分`;
+            }
+
+            // Event listener for the "Previous" button
+            prevBtn.addEventListener('click', () => {
+                if (currentSectionIndex > 0) {
+                    currentSectionIndex--;
+                    showSection(currentSectionIndex);
+                }
+            });
+
+            // Event listener for the "Next" button
+            nextBtn.addEventListener('click', () => {
+                if (currentSectionIndex < sections.length - 1) {
+                    currentSectionIndex++;
+                    showSection(currentSectionIndex);
+                }
+            });
+
+            // Initialize the display by showing the first section
+            showSection(currentSectionIndex);
+        });
+    </script>
+</body>
+</html>
