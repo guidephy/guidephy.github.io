@@ -66,6 +66,26 @@
             color: #1e40af; /* A darker blue color for emphasis */
             margin-right: 0.25rem; /* Small space after the label */
         }
+        /* Navigation links styling - removed default background and text color */
+        .nav-link {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            cursor: pointer;
+            text-decoration: none; /* Remove underline */
+            /* Default hover state for all buttons */
+            opacity: 0.8; /* Slightly transparent when not active */
+        }
+        .nav-link:hover {
+            opacity: 1; /* Fully opaque on hover */
+        }
+        /* Active nav link will have its background color set dynamically by JS */
+        .nav-link.active-nav {
+            color: #ffffff; /* White text for active link */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1); /* Stronger shadow for active */
+            opacity: 1; /* Fully opaque when active */
+        }
     </style>
 </head>
 <body class="p-4 sm:p-8 md:p-12 lg:p-16">
@@ -75,20 +95,20 @@
                 以愛同理，為移工發聲
             </h1>
             <p class="text-lg sm:text-xl text-gray-600">
-                本頁面將引導完成影片專案，提供清晰的工作進度與任務說明，並確保影片品質達成專案目標。
+                本頁面將引導完成影片專案，提供工作進度與任務說明，確保影片達成專案目標
             </p>
             <br>
         
-<!-- 首頁導覽區塊 -->
-<nav class="mb-8 flex flex-wrap justify-center gap-4 text-sm sm:text-base">
-    <a href="#part1" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition">前期準備</a>
-    <a href="#part2" class="px-4 py-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition">分鏡與台詞</a>
-    <a href="#part3" class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full hover:bg-yellow-200 transition">動畫製作</a>
-    <a href="#part4" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition">影片製作</a>
-    <a href="#part5" class="px-4 py-2 bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition">影片輸出</a>
-</nav>
+            <!-- 首頁導覽區塊 -->
+            <nav class="mb-8 flex flex-wrap justify-center gap-4 text-sm sm:text-base">
+                <a href="#part1" class="nav-link bg-blue-100 text-blue-800" data-section-index="0" data-active-color="bg-blue-600">前期準備</a>
+                <a href="#part2" class="nav-link bg-green-100 text-green-800" data-section-index="1" data-active-color="bg-green-600">分鏡與台詞</a>
+                <a href="#part3" class="nav-link bg-yellow-100 text-yellow-800" data-section-index="2" data-active-color="bg-yellow-600">動畫製作</a>
+                <a href="#part4" class="nav-link bg-purple-100 text-purple-800" data-section-index="3" data-active-color="bg-purple-600">影片製作</a>
+                <a href="#part5" class="nav-link bg-red-100 text-red-800" data-section-index="4" data-active-color="bg-red-600">影片輸出</a>
+            </nav>
 
-</header>
+        </header>
 
         <!-- Project Sections Container -->
         <main id="sections-container">
@@ -106,6 +126,7 @@
                     </h3>
                     <ul class="text-gray-700 space-y-2">
                         <li><span class="task-label">詳細內容</span>：小組討論並選定影片主角的國籍 (泰國、印尼、越南、菲律賓擇一)。</li>
+                        <li class="ml-4 text-gray-600">*範例選擇國家：越南*</li>
                     </ul>
                 </div>
 
@@ -209,7 +230,7 @@
                                 <li>篩選最佳圖片，並進行必要的調整或修飾。</li>
                             </ol>
                         </li>
-                        <li><span class="task-label">工具</span>：<a href="https://chat.openai.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">ChatGPT</a> <span class="mx-1 text-gray-400">|</span> <a href="https://gemini.google.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Gemini</a> <span class="mx-1 text-gray-400">|</span> <a href="https://raphaelai.org/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Raphael AI</a><span class="mx-1 text-gray-400">|</span> <a href="https://vheer.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">vheer</a><span class="mx-1 text-gray-400">|</li>
+                        <li><span class="task-label">工具</span>：<a href="https://chat.openai.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">ChatGPT</a> <span class="mx-1 text-gray-400">|</span> <a href="https://gemini.google.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Gemini</a> <span class="mx-1 text-gray-400">|</span> Raphael AI (請自行搜尋相關工具) <span class="mx-1 text-gray-400">|</span> Vheer (請自行搜尋相關工具)</li>
                         <li><span class="task-label">備註</span>：圖片風格力求一致，符合影片氛圍。</li>
                     </ul>
                 </div>
@@ -226,7 +247,7 @@
                                 <li>檢查動畫流暢度與效果。</li>
                             </ol>
                         </li>
-                        <li><span class="task-label">工具</span>：<a href="https://www.bing.com/images/create" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Bing</a> <span class="mx-1 text-gray-400">|</span> <a href="https://vheer.com/" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">vheer</a><span class="mx-1 text-gray-400"></li>
+                        <li><span class="task-label">工具</span>：<a href="https://www.bing.com/images/create" target="_blank" class="text-blue-600 hover:underline font-medium rounded-md px-1 py-0.5 bg-blue-100">Bing</a> <span class="mx-1 text-gray-400">|</span> Vheer (請自行搜尋相關工具)</li>
                         <li><span class="task-label">備註</span>：確保每個動畫片段都能準確表達分鏡內容。</li>
                     </ul>
                 </div>
@@ -346,89 +367,96 @@
         </footer>
     </div>
 
-    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.section-content');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const progressIndicator = document.getElementById('progressIndicator');
+            const navLinks = document.querySelectorAll('nav a'); // Select all navigation links
+            let currentSectionIndex = 0;
 
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const sections = document.querySelectorAll('.section-content');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const progressIndicator = document.getElementById('progressIndicator');
-    const navLinks = document.querySelectorAll('nav a');
-    let currentSectionIndex = 0;
-
-    function showSection(index) {
-        sections.forEach((section, i) => {
-            if (i === index) {
-                section.classList.add('active');
-            } else {
-                section.classList.remove('active');
-            }
-        });
-        currentSectionIndex = index;
-        updateNavigationButtons();
-        updateProgressIndicator();
-    }
-
-    function updateNavigationButtons() {
-        prevBtn.disabled = currentSectionIndex === 0;
-        nextBtn.disabled = currentSectionIndex === sections.length - 1;
-        prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
-        nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
-        prevBtn.classList.toggle('cursor-not-allowed', prevBtn.disabled);
-        nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
-    }
-
-    function updateProgressIndicator() {
-        progressIndicator.textContent = `第 ${currentSectionIndex + 1} / ${sections.length} 部分`;
-    }
-
-    prevBtn.addEventListener('click', () => {
-        if (currentSectionIndex > 0) {
-            showSection(currentSectionIndex - 1);
-        }
-    });
-
-    nextBtn.addEventListener('click', () => {
-        if (currentSectionIndex < sections.length - 1) {
-            showSection(currentSectionIndex + 1);
-        }
-    });
-
-    // 新增：點導覽按鈕切換區塊顯示
-    navLinks.forEach((link, i) => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            showSection(i);
-            window.scrollTo({ top: sections[i].offsetTop - 80, behavior: 'smooth' });
-        });
-    });
-
-    // 小螢幕自動折疊設定
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) {
-        sections.forEach((section) => {
-            const header = section.querySelector("h2");
-            if (header) {
-                header.classList.add("cursor-pointer");
-                const content = Array.from(section.children).filter(el => el.tagName !== "H2");
-                content.forEach(el => el.classList.add("mobile-hidden"));
-                header.addEventListener("click", () => {
-                    content.forEach(el => el.classList.toggle("mobile-hidden"));
+            // Function to show a specific section and hide others
+            function showSection(index) {
+                sections.forEach((section, i) => {
+                    if (i === index) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
                 });
+                // Update active state for navigation links
+                navLinks.forEach((link, i) => {
+                    // Remove all previous active styles and dynamic background colors
+                    link.classList.remove('active-nav', 'bg-blue-600', 'bg-green-600', 'bg-yellow-600', 'bg-purple-600', 'bg-red-600');
+                    // Re-apply default background and text colors
+                    const defaultBgColor = link.className.match(/bg-\w+-100/);
+                    const defaultTextColor = link.className.match(/text-\w+-800/);
+                    if (defaultBgColor) link.classList.add(defaultBgColor[0]);
+                    if (defaultTextColor) link.classList.add(defaultTextColor[0]);
+
+
+                    if (i === index) {
+                        link.classList.add('active-nav');
+                        // Remove default background and text colors when active
+                        if (defaultBgColor) link.classList.remove(defaultBgColor[0]);
+                        if (defaultTextColor) link.classList.remove(defaultTextColor[0]);
+
+                        const activeColorClass = link.dataset.activeColor; // Get the data-active-color
+                        if (activeColorClass) {
+                            link.classList.add(activeColorClass); // Add the specific background color class
+                        }
+                    }
+                });
+
+                currentSectionIndex = index; // Update current index
+                updateNavigationButtons();
+                updateProgressIndicator();
             }
+
+            // Function to update the state of navigation buttons (enabled/disabled)
+            function updateNavigationButtons() {
+                prevBtn.disabled = currentSectionIndex === 0;
+                nextBtn.disabled = currentSectionIndex === sections.length - 1;
+                // Add Tailwind classes for visual feedback when disabled
+                prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+                nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+                prevBtn.classList.toggle('cursor-not-allowed', prevBtn.disabled);
+                nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
+            }
+
+            // Function to update the progress indicator text
+            function updateProgressIndicator() {
+                progressIndicator.textContent = `第 ${currentSectionIndex + 1} / ${sections.length} 部分`;
+            }
+
+            // Event listener for the "Previous" button
+            prevBtn.addEventListener('click', () => {
+                if (currentSectionIndex > 0) {
+                    showSection(currentSectionIndex - 1);
+                }
+            });
+
+            // Event listener for the "Next" button
+            nextBtn.addEventListener('click', () => {
+                if (currentSectionIndex < sections.length - 1) {
+                    showSection(currentSectionIndex + 1);
+                }
+            });
+
+            // Event listener for navigation links
+            navLinks.forEach((link, i) => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default anchor link behavior
+                    showSection(i);
+                    // Optional: scroll to top of the section if needed, adjusting for fixed header
+                    // window.scrollTo({ top: sections[i].offsetTop - 80, behavior: 'smooth' });
+                });
+            });
+
+            // Initialize the display by showing the first section
+            showSection(currentSectionIndex);
         });
-    }
-
-    showSection(currentSectionIndex);
-});
-</script>
-<style>
-.mobile-hidden {
-    display: none;
-}
-</style>
-
+    </script>
 </body>
 </html>
