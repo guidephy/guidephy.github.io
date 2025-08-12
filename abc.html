@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>遠端搖控鐵捲門</title>
+  <title>遠端搖控鐵捲門 - 測試版</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,13 +28,13 @@
     h4 {
       margin-bottom: 20px;
       color: #333333;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: bold;
     }
 
     #status {
-      margin-bottom: 30px;
-      font-size: 18px;
+      margin-bottom: 20px;
+      font-size: 16px;
       color: #555;
     }
 
@@ -77,16 +77,40 @@
       opacity: 0.4;
       pointer-events: none;
     }
+
+    .settings {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    .settings label {
+      display: block;
+      margin-top: 5px;
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h4>遠端搖控鐵捲門</h4>
+    <h4>遠端搖控鐵捲門 - 測試版</h4>
     <div id="status">狀態：待機中</div>
     <div class="button-container">
       <div id="btn-open" class="arrow-up"></div>
       <div id="btn-close" class="arrow-down"></div>
+    </div>
+    <div class="settings">
+      <label>
+        觸發時間 (秒):
+        <input type="number" id="trigger-time" value="1" min="0.5" step="0.5">
+      </label>
+      <label>
+        觸發模式:
+        <select id="trigger-mode">
+          <option value="high">高電位觸發</option>
+          <option value="low">低電位觸發</option>
+        </select>
+      </label>
     </div>
   </div>
 
@@ -98,23 +122,19 @@
   <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js"></script>
 
   <script>
-    // 延遲函數
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    // 更新狀態文字
     function setStatus(text) {
       document.getElementById('status').innerText = "狀態：" + text;
     }
 
-    // 禁用按鈕
     function disableButtons() {
       document.getElementById('btn-open').classList.add('disabled');
       document.getElementById('btn-close').classList.add('disabled');
     }
 
-    // 啟用按鈕
     function enableButtons() {
       document.getElementById('btn-open').classList.remove('disabled');
       document.getElementById('btn-close').classList.remove('disabled');
@@ -131,26 +151,35 @@
         openDoor.off();
         closeDoor.off();
 
+        async function triggerRelay(relay, actionName) {
+          disableButtons();
+          const triggerTime = parseFloat(document.getElementById('trigger-time').value) * 1000;
+          const mode = document.getElementById('trigger-mode').value;
+          setStatus(`${actionName}中... (${triggerTime / 1000}秒, ${mode}觸發)`);
+
+          if (mode === "high") {
+            relay.on();
+            await sleep(triggerTime);
+            relay.off();
+          } else {
+            relay.off();
+            await sleep(triggerTime);
+            relay.on();
+          }
+
+          setStatus("待機中 (間隔2秒防誤觸)");
+          await sleep(2000);
+          enableButtons();
+        }
+
         // 開門
         document.getElementById('btn-open').addEventListener('click', async function () {
-          disableButtons();
-          setStatus("開門中...");
-          openDoor.on();
-          await sleep(500); // 0.5秒
-          openDoor.off();
-          setStatus("待機中");
-          enableButtons();
+          await triggerRelay(openDoor, "開門");
         });
 
         // 關門
         document.getElementById('btn-close').addEventListener('click', async function () {
-          disableButtons();
-          setStatus("關門中...");
-          closeDoor.on();
-          await sleep(500); // 0.5秒
-          closeDoor.off();
-          setStatus("待機中");
-          enableButtons();
+          await triggerRelay(closeDoor, "關門");
         });
       });
     }());
