@@ -8,10 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0xX/AHs7JpWW2qY9s5d2eX3/z9m6A8v4RjB3aNqA6lF8g4d5O8z5G5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        /* 莫蘭迪色系調整 */
+        /* 文青淺綠色系調整 */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f4f6f9; /* 柔和的淺灰藍 */
+            background-color: #f0fbf0; /* 非常淺的綠色，帶點溫暖感 */
+            color: #334155; /* 深藍灰，確保文字清晰度 */
         }
         .container {
             max-width: 1200px;
@@ -19,7 +20,7 @@
             padding: 1.5rem;
         }
         .header {
-            background: linear-gradient(135deg, #a7b7c7 0%, #8c9ba8 100%); /* 莫蘭迪藍灰漸變 */
+            background: linear-gradient(135deg, #90C29E 0%, #5A8B7A 100%); /* 柔和的綠色漸變 */
             color: white;
             padding: 2.5rem 1.5rem;
             border-bottom-left-radius: 20px;
@@ -28,7 +29,7 @@
             text-align: center;
         }
         .nav-button {
-            background-color: #8c9ba8; /* 莫蘭迪藍灰 */
+            background-color: #5A8B7A; /* 較深的柔和綠 */
             color: white;
             padding: 0.75rem 1.25rem;
             border-radius: 8px;
@@ -41,27 +42,27 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         .nav-button:hover {
-            background-color: #6d7986; /* 深一點的莫蘭迪藍灰 */
+            background-color: #3E6F5F; /* 更深的綠色 */
             transform: translateY(-2px);
         }
         .nav-button.active {
-            background-color: #6d7986; /* 活動按鈕顏色 */
+            background-color: #3E6F5F; /* 活動按鈕顏色 */
             box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .card {
             background-color: white;
             border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
+            padding: 2.5rem; /* 增加內邊距，更像簡報 */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* 調整陰影 */
+            margin-bottom: 2.5rem; /* 增加卡片間距 */
             transition: transform 0.2s ease;
         }
         .card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px); /* 增加懸停效果 */
         }
         .concept-question {
-            background-color: #e0e7ee; /* 莫蘭迪淺藍 */
-            border-left: 5px solid #a7b7c7; /* 莫蘭迪藍 */
+            background-color: #E6F2EB; /* 非常淺的鼠尾草綠 */
+            border-left: 5px solid #90C29E; /* 柔和綠邊框 */
             padding: 1rem 1.5rem;
             border-radius: 8px;
             margin-top: 1.5rem;
@@ -70,8 +71,8 @@
             flex-direction: column;
         }
         .homework-question {
-            background-color: #f7e9d7; /* 莫蘭迪淺橘 */
-            border-left: 5px solid #d4a974; /* 莫蘭迪橘 */
+            background-color: #F9F9F5; /* 帶點綠意的米白色 */
+            border-left: 5px solid #C4D4A4; /* 柔和橄欖綠邊框 */
             padding: 1rem 1.5rem;
             border-radius: 8px;
             margin-top: 1.5rem;
@@ -80,8 +81,8 @@
             flex-direction: column;
         }
         .answer-box {
-            background-color: #eff3f7; /* 答案框淺色 */
-            border: 1px solid #c8d3e0;
+            background-color: #fcfcf9; /* 答案框淺色 */
+            border: 1px solid #dbe2e9;
             padding: 0.8rem 1rem;
             border-radius: 6px;
             margin-top: 0.8rem;
@@ -90,7 +91,7 @@
             display: none; /* 預設隱藏 */
         }
         .show-answer-button {
-            background-color: #7cb398; /* 莫蘭迪綠 */
+            background-color: #7EAA92; /* 柔和的中度綠色 */
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 6px;
@@ -100,7 +101,7 @@
             align-self: flex-start; /* 讓按鈕靠左 */
         }
         .show-answer-button:hover {
-            background-color: #66997e;
+            background-color: #618774; /* 深一點的柔和綠 */
         }
         .table-container {
             overflow-x: auto; /* 確保表格在小螢幕上可滾動 */
@@ -118,7 +119,7 @@
             text-align: left;
         }
         th {
-            background-color: #e0e7ee; /* 莫蘭迪淺藍用於表格頭 */
+            background-color: #E6F2EB; /* 淺綠用於表格頭 */
             font-weight: 600;
             color: #2d3748;
         }
@@ -142,8 +143,8 @@
             border-color: #a0aec0;
         }
         .quiz-option.selected {
-            background-color: #e0e7ee;
-            border-color: #a7b7c7;
+            background-color: #E6F2EB;
+            border-color: #90C29E;
             font-weight: 600;
         }
         .quiz-option.correct {
@@ -180,7 +181,7 @@
             text-align: center;
         }
         .message-box button {
-            background-color: #a7b7c7; /* 莫蘭迪藍 */
+            background-color: #5A8B7A; /* 綠色 */
             color: white;
             padding: 0.6rem 1.2rem;
             border-radius: 6px;
@@ -189,7 +190,7 @@
             transition: background-color 0.3s ease;
         }
         .message-box button:hover {
-            background-color: #8c9ba8;
+            background-color: #3E6F5F;
         }
         .overlay {
             position: fixed;
@@ -219,13 +220,13 @@
 
     <div class="container">
         <div class="flex flex-wrap justify-center py-6">
-            <button class="nav-button active" onclick="showSection('section1')">
+            <button class="nav-button active" onclick="showSection('section1', this)">
                 <i class="fas fa-lightbulb mr-2"></i> 1-1 科學的態度
             </button>
-            <button class="nav-button" onclick="showSection('section2')">
+            <button class="nav-button" onclick="showSection('section2', this)">
                 <i class="fas fa-flask mr-2"></i> 1-2 科學的方法與國際單位制
             </button>
-            <button class="nav-button" onclick="showSection('section3')">
+            <button class="nav-button" onclick="showSection('section3', this)">
                 <i class="fas fa-atom mr-2"></i> 1-3 物理學發展
             </button>
         </div>
@@ -234,6 +235,7 @@
         <div id="section1" class="lesson-section">
             <div class="card">
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">1-1 科學的態度 (Scientific Attitude)</h2>
+               
                 <p class="text-lg leading-relaxed mb-4">
                     科學態度是指科學家在進行科學探究時,所持有的思考方式、處事心態、觀點和方法。
                     這是一種幫助我們面對複雜世界和資訊爆炸時代的重要指引。
@@ -275,7 +277,7 @@
                     <button class="show-answer-button" onclick="toggleAnswer('a1-1-3')">顯示答案</button>
                 </div>
 
-                <h3 class="text-2xl font-semibold text-amber-700 mb-3 mt-8">Homework 素養題 (Homework Practical Questions)</h3>
+                <h3 class="text-2xl font-semibold text-[#6D9773] mb-3 mt-8">Homework 素養題 (Homework Practical Questions)</h3>
                 <div class="homework-question">
                     <p class="text-lg mb-2">小華從小聽媽媽說,手機電池一定要用到完全沒電才能充電,才能延長壽命。他深信不疑,甚
                         至熱心提醒朋友也要這麼做。然而,現代智慧型手機大多使用鋰離子電池,這類電池的最佳保
@@ -317,6 +319,7 @@
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">1-2 科學的方法與國際單位制 (Scientific Method and SI Units)</h2>
 
                 <h3 class="text-2xl font-semibold text-gray-700 mb-3">一、科學的方法 (Scientific Method)</h3>
+               
                 <p class="text-lg leading-relaxed mb-4">
                     科學方法是科學家在探究自然現象時,所使用的一套有系統、客觀且可驗證的步驟。它幫助我
                     們從複雜的現象中找出規律,並建立可靠的知識。這是一個不斷學習、修正和進步的過程。
@@ -391,7 +394,7 @@
                 </div>
 
                 <div class="homework-question">
-                    <h4 class="text-xl font-semibold text-amber-700 mb-3 mt-8">小補充：變因是什麼？ (What are Variables?)</h4>
+                    <h4 class="text-xl font-semibold text-[#6D9773] mb-3 mt-8">小補充：變因是什麼？ (What are Variables?)</h4>
                     <p class="text-lg leading-relaxed mb-4">
                         在科學實驗中，我們需要控制和測量不同的「變因 (variables)」，才能找出事物之間的關係。
                     </p>
@@ -411,6 +414,7 @@
                 </div>
 
                 <h3 class="text-2xl font-semibold text-gray-700 mb-3 mt-8">二、國際單位制 (The International System of Units (SI))</h3>
+               
                 <p class="text-lg leading-relaxed mb-4">
                     想像一下，如果每個國家都有自己測量長度、重量的方式，那科學家們怎麼溝通呢？
                     所以我們需要一套全球通用的「國際單位制 (SI)」，讓科學測量更精準、更容易交流！
@@ -513,7 +517,7 @@
                 </ol>
                 <p class="text-lg leading-relaxed mb-6">
                     <span class="font-semibold text-red-600">舉例：</span> 速度 (Velocity) = 距離 (Distance) / 時間 (Time)。
-                    所以速度的單位就是「公尺/秒 (m/s)」，是不是很簡單呢？
+                    所以速度的單位就是「公尺/秒 ($m/s$)」，是不是很簡單呢？
                 </p>
 
                 <h4 class="text-xl font-semibold text-gray-700 mb-3">三、前綴詞 (Prefixes)</h4>
@@ -643,13 +647,13 @@
 
                 <div class="concept-question" id="q1-3-4">
                     <p class="text-lg mb-2">4、One millisecond (ms) is equal to
-                        (<span class="font-bold text-gray-700">1000 / 1000000 / 1000000000</span>) of a nanosecond(ns).</p>
+                        (<span class="font-bold text-gray-700">1000 / $10^6$ / $10^9$</span>) of a nanosecond(ns).</p>
                     <div class="answer-box" id="a1-3-4">答案: $10^6$ (因為 $1 \, ms = 10^{-3} \, s$, $1 \, ns = 10^{-9} \, s$, 所以 $10^{-3} \, s / 10^{-9} \, s = 10^6$)，<br>Oops! 這題目有陷阱喔，應該是問 1 ms 是 1 ns 的幾倍。如果題目是問 $1 \, ms = \_\_\_\_ \, ns$，那就是 $10^6 \, ns$。</div>
                     <button class="show-answer-button" onclick="toggleAnswer('a1-3-4')">顯示答案</button>
                 </div>
 
 
-                <h3 class="text-2xl font-semibold text-amber-700 mb-3 mt-8">Homework 影片題 (Homework Video Questions)</h3>
+                <h3 class="text-2xl font-semibold text-[#6D9773] mb-3 mt-8">Homework 影片題 (Homework Video Questions)</h3>
                 <p class="text-lg mb-4">
                     <i class="fas fa-video text-red-500 mr-2"></i> 觀看影片，然後回答問題：
                     <a href="https://reurl.cc/GNaAMG" target="_blank" class="text-blue-600 hover:underline">影片連結</a>
@@ -692,6 +696,7 @@
         <div id="section3" class="lesson-section hidden">
             <div class="card">
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">1-3 物理學發展 (Development of Physics)</h2>
+               
                 <p class="text-lg leading-relaxed mb-4">
                     物理學是自然科學中一個非常重要的分支,旨在探索物質世界的各種自然現象。它的研究範圍
                     廣泛,從了解微小的原子結構到理解浩瀚的宇宙變化,是所有應用科學的基礎。學習物理學,
@@ -731,9 +736,9 @@
                     <li><span class="font-bold">第一朵烏雲：邁克生-莫立實驗的結果 (Michelson-Morley Experiment):</span> 這個實驗結果與「光以太」的理論預期不符，為愛因斯坦的「狹義相對論」鋪路。</li>
                     <li><span class="font-bold">第二朵烏雲：黑體輻射問題 (Black-body Radiation Problem):</span> 古典物理無法解釋物體輻射能量的頻譜分佈，促使普朗克提出了「量子論」。</li>
                 </ul>
-                
+               
 
-                <h3 class="text-2xl font-semibold text-amber-700 mb-3 mt-8">物理史小測驗 (Physics History Quiz)</h3>
+                <h3 class="text-2xl font-semibold text-[#6D9773] mb-3 mt-8">物理史小測驗 (Physics History Quiz)</h3>
                 <p class="text-lg mb-4">
                     點擊連結，看看你對物理學發展史了解多少：
                     <a href="https://reurl.cc/9nW14x" target="_blank" class="text-blue-600 hover:underline">物理史小測驗</a>
@@ -1024,7 +1029,15 @@
 
         // 載入頁面時，預設顯示第一個單元
         window.onload = function() {
-            showSection('section1', document.querySelector('.nav-button.active'));
+            // 由於 MathJax 是非同步載入，我們需要確保它準備好後再渲染
+            if (typeof MathJax !== 'undefined') {
+                showSection('section1', document.querySelector('.nav-button.active'));
+            } else {
+                // 如果 MathJax 還沒載入，則監聽其載入事件
+                window.addEventListener('MathJaxLoaded', () => {
+                    showSection('section1', document.querySelector('.nav-button.active'));
+                });
+            }
         };
 
         // 顯示或隱藏答案框的函數
@@ -1061,7 +1074,6 @@
                 document.querySelector(`.nav-button[onclick="showSection('${sectionId}', this)"]`).classList.add('active');
             }
 
-
             // 當切換頁面時，隱藏所有已顯示的答案
             document.querySelectorAll('.answer-box').forEach(box => {
                 box.style.display = 'none';
@@ -1071,7 +1083,8 @@
             });
 
             // 處理數學公式渲染，確保在內容載入後重新渲染
-            setTimeout(renderMath, 100); // 給 MathJax 一點時間來處理
+            // 延遲渲染以確保 DOM 完全更新
+            setTimeout(renderMath, 100);
         }
 
         // 顯示訊息框 (未在當前代碼中使用，但保留以防未來需要)
@@ -1090,9 +1103,26 @@
         // 處理數學公式渲染，確保在內容載入後重新渲染
         function renderMath() {
             if (typeof MathJax !== 'undefined') {
-                MathJax.typeset();
+                MathJax.typesetPromise().then(() => {
+                    // Optional: You can add a console log here to confirm MathJax rendered
+                    console.log('MathJax typeset completed.');
+                }).catch((err) => console.error('MathJax typeset failed:', err));
             }
         }
+
+        // 監聽 MathJax 載入完成事件，以便在 window.onload 時能正確觸發
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            startup: {
+                ready() {
+                    console.log('MathJax is ready to go!');
+                    MathJax.startup.defaultReady();
+                    window.dispatchEvent(new Event('MathJaxLoaded')); // 觸發自定義事件
+                }
+            }
+        };
     </script>
 </body>
 </html>
