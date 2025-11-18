@@ -37,6 +37,31 @@
       gap: 8px;
     }
 
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-link:hover {
+      opacity: 0.9;
+    }
+
+    .home-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
     .toolbar {
       display: flex;
       align-items: center;
@@ -71,9 +96,9 @@
       transform: translateY(1px);
     }
 
-    /* ⭐ 編輯 + 預覽維持滿版高度 */
+    /* ⭐ 改成 min-height，讓下面圖片區有空間長出來 */
     main {
-      height: calc(100vh - 56px);
+      min-height: calc(100vh - 56px);
       display: flex;
       flex-direction: column;
     }
@@ -111,7 +136,6 @@
       font-size: 0.9rem;
     }
 
-    /* ===== ChatGPT 風格暗色主題：gpt-dark ===== */
     .cm-s-gpt-dark.CodeMirror {
       background: #2e3842;
       color: #e5e7eb;
@@ -140,17 +164,50 @@
       background: #020617;
     }
 
-    .cm-s-gpt-dark span.cm-tag      { color: #ff4d4f; }
-    .cm-s-gpt-dark span.cm-bracket  { color: #ff4d4f; }
-    .cm-s-gpt-dark span.cm-attribute{ color: #c4b5fd; }
-    .cm-s-gpt-dark span.cm-string   { color: #bef264; }
-    .cm-s-gpt-dark span.cm-comment  { color: #6b7280; font-style: italic; }
-    .cm-s-gpt-dark span.cm-keyword  { color: #f472b6; }
-    .cm-s-gpt-dark span.cm-def      { color: #7dd3fc; }
-    .cm-s-gpt-dark span.cm-number   { color: #facc15; }
-    .cm-s-gpt-dark span.cm-atom     { color: #f97316; }
-    .cm-s-gpt-dark span.cm-builtin  { color: #38bdf8; }
-    .cm-s-gpt-dark span.cm-meta     { color: #a5b4fc; }
+    .cm-s-gpt-dark span.cm-tag {
+      color: #ff4d4f;
+    }
+
+    .cm-s-gpt-dark span.cm-bracket {
+      color: #ff4d4f;
+    }
+
+    .cm-s-gpt-dark span.cm-attribute {
+      color: #c4b5fd;
+    }
+
+    .cm-s-gpt-dark span.cm-string {
+      color: #bef264;
+    }
+
+    .cm-s-gpt-dark span.cm-comment {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .cm-s-gpt-dark span.cm-keyword {
+      color: #f472b6;
+    }
+
+    .cm-s-gpt-dark span.cm-def {
+      color: #7dd3fc;
+    }
+
+    .cm-s-gpt-dark span.cm-number {
+      color: #facc15;
+    }
+
+    .cm-s-gpt-dark span.cm-atom {
+      color: #f97316;
+    }
+
+    .cm-s-gpt-dark span.cm-builtin {
+      color: #38bdf8;
+    }
+
+    .cm-s-gpt-dark span.cm-meta {
+      color: #a5b4fc;
+    }
 
     iframe {
       width: 100%;
@@ -178,7 +235,7 @@
       margin: 1.5rem auto 3rem auto;
       padding: 0 1.5rem;
       color: #111827;
-      display: none; /* 一開始完全不佔空間 */
+      display: none;
     }
 
     .image-section-header {
@@ -273,13 +330,12 @@
       word-break: break-all;
     }
 
-    /* ⭐ 複製網址按鈕：淺藍色 & 文字置中 */
     .image-card-body button {
       width: 100%;
       font-size: 0.75rem;
       padding: 0.35rem 0.45rem;
       border-radius: 999px;
-      background: #bfdbfe;      /* blue-200 */
+      background: #bfdbfe;
       color: #1e3a8a;
       border: 1px solid #60a5fa;
       text-align: center;
@@ -287,10 +343,9 @@
     }
 
     .image-card-body button:hover {
-      background: #93c5fd;      /* blue-300 */
+      background: #93c5fd;
     }
 
-    /* 右下角「展開圖片」按鈕 */
     .image-toggle-btn {
       position: fixed;
       bottom: 1rem;
@@ -302,7 +357,7 @@
       padding: 0.45rem 0.9rem;
       font-size: 0.85rem;
       border: 1px solid #1f2937;
-      display: none; /* 一開始隱藏 */
+      display: none;
       box-shadow: 0 12px 20px rgba(15, 23, 42, 0.4);
       cursor: pointer;
     }
@@ -311,7 +366,6 @@
       background: #1f2937;
     }
 
-    /* Loader 小圈圈 */
     .loader {
       border: 3px solid #e5e7eb;
       border-top: 3px solid #22d3ee;
@@ -327,13 +381,11 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* ===== Modal 彈窗 ===== */
-
     .modal-backdrop {
       position: fixed;
       inset: 0;
       background: rgba(15, 23, 42, 0.55);
-      display: none; /* 一開始隱藏 */
+      display: none;
       align-items: center;
       justify-content: center;
       z-index: 50;
@@ -436,7 +488,12 @@
 
 <body>
   <header>
-    <h1>Guidephy's HTML Studio</h1>
+    <h1>
+      <a class="brand-link" href="https://guidephy.github.io/" target="_blank" rel="noopener noreferrer">
+        <span class="home-icon">⌂</span>
+        <span>Guidephy's HTML Studio</span>
+      </a>
+    </h1>
     <div class="toolbar">
       <button id="runBtn">執行</button>
       <button id="imageBtn" class="secondary">
@@ -466,7 +523,6 @@
     </div>
   </main>
 
-  <!-- 圖片抓取結果區 -->
   <section id="image-section" class="image-section">
     <div class="image-section-header">
       <h2>
@@ -479,10 +535,8 @@
     <div id="image-grid" class="image-grid"></div>
   </section>
 
-  <!-- 右下角展開按鈕 -->
   <button id="image-toggle-btn" class="image-toggle-btn">展開圖片</button>
 
-  <!-- 圖片抓取 Modal -->
   <div id="image-modal-backdrop" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -501,7 +555,6 @@
     </div>
   </div>
 
-  <!-- CodeMirror 主程式與語法模式 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/xml/xml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/javascript/javascript.min.js"></script>
@@ -509,8 +562,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/htmlmixed/htmlmixed.min.js"></script>
 
   <script>
-    /* ===== HTML 練習編輯器 ===== */
-
     const defaultCode =
 `<!DOCTYPE html>
 <html>
@@ -581,8 +632,6 @@
     runBtn.addEventListener("click", runCode);
     downloadBtn.addEventListener("click", downloadHtml);
 
-    /* ===== 圖片抓取功能 ===== */
-
     const imageBtn           = document.getElementById("imageBtn");
     const imageModalBackdrop = document.getElementById("image-modal-backdrop");
     const imageModalClose    = document.getElementById("image-modal-close");
@@ -630,13 +679,11 @@
       }
     });
 
-    /* ⭐ 顯示圖片區（展開） */
     function showImageSection() {
       imageSection.style.display = "block";
       imageToggleBtn.style.display = "none";
     }
 
-    /* ⭐ 縮小圖片區（隱藏 + 顯示右下角按鈕） */
     function minimizeImageSection() {
       imageSection.style.display = "none";
       imageToggleBtn.style.display = "inline-flex";
@@ -649,11 +696,12 @@
       scrollToImageSection();
     });
 
-    /* ⭐ 新增：捲動到圖片區的輔助函式 */
     function scrollToImageSection() {
-      const rect = imageSection.getBoundingClientRect();
-      const y = window.scrollY + rect.top - 60; // 稍微往上留一點空間
-      window.scrollTo({ top: y, behavior: "smooth" });
+      const top = imageSection.offsetTop - 16; // 上方留一點空白
+      window.scrollTo({
+        top,
+        behavior: "smooth"
+      });
     }
 
     function setImageStatusLoading() {
@@ -662,7 +710,7 @@
         <div class="loader"></div>
         <div style="text-align:center; font-size:0.9rem;">正在從 Google 文件抓取圖片...</div>
       `;
-      scrollToImageSection(); // ⭐ 一開始就捲到圖片區
+      scrollToImageSection();
     }
 
     function setImageStatusMessage(message, type) {
@@ -671,7 +719,6 @@
       if (type === "error") color = "#b91c1c";
       else if (type === "success") color = "#166534";
       imageStatusEl.innerHTML = '<div style="font-size:0.9rem; color:' + color + ';">' + message + '</div>';
-      // 這裡可選擇要不要再捲一次；多半前面 loading 已經捲過了，就不用重複
     }
 
     function clearImageResults() {
@@ -762,16 +809,16 @@
             document.execCommand("copy");
           }
           btn.textContent = "已複製！";
-          btn.style.background = "#4ade80"; // 成功：綠色
+          btn.style.background = "#4ade80";
           btn.style.color = "#064e3b";
         } catch (e) {
           btn.textContent = "複製失敗";
-          btn.style.background = "#fecaca"; // 失敗：淡紅
+          btn.style.background = "#fecaca";
           btn.style.color = "#7f1d1d";
         } finally {
           setTimeout(() => {
             btn.textContent = "複製網址";
-            btn.style.background = "#bfdbfe"; // 回到淺藍
+            btn.style.background = "#bfdbfe";
             btn.style.color = "#1e3a8a";
             btn.disabled = false;
           }, 1800);
