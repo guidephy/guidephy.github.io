@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>Guidephy's HTML Learning </title>
+  <title>Guidephy's HTML Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CodeMirror 核心 -->
@@ -17,7 +17,7 @@
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f3f4f6;
-      color: #111827;
+      color: #e5e7eb;
     }
 
     header {
@@ -32,6 +32,9 @@
     header h1 {
       margin: 0;
       font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .toolbar {
@@ -48,6 +51,16 @@
       font-size: 0.9rem;
       background: #2563eb;
       color: #f9fafb;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
     }
 
     button.secondary {
@@ -58,6 +71,7 @@
       transform: translateY(1px);
     }
 
+    /* ⭐ 編輯 + 預覽維持滿版高度 */
     main {
       height: calc(100vh - 56px);
       display: flex;
@@ -82,6 +96,7 @@
       background: #e5e7eb;
       border-bottom: 1px solid #d1d5db;
       font-size: 0.85rem;
+      color: #111827;
     }
 
     .pane-body {
@@ -97,7 +112,6 @@
     }
 
     /* ===== ChatGPT 風格暗色主題：gpt-dark ===== */
-
     .cm-s-gpt-dark.CodeMirror {
       background: #2e3842;
       color: #e5e7eb;
@@ -126,63 +140,18 @@
       background: #020617;
     }
 
-    /* HTML Tag <div> / <body>（你要求的紅色） */
-    .cm-s-gpt-dark span.cm-tag {
-      color: #ff4d4f;
-    }
+    .cm-s-gpt-dark span.cm-tag      { color: #ff4d4f; }
+    .cm-s-gpt-dark span.cm-bracket  { color: #ff4d4f; }
+    .cm-s-gpt-dark span.cm-attribute{ color: #c4b5fd; }
+    .cm-s-gpt-dark span.cm-string   { color: #bef264; }
+    .cm-s-gpt-dark span.cm-comment  { color: #6b7280; font-style: italic; }
+    .cm-s-gpt-dark span.cm-keyword  { color: #f472b6; }
+    .cm-s-gpt-dark span.cm-def      { color: #7dd3fc; }
+    .cm-s-gpt-dark span.cm-number   { color: #facc15; }
+    .cm-s-gpt-dark span.cm-atom     { color: #f97316; }
+    .cm-s-gpt-dark span.cm-builtin  { color: #38bdf8; }
+    .cm-s-gpt-dark span.cm-meta     { color: #a5b4fc; }
 
-    /* < > 一併變紅色 */
-    .cm-s-gpt-dark span.cm-bracket {
-      color: #ff4d4f;
-    }
-
-    /* HTML 屬性 (class, id 等) */
-    .cm-s-gpt-dark span.cm-attribute {
-      color: #c4b5fd;
-    }
-
-    /* 字串 */
-    .cm-s-gpt-dark span.cm-string {
-      color: #bef264;
-    }
-
-    /* 註解 */
-    .cm-s-gpt-dark span.cm-comment {
-      color: #6b7280;
-      font-style: italic;
-    }
-
-    /* JS & CSS 關鍵字 */
-    .cm-s-gpt-dark span.cm-keyword {
-      color: #f472b6;
-    }
-
-    /* JS 變數名稱、函式名稱（你要求的亮藍色） */
-    .cm-s-gpt-dark span.cm-def {
-      color: #7dd3fc;
-    }
-
-    /* 數字 */
-    .cm-s-gpt-dark span.cm-number {
-      color: #facc15;
-    }
-
-    /* atom: true, false, null */
-    .cm-s-gpt-dark span.cm-atom {
-      color: #f97316;
-    }
-
-    /* 內建 method */
-    .cm-s-gpt-dark span.cm-builtin {
-      color: #38bdf8;
-    }
-
-    /* DOCTYPE / <meta> */
-    .cm-s-gpt-dark span.cm-meta {
-      color: #a5b4fc;
-    }
-
-    /* 預覽 iframe */
     iframe {
       width: 100%;
       height: 100%;
@@ -202,13 +171,261 @@
       pointer-events: none;
     }
 
+    /* ===== 圖片抓取區 ===== */
+
+    .image-section {
+      max-width: 1200px;
+      margin: 1.5rem auto 3rem auto;
+      padding: 0 1.5rem;
+      color: #111827;
+      display: none; /* 一開始完全不佔空間 */
+    }
+
+    .image-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .image-section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #111827;
+    }
+
+    .image-section h2 span {
+      font-size: 0.75rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .image-minimize-btn {
+      background: #e5e7eb;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .image-minimize-btn:hover {
+      background: #d1d5db;
+    }
+
+    .image-status {
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .image-card {
+      background: #ffffff;
+      border-radius: 0.75rem;
+      border: 1px solid #d1d5db;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: contain;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .image-card-body {
+      padding: 0.75rem 0.9rem 0.9rem 0.9rem;
+      font-size: 0.8rem;
+    }
+
+    .image-card-body input {
+      width: 100%;
+      padding: 0.35rem 0.45rem;
+      font-size: 0.75rem;
+      border-radius: 0.4rem;
+      border: 1px solid #d1d5db;
+      margin-bottom: 0.4rem;
+    }
+
+    .image-card-body a {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: #2563eb;
+      text-decoration: underline;
+      margin-bottom: 0.45rem;
+      word-break: break-all;
+    }
+
+    /* ⭐ 複製網址按鈕：淺藍色 & 文字置中 */
+    .image-card-body button {
+      width: 100%;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.45rem;
+      border-radius: 999px;
+      background: #bfdbfe;      /* blue-200 */
+      color: #1e3a8a;
+      border: 1px solid #60a5fa;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .image-card-body button:hover {
+      background: #93c5fd;      /* blue-300 */
+    }
+
+    /* 右下角「展開圖片」按鈕 */
+    .image-toggle-btn {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 60;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.85rem;
+      border: 1px solid #1f2937;
+      display: none; /* 一開始隱藏 */
+      box-shadow: 0 12px 20px rgba(15, 23, 42, 0.4);
+      cursor: pointer;
+    }
+
+    .image-toggle-btn:hover {
+      background: #1f2937;
+    }
+
+    /* Loader 小圈圈 */
+    .loader {
+      border: 3px solid #e5e7eb;
+      border-top: 3px solid #22d3ee;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 0.5rem auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ===== Modal 彈窗 ===== */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none; /* 一開始隱藏 */
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal {
+      background: #f9fafb;
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 25px 60px rgba(15,23,42,0.35);
+      color: #111827;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-header h2 {
+      font-size: 1rem;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #6b7280;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+    }
+
+    .modal-body label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+
+    .modal-body input[type="url"] {
+      width: 100%;
+      padding: 0.6rem 0.7rem;
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .modal-body small {
+      display: block;
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.8rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .modal-footer button {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+    }
+
+    .btn-secondary-light {
+      background: #e5e7eb;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #f9fafb;
+      border: 1px solid #1d4ed8;
+    }
+
     @media (max-width: 900px) {
       .split {
         flex-direction: column;
-      }
-      main {
-        height: auto;
-        min-height: 100vh;
       }
       .pane {
         height: 50vh;
@@ -219,18 +436,13 @@
 
 <body>
   <header>
-    <h1 style="display:flex; align-items:center; gap:8px;">
-  <a href="https://guidephy.github.io/" target="_blank" class="home-icon">
-    <img src="data:image/svg+xml;utf8,
-      <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%239ca3af'>
-        <path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/>
-      </svg>" 
-      width="22" height="22" alt="Home">
-  </a>
-  Guidephy HTML Practice
-</h1>
+    <h1>Guidephy's HTML Studio</h1>
     <div class="toolbar">
       <button id="runBtn">執行</button>
+      <button id="imageBtn" class="secondary">
+        <span class="btn-icon">📷</span>
+        圖片抓取
+      </button>
       <button id="downloadBtn" class="secondary">下載 HTML</button>
     </div>
   </header>
@@ -254,6 +466,41 @@
     </div>
   </main>
 
+  <!-- 圖片抓取結果區 -->
+  <section id="image-section" class="image-section">
+    <div class="image-section-header">
+      <h2>
+        Google 文件圖片抓取結果
+        <span id="image-count-badge">0 張</span>
+      </h2>
+      <button id="image-minimize-btn" class="image-minimize-btn">縮小</button>
+    </div>
+    <div id="image-status" class="image-status"></div>
+    <div id="image-grid" class="image-grid"></div>
+  </section>
+
+  <!-- 右下角展開按鈕 -->
+  <button id="image-toggle-btn" class="image-toggle-btn">展開圖片</button>
+
+  <!-- 圖片抓取 Modal -->
+  <div id="image-modal-backdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>從 Google 文件抓取圖片</h2>
+        <button class="modal-close" id="image-modal-close" aria-label="關閉">×</button>
+      </div>
+      <div class="modal-body">
+        <label for="gdoc-url">共用連結（建議使用「發佈到網路」的網址）</label>
+        <input type="url" id="gdoc-url" placeholder="https://docs.google.com/document/d/e/.../pub">
+        <small>貼上 Google 文件的共用連結，按「開始抓取」後，下方會顯示所有圖片與網址。</small>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary-light" id="image-modal-cancel">取消</button>
+        <button class="btn-primary" id="image-modal-submit">開始抓取</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CodeMirror 主程式與語法模式 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/xml/xml.min.js"></script>
@@ -262,7 +509,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/htmlmixed/htmlmixed.min.js"></script>
 
   <script>
-    /* 預設程式碼 */
+    /* ===== HTML 練習編輯器 ===== */
+
     const defaultCode =
 `<!DOCTYPE html>
 <html>
@@ -285,7 +533,6 @@
 
     textarea.value = defaultCode;
 
-    /* 初始化 CodeMirror */
     const editor = CodeMirror.fromTextArea(textarea, {
       mode: "text/html",
       lineNumbers: true,
@@ -314,7 +561,7 @@
         setStatus("取消下載");
         return;
       }
-      filename = filename.trim().replace(/[\\/:*?"<>|]/g, "");
+      filename = filename.trim().replace(/[\\/:*?\"<>|]/g, "");
       if (filename === "") filename = "my_page";
 
       const blob = new Blob([editor.getValue()], { type: "text/html;charset=utf-8" });
@@ -326,14 +573,219 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-
       URL.revokeObjectURL(url);
 
-      setStatus(`已下載：${filename}.html`);
+      setStatus("已下載：" + filename + ".html");
     }
 
     runBtn.addEventListener("click", runCode);
     downloadBtn.addEventListener("click", downloadHtml);
+
+    /* ===== 圖片抓取功能 ===== */
+
+    const imageBtn           = document.getElementById("imageBtn");
+    const imageModalBackdrop = document.getElementById("image-modal-backdrop");
+    const imageModalClose    = document.getElementById("image-modal-close");
+    const imageModalCancel   = document.getElementById("image-modal-cancel");
+    const imageModalSubmit   = document.getElementById("image-modal-submit");
+    const gdocUrlInput       = document.getElementById("gdoc-url");
+
+    const imageSection       = document.getElementById("image-section");
+    const imageStatusEl      = document.getElementById("image-status");
+    const imageGridEl        = document.getElementById("image-grid");
+    const imageCountBadge    = document.getElementById("image-count-badge");
+
+    const imageMinimizeBtn   = document.getElementById("image-minimize-btn");
+    const imageToggleBtn     = document.getElementById("image-toggle-btn");
+
+    let extractedImageUrls = [];
+
+    function openImageModal() {
+      imageModalBackdrop.style.display = "flex";
+      setTimeout(() => gdocUrlInput.focus(), 50);
+    }
+
+    function closeImageModal() {
+      imageModalBackdrop.style.display = "none";
+    }
+
+    imageBtn.addEventListener("click", openImageModal);
+    imageModalClose.addEventListener("click", closeImageModal);
+    imageModalCancel.addEventListener("click", closeImageModal);
+
+    imageModalSubmit.addEventListener("click", () => {
+      const url = gdocUrlInput.value.trim();
+      if (!url) {
+        alert("請先輸入 Google 文件的共用連結");
+        return;
+      }
+      closeImageModal();
+      extractImagesFromGDoc(url);
+    });
+
+    gdocUrlInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        imageModalSubmit.click();
+      }
+    });
+
+    /* ⭐ 顯示圖片區（展開） */
+    function showImageSection() {
+      imageSection.style.display = "block";
+      imageToggleBtn.style.display = "none";
+    }
+
+    /* ⭐ 縮小圖片區（隱藏 + 顯示右下角按鈕） */
+    function minimizeImageSection() {
+      imageSection.style.display = "none";
+      imageToggleBtn.style.display = "inline-flex";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    imageMinimizeBtn.addEventListener("click", minimizeImageSection);
+    imageToggleBtn.addEventListener("click", () => {
+      showImageSection();
+      scrollToImageSection();
+    });
+
+    /* ⭐ 新增：捲動到圖片區的輔助函式 */
+    function scrollToImageSection() {
+      const rect = imageSection.getBoundingClientRect();
+      const y = window.scrollY + rect.top - 60; // 稍微往上留一點空間
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+
+    function setImageStatusLoading() {
+      showImageSection();
+      imageStatusEl.innerHTML = `
+        <div class="loader"></div>
+        <div style="text-align:center; font-size:0.9rem;">正在從 Google 文件抓取圖片...</div>
+      `;
+      scrollToImageSection(); // ⭐ 一開始就捲到圖片區
+    }
+
+    function setImageStatusMessage(message, type) {
+      showImageSection();
+      let color = "#111827";
+      if (type === "error") color = "#b91c1c";
+      else if (type === "success") color = "#166534";
+      imageStatusEl.innerHTML = '<div style="font-size:0.9rem; color:' + color + ';">' + message + '</div>';
+      // 這裡可選擇要不要再捲一次；多半前面 loading 已經捲過了，就不用重複
+    }
+
+    function clearImageResults() {
+      imageGridEl.innerHTML = "";
+      extractedImageUrls = [];
+      imageCountBadge.textContent = "0 張";
+    }
+
+    async function extractImagesFromGDoc(url) {
+      clearImageResults();
+      setImageStatusLoading();
+
+      const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
+
+      try {
+        const response = await fetch(proxyUrl);
+        if (!response.ok) {
+          throw new Error("網路錯誤: " + response.status + " " + response.statusText);
+        }
+
+        const htmlText = await response.text();
+        const parser   = new DOMParser();
+        const doc      = parser.parseFromString(htmlText, "text/html");
+        const images   = doc.querySelectorAll("img");
+
+        if (!images || images.length === 0) {
+          setImageStatusMessage("這個連結裡找不到任何圖片喔。", "info");
+          return;
+        }
+
+        let count = 0;
+        images.forEach(img => {
+          const src = img.src;
+          if (src && src.includes("googleusercontent.com")) {
+            count++;
+            extractedImageUrls.push(src);
+            createImageCard(src);
+          }
+        });
+
+        imageCountBadge.textContent = count + " 張";
+
+        if (count === 0) {
+          setImageStatusMessage("有圖片，但不是 Google 文件的圖檔（沒有 googleusercontent.com）。", "info");
+        } else {
+          setImageStatusMessage("成功抓到 " + count + " 張圖片！", "success");
+        }
+
+      } catch (err) {
+        console.error(err);
+        setImageStatusMessage("抓取失敗，請確認連結是否正確，且文件已對外開放或「發佈到網路」。", "error");
+      }
+    }
+
+    function createImageCard(src) {
+      const card = document.createElement("div");
+      card.className = "image-card";
+
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "提取圖片";
+      img.loading = "lazy";
+
+      const body = document.createElement("div");
+      body.className = "image-card-body";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = src;
+      input.readOnly = true;
+
+      const link = document.createElement("a");
+      link.href = src;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "在新分頁開啟圖片";
+
+      const btn = document.createElement("button");
+      btn.textContent = "複製網址";
+
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(src);
+          } else {
+            input.select();
+            document.execCommand("copy");
+          }
+          btn.textContent = "已複製！";
+          btn.style.background = "#4ade80"; // 成功：綠色
+          btn.style.color = "#064e3b";
+        } catch (e) {
+          btn.textContent = "複製失敗";
+          btn.style.background = "#fecaca"; // 失敗：淡紅
+          btn.style.color = "#7f1d1d";
+        } finally {
+          setTimeout(() => {
+            btn.textContent = "複製網址";
+            btn.style.background = "#bfdbfe"; // 回到淺藍
+            btn.style.color = "#1e3a8a";
+            btn.disabled = false;
+          }, 1800);
+        }
+      });
+
+      body.appendChild(input);
+      body.appendChild(link);
+      body.appendChild(btn);
+
+      card.appendChild(img);
+      card.appendChild(body);
+      imageGridEl.appendChild(card);
+    }
   </script>
 </body>
 </html>
