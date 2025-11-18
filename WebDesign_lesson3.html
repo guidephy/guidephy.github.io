@@ -21,65 +21,25 @@
 </head>
 
 <body>
-  <div id="news" class="big-bg">
-       <header class="page-header wrapper">
-      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
-      <nav>
-        <ul class="main-nav">
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
-              <div class="dropdown-content" id="myDropdown1">
-                  <a href="physics.html">物理課程</a>
-                  <a href="exp.html">探究與實作</a>
-                  <a href="WebDesign.html">網頁設計</a>
-                  <a href="LineBot.html">LineBot</a>
-                  <a href="VPython.html">VPython</a>
-                  <a href="Ohtaigi.html">台語課程</a>
-                  <a href="https://guidephy.github.io/AIVedioMake.html">AI影片製作</a>
-                  <a href="https://guidephy.github.io/HTMLTryit.html">HTMLTryit</a>
-                
-                
-               
-              </div>
-          </li>
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
-              <div class="dropdown-content" id="myDropdown2">
-                  <a href="https://script.google.com/macros/s/AKfycbyZWI6YLQ9ng5_J2w9Ja3aaSMePIr0yoN_T3pHZnG-hj_tSel0_osba7n85c86QRYZg/exec">物理史小測驗</a>
-                  <a href="Competency.html">高中物理素養題</a>
-                  <a href="https://script.google.com/macros/s/AKfycbyEp8Au3N-jP5suw_9Y43fRSRuCLUeApICyc0cQQhM94PA8CyGgKhp0hsfVyPy3r28y/exec">AI素養題產生器</a>
-                  <a href="Ttest.html">國中技藝競賽題庫</a>
-               
-              </div>
+   <!-- 這裡是要放共用選單的地方 -->
+  <div id="header-container"></div>
 
-          </li>
-
-          
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
-              <div class="dropdown-content" id="myDropdown3">
-                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
-                  <a href="https://guidephy.github.io/EnergyTransition/">Planet713計畫</a>
-                  <a href="https://guidephy.github.io/pond/">埤塘水資源</a>
-                  <a href="https://guidephy.github.io/internationalFriend/">國際好友遊觀音</a>
-                  <a href="https://script.google.com/a/macros/stu.gish.tyc.edu.tw/s/AKfycbwqbZCZ85vOXjynDA7bApL9B6u5MSIzguHILXkdVXKPp89Yt7h2OH_fZXylqi80eQ/exec">專題週誌管理</a>
-                  <a href="https://guidephy.github.io/111ceproject.html">碳捕捉暨Na循環發電IoT系統</a>
-                  <a href="https://guidephy.notion.site/Learn-to-Create-An-RPG-Game-In-Unity-Tutorial-Udemy-e1e79f20d692448b86fd4fc740aac94b?pvs=4">unity2D學習筆記</a>
-                  <a href="https://guidephy.notion.site/Unity-Learning-d45d104ccbf34dcaa15c937affee7546">unity3D學習筆記</a>
-                   <a href="https://www.canva.com/design/DAGvLDABy7E/PmhdRn-rWlQZIVEqCTvzjQ/view?utm_content=DAGvLDABy7E&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hc550a8b387">新課程想法</a>
-                <a href="https://docs.google.com/document/d/e/2PACX-1vTLQ1xpkzCLlnxey7UzqvJdGaHpV50vPvpjRoxxB1K4Qmk1U2aSMBBNyJjgNe15gnFuGmo8iwLmaDOd/pub">google文件範例</a>  
-              
-                  
-               
-             
-                
-              </div>
-
-          </li>
-          
-          <li><a href="https://guidephy.github.io/Ophysics">物理自學平台</a></li>
-        </ul>
-      </nav>
-    </header>
-
-  </div>
+  <!-- 先載入 header 的 script（放在 container 之後）-->
+  <script>
+    // 這段會去抓 nav.html 的內容塞進來
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('header-container').innerHTML = html;
+      })
+      .catch(error => {
+        console.error('載入選單失敗：', error);
+      });
+  </script>
+  
+    <div class="wrapper">
+      <h2 class="page-title">程式設計</h2>
+    </div>
   
     <div class="wrapper">
       <h2 class="page-title">程式設計</h2>
