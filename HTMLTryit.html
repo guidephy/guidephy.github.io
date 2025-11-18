@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guidephy's HTML Learning </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CodeMirror 核心 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    header {
+      padding: 0.75rem 1.5rem;
+      background: #111827;
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button {
+      border: none;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      background: #2563eb;
+      color: #f9fafb;
+    }
+
+    button.secondary {
+      background: #374151;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    main {
+      height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .split {
+      flex: 1;
+      display: flex;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .pane-header {
+      padding: 0.5rem 0.9rem;
+      background: #e5e7eb;
+      border-bottom: 1px solid #d1d5db;
+      font-size: 0.85rem;
+    }
+
+    .pane-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* CodeMirror 尺寸 */
+    .CodeMirror {
+      height: 100%;
+      font-size: 0.9rem;
+    }
+
+    /* ===== ChatGPT 風格暗色主題：gpt-dark ===== */
+
+    .cm-s-gpt-dark.CodeMirror {
+      background: #2e3842;
+      color: #e5e7eb;
+      padding: 0.75rem;
+    }
+
+    .cm-s-gpt-dark .CodeMirror-gutters {
+      background: #0a0f1a;
+      border-right: 1px solid #1e293b;
+      color: #64748b;
+    }
+
+    .cm-s-gpt-dark .CodeMirror-linenumber {
+      color: #64748b;
+    }
+
+    .cm-s-gpt-dark .CodeMirror-cursor {
+      border-left: 1px solid #e5e7eb;
+    }
+
+    .cm-s-gpt-dark .CodeMirror-selected {
+      background: #1e293b;
+    }
+
+    .cm-s-gpt-dark .CodeMirror-activeline-background {
+      background: #020617;
+    }
+
+    /* HTML Tag <div> / <body>（你要求的紅色） */
+    .cm-s-gpt-dark span.cm-tag {
+      color: #ff4d4f;
+    }
+
+    /* < > 一併變紅色 */
+    .cm-s-gpt-dark span.cm-bracket {
+      color: #ff4d4f;
+    }
+
+    /* HTML 屬性 (class, id 等) */
+    .cm-s-gpt-dark span.cm-attribute {
+      color: #c4b5fd;
+    }
+
+    /* 字串 */
+    .cm-s-gpt-dark span.cm-string {
+      color: #bef264;
+    }
+
+    /* 註解 */
+    .cm-s-gpt-dark span.cm-comment {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    /* JS & CSS 關鍵字 */
+    .cm-s-gpt-dark span.cm-keyword {
+      color: #f472b6;
+    }
+
+    /* JS 變數名稱、函式名稱（你要求的亮藍色） */
+    .cm-s-gpt-dark span.cm-def {
+      color: #7dd3fc;
+    }
+
+    /* 數字 */
+    .cm-s-gpt-dark span.cm-number {
+      color: #facc15;
+    }
+
+    /* atom: true, false, null */
+    .cm-s-gpt-dark span.cm-atom {
+      color: #f97316;
+    }
+
+    /* 內建 method */
+    .cm-s-gpt-dark span.cm-builtin {
+      color: #38bdf8;
+    }
+
+    /* DOCTYPE / <meta> */
+    .cm-s-gpt-dark span.cm-meta {
+      color: #a5b4fc;
+    }
+
+    /* 預覽 iframe */
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+    }
+
+    .status-bar {
+      position: absolute;
+      bottom: 0.4rem;
+      right: 0.7rem;
+      font-size: 0.75rem;
+      background: rgba(17, 24, 39, 0.8);
+      color: white;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 900px) {
+      .split {
+        flex-direction: column;
+      }
+      main {
+        height: auto;
+        min-height: 100vh;
+      }
+      .pane {
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 style="display:flex; align-items:center; gap:8px;">
+  <a href="https://guidephy.github.io/" target="_blank" class="home-icon">
+    <img src="data:image/svg+xml;utf8,
+      <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%239ca3af'>
+        <path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/>
+      </svg>" 
+      width="22" height="22" alt="Home">
+  </a>
+  Guidephy HTML Practice
+</h1>
+    <div class="toolbar">
+      <button id="runBtn">執行</button>
+      <button id="downloadBtn" class="secondary">下載 HTML</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="split">
+      <section class="pane">
+        <div class="pane-header">HTML 程式碼</div>
+        <div class="pane-body">
+          <textarea id="code"></textarea>
+          <div class="status-bar" id="status">就緒</div>
+        </div>
+      </section>
+
+      <section class="pane">
+        <div class="pane-header">預覽</div>
+        <div class="pane-body">
+          <iframe id="preview"></iframe>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- CodeMirror 主程式與語法模式 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/htmlmixed/htmlmixed.min.js"></script>
+
+  <script>
+    /* 預設程式碼 */
+    const defaultCode =
+`<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+
+<h1>This is a Heading</h1>
+<p>This is a paragraph.</p>
+
+</body>
+</html>`;
+
+    const textarea    = document.getElementById("code");
+    const iframe      = document.getElementById("preview");
+    const runBtn      = document.getElementById("runBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const statusEl    = document.getElementById("status");
+
+    textarea.value = defaultCode;
+
+    /* 初始化 CodeMirror */
+    const editor = CodeMirror.fromTextArea(textarea, {
+      mode: "text/html",
+      lineNumbers: true,
+      theme: "gpt-dark",
+      tabSize: 2,
+      indentUnit: 2,
+      lineWrapping: true
+    });
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function runCode() {
+      const html = editor.getValue();
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+      setStatus("已執行預覽");
+    }
+
+    function downloadHtml() {
+      let filename = prompt("請輸入檔名（不需 .html）", "my_page");
+      if (filename === null) {
+        setStatus("取消下載");
+        return;
+      }
+      filename = filename.trim().replace(/[\\/:*?"<>|]/g, "");
+      if (filename === "") filename = "my_page";
+
+      const blob = new Blob([editor.getValue()], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename + ".html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      URL.revokeObjectURL(url);
+
+      setStatus(`已下載：${filename}.html`);
+    }
+
+    runBtn.addEventListener("click", runCode);
+    downloadBtn.addEventListener("click", downloadHtml);
+  </script>
+</body>
+</html>
