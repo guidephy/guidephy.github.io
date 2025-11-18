@@ -18,49 +18,21 @@
 </head>
 
 <body>
-  <div id="news" class="big-bg">
-    <header class="page-header wrapper">
-      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
-      <nav>
-        <ul class="main-nav">
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
-              <div class="dropdown-content" id="myDropdown1">
-                  <a href="physics.html">物理課程</a>
-                  <a href="WebDesign.html">網頁設計</a>
-                  <a href="LineBot.html">LineBot</a>
-                  <a href="VPython.html">VPython</a>
-                  <a href="Ohtaigi.html">台語課程</a>
-              </div>
-          </li>
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
-              <div class="dropdown-content" id="myDropdown2">
-                  <a href="phyhistorytest.html">物理史小測驗</a>
-                  <a href="phystest.html">高中物理題目</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-              </div>
+   <!-- 這裡是要放共用選單的地方 -->
+  <div id="header-container"></div>
 
-          </li>
-
-          
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
-              <div class="dropdown-content" id="myDropdown3">
-                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
-                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
-                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
-                  <a href="https://guidephy.github.io/111ceproject.html">碳捕捉暨Na循環發電IoT系統</a>
-                   <a href="https://guidephy.github.io/grades.html">課堂計分</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-                
-              </div>
-
-          </li>
-          
-          <li><a href="#">讀書心得</a></li>
-        </ul>
-      </nav>
-    </header>
-
-  </div>
+  <!-- 先載入 header 的 script（放在 container 之後）-->
+  <script>
+    // 這段會去抓 nav.html 的內容塞進來
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('header-container').innerHTML = html;
+      })
+      .catch(error => {
+        console.error('載入選單失敗：', error);
+      });
+  </script>
 
    <div class="wrapper">
       <h2 class="page-title">VPython課程</h2>
