@@ -18,49 +18,21 @@
 </head>
 
 <body>
-  <div id="news" class="big-bg">
-    <header class="page-header wrapper">
-      <h1><a href="https://guidephy.github.io"><img class="logo" src="images/GuidephyNotesLogo.png" alt="Guidephy學習教室首頁"></a></h1>
-      <nav>
-        <ul class="main-nav">
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction1()">學習講義</a>
-              <div class="dropdown-content" id="myDropdown1">
-                  <a href="physics.html">物理課程</a>
-                  <a href="WebDesign.html">網頁設計</a>
-                  <a href="LineBot.html">LineBot</a>
-                  <a href="VPython.html">VPython</a>
-                  <a href="Ohtaigi.html">台語課程</a>
-              </div>
-          </li>
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction2()">線上題庫</a>
-              <div class="dropdown-content" id="myDropdown2">
-                  <a href="phyhistorytest.html">物理史小測驗</a>
-                  <a href="phystest.html">高中物理題目</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-              </div>
+   <!-- 這裡是要放共用選單的地方 -->
+  <div id="header-container"></div>
 
-          </li>
-
-          
-          <li class="dropdown"><a href="javascript:void(0)" class="dropbtn" onclick="myFunction3()">作品分享</a>
-              <div class="dropdown-content" id="myDropdown3">
-                  <a href="https://guidephy.github.io/vrguanyin/">VR遊觀音</a>
-                  <a href="https://guidephy.github.io/EnergyTransition/">Planet285計畫</a>
-                  <a href="https://guidephy.github.io/imagetotext/">影像擷取文字系統</a>
-                  <a href="https://guidephy.github.io/111ceproject.html">碳捕捉暨Na循環發電IoT系統</a>
-                   <a href="https://guidephy.github.io/grades.html">課堂計分</a>
-                  <a href="https://guidephy.github.io/taigitest.html">台羅拼音聽力測驗</a>
-                
-              </div>
-
-          </li>
-          
-          <li><a href="#">讀書心得</a></li>
-        </ul>
-      </nav>
-    </header>
-
-  </div>
+  <!-- 先載入 header 的 script（放在 container 之後）-->
+  <script>
+    // 這段會去抓 nav.html 的內容塞進來
+    fetch('nav.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('header-container').innerHTML = html;
+      })
+      .catch(error => {
+        console.error('載入選單失敗：', error);
+      });
+  </script>
 
    <div class="wrapper">
       <h2 class="page-title">LineBot課程</h2>
@@ -72,7 +44,7 @@
         <header class="post-info">
         <a class="post-title"  target="_blank" href="LineBot_lesson1.html">LineBot的第一堂課</a>
         
-        <p class="post-date">2/16 <span>2022</span></p>
+        <p class="post-date">Lesson <span>1</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
       <div style="text-align:center;">
@@ -85,7 +57,7 @@
              <header class="post-info">
         <a class="post-title"  target="_blank" href="LineBot_lesson2.html">LineBot的第二堂課</a>
         
-        <p class="post-date">2/16 <span>2022</span></p>
+        <p class="post-date">Lesson <span>2</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
       <div style="text-align:center;">
@@ -99,7 +71,7 @@
         <header class="post-info">
         <h2  class="post-title">LineBot第三節課</h2>
         
-        <p class="post-date">2/23 <span>2022</span></p>
+        <p class="post-date">Lesson <span>3</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
       <div style="text-align:center;">
@@ -113,7 +85,7 @@
       <header class="post-info">
         <a class="post-title"  target="_blank" href="LineBot_lesson4.html">LineBot的第四堂課</a>
         
-        <p class="post-date">4/6 <span>2022</span></p>
+        <p class="post-date">Lesson<span>4</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
       <div style="text-align:center;">
@@ -127,7 +99,7 @@
       <header class="post-info">
          <a class="post-title"  target="_blank" href="LineBot_lesson5.html">LineBot的第五堂課</a>
         
-        <p class="post-date">4/13 <span>2022</span></p>
+        <p class="post-date">Lesson <span>5</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
       <div style="text-align:center;">
@@ -142,7 +114,7 @@
        <header class="post-info">
          <a class="post-title"  target="_blank" href="LineBot_lesson6.html">LineBot的第六堂課</a>
         
-        <p class="post-date">4/13 <span>2022</span></p>
+        <p class="post-date">Lesson <span>6</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
       <div style="text-align:center;">
@@ -158,7 +130,7 @@
       <header class="post-info">
          <a class="post-title"  target="_blank" href="LineBot_lesson7.html">LineBot的第七堂課</a>
         
-        <p class="post-date">4/20 <span>2022</span></p>
+        <p class="post-date">Lesson <span>7</span></p>
         <p class="post-cat">類別：程式教學</p>
       </header>
       <div style="text-align:center;">
