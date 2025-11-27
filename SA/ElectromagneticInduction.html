@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電磁感應 3D 實驗室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #ffffff; font-family: 'Noto Sans TC', sans-serif; }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .gauge-needle {
+            transition: transform 0.1s ease-out;
+            transform-origin: bottom center;
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #475569;
+            border-radius: 2px;
+        }
+
+        /* Current Label */
+        #currentLabel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ea580c; 
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 4px rgba(255,255,255,0.9); /* Lighter shadow for readability */
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dynamic Label for 3D Scene -->
+    <div id="currentLabel">感應電流 I</div>
+
+    <!-- UI Overlay -->
+    <div class="absolute top-4 right-4 w-80 p-6 rounded-xl glass-panel text-white z-10">
+        <h1 class="text-2xl font-bold mb-4 text-sky-400 border-b border-gray-600 pb-2">電磁感應實驗 (Faraday's Law)</h1>
+        
+        <div class="space-y-6">
+            <!-- Mode Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">選擇線圈型式</label>
+                <select id="modeSelect" class="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-sky-500 outline-none">
+                    <option value="loop">環形線圈 (Circular Loop)</option>
+                    <option value="solenoid">螺線管 (Solenoid)</option>
+                </select>
+            </div>
+
+            <!-- Galvanometer (Visual Gauge) -->
+            <div class="bg-slate-800 p-4 rounded-lg border border-slate-600 flex flex-col items-center">
+                <span class="text-sm text-gray-400 mb-2">檢流計 (感應電流 I)</span>
+                <div class="relative w-40 h-20 overflow-hidden">
+                    <!-- Gauge Background -->
+                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-32 rounded-full border-t-8 border-l-8 border-r-8 border-gray-600 box-border" style="border-bottom-color: transparent; transform: translate(-50%, 50%) rotate(-45deg);"></div>
+                    <!-- Tick Marks -->
+                    <div class="absolute bottom-0 left-1/2 w-0.5 h-3 bg-white opacity-50 transform -translate-x-1/2 -translate-y-28"></div>
+                    <div class="absolute bottom-0 left-1/2 w-0.5 h-2 bg-gray-500 opacity-50 transform -translate-x-1/2 -translate-y-28 rotate-15" style="transform-origin: bottom center; transform: translateX(-50%) rotate(30deg) translateY(-112px);"></div>
+                    <div class="absolute bottom-0 left-1/2 w-0.5 h-2 bg-gray-500 opacity-50 transform -translate-x-1/2 -translate-y-28 rotate--15" style="transform-origin: bottom center; transform: translateX(-50%) rotate(-30deg) translateY(-112px);"></div>
+                    
+                    <!-- Needle -->
+                    <div id="gaugeNeedle" class="gauge-needle absolute bottom-0 left-1/2 w-1 h-24 bg-red-500 rounded-full shadow-lg" style="transform: translateX(-50%) rotate(0deg);"></div>
+                    <div class="absolute bottom-0 left-1/2 w-4 h-4 bg-gray-300 rounded-full transform -translate-x-1/2 translate-y-2"></div>
+                </div>
+                <div class="flex justify-between w-full px-4 text-xs text-gray-400 font-mono mt-1">
+                    <span>-</span>
+                    <span>0</span>
+                    <span>+</span>
+                </div>
+            </div>
+
+            <!-- Magnet Control -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-sm font-medium text-gray-300">磁鐵位置 (可直接拖曳磁鐵)</label>
+                </div>
+                <input type="range" id="magnetSlider" min="-18" max="18" step="0.1" value="-12" 
+                    class="w-full">
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>左側 (遠)</span>
+                    <span>線圈中心</span>
+                    <span>右側 (遠)</span>
+                </div>
+            </div>
+            
+            <!-- Toggles & Buttons -->
+            <div class="space-y-3 pt-2 border-t border-gray-600">
+                <button id="flipBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-md flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    磁極翻轉
+                </button>
+
+                <div class="flex items-center justify-between">
+                    <label class="text-sm font-medium text-gray-300">顯示磁力線</label>
+                    <input type="checkbox" id="linesToggle" class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-sm font-medium text-gray-300">隱藏磁鐵本體</label>
+                    <input type="checkbox" id="hideMagnetToggle" class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
+                </div>
+            </div>
+
+            <!-- Explanation -->
+            <div class="text-xs text-gray-300 bg-slate-700/50 p-3 rounded border border-slate-600">
+                <p><strong>操作重點：</strong>請嘗試直接用滑鼠<strong>拖曳畫面中的磁鐵</strong>。快速移動以產生感應電流。</p>
+                <div class="flex items-center gap-2 mt-2">
+                    <div class="w-3 h-3 bg-orange-600 rounded-full shadow-[0_0_5px_orange]"></div>
+                    <span class="text-orange-400">深橘色箭頭：長度代表電流大小</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- Configuration ---
+        const CONFIG = {
+            bg: 0xffffff,
+            wireColor: 0xcd7f32,    // Copper
+            magnetNColor: 0xdc2626, // Red
+            magnetSColor: 0x2563eb, // Blue
+            inducedColor: 0xea580c, // Deep Orange
+            fluxLineColor: 0x334155, // Darker Slate
+        };
+
+        // --- State ---
+        let state = {
+            mode: 'loop',
+            magnetPos: -12,      
+            lastMagnetPos: -12,
+            velocity: 0,
+            inducedCurrent: 0,   
+            targetCurrent: 0,
+            showFluxLines: false,
+            showMagnetBody: true,
+            polarity: 1, // 1: N is Right (+X), -1: N is Left (-X)
+            isDragging: false
+        };
+
+        // --- Three.js Globals ---
+        let scene, camera, renderer, controls;
+        let coilGroup = new THREE.Group();
+        let magnetGroup = new THREE.Group();
+        let magnetBodyGroup = new THREE.Group(); // Sub-group for just the cylinder
+        let currentArrowGroup = new THREE.Group(); 
+        let magnetFieldLines = new THREE.Group();
+        
+        // Raycasting for drag
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let dragPlane; // Invisible plane for dragging
+
+        // Label position projection
+        const currentLabel = document.getElementById('currentLabel');
+        let labelTargetPos = new THREE.Vector3(0, 0, 0);
+
+        // --- Initialization ---
+        function init() {
+            const container = document.getElementById('canvas-container');
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.bg);
+            scene.fog = new THREE.Fog(CONFIG.bg, 40, 100);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
+            camera.position.set(0, 20, 40);
+            camera.lookAt(0, 0, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            // Drag Plane (Invisible plane along X axis at Y=0)
+            dragPlane = new THREE.Mesh(
+                new THREE.PlaneGeometry(100, 100),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            dragPlane.rotation.x = -Math.PI / 2;
+            scene.add(dragPlane);
+
+            // Objects
+            scene.add(coilGroup);
+            
+            // Setup Magnet Group Hierarchy
+            magnetGroup.add(magnetBodyGroup);
+            magnetGroup.add(magnetFieldLines);
+            scene.add(magnetGroup);
+
+            createMagnet();
+            rebuildCoil();
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            
+            // Mouse/Touch Events for 3D Dragging
+            container.addEventListener('pointerdown', onPointerDown);
+            container.addEventListener('pointermove', onPointerMove);
+            container.addEventListener('pointerup', onPointerUp);
+            container.addEventListener('pointerleave', onPointerUp);
+
+            setupUI();
+
+            // Animation
+            animate();
+        }
+
+        // --- Interaction Logic (Drag) ---
+
+        function onPointerDown(event) {
+            if (!state.showMagnetBody) return; // Can't drag if hidden
+
+            // Calculate mouse position in normalized device coordinates
+            // (-1 to +1) for both components
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check intersection with Magnet Body
+            const intersects = raycaster.intersectObjects(magnetBodyGroup.children, true);
+
+            if (intersects.length > 0) {
+                state.isDragging = true;
+                controls.enabled = false; // Disable orbit controls while dragging
+                document.body.style.cursor = 'grabbing';
+            }
+        }
+
+        function onPointerMove(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            if (state.isDragging) {
+                // Intersect with the invisible drag plane
+                const intersects = raycaster.intersectObject(dragPlane);
+                
+                if (intersects.length > 0) {
+                    let point = intersects[0].point;
+                    // Clamp X position
+                    let newX = Math.max(-18, Math.min(18, point.x));
+                    
+                    state.magnetPos = newX;
+                    // Sync UI slider
+                    document.getElementById('magnetSlider').value = newX;
+                }
+            } else {
+                // Hover effect cursor
+                if (state.showMagnetBody) {
+                    const intersects = raycaster.intersectObjects(magnetBodyGroup.children, true);
+                    document.body.style.cursor = intersects.length > 0 ? 'grab' : 'default';
+                }
+            }
+        }
+
+        function onPointerUp() {
+            state.isDragging = false;
+            controls.enabled = true;
+            document.body.style.cursor = 'default';
+        }
+
+        // --- Object Creation ---
+
+        function createLabelSprite(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(0,0,0,0)';
+            ctx.font = 'bold 90px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            
+            ctx.fillStyle = 'white';
+            ctx.fillText(text, 64, 64);
+            
+            const tex = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.SpriteMaterial({ map: tex });
+            const sprite = new THREE.Sprite(mat);
+            sprite.scale.set(2.5, 2.5, 1);
+            return sprite;
+        }
+
+        function createMagnet() {
+            while(magnetBodyGroup.children.length > 0) magnetBodyGroup.remove(magnetBodyGroup.children[0]);
+
+            const radius = 1.2;
+            const length = 6;
+            const geo = new THREE.CylinderGeometry(radius, radius, length / 2, 32);
+            geo.rotateZ(Math.PI / 2); 
+
+            const nMat = new THREE.MeshPhongMaterial({ color: CONFIG.magnetNColor, shininess: 100 });
+            const sMat = new THREE.MeshPhongMaterial({ color: CONFIG.magnetSColor, shininess: 100 });
+
+            const rightMat = state.polarity === 1 ? nMat : sMat;
+            const leftMat = state.polarity === 1 ? sMat : nMat;
+            
+            const rightPole = new THREE.Mesh(geo, rightMat);
+            rightPole.position.x = length / 4;
+            magnetBodyGroup.add(rightPole);
+
+            const leftPole = new THREE.Mesh(geo, leftMat);
+            leftPole.position.x = -length / 4;
+            magnetBodyGroup.add(leftPole);
+
+            const labelX = length / 2 - 0.4; 
+            
+            const rightLabelText = state.polarity === 1 ? "N" : "S";
+            const leftLabelText = state.polarity === 1 ? "S" : "N";
+
+            const rightLabel = createLabelSprite(rightLabelText);
+            rightLabel.position.set(labelX, radius + 0.8, 0); 
+            magnetBodyGroup.add(rightLabel);
+
+            const leftLabel = createLabelSprite(leftLabelText);
+            leftLabel.position.set(-labelX, radius + 0.8, 0); 
+            magnetBodyGroup.add(leftLabel);
+            
+            createMagnetFieldLines(length, radius);
+            
+            magnetFieldLines.visible = state.showFluxLines; 
+            magnetGroup.position.x = state.magnetPos;
+        }
+
+        function createMagnetFieldLines(length, radius) {
+            magnetFieldLines.clear();
+
+            const material = new THREE.LineBasicMaterial({ color: CONFIG.fluxLineColor, transparent: true, opacity: 0.5 });
+            const arrowGeo = new THREE.ConeGeometry(0.2, 0.6, 8); 
+            const arrowMat = new THREE.MeshBasicMaterial({ color: CONFIG.fluxLineColor, transparent: true, opacity: 0.8 });
+            
+            const numStrands = 8; 
+            const loopsPerAngle = 3; 
+
+            for(let i=0; i<numStrands; i++) {
+                const angle = (i / numStrands) * Math.PI * 2;
+                
+                for(let j=0; j<loopsPerAngle; j++) {
+                    const scale = 4.0 + j * 3.5; 
+                    
+                    const p = state.polarity;
+                    const startX = (length/2) * p;
+                    const endX = -(length/2) * p;
+                    
+                    const stretchFactor = 2.5 + j * 0.8;
+                    const radialHeight = scale * 0.8;
+
+                    const v0 = new THREE.Vector3(startX, 0, 0);
+                    const v1 = new THREE.Vector3(startX + (scale * stretchFactor * p), radialHeight, 0);
+                    const v2 = new THREE.Vector3(endX - (scale * stretchFactor * p), radialHeight, 0);
+                    const v3 = new THREE.Vector3(endX, 0, 0);
+
+                    const curve = new THREE.CubicBezierCurve3(v0, v1, v2, v3);
+                    const points = curve.getPoints(50); 
+
+                    const rotatedPoints = points.map(pt => {
+                        const y = pt.y * Math.cos(angle);
+                        const z = pt.y * Math.sin(angle);
+                        return new THREE.Vector3(pt.x, y, z);
+                    });
+
+                    const geometry = new THREE.BufferGeometry().setFromPoints(rotatedPoints);
+                    const line = new THREE.Line(geometry, material);
+                    magnetFieldLines.add(line);
+
+                    const t = 0.5;
+                    const pt = curve.getPoint(t);
+                    const tan = curve.getTangent(t).normalize();
+                    
+                    const py = pt.y * Math.cos(angle);
+                    const pz = pt.y * Math.sin(angle);
+                    const pos3D = new THREE.Vector3(pt.x, py, pz);
+
+                    const ty = tan.y * Math.cos(angle);
+                    const tz = tan.y * Math.sin(angle);
+                    const tan3D = new THREE.Vector3(tan.x, ty, tz).normalize();
+
+                    const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+                    arrow.position.copy(pos3D);
+                    arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tan3D);
+                    magnetFieldLines.add(arrow);
+                }
+            }
+        }
+
+        function rebuildCoil() {
+            while(coilGroup.children.length > 0) coilGroup.remove(coilGroup.children[0]);
+            
+            currentArrowGroup = new THREE.Group();
+            coilGroup.add(currentArrowGroup);
+
+            const copperMat = new THREE.MeshStandardMaterial({ 
+                color: CONFIG.wireColor, 
+                metalness: 0.6, 
+                roughness: 0.4 
+            });
+
+            if (state.mode === 'loop') {
+                const R = 6;
+                const tubeR = 0.5;
+                const geo = new THREE.TorusGeometry(R, tubeR, 16, 64);
+                geo.rotateY(Math.PI / 2); 
+                const mesh = new THREE.Mesh(geo, copperMat);
+                coilGroup.add(mesh);
+                
+                currentArrowGroup.userData = { radius: R + 1.2, xPos: 0 };
+
+            } else if (state.mode === 'solenoid') {
+                const turns = 10;
+                const R = 3.5;
+                const len = 12;
+                
+                class HelixCurve extends THREE.Curve {
+                    getPoint(t) {
+                        const angle = t * Math.PI * 2 * turns;
+                        const x = (t - 0.5) * len;
+                        const y = R * Math.cos(angle);
+                        const z = R * Math.sin(angle);
+                        return new THREE.Vector3(x, y, z);
+                    }
+                }
+                const path = new HelixCurve();
+                const geo = new THREE.TubeGeometry(path, 200, 0.3, 8, false);
+                const mesh = new THREE.Mesh(geo, copperMat);
+                coilGroup.add(mesh);
+
+                currentArrowGroup.userData = { radius: R + 1.0, xPos: 0 };
+            }
+        }
+
+        function updateArrowGeometry(magnitude) {
+            while(currentArrowGroup.children.length > 0) {
+                const child = currentArrowGroup.children[0];
+                if(child.geometry) child.geometry.dispose();
+                currentArrowGroup.remove(child);
+            }
+
+            if (magnitude < 0.1) return;
+
+            const radius = currentArrowGroup.userData.radius;
+            const xPos = currentArrowGroup.userData.xPos;
+
+            const arcLength = Math.min(Math.PI * 1.5, magnitude * 0.8);
+            if (arcLength < 0.1) return;
+
+            const startAngle = Math.PI/2 - arcLength/2;
+            const endAngle = Math.PI/2 + arcLength/2;
+
+            const curve = new THREE.EllipseCurve(
+                0, 0,             
+                radius, radius,   
+                startAngle, endAngle,  
+                false,            
+                0                 
+            );
+            
+            const points = curve.getPoints(Math.max(8, Math.floor(arcLength * 12)));
+            const pathCurve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(xPos, p.y, p.x)));
+            
+            const tubeGeo = new THREE.TubeGeometry(pathCurve, points.length, 0.15, 8, false);
+            const tubeMat = new THREE.MeshStandardMaterial({
+                color: CONFIG.inducedColor,
+                emissive: CONFIG.inducedColor,
+                emissiveIntensity: 0.8,
+                transparent: true,
+                opacity: 0.95
+            });
+            const tube = new THREE.Mesh(tubeGeo, tubeMat);
+
+            const coneGeo = new THREE.ConeGeometry(0.5, 1.5, 16);
+            const cone = new THREE.Mesh(coneGeo, tubeMat);
+            
+            const endPoint = pathCurve.getPoint(1);
+            const tangent = pathCurve.getTangent(1);
+            cone.position.copy(endPoint);
+            cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
+
+            currentArrowGroup.add(tube);
+            currentArrowGroup.add(cone);
+            
+            // Calculate and store label target position (top of arc)
+            // The top of the arc is at angle PI/2 in ellipse terms
+            // Which is (0, radius) in 2D
+            // Mapped to 3D YZ plane: (xPos, radius, 0)
+            labelTargetPos.set(xPos, radius, 0);
+            
+            // Adjust based on rotation
+            // If group rotates 180 (PI) around Y, then (xPos, radius, 0) stays (xPos, radius, 0) roughly? 
+            // Wait, rotation is around Y axis.
+            // Point (0, R, 0) rotated around Y axis (0,1,0) stays at (0, R, 0).
+            // So label target position is stable even if arrow flips!
+        }
+
+        // --- Physics & Logic ---
+
+        function updatePhysics() {
+            const newPos = state.magnetPos;
+            const diff = newPos - state.lastMagnetPos;
+            
+            const x = state.lastMagnetPos; 
+            const fluxSlope = -x / Math.pow(x*x + 25, 2.5) * 150; 
+            
+            const velocity = diff; 
+            let rawInduced = -fluxSlope * velocity * 800 * state.polarity; 
+
+            if (Math.abs(diff) < 0.005) rawInduced = 0;
+
+            state.targetCurrent = rawInduced;
+            state.inducedCurrent += (state.targetCurrent - state.inducedCurrent) * 0.2;
+
+            magnetGroup.position.x = newPos;
+            state.lastMagnetPos = newPos;
+
+            updateGauge();
+            updateCoilIndicators();
+            updateLabelPosition();
+        }
+
+        function updateGauge() {
+            const needle = document.getElementById('gaugeNeedle');
+            const maxDeflection = 60; 
+            let deflection = Math.max(-1, Math.min(1, state.inducedCurrent / 5)); 
+            
+            const angle = deflection * maxDeflection;
+            needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+            
+            if(Math.abs(deflection) > 0.9) needle.style.backgroundColor = '#ea580c';
+            else needle.style.backgroundColor = '#ef4444';
+        }
+
+        function updateCoilIndicators() {
+            const mag = Math.abs(state.inducedCurrent);
+            const isVisible = mag > 0.1;
+            
+            if (isVisible) {
+                // Simplified Label without arrows
+                currentLabel.innerText = `感應電流 I`;
+                currentLabel.style.opacity = Math.min(mag, 1);
+            } else {
+                currentLabel.style.opacity = 0;
+            }
+
+            updateArrowGeometry(mag);
+
+            const targetRotY = (state.inducedCurrent > 0) ? Math.PI : 0;
+            currentArrowGroup.rotation.y = targetRotY;
+        }
+        
+        function updateLabelPosition() {
+            // Label tracks the top of the arrow
+            // Use the calculated labelTargetPos stored in updateArrowGeometry
+            // Transform local point to world space
+            
+            // If arrow is not visible, don't update excessively or just keep at coil center
+            if (currentLabel.style.opacity == 0) return;
+
+            // Clone to avoid modifying the reference
+            const vector = labelTargetPos.clone();
+            
+            // The position is relative to currentArrowGroup (which is inside coilGroup)
+            // coilGroup is at (0,0,0) and currentArrowGroup is at (0,0,0) locally
+            // But currentArrowGroup might be rotated.
+            // (0, radius, 0) rotated around Y is still (0, radius, 0).
+            // So world position is just coil position + vector.
+            
+            vector.project(camera);
+
+            const x = (vector.x * .5 + .5) * window.innerWidth;
+            const y = (-(vector.y * .5) + .5) * window.innerHeight;
+
+            // Add offset to sit nicely above the arrow
+            currentLabel.style.left = `${x}px`;
+            currentLabel.style.top = `${y - 40}px`; 
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            updatePhysics();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function setupUI() {
+            const slider = document.getElementById('magnetSlider');
+            const modeSelect = document.getElementById('modeSelect');
+            const linesToggle = document.getElementById('linesToggle');
+            const hideMagnetToggle = document.getElementById('hideMagnetToggle');
+            const flipBtn = document.getElementById('flipBtn');
+
+            slider.addEventListener('input', (e) => {
+                state.magnetPos = parseFloat(e.target.value);
+            });
+
+            modeSelect.addEventListener('change', (e) => {
+                state.mode = e.target.value;
+                rebuildCoil();
+            });
+
+            linesToggle.addEventListener('change', (e) => {
+                state.showFluxLines = e.target.checked;
+                magnetFieldLines.visible = state.showFluxLines;
+            });
+
+            hideMagnetToggle.addEventListener('change', (e) => {
+                state.showMagnetBody = !e.target.checked; 
+                magnetBodyGroup.visible = state.showMagnetBody;
+            });
+
+            flipBtn.addEventListener('click', () => {
+                state.polarity *= -1;
+                createMagnet();
+            });
+        }
+
+        init();
+
+    </script>
+</body>
+</html>
