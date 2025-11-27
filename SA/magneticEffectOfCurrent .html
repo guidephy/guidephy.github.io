@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安培右手定則 3D 互動模擬</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js and OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #ffffff; font-family: 'Noto Sans TC', sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        
+        /* UI Panel Styling - Dark panel on light background for contrast */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #334155; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #0ea5e9;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- UI Overlay -->
+    <div class="absolute top-4 right-4 w-80 p-6 rounded-xl glass-panel text-white z-10 transition-all max-h-[90vh] overflow-y-auto">
+        <h1 class="text-2xl font-bold mb-4 text-sky-400 border-b border-gray-600 pb-2">安培右手定則 3D</h1>
+        
+        <div class="space-y-6">
+            <!-- Mode Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">選擇導線型式</label>
+                <select id="modeSelect" class="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-sky-500 outline-none">
+                    <option value="wire">長直導線 (Straight Wire)</option>
+                    <option value="loop">環形線圈 (Circular Loop)</option>
+                    <option value="solenoid">螺線管 (Solenoid)</option>
+                </select>
+            </div>
+
+            <!-- Current Controls -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-sm font-medium text-gray-300">電流大小 (I)</label>
+                    <span id="currentValDisplay" class="text-sm text-sky-400 font-mono">2.0 A</span>
+                </div>
+                <input type="range" id="currentSlider" min="0.5" max="5.0" step="0.5" value="2.0" 
+                    class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500">
+                <p class="text-xs text-gray-400 mt-1">電流越大，磁力線分佈越密</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">電流方向</label>
+                <button id="directionBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg">
+                    <span id="directionText">切換方向</span>
+                    <svg id="dirIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Toggles -->
+            <div class="space-y-3 pt-2 border-t border-gray-600">
+                <div class="flex items-center justify-between">
+                    <label class="text-sm font-medium text-gray-300">顯示連續磁力線</label>
+                    <input type="checkbox" id="linesToggle" checked class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="bg-slate-800/80 p-3 rounded-lg text-xs space-y-2 mt-4 border border-slate-600">
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 bg-red-600 rounded shadow-sm border border-white/20"></div>
+                    <span>紅色箭頭：電流方向</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 bg-sky-600 rounded shadow-sm border border-white/20"></div>
+                    <span>藍色箭頭：磁場向量 (切線方向)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-1 bg-sky-500 rounded"></div>
+                    <span>藍色實管：連續磁力線</span>
+                </div>
+            </div>
+            
+            <div class="text-xs text-gray-400 italic mt-2">
+                * 拖曳畫面可旋轉視角<br>
+                * 滾輪可縮放
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- Constants & Config ---
+        const CONFIG = {
+            fieldPointsCount: 600, 
+            fieldRange: 12,        
+            arrowScale: 0.8,
+            
+            // Color Palette
+            bg: 0xffffff,          // White Background
+            wireColor: 0x8B4513,   // SaddleBrown
+            currentColor: 0xdc2626,// Red-600
+            fieldColor: 0x0284c7,  // Sky-600
+            streamlineColor: 0x0ea5e9, // Sky-500
+            
+            streamlineBaseRadius: 0.04, 
+        };
+
+        // --- State ---
+        let state = {
+            mode: 'wire', 
+            current: 2.0,
+            direction: 1, 
+            showLines: true, 
+        };
+
+        // --- Three.js Globals ---
+        let scene, camera, renderer, controls;
+        let conductorMeshGroup = new THREE.Group();
+        let fieldArrowsGroup = new THREE.Group();
+        let currentIndicatorGroup = new THREE.Group();
+        let streamlinesGroup = new THREE.Group();
+
+        let arrows = [];
+
+        // --- Initialization ---
+        function init() {
+            const container = document.getElementById('canvas-container');
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.bg);
+            scene.fog = new THREE.Fog(CONFIG.bg, 20, 50);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(12, 12, 12);
+            camera.lookAt(0, 0, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+            backLight.position.set(-10, 10, -10);
+            scene.add(backLight);
+
+            // Grid
+            const gridHelper = new THREE.GridHelper(40, 40, 0xcccccc, 0xe5e5e5);
+            scene.add(gridHelper);
+
+            // Add Groups
+            scene.add(conductorMeshGroup);
+            scene.add(fieldArrowsGroup);
+            scene.add(currentIndicatorGroup);
+            scene.add(streamlinesGroup);
+
+            // Initialize Pools
+            createArrowPool();
+
+            // Initial Build
+            rebuildScene();
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            setupUI();
+
+            // Animation Loop
+            animate();
+        }
+
+        // --- Visuals: Arrow Pool ---
+
+        function createArrowPool() {
+            const arrowHeadGeo = new THREE.ConeGeometry(0.12, 0.35, 12);
+            const arrowShaftGeo = new THREE.CylinderGeometry(0.04, 0.04, 1, 8);
+            arrowShaftGeo.translate(0, 0.5, 0); 
+            
+            const material = new THREE.MeshPhongMaterial({ 
+                color: CONFIG.fieldColor,
+                shininess: 50
+            });
+
+            for (let i = 0; i < CONFIG.fieldPointsCount; i++) {
+                const arrowGroup = new THREE.Group();
+                const head = new THREE.Mesh(arrowHeadGeo, material);
+                head.position.y = 1;
+                const shaft = new THREE.Mesh(arrowShaftGeo, material);
+                arrowGroup.add(head);
+                arrowGroup.add(shaft);
+                arrowGroup.visible = false;
+
+                fieldArrowsGroup.add(arrowGroup);
+                arrows.push({
+                    mesh: arrowGroup,
+                    head: head,
+                    basePos: new THREE.Vector3()
+                });
+            }
+        }
+
+        // --- Scene Builder (Corrected Current Directions) ---
+
+        function rebuildScene() {
+            while(conductorMeshGroup.children.length > 0) conductorMeshGroup.remove(conductorMeshGroup.children[0]); 
+            while(currentIndicatorGroup.children.length > 0) currentIndicatorGroup.remove(currentIndicatorGroup.children[0]); 
+            
+            rebuildStreamlines();
+
+            const materialCopper = new THREE.MeshStandardMaterial({ 
+                color: CONFIG.wireColor, 
+                metalness: 0.6, 
+                roughness: 0.4,
+                emissive: 0x000000
+            });
+
+            if (state.mode === 'wire') {
+                // Straight Wire
+                const geometry = new THREE.CylinderGeometry(0.6, 0.6, 30, 32);
+                const wire = new THREE.Mesh(geometry, materialCopper);
+                conductorMeshGroup.add(wire);
+
+                // Correction 1 & 2: Wire Current Visibility & Direction
+                // Previously, Math calculation implies Current DOWN (-Y) for the visualized B-field.
+                // We flip the visual arrow to point DOWN (-Y) to match the B-field.
+                // We also offset X to 1.0 to ensure visibility outside the wire.
+                addCurrentArrow(new THREE.Vector3(1.0, 0, 0), new THREE.Vector3(0, -1, 0));
+                addCurrentArrow(new THREE.Vector3(1.0, 8, 0), new THREE.Vector3(0, -1, 0));
+                addCurrentArrow(new THREE.Vector3(1.0, -8, 0), new THREE.Vector3(0, -1, 0));
+
+            } else if (state.mode === 'loop') {
+                // Circular Loop
+                const geometry = new THREE.TorusGeometry(6, 0.6, 24, 64);
+                geometry.rotateX(Math.PI / 2);
+                const loop = new THREE.Mesh(geometry, materialCopper);
+                conductorMeshGroup.add(loop);
+
+                // Correction 1: Flip Loop Current Direction
+                // Math implies CCW current for Upward B-field. 
+                // Previous visual was CW. Changed to CCW.
+                // Tangent at X=6 is +Z (0,0,1).
+                addCurrentArrow(new THREE.Vector3(6, 0, 0), new THREE.Vector3(0, 0, 1));
+                addCurrentArrow(new THREE.Vector3(-6, 0, 0), new THREE.Vector3(0, 0, -1));
+                addCurrentArrow(new THREE.Vector3(0, 0, 6), new THREE.Vector3(-1, 0, 0));
+                addCurrentArrow(new THREE.Vector3(0, 0, -6), new THREE.Vector3(1, 0, 0));
+
+            } else if (state.mode === 'solenoid') {
+                // Solenoid
+                const path = new CustomHelixCurve(10);
+                const geometry = new THREE.TubeGeometry(path, 150, 0.4, 12, false);
+                const coil = new THREE.Mesh(geometry, materialCopper);
+                conductorMeshGroup.add(coil);
+
+                // Correction 1: Flip Solenoid Current Direction
+                // Flipped Z component to reverse visual flow
+                addCurrentArrow(new THREE.Vector3(3.5, 0, 0), new THREE.Vector3(0, 0.3, 1).normalize());
+                addCurrentArrow(new THREE.Vector3(3.5, 5, 0), new THREE.Vector3(0, 0.3, 1).normalize());
+                addCurrentArrow(new THREE.Vector3(3.5, -5, 0), new THREE.Vector3(0, 0.3, 1).normalize());
+            }
+
+            distributeFieldArrows();
+        }
+
+        // --- Streamline Generation (Density & Radius Logic Updated) ---
+        
+        function rebuildStreamlines() {
+            while(streamlinesGroup.children.length > 0) streamlinesGroup.remove(streamlinesGroup.children[0]);
+            
+            if (!state.showLines) return;
+            
+            const seeds = [];
+            
+            if (state.mode === 'wire') {
+                // Correction 3: Density Visualization (Unequal spacing)
+                // Physics: B ~ 1/r. Density should be higher at center.
+                // So lines should be close together at small r, and far apart at large r.
+                // Formula: r = base + spacing * i^power
+                // If power > 1, the gap (dr) increases as i increases.
+                
+                // More lines for higher current to show strength
+                const numCircles = Math.floor(state.current * 4) + 4; 
+                
+                // Scale factor needs to decrease as current increases to keep lines packed tight
+                const spacingConstant = 1.0;
+                // As Current increases, we want more lines in the same visual space (approx),
+                // so the spacing must shrink.
+                const spacingFactor = spacingConstant / Math.pow(state.current, 0.7); 
+
+                const baseR = 0.8; // Start close to wire
+                const power = 1.8; // Quadratic-ish growth for very obvious unequal spacing
+
+                for(let i = 0; i < numCircles; i++) {
+                    const r = baseR + spacingFactor * Math.pow(i, power);
+                    
+                    if (r > 20) break; // Keep within reasonable view bounds
+
+                    const points = [];
+                    const segments = 64;
+                    for(let j=0; j<=segments; j++) {
+                        const theta = (j/segments) * Math.PI * 2;
+                        points.push(new THREE.Vector3(r*Math.cos(theta), 0, r*Math.sin(theta)));
+                    }
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    curve.closed = true;
+                    createTubeFromCurve(curve);
+                }
+            } 
+            else if (state.mode === 'loop') {
+                // Loop seeds - density increases with current
+                const startX = 0.5;
+                const endX = 5.0;
+                // Pack more lines in the same space as current increases
+                const numLines = Math.floor(state.current * 3) + 2;
+                
+                for(let i=0; i<numLines; i++) {
+                    const t = i / (numLines - 1 || 1);
+                    const x = startX + (endX - startX) * t;
+                    seeds.push(new THREE.Vector3(x, 0, 0));
+                }
+                
+                if (state.current > 2.5) {
+                    seeds.push(new THREE.Vector3(7.5, 0, 0));
+                    seeds.push(new THREE.Vector3(9.0, 0, 0));
+                }
+                traceAndBuildTubes(seeds);
+            } 
+            else if (state.mode === 'solenoid') {
+                // Solenoid seeds
+                const numInner = Math.floor(state.current * 2) + 2; 
+                for(let i=0; i<numInner; i++) {
+                    const maxR = 2.0;
+                    const x = (numInner > 1) 
+                        ? -maxR + (i / (numInner-1)) * 2 * maxR 
+                        : 0;
+                    seeds.push(new THREE.Vector3(x, 0, 0));
+                }
+                const numOuter = Math.max(2, Math.floor(state.current));
+                for(let i=0; i<numOuter; i++) {
+                     seeds.push(new THREE.Vector3(5 + i*2, 0, 0));
+                }
+                traceAndBuildTubes(seeds);
+            }
+        }
+
+        function traceAndBuildTubes(seeds) {
+            seeds.forEach(seed => {
+                const points = [];
+                let pos = seed.clone();
+                points.push(pos.clone());
+                
+                const maxSteps = 400; 
+                const stepSize = 0.2;
+                let isClosed = false;
+
+                for(let i=0; i<maxSteps; i++) {
+                    const B = calculateBField(pos);
+                    const mag = B.length();
+                    if (mag < 0.0001) break;
+                    
+                    const dir = B.clone().normalize();
+                    pos.add(dir.multiplyScalar(stepSize));
+                    points.push(pos.clone());
+
+                    if (pos.length() > 35) break; 
+                    if (i > 10 && pos.distanceTo(seed) < stepSize * 1.5) {
+                        isClosed = true;
+                        points.push(seed.clone()); 
+                        break;
+                    }
+                }
+
+                if (!isClosed) {
+                    pos = seed.clone();
+                    const backPoints = [];
+                    for(let i=0; i<maxSteps; i++) {
+                        const B = calculateBField(pos);
+                        if (B.lengthSq() < 0.0001) break;
+                        const dir = B.clone().normalize().negate(); 
+                        pos.add(dir.multiplyScalar(stepSize));
+                        backPoints.push(pos.clone());
+                        if (pos.length() > 35) break;
+                    }
+                    backPoints.reverse();
+                    points.unshift(...backPoints);
+                }
+
+                if (points.length > 5) {
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    if (isClosed) curve.closed = true;
+                    createTubeFromCurve(curve);
+                }
+            });
+        }
+
+        function createTubeFromCurve(curve) {
+            const thickness = CONFIG.streamlineBaseRadius;
+            const tubeGeo = new THREE.TubeGeometry(curve, 120, thickness, 8, curve.closed);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: CONFIG.streamlineColor,
+                emissive: 0x0044aa,
+                emissiveIntensity: 0.2,
+                shininess: 100
+            });
+            const tube = new THREE.Mesh(tubeGeo, material);
+            streamlinesGroup.add(tube);
+        }
+
+        // --- Helper Classes ---
+
+        class CustomHelixCurve extends THREE.Curve {
+            constructor(scale = 1) {
+                super();
+                this.scale = scale;
+            }
+            getPoint(t) {
+                const turns = 10;
+                const radius = 3.5;
+                const height = 14;
+                const angle = t * Math.PI * 2 * turns;
+                const tx = radius * Math.cos(angle);
+                const tz = radius * Math.sin(angle);
+                const ty = (t - 0.5) * height; 
+                return new THREE.Vector3(tx, ty, tz);
+            }
+        }
+
+        function addCurrentArrow(position, direction) {
+            const group = new THREE.Group();
+            group.position.copy(position);
+            
+            const quaternion = new THREE.Quaternion();
+            quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+            group.setRotationFromQuaternion(quaternion);
+
+            const mat = new THREE.MeshPhongMaterial({ color: CONFIG.currentColor, shininess: 80 });
+            
+            const shaftGeo = new THREE.CylinderGeometry(0.3, 0.3, 2.5, 16);
+            shaftGeo.translate(0, 1.25, 0); 
+            const shaft = new THREE.Mesh(shaftGeo, mat);
+            
+            const headGeo = new THREE.ConeGeometry(0.6, 1.2, 16);
+            headGeo.translate(0, 2.5 + 0.6, 0); 
+            const head = new THREE.Mesh(headGeo, mat);
+
+            group.add(shaft);
+            group.add(head);
+            
+            group.userData = { originalDir: direction.clone() };
+            currentIndicatorGroup.add(group);
+        }
+
+        function distributeFieldArrows() {
+            let index = 0;
+            const range = CONFIG.fieldRange;
+            for (let i = 0; i < CONFIG.fieldPointsCount; i++) {
+                if (index >= arrows.length) break;
+                let x = (Math.random() - 0.5) * 2 * range;
+                let y = (Math.random() - 0.5) * 2 * range;
+                let z = (Math.random() - 0.5) * 2 * range;
+                let r = Math.sqrt(x*x + z*z);
+
+                if (state.mode === 'wire') {
+                    if (r < 0.8 || r > 10) { i--; continue; } 
+                } 
+                else if (state.mode === 'loop') {
+                    if (Math.abs(y) > 8) { i--; continue; }
+                }
+                else if (state.mode === 'solenoid') {
+                    if (Math.abs(y) > 9) { i--; continue; }
+                }
+
+                arrows[index].mesh.position.set(x, y, z);
+                arrows[index].basePos.set(x, y, z);
+                arrows[index].mesh.visible = true;
+                index++;
+            }
+            for (; index < arrows.length; index++) arrows[index].mesh.visible = false;
+        }
+
+        // --- Physics Engine ---
+
+        function calculateBField(pos) {
+            const I = 1.0 * state.direction; 
+            const mu0 = 1.0; 
+            let B = new THREE.Vector3(0, 0, 0);
+
+            if (state.mode === 'wire') {
+                const r = Math.sqrt(pos.x * pos.x + pos.z * pos.z);
+                if (r < 0.1) return B;
+                const magnitude = (mu0 * I) / r;
+                // This math creates a field for current going DOWN (-Y) relative to RHR
+                B.set(-pos.z, 0, pos.x).normalize().multiplyScalar(magnitude);
+            } 
+            else if (state.mode === 'loop') {
+                const R = 6;
+                const segments = 32; 
+                for (let i = 0; i < segments; i++) {
+                    const theta = (i / segments) * Math.PI * 2;
+                    const sx = R * Math.cos(theta);
+                    const sz = R * Math.sin(theta);
+                    const dL = new THREE.Vector3(-Math.sin(theta), 0, Math.cos(theta));
+
+                    const rVec = new THREE.Vector3(pos.x - sx, pos.y, pos.z - sz);
+                    const distSq = rVec.lengthSq();
+                    const dist = Math.sqrt(distSq);
+                    
+                    const cross = new THREE.Vector3().crossVectors(dL, rVec);
+                    cross.multiplyScalar(I / (distSq * dist)); 
+                    B.add(cross);
+                }
+            }
+            else if (state.mode === 'solenoid') {
+                const R = 3.5;
+                const height = 14;
+                const loopCount = 12;
+                for (let k = 0; k < loopCount; k++) {
+                    const loopY = -height/2 + (k / (loopCount-1)) * height;
+                    const segments = 16;
+                    for (let i = 0; i < segments; i++) {
+                        const theta = (i / segments) * Math.PI * 2;
+                        const sx = R * Math.cos(theta);
+                        const sz = R * Math.sin(theta);
+                        const dL = new THREE.Vector3(-Math.sin(theta), 0, Math.cos(theta));
+                        
+                        const rVec = new THREE.Vector3(pos.x - sx, pos.y - loopY, pos.z - sz);
+                        const dist = rVec.length();
+                        const cross = new THREE.Vector3().crossVectors(dL, rVec);
+                        cross.multiplyScalar(I / (dist * dist * dist));
+                        B.add(cross);
+                    }
+                }
+            }
+            return B;
+        }
+
+        // --- Animation & Updates ---
+
+        function updateScene() {
+            currentIndicatorGroup.children.forEach(group => {
+                const dir = group.userData.originalDir.clone();
+                if (state.direction < 0) dir.negate();
+                
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+                group.setRotationFromQuaternion(quaternion);
+            });
+
+            arrows.forEach(item => {
+                if (!item.mesh.visible) return;
+
+                const B = calculateBField(item.basePos);
+                const rawMag = B.length();
+                if (rawMag < 0.001) {
+                    item.mesh.scale.set(0.001, 0.001, 0.001);
+                    return;
+                }
+
+                const dir = B.clone().normalize();
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+                item.mesh.setRotationFromQuaternion(quaternion);
+
+                const trueMag = rawMag * state.current;
+                let visualScale = Math.log(trueMag * 10 + 1) * 0.3 * CONFIG.arrowScale; 
+                visualScale = Math.min(Math.max(visualScale, 0.2), 1.5);
+
+                item.mesh.scale.set(visualScale, visualScale, visualScale);
+                
+                const intensity = Math.min(trueMag * 0.4, 1);
+                item.head.material.color.setHSL(0.58, 1, 0.3 + intensity * 0.3);
+            });
+
+            streamlinesGroup.visible = state.showLines;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            updateScene();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- UI Logic ---
+        function setupUI() {
+            const modeSelect = document.getElementById('modeSelect');
+            const currentSlider = document.getElementById('currentSlider');
+            const directionBtn = document.getElementById('directionBtn');
+            const valDisplay = document.getElementById('currentValDisplay');
+            const linesToggle = document.getElementById('linesToggle');
+
+            let timeoutId;
+
+            modeSelect.addEventListener('change', (e) => {
+                state.mode = e.target.value;
+                rebuildScene();
+            });
+
+            currentSlider.addEventListener('input', (e) => {
+                state.current = parseFloat(e.target.value);
+                valDisplay.textContent = state.current.toFixed(1) + " A";
+                
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    if (state.showLines) rebuildStreamlines();
+                }, 50); 
+            });
+
+            directionBtn.addEventListener('click', () => {
+                state.direction *= -1;
+                if (state.showLines) rebuildStreamlines(); 
+            });
+            
+            linesToggle.addEventListener('change', (e) => {
+                state.showLines = e.target.checked;
+                if(state.showLines) rebuildStreamlines();
+            });
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
