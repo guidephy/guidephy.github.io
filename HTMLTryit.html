@@ -78,14 +78,19 @@
       color: #f9fafb;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
 
     .btn-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+    }
+
+    .btn-icon svg {
+      width: 16px;
+      height: 16px;
+      display: block;
     }
 
     button.secondary {
@@ -96,7 +101,7 @@
       transform: translateY(1px);
     }
 
-    /* ⭐ 改成 min-height，讓下面圖片區有空間長出來 */
+    /* main 使用 min-height，讓下面圖片區有空間長出來 */
     main {
       min-height: calc(100vh - 56px);
       display: flex;
@@ -122,6 +127,23 @@
       border-bottom: 1px solid #d1d5db;
       font-size: 0.85rem;
       color: #111827;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .pane-header-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pane-header-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
     }
 
     .pane-body {
@@ -130,14 +152,22 @@
       overflow: hidden;
     }
 
+    /* 給左邊編輯區當拖拉目標用 */
+    .pane-body.editor-drop-target.drag-over {
+      outline: 2px dashed #60a5fa;
+      outline-offset: -4px;
+      background: radial-gradient(circle at top, rgba(191,219,254,0.18), transparent 55%);
+    }
+
     /* CodeMirror 尺寸 */
     .CodeMirror {
       height: 100%;
       font-size: 0.9rem;
     }
 
+    /* ===== ChatGPT 風格暗色主題：gpt-dark ===== */
     .cm-s-gpt-dark.CodeMirror {
-      background: #2e3842;
+      background: #0a0f1a;
       color: #e5e7eb;
       padding: 0.75rem;
     }
@@ -495,27 +525,70 @@
       </a>
     </h1>
     <div class="toolbar">
-      <button id="runBtn">執行</button>
-      <button id="imageBtn" class="secondary">
-        <span class="btn-icon">📷</span>
-        圖片抓取
+      <!-- 顯示網頁（原執行） -->
+      <button id="runBtn">
+        <span class="btn-icon">
+          <!-- 小螢幕 icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect>
+            <line x1="8" y1="20" x2="16" y2="20"></line>
+            <line x1="12" y1="16" x2="12" y2="20"></line>
+          </svg>
+        </span>
+        <span>顯示網頁</span>
       </button>
+
+      <!-- 圖片抓取（換成圖片 icon，位置與新視窗對調，排第二個） -->
+      <button id="imageBtn" class="secondary">
+        <span class="btn-icon">
+          <!-- 小圖片 icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
+            <circle cx="9" cy="10" r="1.6"></circle>
+            <path d="M21 16l-4.5-4.5a1 1 0 0 0-1.4 0L9 18"></path>
+            <path d="M3 15l3-3 4.5 4.5"></path>
+          </svg>
+        </span>
+        <span>圖片抓取</span>
+      </button>
+
+      <!-- 新視窗預覽（加 icon，排第三個） -->
+      <button id="openNewBtn" class="secondary">
+        <span class="btn-icon">
+          <!-- 開新視窗 icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="13" height="13" rx="2" ry="2"></rect>
+            <polyline points="14 4 20 4 20 10"></polyline>
+            <line x1="20" y1="4" x2="11" y2="13"></line>
+          </svg>
+        </span>
+        <span>新視窗預覽</span>
+      </button>
+
       <button id="downloadBtn" class="secondary">下載 HTML</button>
     </div>
   </header>
 
   <main>
-    <div class="split">
+    <div class="split" id="split-root">
       <section class="pane">
-        <div class="pane-header">HTML 程式碼</div>
-        <div class="pane-body">
+        <div class="pane-header">
+          <span class="pane-header-title">
+            HTML 程式碼（可於下方編寫程式碼或將已寫好的html檔拉進來）
+          </span>
+          <span class="pane-header-right"></span>
+        </div>
+        <div class="pane-body editor-drop-target" id="editor-pane-body">
           <textarea id="code"></textarea>
           <div class="status-bar" id="status">就緒</div>
         </div>
       </section>
 
       <section class="pane">
-        <div class="pane-header">預覽</div>
+        <div class="pane-header">
+          <span class="pane-header-title">預覽</span>
+          <span class="pane-header-right"></span>
+        </div>
         <div class="pane-body">
           <iframe id="preview"></iframe>
         </div>
@@ -555,6 +628,7 @@
     </div>
   </div>
 
+  <!-- CodeMirror & 模式 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/xml/xml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/javascript/javascript.min.js"></script>
@@ -576,11 +650,13 @@
 </body>
 </html>`;
 
-    const textarea    = document.getElementById("code");
-    const iframe      = document.getElementById("preview");
-    const runBtn      = document.getElementById("runBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const statusEl    = document.getElementById("status");
+    const textarea        = document.getElementById("code");
+    const iframe          = document.getElementById("preview");
+    const runBtn          = document.getElementById("runBtn");
+    const downloadBtn     = document.getElementById("downloadBtn");
+    const openNewBtn      = document.getElementById("openNewBtn");
+    const statusEl        = document.getElementById("status");
+    const editorPaneBody  = document.getElementById("editor-pane-body");
 
     textarea.value = defaultCode;
 
@@ -603,7 +679,7 @@
       doc.open();
       doc.write(html);
       doc.close();
-      setStatus("已執行預覽");
+      setStatus("已顯示網頁");
     }
 
     function downloadHtml() {
@@ -629,8 +705,81 @@
       setStatus("已下載：" + filename + ".html");
     }
 
+    // 新視窗預覽：真正獨立頁面，適合 three.js / 3D
+    function openInNewWindow() {
+      const html = editor.getValue();
+      const win = window.open("", "_blank");
+
+      if (!win) {
+        alert("瀏覽器阻擋了彈出視窗，請允許彈出視窗後再試一次！");
+        return;
+      }
+
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      setStatus("已在新視窗開啟預覽");
+    }
+
     runBtn.addEventListener("click", runCode);
     downloadBtn.addEventListener("click", downloadHtml);
+    openNewBtn.addEventListener("click", openInNewWindow);
+
+    /* ===== 左側編輯區：拖曳載入 HTML 檔 ===== */
+
+    function setupDragAndDropForEditor() {
+      if (!editorPaneBody) return;
+
+      const preventDefaults = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+
+      ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        editorPaneBody.addEventListener(eventName, preventDefaults, false);
+      });
+
+      ["dragenter", "dragover"].forEach(eventName => {
+        editorPaneBody.addEventListener(eventName, () => {
+          editorPaneBody.classList.add("drag-over");
+        }, false);
+      });
+
+      ["dragleave", "drop"].forEach(eventName => {
+        editorPaneBody.addEventListener(eventName, () => {
+          editorPaneBody.classList.remove("drag-over");
+        }, false);
+      });
+
+      editorPaneBody.addEventListener("drop", (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (!files || files.length === 0) return;
+
+        const file = files[0];
+        const name = file.name || "";
+
+        if (!/\.html?$/i.test(name)) {
+          alert("請拖曳 .html 或 .htm 檔案到左側編輯區。");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target.result || "";
+          editor.setValue(text);
+          setStatus("已載入：" + name);
+        };
+        reader.onerror = () => {
+          alert("讀取檔案時發生錯誤，請再試一次。");
+        };
+        reader.readAsText(file, "utf-8");
+      }, false);
+    }
+
+    setupDragAndDropForEditor();
+
+    /* ===== 圖片抓取功能 ===== */
 
     const imageBtn           = document.getElementById("imageBtn");
     const imageModalBackdrop = document.getElementById("image-modal-backdrop");
@@ -697,7 +846,7 @@
     });
 
     function scrollToImageSection() {
-      const top = imageSection.offsetTop - 16; // 上方留一點空白
+      const top = imageSection.offsetTop - 16;
       window.scrollTo({
         top,
         behavior: "smooth"
