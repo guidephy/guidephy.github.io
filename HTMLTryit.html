@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <title>Guidephy's HTML Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- CodeMirror 核心 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
 
   <style>
@@ -525,7 +523,7 @@
       </a>
     </h1>
     <div class="toolbar">
-      <!-- 顯示網頁（原執行） -->
+      <!-- 顯示網頁 -->
       <button id="runBtn">
         <span class="btn-icon">
           <!-- 小螢幕 icon -->
@@ -535,10 +533,9 @@
             <line x1="12" y1="16" x2="12" y2="20"></line>
           </svg>
         </span>
-        <span>顯示網頁</span>
+        <span>預覽網頁</span>
       </button>
 
-      <!-- 圖片抓取（換成圖片 icon，位置與新視窗對調，排第二個） -->
       <button id="imageBtn" class="secondary">
         <span class="btn-icon">
           <!-- 小圖片 icon -->
@@ -552,7 +549,6 @@
         <span>圖片抓取</span>
       </button>
 
-      <!-- 新視窗預覽（加 icon，排第三個） -->
       <button id="openNewBtn" class="secondary">
         <span class="btn-icon">
           <!-- 開新視窗 icon -->
@@ -628,7 +624,6 @@
     </div>
   </div>
 
-  <!-- CodeMirror & 模式 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/xml/xml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/javascript/javascript.min.js"></script>
