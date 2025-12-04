@@ -254,6 +254,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = !isMobile; 
+    renderer.localClippingEnabled = true; // Enable local clipping for projection area
     container.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -560,7 +561,26 @@ function createUniformField() {
 }
 
 function createProjectedAreaDisc() {
-    projectedAreaMesh = new THREE.Mesh(new THREE.CircleGeometry(6, 32), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false }));
+    // Clipping planes: normal pointing OUT of the region to discard
+    // To KEEP x > -16 and x < 16:
+    // Plane 1 (Right): Normal (-1, 0, 0), Constant 16 => -x + 16 > 0 => x < 16
+    // Plane 2 (Left): Normal (1, 0, 0), Constant 16 => x + 16 > 0 => x > -16
+    const clipPlanes = [
+        new THREE.Plane(new THREE.Vector3(-1, 0, 0), 16),
+        new THREE.Plane(new THREE.Vector3(1, 0, 0), 16)
+    ];
+
+    projectedAreaMesh = new THREE.Mesh(
+        new THREE.CircleGeometry(6, 32), 
+        new THREE.MeshBasicMaterial({ 
+            color: 0x38bdf8, 
+            transparent: true, 
+            opacity: 0.25, 
+            side: THREE.DoubleSide, 
+            depthWrite: false,
+            clippingPlanes: clipPlanes
+        })
+    );
     projectedAreaMesh.position.set(0, 0, 0.05);
     scene.add(projectedAreaMesh);
     projectedAreaMesh.visible = false;
@@ -591,8 +611,8 @@ function updatePhysics() {
         const posFactor = positionFluxFactor(newPos);
         const flux = state.BStrength * posFactor * Math.sin(alpha);   
         const dFlux = flux - state.lastFluxUniform;
-        // High gain for sensitivity
-        rawInduced = -dFlux * 150; 
+        // Direction fix: remove negative sign
+        rawInduced = dFlux * 150; 
         if (Math.abs(dFlux) < 0.0001) rawInduced = 0;
 
         state.lastFluxUniform = flux;
@@ -610,6 +630,7 @@ function updatePhysics() {
         if (projectedAreaMesh) {
             if (state.showProjection) {
                 const f = Math.abs(Math.sin(alpha));
+                // Show as long as some projection exists, clipping handles the rest
                 if (f > 0.001) {
                     projectedAreaMesh.visible = true;
                     projectedAreaMesh.scale.set(1, f, 1);
