@@ -96,8 +96,8 @@
 <div id="currentLabel">I = 0.0 A</div>
 
 <div id="gestureHint">
-    <div class="text-4xl mb-2">↔ ↕</div>
-    <div>滑動螢幕控制<br>位置與角度</div>
+    <div class="text-4xl mb-2">↕</div>
+    <div>上下滑動控制<br>線圈角度</div>
 </div>
 
 <!-- 頂部資訊列 -->
@@ -123,9 +123,10 @@
     <div id="expandedSettings" class="hidden px-5 py-4 space-y-5 border-b border-slate-700/50 max-h-[50vh] overflow-y-auto no-scrollbar">
         
         <div id="advancedControls" class="space-y-4 hidden">
-            <div>
+            <!-- 角度控制桿 (加上 ID 以便程式控制隱藏) -->
+            <div id="angleControlRow">
                 <div class="flex justify-between mb-2">
-                    <label class="text-xs text-slate-400">線圈角度 θ (或上下滑動)</label>
+                    <label class="text-xs text-slate-400">線圈角度 θ</label>
                     <span id="angleValue" class="text-xs text-sky-400 font-mono">0°</span>
                 </div>
                 <input type="range" id="angleSlider" min="0" max="90" step="1" value="0">
@@ -208,7 +209,7 @@ let state = {
     lastFluxUniform: 0,
     BStrength: 0.8,
     showProjection: false,
-    isSwipeMode: false, // Track if we are in full screen swipe control mode
+    isSwipeMode: false, 
 };
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -306,6 +307,10 @@ function init() {
     animate();
 }
 
+function updateHighlight(group, highlight) {
+    // 移除所有發光與縮放效果，保持物體原樣
+}
+
 function onPointerDown(event) {
     if(event.target !== renderer.domElement) return;
 
@@ -334,10 +339,7 @@ function onPointerDown(event) {
             state.isDragging = true;
             controls.enabled = false;
             document.body.style.cursor = 'grabbing';
-            // Simple highlight effect
-            magnetBodyGroup.children.forEach(c => {
-                if(c.isMesh && c.material.emissive) c.material.emissive.setHex(CONFIG.highlightColor);
-            });
+            // Simple highlight effect removed
             return;
         }
     }
@@ -350,18 +352,11 @@ function onPointerMove(event) {
 
     // --- Swipe Mode Logic (Uniform Field) ---
     if (state.isSwipeMode && state.isDragging) {
-        const dx = event.clientX - lastPointerX;
+        // Horizontal logic removed
         const dy = event.clientY - lastPointerY;
         
         lastPointerX = event.clientX;
         lastPointerY = event.clientY;
-
-        // Horizontal drag -> Position
-        const moveSensitivity = 0.05;
-        let newPos = state.position + dx * moveSensitivity;
-        newPos = Math.max(-18, Math.min(18, newPos));
-        state.position = newPos;
-        document.getElementById('positionSlider').value = newPos;
 
         // Vertical drag -> Angle
         const angleSensitivity = 0.5;
@@ -371,7 +366,7 @@ function onPointerMove(event) {
         document.getElementById('angleSlider').value = newAngle;
         document.getElementById('angleValue').textContent = `${Math.round(newAngle)}°`;
 
-        return; // Skip normal drag logic
+        return; 
     }
 
     // --- Normal Object Drag Logic ---
@@ -392,15 +387,10 @@ function onPointerUp() {
     state.isDragging = false;
     if (!state.isSwipeMode) {
         controls.enabled = true;
-        // Reset highlight
-        magnetBodyGroup.children.forEach(c => {
-            if(c.isMesh && c.material.emissive) c.material.emissive.setHex(0x000000);
-        });
     }
     document.body.style.cursor = 'default';
 }
 
-// ... (Helper functions createLabelSprite, createMagnet, createMagnetFieldLines remain similar, omitted for brevity but assumed present)
 function createLabelSprite(text) {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
@@ -620,7 +610,7 @@ function updatePhysics() {
         if (projectedAreaMesh) {
             if (state.showProjection) {
                 const f = Math.abs(Math.sin(alpha));
-                if (f > 0.001 && posFactor > 0) {
+                if (f > 0.001) {
                     projectedAreaMesh.visible = true;
                     projectedAreaMesh.scale.set(1, f, 1);
                     projectedAreaMesh.position.x = coilGroup.position.x;
@@ -706,6 +696,7 @@ function setupUI() {
     const expandedSettings = document.getElementById('expandedSettings');
 
     const angleControl = document.getElementById('advancedControls');
+    const angleControlRow = document.getElementById('angleControlRow'); // Used to hide slider in uniform mode
     const angleSlider = document.getElementById('angleSlider');
     const angleValue = document.getElementById('angleValue');
     const bSlider = document.getElementById('bSlider');
@@ -784,6 +775,7 @@ function setupUI() {
             angleValue.textContent = '0°';
 
             angleControl.classList.remove('hidden');
+            angleControlRow.classList.add('hidden'); // Hide slider row
 
             state.showFluxLines = true;
             linesToggle.checked = true;
