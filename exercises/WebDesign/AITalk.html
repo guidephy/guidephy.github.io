@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minimal Gemini Chat - Light Blue</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #ffffff;     /* 主背景：白色 */
+      color: #1e293b;          /* 深藍灰文字 */
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;           /* 淡藍灰框線 */
+      background: #ffffff;                 /* 白色面板 */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      color: #1e3a8a;          /* 深藍標題 */
+    }
+
+    label {
+      font-size: 14px;
+      color: #1e3a8a;
+      margin-top: 4px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input, select, textarea, button {
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    #api-key, #model {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #bfdbfe;          /* 淡藍邊框 */
+      background: #eff6ff;                /* 淺藍背景 */
+      color: #1e293b;
+    }
+
+    #api-key:focus, #model:focus, #question:focus {
+      outline: none;
+      border-color: #3b82f6;              /* 藍色高亮 */
+      box-shadow: 0 0 0 2px #93c5fd55;    /* 淡藍光暈 */
+    }
+
+    .info {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    #output {
+      min-height: 150px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #f8fafc;                /* 超淡藍白背景 */
+      border: 1px solid #bfdbfe;          /* 淡藍框線 */
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+
+    #question {
+      width: 100%;
+      min-height: 80px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+      background: #ffffff;
+      resize: vertical;
+      color: #1e293b;
+    }
+
+    #send-btn {
+      margin-top: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      background: #3b82f6;                /* 按鈕藍色 */
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    #send-btn:hover {
+      background: #2563eb;                /* hover 深藍 */
+    }
+
+    #send-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    #status {
+      font-size: 12px;
+      color: #475569;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <h1>Minimal Gemini Chat（淡藍清爽風）</h1>
+
+    <label for="api-key">API Key：</label>
+    <input id="api-key" type="password" placeholder="貼上你的 Gemini API Key" />
+
+    <label for="model">選擇模型：</label>
+    <select id="model">
+      <option value="gemini-2.5-flash" selected>gemini-2.5-flash（預設）</option>
+      <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+    </select>
+
+    <div class="info">⚠ 僅供本機測試，請勿上傳含 API Key 的檔案到公開網站。</div>
+
+    <div id="output">這裡會顯示 Gemini 回應。</div>
+
+    <form id="form">
+      <textarea id="question" placeholder="輸入你想問的問題..."></textarea>
+      <button id="send-btn" type="submit">送出</button>
+    </form>
+
+    <div id="status">狀態：閒置中</div>
+  </div>
+
+  <script>
+    var form = document.getElementById("form");
+    var apiKeyEl = document.getElementById("api-key");
+    var modelEl = document.getElementById("model");
+    var questionEl = document.getElementById("question");
+    var outputEl = document.getElementById("output");
+    var sendBtn = document.getElementById("send-btn");
+    var statusEl = document.getElementById("status");
+
+    function setLoading(isLoading) {
+      sendBtn.disabled = isLoading;
+      statusEl.textContent = isLoading ? "狀態：呼叫中..." : "狀態：閒置中";
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var apiKey = apiKeyEl.value.trim();
+      var question = questionEl.value.trim();
+      var model = modelEl.value;
+
+      if (!apiKey) {
+        alert("請先輸入 API Key");
+        return;
+      }
+      if (!question) {
+        alert("請先輸入問題");
+        return;
+      }
+
+      setLoading(true);
+      outputEl.textContent = "Gemini 回應中...";
+
+      var endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" +
+                     model + ":generateContent";
+
+      // 使用 systemInstruction 要求「必須用繁體中文回答」
+      var body = {
+        systemInstruction: {
+          role: "user",
+          parts: [
+            {
+              text: "你是一個華語助理，請用自然的繁體中文回答所有內容，不可以使用簡體中文或其他語言。"
+            }
+          ]
+        },
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: question }]
+          }
+        ]
+      };
+
+      fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey
+        },
+        body: JSON.stringify(body)
+      })
+        .then(function (res) {
+          if (!res.ok) {
+            return res.text().then(function (t) {
+              throw new Error(res.status + ": " + t);
+            });
+          }
+          return res.json();
+        })
+        .then(function (data) {
+          var reply = "（無回應文字）";
+
+          if (data &&
+              data.candidates &&
+              data.candidates.length > 0 &&
+              data.candidates[0].content &&
+              data.candidates[0].content.parts) {
+            var parts = data.candidates[0].content.parts;
+            reply = "";
+            for (var i = 0; i < parts.length; i++) {
+              if (parts[i].text) {
+                reply += parts[i].text;
+              }
+            }
+          }
+
+          outputEl.textContent = reply;
+        })
+        .catch(function (err) {
+          console.error(err);
+          outputEl.textContent =
+            "⚠ 呼叫 API 時發生錯誤：\n" + (err.message || String(err));
+        })
+        .finally(function () {
+          setLoading(false);
+        });
+    });
+  </script>
+
+</body>
+</html>

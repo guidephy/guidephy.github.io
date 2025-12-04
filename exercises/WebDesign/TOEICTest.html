@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<title>Gemini 多益練習產生器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #eef5f0;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-bar {
+    padding: 12px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #cfe3d6;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    z-index: 10;
+  }
+
+  .top-bar label {
+    font-size: 14px;
+    color: #335a3f;
+    margin-right: 4px;
+  }
+
+  .top-bar input[type="password"],
+  .top-bar select {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #badcc8;
+    font-size: 14px;
+  }
+
+  .main-layout {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  @media (min-width: 900px) {
+    .main-layout {
+      flex-direction: row;
+    }
+  }
+
+  .panel {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid #d8e8df;
+  }
+
+  .panel-left {
+    flex: 1;
+    min-width: 280px;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .panel-right {
+    flex: 2;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+    color: #2e7d53;
+  }
+
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #3a9a5d;
+  }
+
+  h3 {
+    margin: 8px 0 6px 0;
+    font-size: 16px;
+    color: #4c9c6a;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    resize: vertical;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #badcc8;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .btn-primary {
+    background: #4caf71;
+    color: #ffffff;
+  }
+  .btn-primary:hover { background: #3a9a5d; }
+
+  .btn-secondary {
+    background: #e3f2e7;
+    color: #335a3f;
+  }
+  .btn-secondary:hover { background: #d4ebdd; }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #557562;
+  }
+
+  .exercise-section {
+    border-radius: 14px;
+    padding: 14px 16px;
+    border: 1px solid #d8e8df;
+    background: #f7fbf9;
+    margin-bottom: 10px;
+  }
+
+  .question-block {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #e0eee6;
+  }
+
+  .question-block p {
+    margin: 4px 0;
+  }
+
+  .script-box {
+    background: #f3fbf6;
+    border-radius: 10px;
+    padding: 8px 10px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    margin-top: 6px;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .options {
+    margin-top: 6px;
+  }
+
+  .options label {
+    display: block;
+    font-size: 14px;
+    margin: 2px 0;
+    cursor: pointer;
+  }
+
+  .submit-row {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #status-text {
+    font-size: 13px;
+    color: #557562;
+  }
+
+  #results {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  .answer-line {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .correct {
+    color: #2e7d53;
+    font-weight: 600;
+  }
+
+  .incorrect {
+    color: #c62828;
+    font-weight: 600;
+  }
+
+  .explanation {
+    color: #555;
+    margin-left: 0;
+    font-size: 13px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e3f2e7;
+    color: #335a3f;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .difficulty-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 14px;
+    color: #335a3f;
+  }
+
+  .difficulty-row select {
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid #badcc8;
+    font-size: 14px;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- Top bar：API Key + 模型 + 難度 -->
+<div class="top-bar">
+  <div>
+    <label for="api-key">API Key：</label>
+    <input id="api-key" type="password" placeholder="貼上你的 Gemini API Key" />
+  </div>
+
+  <div>
+    <label for="model">模型：</label>
+    <select id="model">
+      <option value="gemini-2.5-flash-lite" selected>gemini-2.5-flash-lite</option>
+      <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+      <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+    </select>
+  </div>
+
+  <div class="difficulty-row">
+    <label for="difficulty">難度：</label>
+    <select id="difficulty">
+      <option value="A1-A2">CEFR A1–A2（基礎）</option>
+      <option value="B1-B2" selected>CEFR B1–B2（中級）</option>
+      <option value="C1-C2">CEFR C1–C2（高級）</option>
+    </select>
+  </div>
+</div>
+
+<div class="main-layout">
+
+  <!-- 左側：輸入文章 + 產生 -->
+  <section class="panel panel-left">
+    <h1>多益練習產生器</h1>
+    <p class="hint">
+      步驟：貼上英文文章 → 選擇難度 → 按「產生多益練習」→ 在右邊作答並提交。
+    </p>
+
+    <label for="article-input"><strong>英文文章：</strong></label>
+    <textarea id="article-input" placeholder="請貼入英文文章（建議 100–250 字）"></textarea>
+
+    <button id="generate-btn" class="btn btn-primary" style="margin-top:10px;">產生多益練習</button>
+    <div id="status-text"></div>
+  </section>
+
+  <!-- 右側：題目 + 結果 -->
+  <section class="panel panel-right">
+    <div id="exercise-container" class="hidden">
+      <!-- 題目由 JS 動態產生 -->
+    </div>
+
+    <div id="results"></div>
+  </section>
+</div>
+
+<script>
+  const apiKeyEl = document.getElementById("api-key");
+  const modelEl = document.getElementById("model");
+  const difficultyEl = document.getElementById("difficulty");
+  const articleInputEl = document.getElementById("article-input");
+  const generateBtn = document.getElementById("generate-btn");
+  const statusTextEl = document.getElementById("status-text");
+  const exerciseContainer = document.getElementById("exercise-container");
+  const resultsEl = document.getElementById("results");
+
+  let currentSet = null;
+
+  function getRawTextFromData(data) {
+    try {
+      return data.candidates[0].content.parts
+        .map(p => p.text || "")
+        .join("");
+    } catch {
+      return "";
+    }
+  }
+
+  // 簡單 JSON 修復：先 parse，不行就嘗試去掉結尾多餘逗號再 parse 一次
+  function safeParseJson(text) {
+    try {
+      return JSON.parse(text);
+    } catch (e1) {
+      console.warn("第一次 JSON.parse 失敗，嘗試自動清理...", e1);
+      // 非嚴謹，但應付典型 "尾逗號" 問題：把 " , }" / " , ]" 改成 " }" / " ]"
+      const fixed = text.replace(/,\s*([}\]])/g, "$1");
+      try {
+        return JSON.parse(fixed);
+      } catch (e2) {
+        console.error("清理後仍無法解析 JSON", e2);
+        throw new Error("JSON Parse error: " + e2.message);
+      }
+    }
+  }
+
+  // 把開頭的 M:/W:/Speaker 1: 這種標記拿掉，給 TTS 用
+  function cleanListeningScript(raw) {
+    if (!raw) return "";
+    return raw
+      .split(/\r?\n/)
+      .map(line =>
+        line.replace(
+          /^\s*(M|W|Man|Woman|Male|Female|Speaker\s*\d+)\s*:\s*/i,
+          ""
+        ).trim()
+      )
+      .join(" ");
+  }
+
+  function playEnglish(text) {
+    if (!("speechSynthesis" in window)) {
+      alert("此瀏覽器不支援文字轉語音 (SpeechSynthesis)");
+      return;
+    }
+    window.speechSynthesis.cancel();
+
+    const cleaned = cleanListeningScript(text || "");
+
+    const utter = new SpeechSynthesisUtterance(cleaned);
+    utter.lang = "en-US";
+    utter.rate = 1.0;
+    utter.pitch = 1.0;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function toggleHidden(el) {
+    if (!el) return;
+    el.classList.toggle("hidden");
+  }
+
+  generateBtn.addEventListener("click", async () => {
+    const apiKey = apiKeyEl.value.trim();
+    const model = modelEl.value;
+    const articleText = articleInputEl.value.trim();
+    const difficulty = difficultyEl.value;
+
+    if (!apiKey) {
+      alert("請先輸入 Gemini API Key");
+      return;
+    }
+    if (!articleText) {
+      alert("請先貼入英文文章");
+      return;
+    }
+
+    statusTextEl.textContent = "AI 正在產生多益題目，請稍候…";
+    resultsEl.textContent = "";
+    exerciseContainer.innerHTML = "";
+    exerciseContainer.classList.add("hidden");
+    currentSet = null;
+    generateBtn.disabled = true;
+
+    const difficultyHint =
+      difficulty === "A1-A2"
+        ? "Use very simple vocabulary and short, clear sentences. Avoid complex grammar. Target CEFR A1–A2."
+        : difficulty === "B1-B2"
+        ? "Use intermediate vocabulary and typical business / everyday contexts. Target CEFR B1–B2."
+        : "Use more advanced vocabulary and some complex sentence structures, but still natural. Target CEFR C1–C2.";
+
+    try {
+      const prompt = `
+You are an expert TOEIC item writer.
+
+TARGET LEVEL: ${difficulty}
+${difficultyHint}
+
+Based ONLY on the following English article, create TOEIC-style Listening and Reading questions that match the target CEFR difficulty.
+
+ARTICLE:
+"""${articleText}"""
+
+REQUIREMENTS (keep content concise and not too long):
+
+1) LISTENING PART 3 (SHORT CONVERSATION)
+- Create ONE conversation between 2 or 3 speakers based on the article.
+- Make it natural, about 30–50 words total (short and clear).
+- Then write EXACTLY 3 multiple-choice questions about this conversation.
+- Each question has 4 options, labeled "A", "B", "C", "D".
+- Keep questions and options short and clear.
+- Provide the correct option label and a brief explanation.
+
+2) LISTENING PART 4 (SHORT TALK)
+- Create ONE short talk/announcement/monologue based on the article.
+- About 50–80 words total (short and clear).
+- Then write EXACTLY 3 multiple-choice questions, each with options A–D.
+- Keep questions and options short.
+- Provide correct option and explanation.
+
+3) READING PART 5 (SENTENCE COMPLETION)
+- Create EXACTLY 3 sentence-completion items that test vocabulary or grammar that appears in the article,
+  but the sentences themselves must be independent and answerable WITHOUT reading the article.
+- In other words, use words/phrases/structures inspired by the article, but do NOT refer to the article's people, places or events.
+- Each item has ONE sentence with ONE blank.
+- Each item has 4 options A–D.
+- Focus on typical TOEIC grammar and vocabulary: verb tense, prepositions, conjunctions, collocations, word forms, etc.
+- Keep sentences and options concise.
+- Provide correct option and explanation.
+
+4) READING PART 6 (TEXT COMPLETION)
+- Create ONE short paragraph (about 80–120 words) that contains EXACTLY TWO blanks, marked as [1] and [2].
+- For each blank, provide 4 options A–D.
+- Keep sentences and options clear and not too long.
+- Provide correct option for each blank and explanation.
+
+5) READING PART 7 (READING COMPREHENSION)
+- Create ONE reading passage (about 130–180 words) related to the article.
+- Then write EXACTLY 3 multiple-choice comprehension questions (with options A–D).
+- Keep questions and options concise.
+- Provide correct option and explanation for each question.
+
+STRICT JSON RULES:
+- Output MUST be strict valid JSON.
+- Use double quotes " " around ALL property names.
+- Use double quotes " " around ALL string values.
+- Escape any double quotes INSIDE string values using backslash (for example: \\"like this\\").
+- Do NOT use single quotes for strings.
+- Do NOT include trailing commas.
+- Do NOT include comments or any extra text before or after the JSON.
+
+OUTPUT FORMAT (VERY IMPORTANT):
+- Return ONLY valid JSON, no extra text, no markdown, no comments, no code fences.
+- Use this exact structure and key names:
+
+{
+  "listening": {
+    "part3": {
+      "script": "string",
+      "questions": [
+        {
+          "question": "string",
+          "options": [
+            { "label": "A", "text": "string" },
+            { "label": "B", "text": "string" },
+            { "label": "C", "text": "string" },
+            { "label": "D", "text": "string" }
+          ],
+          "answer": "A",
+          "explanation": "string"
+        }
+      ]
+    },
+    "part4": {
+      "script": "string",
+      "questions": [
+        {
+          "question": "string",
+          "options": [
+            { "label": "A", "text": "string" },
+            { "label": "B", "text": "string" },
+            { "label": "C", "text": "string" },
+            { "label": "D", "text": "string" }
+          ],
+          "answer": "A",
+          "explanation": "string"
+        }
+      ]
+    }
+  },
+  "reading": {
+    "part5": [
+      {
+        "sentence": "string with one blank ____",
+        "options": [
+          { "label": "A", "text": "string" },
+          { "label": "B", "text": "string" },
+          { "label": "C", "text": "string" },
+          { "label": "D", "text": "string" }
+        ],
+        "answer": "A",
+        "explanation": "string"
+      }
+    ],
+    "part6": {
+      "passage": "string with [1] and [2] as blanks",
+      "blanks": [
+        {
+          "blankId": 1,
+          "options": [
+            { "label": "A", "text": "string" },
+            { "label": "B", "text": "string" },
+            { "label": "C", "text": "string" },
+            { "label": "D", "text": "string" }
+          ],
+          "answer": "A",
+          "explanation": "string"
+        },
+        {
+          "blankId": 2,
+          "options": [
+            { "label": "A", "text": "string" },
+            { "label": "B", "text": "string" },
+            { "label": "C", "text": "string" },
+            { "label": "D", "text": "string" }
+          ],
+          "answer": "A",
+          "explanation": "string"
+        }
+      ]
+    },
+    "part7": {
+      "passage": "string",
+      "questions": [
+        {
+          "question": "string",
+          "options": [
+            { "label": "A", "text": "string" },
+            { "label": "B", "text": "string" },
+            { "label": "C", "text": "string" },
+            { "label": "D", "text": "string" }
+          ],
+          "answer": "A",
+          "explanation": "string"
+        }
+      ]
+    }
+  }
+}
+
+AGAIN: Output ONLY JSON, nothing else.
+      `.trim();
+
+      const body = {
+        systemInstruction: {
+          role: "user",
+          parts: [{
+            text: "你是一位專業多益出題老師，請依指示產生題目，但回答時只輸出嚴格有效的 JSON。"
+          }]
+        },
+        generationConfig: {
+          responseMimeType: "application/json"
+        },
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }]
+          }
+        ]
+      };
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey
+          },
+          body: JSON.stringify(body)
+        }
+      );
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error("API 錯誤：" + txt);
+      }
+
+      const data = await res.json();
+      const rawText = getRawTextFromData(data).trim();
+      console.log("Gemini 回傳原始文字：", rawText);
+
+      let jsonText = rawText;
+
+      if (jsonText.startsWith("```")) {
+        jsonText = jsonText.replace(/```json/gi, "")
+                           .replace(/```/g, "")
+                           .trim();
+      }
+
+      const firstBrace = jsonText.indexOf("{");
+      const lastBrace = jsonText.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonText = jsonText.slice(firstBrace, lastBrace + 1);
+      }
+
+      let parsed = safeParseJson(jsonText);
+
+      currentSet = parsed;
+      renderExercises(parsed);
+      statusTextEl.textContent = "題目產生完成，可以開始作答囉！";
+    } catch (err) {
+      console.error(err);
+      alert("產生題目時發生錯誤：\n" + err.message);
+      statusTextEl.textContent = "產生失敗，請檢查 API Key、模型或稍後重試。";
+    } finally {
+      generateBtn.disabled = false;
+    }
+  });
+
+  function renderExercises(set) {
+    exerciseContainer.innerHTML = "";
+    exerciseContainer.classList.remove("hidden");
+    resultsEl.textContent = "";
+
+    // ===== Listening Part 3 =====
+    const l3 = set.listening && set.listening.part3;
+    if (l3) {
+      const sec = document.createElement("div");
+      sec.className = "exercise-section";
+      sec.innerHTML = `
+        <span class="tag">Listening</span>
+        <h2>Part 3 簡短對話（3 題）</h2>
+      `;
+
+      const btnRow = document.createElement("div");
+      btnRow.style.display = "flex";
+      btnRow.style.gap = "8px";
+      btnRow.style.marginBottom = "8px";
+
+      const playBtn = document.createElement("button");
+      playBtn.className = "btn btn-secondary";
+      playBtn.textContent = "播放對話";
+      playBtn.onclick = () => playEnglish(l3.script || "");
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "btn btn-secondary";
+      toggleBtn.textContent = "顯示 / 隱藏朗讀稿";
+
+      btnRow.appendChild(playBtn);
+      btnRow.appendChild(toggleBtn);
+      sec.appendChild(btnRow);
+
+      const scriptWrapper = document.createElement("div");
+      scriptWrapper.className = "hidden";
+      const scriptBox = document.createElement("div");
+      scriptBox.className = "script-box";
+      scriptBox.textContent = l3.script || "";
+      scriptWrapper.appendChild(scriptBox);
+      sec.appendChild(scriptWrapper);
+
+      toggleBtn.onclick = () => toggleHidden(scriptWrapper);
+
+      (l3.questions || []).forEach((q, idx) => {
+        const qb = document.createElement("div");
+        qb.className = "question-block";
+        qb.innerHTML = `<p><strong>Q L3-${idx+1}.</strong> ${q.question}</p>`;
+        const optsDiv = document.createElement("div");
+        optsDiv.className = "options";
+        (q.options || []).forEach(opt => {
+          const id = `l3_${idx}_${opt.label}`;
+          const label = document.createElement("label");
+          label.htmlFor = id;
+          label.innerHTML = `
+            <input type="radio" name="l3_q${idx}" id="${id}" value="${opt.label}">
+            <strong>${opt.label}.</strong> ${opt.text}
+          `;
+          optsDiv.appendChild(label);
+        });
+        qb.appendChild(optsDiv);
+
+        const exp = document.createElement("div");
+        exp.className = "explanation-line hidden";
+        exp.id = `exp-l3-${idx}`;
+        qb.appendChild(exp);
+
+        sec.appendChild(qb);
+      });
+
+      exerciseContainer.appendChild(sec);
+    }
+
+    // ===== Listening Part 4 =====
+    const l4 = set.listening && set.listening.part4;
+    if (l4) {
+      const sec = document.createElement("div");
+      sec.className = "exercise-section";
+      sec.innerHTML = `
+        <span class="tag">Listening</span>
+        <h2>Part 4 簡短獨白（3 題）</h2>
+      `;
+
+      const btnRow = document.createElement("div");
+      btnRow.style.display = "flex";
+      btnRow.style.gap = "8px";
+      btnRow.style.marginBottom = "8px";
+
+      const playBtn = document.createElement("button");
+      playBtn.className = "btn btn-secondary";
+      playBtn.textContent = "播放獨白";
+      playBtn.onclick = () => playEnglish(l4.script || "");
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "btn btn-secondary";
+      toggleBtn.textContent = "顯示 / 隱藏朗讀稿";
+
+      btnRow.appendChild(playBtn);
+      btnRow.appendChild(toggleBtn);
+      sec.appendChild(btnRow);
+
+      const scriptWrapper = document.createElement("div");
+      scriptWrapper.className = "hidden";
+      const scriptBox = document.createElement("div");
+      scriptBox.className = "script-box";
+      scriptBox.textContent = l4.script || "";
+      scriptWrapper.appendChild(scriptBox);
+      sec.appendChild(scriptWrapper);
+
+      toggleBtn.onclick = () => toggleHidden(scriptWrapper);
+
+      (l4.questions || []).forEach((q, idx) => {
+        const qb = document.createElement("div");
+        qb.className = "question-block";
+        qb.innerHTML = `<p><strong>Q L4-${idx+1}.</strong> ${q.question}</p>`;
+        const optsDiv = document.createElement("div");
+        optsDiv.className = "options";
+        (q.options || []).forEach(opt => {
+          const id = `l4_${idx}_${opt.label}`;
+          const label = document.createElement("label");
+          label.htmlFor = id;
+          label.innerHTML = `
+            <input type="radio" name="l4_q${idx}" id="${id}" value="${opt.label}">
+            <strong>${opt.label}.</strong> ${opt.text}
+          `;
+          optsDiv.appendChild(label);
+        });
+        qb.appendChild(optsDiv);
+
+        const exp = document.createElement("div");
+        exp.className = "explanation-line hidden";
+        exp.id = `exp-l4-${idx}`;
+        qb.appendChild(exp);
+
+        sec.appendChild(qb);
+      });
+
+      exerciseContainer.appendChild(sec);
+    }
+
+    // ===== Reading Part 5 =====
+    const r5 = set.reading && set.reading.part5;
+    if (r5 && Array.isArray(r5)) {
+      const sec = document.createElement("div");
+      sec.className = "exercise-section";
+      sec.innerHTML = `
+        <span class="tag">Reading</span>
+        <h2>Part 5 句子填空（3 題）</h2>
+      `;
+
+      r5.forEach((q, idx) => {
+        const qb = document.createElement("div");
+        qb.className = "question-block";
+        qb.innerHTML = `<p><strong>Q R5-${idx+1}.</strong> ${q.sentence}</p>`;
+        const optsDiv = document.createElement("div");
+        optsDiv.className = "options";
+        (q.options || []).forEach(opt => {
+          const id = `r5_${idx}_${opt.label}`;
+          const label = document.createElement("label");
+          label.htmlFor = id;
+          label.innerHTML = `
+            <input type="radio" name="r5_q${idx}" id="${id}" value="${opt.label}">
+            <strong>${opt.label}.</strong> ${opt.text}
+          `;
+          optsDiv.appendChild(label);
+        });
+        qb.appendChild(optsDiv);
+
+        const exp = document.createElement("div");
+        exp.className = "explanation-line hidden";
+        exp.id = `exp-r5-${idx}`;
+        qb.appendChild(exp);
+
+        sec.appendChild(qb);
+      });
+
+      exerciseContainer.appendChild(sec);
+    }
+
+    // ===== Reading Part 6 =====
+    const r6 = set.reading && set.reading.part6;
+    if (r6) {
+      const sec = document.createElement("div");
+      sec.className = "exercise-section";
+      sec.innerHTML = `
+        <span class="tag">Reading</span>
+        <h2>Part 6 段落填空（2 空）</h2>
+      `;
+
+      const passageBox = document.createElement("div");
+      passageBox.className = "script-box";
+      passageBox.textContent = r6.passage || "";
+      sec.appendChild(passageBox);
+
+      (r6.blanks || []).forEach((b, idx) => {
+        const qb = document.createElement("div");
+        qb.className = "question-block";
+        qb.innerHTML = `<p><strong>Blank [${b.blankId}]</strong></p>`;
+        const optsDiv = document.createElement("div");
+        optsDiv.className = "options";
+        (b.options || []).forEach(opt => {
+          const id = `r6_${idx}_${opt.label}`;
+          const label = document.createElement("label");
+          label.htmlFor = id;
+          label.innerHTML = `
+            <input type="radio" name="r6_b${idx}" id="${id}" value="${opt.label}">
+            <strong>${opt.label}.</strong> ${opt.text}
+          `;
+          optsDiv.appendChild(label);
+        });
+        qb.appendChild(optsDiv);
+
+        const exp = document.createElement("div");
+        exp.className = "explanation-line hidden";
+        exp.id = `exp-r6-${idx}`;
+        qb.appendChild(exp);
+
+        sec.appendChild(qb);
+      });
+
+      exerciseContainer.appendChild(sec);
+    }
+
+    // ===== Reading Part 7 =====
+    const r7 = set.reading && set.reading.part7;
+    if (r7) {
+      const sec = document.createElement("div");
+      sec.className = "exercise-section";
+      sec.innerHTML = `
+        <span class="tag">Reading</span>
+        <h2>Part 7 閱讀測驗（3 題）</h2>
+      `;
+
+      const passageBox = document.createElement("div");
+      passageBox.className = "script-box";
+      passageBox.textContent = r7.passage || "";
+      sec.appendChild(passageBox);
+
+      (r7.questions || []).forEach((q, idx) => {
+        const qb = document.createElement("div");
+        qb.className = "question-block";
+        qb.innerHTML = `<p><strong>Q R7-${idx+1}.</strong> ${q.question}</p>`;
+        const optsDiv = document.createElement("div");
+        optsDiv.className = "options";
+        (q.options || []).forEach(opt => {
+          const id = `r7_${idx}_${opt.label}`;
+          const label = document.createElement("label");
+          label.htmlFor = id;
+          label.innerHTML = `
+            <input type="radio" name="r7_q${idx}" id="${id}" value="${opt.label}">
+            <strong>${opt.label}.</strong> ${opt.text}
+          `;
+          optsDiv.appendChild(label);
+        });
+        qb.appendChild(optsDiv);
+
+        const exp = document.createElement("div");
+        exp.className = "explanation-line hidden";
+        exp.id = `exp-r7-${idx}`;
+        qb.appendChild(exp);
+
+        sec.appendChild(qb);
+      });
+
+      exerciseContainer.appendChild(sec);
+    }
+
+    // ==== 底部提交 / 清除 ====
+    const submitRow = document.createElement("div");
+    submitRow.className = "submit-row";
+
+    const submitBtn = document.createElement("button");
+    submitBtn.id = "submit-btn";
+    submitBtn.className = "btn btn-primary";
+    submitBtn.textContent = "提交答案";
+
+    const resetBtn = document.createElement("button");
+    resetBtn.id = "reset-btn";
+    resetBtn.className = "btn btn-secondary";
+    resetBtn.textContent = "清除題目";
+
+    submitRow.appendChild(submitBtn);
+    submitRow.appendChild(resetBtn);
+    exerciseContainer.appendChild(submitRow);
+
+    submitBtn.addEventListener("click", handleSubmit);
+    resetBtn.addEventListener("click", handleReset);
+  }
+
+  function handleSubmit() {
+    if (!currentSet) {
+      alert("請先產生題目");
+      return;
+    }
+    const set = currentSet;
+    let total = 0;
+    let correctCount = 0;
+
+    // Listening Part 3
+    const l3 = set.listening && set.listening.part3;
+    if (l3) {
+      (l3.questions || []).forEach((q, idx) => {
+        const input = document.querySelector(`input[name="l3_q${idx}"]:checked`);
+        const user = input ? input.value : "未作答";
+        const correct = q.answer;
+        const isCorrect = user === correct;
+        total++;
+        if (isCorrect) correctCount++;
+
+        const expDiv = document.getElementById(`exp-l3-${idx}`);
+        if (expDiv) {
+          expDiv.classList.remove("hidden");
+          expDiv.innerHTML = `
+            <div class="answer-line ${isCorrect ? "correct" : "incorrect"}">
+              你的答案：${user} ／ 正確答案：${correct}
+            </div>
+            <div class="explanation">解析：${q.explanation || ""}</div>
+          `;
+        }
+      });
+    }
+
+    // Listening Part 4
+    const l4 = set.listening && set.listening.part4;
+    if (l4) {
+      (l4.questions || []).forEach((q, idx) => {
+        const input = document.querySelector(`input[name="l4_q${idx}"]:checked`);
+        const user = input ? input.value : "未作答";
+        const correct = q.answer;
+        const isCorrect = user === correct;
+        total++;
+        if (isCorrect) correctCount++;
+
+        const expDiv = document.getElementById(`exp-l4-${idx}`);
+        if (expDiv) {
+          expDiv.classList.remove("hidden");
+          expDiv.innerHTML = `
+            <div class="answer-line ${isCorrect ? "correct" : "incorrect"}">
+              你的答案：${user} ／ 正確答案：${correct}
+            </div>
+            <div class="explanation">解析：${q.explanation || ""}</div>
+          `;
+        }
+      });
+    }
+
+    // Reading Part 5
+    const r5 = set.reading && set.reading.part5;
+    if (r5 && Array.isArray(r5)) {
+      r5.forEach((q, idx) => {
+        const input = document.querySelector(`input[name="r5_q${idx}"]:checked`);
+        const user = input ? input.value : "未作答";
+        const correct = q.answer;
+        const isCorrect = user === correct;
+        total++;
+        if (isCorrect) correctCount++;
+
+        const expDiv = document.getElementById(`exp-r5-${idx}`);
+        if (expDiv) {
+          expDiv.classList.remove("hidden");
+          expDiv.innerHTML = `
+            <div class="answer-line ${isCorrect ? "correct" : "incorrect"}">
+              你的答案：${user} ／ 正確答案：${correct}
+            </div>
+            <div class="explanation">解析：${q.explanation || ""}</div>
+          `;
+        }
+      });
+    }
+
+    // Reading Part 6
+    const r6 = set.reading && set.reading.part6;
+    if (r6) {
+      (r6.blanks || []).forEach((b, idx) => {
+        const input = document.querySelector(`input[name="r6_b${idx}"]:checked`);
+        const user = input ? input.value : "未作答";
+        const correct = b.answer;
+        const isCorrect = user === correct;
+        total++;
+        if (isCorrect) correctCount++;
+
+        const expDiv = document.getElementById(`exp-r6-${idx}`);
+        if (expDiv) {
+          expDiv.classList.remove("hidden");
+          expDiv.innerHTML = `
+            <div class="answer-line ${isCorrect ? "correct" : "incorrect"}">
+              你的答案：${user} ／ 正確答案：${correct}
+            </div>
+            <div class="explanation">解析：${b.explanation || ""}</div>
+          `;
+        }
+      });
+    }
+
+    // Reading Part 7
+    const r7 = set.reading && set.reading.part7;
+    if (r7) {
+      (r7.questions || []).forEach((q, idx) => {
+        const input = document.querySelector(`input[name="r7_q${idx}"]:checked`);
+        const user = input ? input.value : "未作答";
+        const correct = q.answer;
+        const isCorrect = user === correct;
+        total++;
+        if (isCorrect) correctCount++;
+
+        const expDiv = document.getElementById(`exp-r7-${idx}`);
+        if (expDiv) {
+          expDiv.classList.remove("hidden");
+          expDiv.innerHTML = `
+            <div class="answer-line ${isCorrect ? "correct" : "incorrect"}">
+              你的答案：${user} ／ 正確答案：${correct}
+            </div>
+            <div class="explanation">解析：${q.explanation || ""}</div>
+          `;
+        }
+      });
+    }
+
+    resultsEl.textContent = `已顯示所有題目的答案與解析。總共 ${total} 題，答對 ${correctCount} 題。`;
+    resultsEl.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function handleReset() {
+    currentSet = null;
+    exerciseContainer.innerHTML = "";
+    exerciseContainer.classList.add("hidden");
+    resultsEl.textContent = "";
+    statusTextEl.textContent = "";
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  }
+</script>
+
+</body>
+</html>
