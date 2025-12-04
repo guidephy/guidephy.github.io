@@ -9,12 +9,23 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         body { margin: 0; overflow: hidden; background-color: #ffffff; font-family: 'Noto Sans TC', sans-serif; }
+        
+        /* UI Panel Styling */
         .glass-panel {
             background: rgba(30, 41, 59, 0.9);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform-origin: top right;
         }
+        
+        .panel-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95) translateY(-20px);
+        }
+
         .gauge-needle {
             transition: transform 0.1s ease-out;
             transform-origin: bottom center;
@@ -54,25 +65,38 @@
             opacity: 0;
             transition: opacity 0.1s;
             white-space: nowrap;
+            z-index: 5; 
         }
         /* 右側面板可捲動 */
         .sidebar-scroll {
-            max-height: calc(100vh - 2rem);
+            max-height: calc(100vh - 5rem); 
             overflow-y: auto;
         }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #334155; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
     </style>
 </head>
 <body>
 
 <div id="currentLabel">感應電流 I</div>
 
-<div class="absolute top-4 right-4 w-80 p-6 rounded-xl glass-panel sidebar-scroll text-white z-10">
-    <h1 class="text-2xl font-bold mb-4 text-sky-400 border-b border-gray-600 pb-2">電磁感應實驗 (Faraday's Law)</h1>
+<!-- Mobile Toggle Button -->
+<button id="toggleUIBtn" class="absolute top-4 right-4 z-20 bg-slate-800 text-sky-400 p-2 rounded-lg shadow-lg border border-slate-600 hover:bg-slate-700 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+    </svg>
+</button>
+
+<!-- UI Panel -->
+<div id="uiPanel" class="absolute top-16 right-4 w-80 p-6 rounded-xl glass-panel sidebar-scroll text-white z-10">
+    <h1 class="text-2xl font-bold mb-4 text-sky-400 border-b border-gray-600 pb-2">電磁感應實驗</h1>
     
     <div class="space-y-6">
         <div>
             <label class="block text-sm font-medium text-gray-300 mb-2">選擇線圈型式 / 實驗</label>
-            <select id="modeSelect" class="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-sky-500 outline-none">
+            <select id="modeSelect" class="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-sky-500 outline-none text-sm">
                 <option value="loop">環形線圈 (磁鐵靠近 / 遠離)</option>
                 <option value="solenoid">螺線管 (Solenoid)</option>
                 <option value="uniformField">平行磁力線（線圈進出磁場）</option>
@@ -138,7 +162,7 @@
         </div>
         
         <div class="space-y-3 pt-2 border-t border-gray-600">
-            <button id="flipBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-md flex items-center justify-center gap-2">
+            <button id="flipBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-md flex items-center justify-center gap-2 text-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
@@ -153,7 +177,6 @@
                 <label class="text-sm font-medium text-gray-300">隱藏磁鐵本體</label>
                 <input type="checkbox" id="hideMagnetToggle" class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
             </div>
-            <!-- 平行磁力線專用：顯示投影面積 -->
             <div id="showProjRow" class="flex items-center justify-between hidden">
                 <label class="text-sm font-medium text-gray-300">顯示投影面積</label>
                 <input type="checkbox" id="projToggle" class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
@@ -162,10 +185,9 @@
 
         <div class="text-xs text-gray-300 bg-slate-700/50 p-3 rounded border border-slate-600 mb-2">
             <p><strong>操作說明：</strong>預設為「磁鐵靠近 / 遠離線圈」。可拖曳 3D 畫面中的磁鐵或移動滑桿，快速移動會產生較大的感應電流。</p>
-            <p class="mt-1">切換為「平行磁力線（線圈進出磁場）」時，線圈在一片平行、指向紙內的磁場中進出並轉動：線圈平面 ⟂ 磁力線時感應最大。</p>
             <div class="flex items-center gap-2 mt-2">
                 <div class="w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.9)]"></div>
-                <span class="text-orange-300">橘色箭頭沿線圈旁一圈：方向代表感應電流方向，長度代表大小。</span>
+                <span class="text-orange-300">橘色箭頭：感應電流方向與大小</span>
             </div>
         </div>
     </div>
@@ -180,7 +202,8 @@ const CONFIG = {
     magnetNColor: 0xdc2626,
     magnetSColor: 0x2563eb,
     inducedColor: 0xea580c,
-    fluxLineColor: 0x020617
+    fluxLineColor: 0x020617,
+    highlightColor: 0x444444 // 拖曳時的發光色
 };
 
 let state = {
@@ -196,8 +219,11 @@ let state = {
     loopAngleDeg: 0,
     lastFluxUniform: 0,
     BStrength: 0.8,
-    showProjection: false   // ★ 是否顯示投影面積
+    showProjection: false
 };
+
+// 偵測是否為行動裝置
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 let scene, camera, renderer, controls;
 let coilGroup = new THREE.Group();
@@ -206,7 +232,7 @@ let magnetBodyGroup = new THREE.Group();
 let currentArrowGroup = new THREE.Group();
 let magnetFieldLines = new THREE.Group();
 let uniformFieldGroup = new THREE.Group();
-let projectedAreaMesh = null; // ★ 投影面積橢圓
+let projectedAreaMesh = null; 
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -228,8 +254,11 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    // 陰影開關：手機上關閉以節省效能
+    renderer.shadowMap.enabled = !isMobile; 
+    
     container.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -238,9 +267,15 @@ function init() {
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
+    
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(10, 20, 10);
-    dirLight.castShadow = true;
+    dirLight.castShadow = !isMobile; // 手機關閉陰影投射
+    // 優化陰影貼圖大小
+    if(!isMobile) {
+        dirLight.shadow.mapSize.width = 1024;
+        dirLight.shadow.mapSize.height = 1024;
+    }
     scene.add(dirLight);
 
     dragPlane = new THREE.Mesh(
@@ -261,7 +296,7 @@ function init() {
 
     createMagnet();
     rebuildCoil();
-    createProjectedAreaDisc(); // ★ 建立投影面積橢圓
+    createProjectedAreaDisc(); 
 
     window.addEventListener('resize', onWindowResize);
     container.addEventListener('pointerdown', onPointerDown);
@@ -271,6 +306,21 @@ function init() {
 
     setupUI();
     animate();
+}
+
+// 更新磁鐵發光狀態
+function updateMagnetHighlight(highlight) {
+    magnetBodyGroup.children.forEach(child => {
+        if (child.isMesh && child.material && child.material.emissive) {
+            if (highlight) {
+                child.material.emissive.setHex(CONFIG.highlightColor);
+                child.scale.setScalar(1.05); // 稍微放大
+            } else {
+                child.material.emissive.setHex(0x000000);
+                child.scale.setScalar(1.0);
+            }
+        }
+    });
 }
 
 function onPointerDown(event) {
@@ -288,6 +338,7 @@ function onPointerDown(event) {
         state.isDragging = true;
         controls.enabled = false;
         document.body.style.cursor = 'grabbing';
+        updateMagnetHighlight(true); // 開啟視覺回饋
     }
 }
 
@@ -317,6 +368,9 @@ function onPointerMove(event) {
 }
 
 function onPointerUp() {
+    if (state.isDragging) {
+        updateMagnetHighlight(false); // 關閉視覺回饋
+    }
     state.isDragging = false;
     controls.enabled = true;
     document.body.style.cursor = 'default';
@@ -349,7 +403,8 @@ function createMagnet() {
 
     const radius = 1.2;
     const length = 6;
-    const geo = new THREE.CylinderGeometry(radius, radius, length / 2, 32);
+    // 優化：降低圓柱體段數 (32 -> 24)
+    const geo = new THREE.CylinderGeometry(radius, radius, length / 2, 24);
     geo.rotateZ(Math.PI / 2);
 
     const nMat = new THREE.MeshPhongMaterial({ color: CONFIG.magnetNColor, shininess: 100 });
@@ -389,7 +444,8 @@ function createMagnetFieldLines(length, radius) {
     magnetFieldLines.clear();
 
     const material = new THREE.LineBasicMaterial({ color: CONFIG.fluxLineColor, transparent: true, opacity: 0.5 });
-    const arrowGeo = new THREE.ConeGeometry(0.2, 0.6, 8); 
+    // 優化：降低箭頭幾何面數
+    const arrowGeo = new THREE.ConeGeometry(0.2, 0.6, 6); 
     const arrowMat = new THREE.MeshBasicMaterial({ color: CONFIG.fluxLineColor, transparent: true, opacity: 0.8 });
     
     const numStrands = 8; 
@@ -414,7 +470,8 @@ function createMagnetFieldLines(length, radius) {
             const v3 = new THREE.Vector3(endX, 0, 0);
 
             const curve = new THREE.CubicBezierCurve3(v0, v1, v2, v3);
-            const points = curve.getPoints(50); 
+            // 優化：降低曲線採樣點 (50 -> 30)
+            const points = curve.getPoints(30); 
 
             const rotatedPoints = points.map(pt => {
                 const y = pt.y * Math.cos(angle);
@@ -461,7 +518,8 @@ function rebuildCoil() {
     if (state.mode === 'loop') {
         const R = 6;
         const tubeR = 0.5;
-        const geo = new THREE.TorusGeometry(R, tubeR, 16, 64);
+        // 優化：降低線圈面數 (16, 64 -> 12, 32)
+        const geo = new THREE.TorusGeometry(R, tubeR, 12, 32);
         geo.rotateY(Math.PI / 2);
         const mesh = new THREE.Mesh(geo, copperMat);
         coilGroup.add(mesh);
@@ -483,7 +541,8 @@ function rebuildCoil() {
             }
         }
         const path = new HelixCurve();
-        const geo = new THREE.TubeGeometry(path, 200, 0.3, 8, false);
+        // 優化：降低螺線管管狀分段 (200, 8 -> 100, 6)
+        const geo = new THREE.TubeGeometry(path, 100, 0.3, 6, false);
         const mesh = new THREE.Mesh(geo, copperMat);
         coilGroup.add(mesh);
         coilGroup.rotation.set(0,0,0);
@@ -492,7 +551,8 @@ function rebuildCoil() {
     } else if (state.mode === 'uniformField') {
         const R = 6;
         const tubeR = 0.5;
-        const geo = new THREE.TorusGeometry(R, tubeR, 16, 64); 
+        // 優化：降低線圈面數
+        const geo = new THREE.TorusGeometry(R, tubeR, 12, 32); 
         const mesh = new THREE.Mesh(geo, copperMat);
         coilGroup.add(mesh);
         coilGroup.rotation.set(0,0,0);
@@ -520,6 +580,9 @@ function updateArrowGeometry(magnitude) {
 
     let curve2D, pts, pathCurve;
 
+    // 優化：降低箭頭路徑採樣點
+    const samplePoints = Math.max(8, Math.floor(arcLength * 12));
+
     if (state.mode === 'uniformField') {
         curve2D = new THREE.EllipseCurve(
             0, 0,
@@ -527,9 +590,9 @@ function updateArrowGeometry(magnitude) {
             startAngle, endAngle,
             false, 0
         );
-        pts = curve2D.getPoints(Math.max(16, Math.floor(arcLength * 22)));
+        pts = curve2D.getPoints(samplePoints);
         pathCurve = new THREE.CatmullRomCurve3(
-            pts.map(p => new THREE.Vector3(p.x, p.y, 0))   // 線圈局部 XY 平面
+            pts.map(p => new THREE.Vector3(p.x, p.y, 0))   
         );
         labelTargetPos.set(0, radius + 0.5, 0);
     } else {
@@ -539,14 +602,15 @@ function updateArrowGeometry(magnitude) {
             startAngle, endAngle,
             false, 0
         );
-        pts = curve2D.getPoints(Math.max(16, Math.floor(arcLength * 22)));
+        pts = curve2D.getPoints(samplePoints);
         pathCurve = new THREE.CatmullRomCurve3(
-            pts.map(p => new THREE.Vector3(xPos, p.y, p.x)) // 一般模式在線圈旁側面
+            pts.map(p => new THREE.Vector3(xPos, p.y, p.x)) 
         );
         labelTargetPos.set(xPos, radius + 0.5, 0);
     }
 
-    const tubeGeo = new THREE.TubeGeometry(pathCurve, 64, 0.25, 20, false);
+    // 優化：降低箭頭管狀面數 (64, 20 -> 32, 8)
+    const tubeGeo = new THREE.TubeGeometry(pathCurve, 32, 0.25, 8, false);
     const tubeMat = new THREE.MeshStandardMaterial({
         color: CONFIG.inducedColor,
         emissive: CONFIG.inducedColor,
@@ -558,7 +622,8 @@ function updateArrowGeometry(magnitude) {
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     currentArrowGroup.add(tube);
 
-    const coneGeo = new THREE.ConeGeometry(0.8, 2.0, 22);
+    // 優化：降低箭頭圓錐面數 (22 -> 12)
+    const coneGeo = new THREE.ConeGeometry(0.8, 2.0, 12);
     const cone = new THREE.Mesh(coneGeo, tubeMat);
 
     const endPoint = pathCurve.getPoint(1);
@@ -577,7 +642,8 @@ function createUniformField() {
     if (state.BStrength <= 0.001) return;
 
     const lineMat = new THREE.LineBasicMaterial({ color: CONFIG.fluxLineColor, transparent: true, opacity: 0.7 });
-    const arrowGeo = new THREE.ConeGeometry(0.25, 0.9, 12);
+    // 優化：降低箭頭幾何面數
+    const arrowGeo = new THREE.ConeGeometry(0.25, 0.9, 8);
     const arrowMat = new THREE.MeshBasicMaterial({ color: CONFIG.fluxLineColor });
 
     const fieldLength = 16;
@@ -616,8 +682,9 @@ function createUniformField() {
 
 /* ★ 投影面積橢圓：代表線圈在磁場垂直平面上的投影 */
 function createProjectedAreaDisc() {
-    const R = 6; // 和 uniformField 模式下的線圈半徑一致
-    const geo = new THREE.CircleGeometry(R, 64);
+    const R = 6; 
+    // 優化：降低圓形面數 (64 -> 32)
+    const geo = new THREE.CircleGeometry(R, 32);
     const mat = new THREE.MeshBasicMaterial({
         color: 0x38bdf8,
         transparent: true,
@@ -790,6 +857,19 @@ function setupUI() {
     const hideMagnetRow = document.getElementById('hideMagnetRow');
     const showProjRow = document.getElementById('showProjRow');
     const projToggle = document.getElementById('projToggle');
+    
+    const toggleUIBtn = document.getElementById('toggleUIBtn');
+    const uiPanel = document.getElementById('uiPanel');
+
+    // Panel toggle logic
+    toggleUIBtn.addEventListener('click', () => {
+        uiPanel.classList.toggle('panel-hidden');
+    });
+
+    // Auto-hide on mobile initially
+    if (window.innerWidth < 768) {
+        uiPanel.classList.add('panel-hidden');
+    }
 
     slider.addEventListener('input', (e) => {
         state.position = parseFloat(e.target.value);
