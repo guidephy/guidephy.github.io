@@ -667,13 +667,32 @@ function createProjectedAreaDisc() {
     projectedAreaMesh.visible = false;
 }
 
+/* 線圈中心 x 在磁場區中的覆蓋比例，用來算磁通量 */
 function positionFluxFactor(x) {
-    const inner = 8;
-    const outer = 16;
+    // 磁場視覺範圍是 [-16, 16]
+    const fieldHalfWidth = 16; 
+    // 線圈半徑 (與 rebuildCoil 中的 R 一致)
+    const coilRadius = 6;
+    
     const ax = Math.abs(x);
-    if (ax <= inner) return 1;
-    if (ax >= outer) return 0;
-    return (outer - ax) / (outer - inner);
+
+    // 1. 完全在磁場內 (邊緣未觸及邊界)
+    // 圓心位置 <= 16 - 6 = 10
+    if (ax <= fieldHalfWidth - coilRadius) return 1;
+
+    // 2. 完全在磁場外
+    // 圓心位置 >= 16 + 6 = 22
+    if (ax >= fieldHalfWidth + coilRadius) return 0;
+
+    // 3. 部分重疊 - 計算圓弓形面積佔比
+    // dist 為圓心到邊界(16)的距離。正值表示圓心在界內，負值在界外。
+    const dist = fieldHalfWidth - ax;
+    
+    // 正規化參數 t = dist / R (範圍 -1 到 1)
+    const t = dist / coilRadius;
+    
+    // 圓形重疊面積比例公式
+    return (Math.acos(-t) - t * Math.sqrt(1 - t * t)) / Math.PI;
 }
 
 function updatePhysics() {
