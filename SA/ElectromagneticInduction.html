@@ -12,9 +12,9 @@
         
         /* UI Panel Styling */
         .glass-panel {
-            background: rgba(30, 41, 59, 0.9);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(30, 41, 59, 0.85); /* Slightly more transparent */
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             transition: opacity 0.3s ease, transform 0.3s ease;
             transform-origin: top right;
@@ -69,13 +69,13 @@
         }
         /* 右側面板可捲動 */
         .sidebar-scroll {
-            max-height: calc(100vh - 5rem); 
+            max-height: 80vh; /* Limit height to avoid full cover */
             overflow-y: auto;
         }
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #334155; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 2px; }
     </style>
 </head>
 <body>
@@ -90,105 +90,90 @@
 </button>
 
 <!-- UI Panel -->
-<div id="uiPanel" class="absolute top-16 right-4 w-80 p-6 rounded-xl glass-panel sidebar-scroll text-white z-10">
-    <h1 class="text-2xl font-bold mb-4 text-sky-400 border-b border-gray-600 pb-2">電磁感應實驗</h1>
+<div id="uiPanel" class="absolute top-16 right-4 w-80 max-w-[90vw] p-5 rounded-xl glass-panel sidebar-scroll text-white z-10">
+    <h1 class="text-xl font-bold mb-4 text-sky-400 border-b border-gray-600 pb-2">電磁感應實驗</h1>
     
-    <div class="space-y-6">
+    <div class="space-y-5">
         <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">選擇線圈型式 / 實驗</label>
-            <select id="modeSelect" class="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-sky-500 outline-none text-sm">
+            <label class="block text-xs font-medium text-gray-400 mb-1">實驗模式</label>
+            <select id="modeSelect" class="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-2 focus:ring-2 focus:ring-sky-500 outline-none text-sm">
                 <option value="loop">環形線圈 (磁鐵靠近 / 遠離)</option>
                 <option value="solenoid">螺線管 (Solenoid)</option>
                 <option value="uniformField">平行磁力線（線圈進出磁場）</option>
             </select>
         </div>
 
-        <div class="bg-slate-800 p-4 rounded-lg border border-slate-600 flex flex-col items-center">
-            <span class="text-sm text-gray-400 mb-2">檢流計 (感應電流 I)</span>
-            <div class="relative w-40 h-20 overflow-hidden">
-                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-32 rounded-full border-t-8 border-l-8 border-r-8 border-gray-600 box-border" style="border-bottom-color: transparent; transform: translate(-50%, 50%) rotate(-45deg);"></div>
-                <div class="absolute bottom-0 left-1/2 w-0.5 h-3 bg-white opacity-50 transform -translate-x-1/2 -translate-y-28"></div>
-                <div class="absolute bottom-0 left-1/2 w-0.5 h-2 bg-gray-500 opacity-50" style="transform-origin: bottom center; transform: translateX(-50%) rotate(30deg) translateY(-112px);"></div>
-                <div class="absolute bottom-0 left-1/2 w-0.5 h-2 bg-gray-500 opacity-50" style="transform-origin: bottom center; transform: translateX(-50%) rotate(-30deg) translateY(-112px);"></div>
-                <div id="gaugeNeedle" class="gauge-needle absolute bottom-0 left-1/2 w-1 h-24 bg-red-500 rounded-full shadow-lg" style="transform: translateX(-50%) rotate(0deg);"></div>
-                <div class="absolute bottom-0 left-1/2 w-4 h-4 bg-gray-300 rounded-full transform -translate-x-1/2 translate-y-2"></div>
+        <!-- 檢流計 -->
+        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-600 flex flex-col items-center">
+            <span class="text-xs text-gray-400 mb-1">檢流計 (感應電流)</span>
+            <div class="relative w-32 h-16 overflow-hidden">
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-24 rounded-full border-t-[6px] border-l-[6px] border-r-[6px] border-gray-600 box-border" style="border-bottom-color: transparent; transform: translate(-50%, 50%) rotate(-45deg);"></div>
+                <div id="gaugeNeedle" class="gauge-needle absolute bottom-0 left-1/2 w-1 h-20 bg-red-500 rounded-full shadow-lg origin-bottom" style="transform: translateX(-50%) rotate(0deg);"></div>
+                <div class="absolute bottom-0 left-1/2 w-3 h-3 bg-gray-300 rounded-full transform -translate-x-1/2 translate-y-1.5"></div>
             </div>
-            <div class="flex justify-between w-full px-4 text-xs text-gray-400 font-mono mt-1">
+            <div class="flex justify-between w-full px-2 text-[10px] text-gray-400 font-mono">
                 <span>-</span>
                 <span>0</span>
                 <span>+</span>
             </div>
         </div>
 
+        <!-- 主要控制：位置 -->
         <div>
             <div class="flex justify-between mb-1">
                 <label id="positionLabel" class="text-sm font-medium text-gray-300">
-                    磁鐵位置 (可直接拖曳磁鐵)
+                    位置 (拖曳物體或滑桿)
                 </label>
             </div>
-            <input type="range" id="positionSlider" min="-18" max="18" step="0.1" value="-12" class="w-full">
-            <div class="flex justify-between text-xs text-gray-500 mt-1">
-                <span>左側 (遠)</span>
-                <span>中心</span>
-                <span>右側 (遠)</span>
-            </div>
+            <input type="range" id="positionSlider" min="-18" max="18" step="0.1" value="-12" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
         </div>
 
-        <div id="angleControl" class="mt-3 hidden">
-            <div class="flex justify-between mb-1">
-                <label class="text-sm font-medium text-gray-300">
-                    線圈平面與磁力線的夾角 θ
-                </label>
-                <span id="angleValue" class="text-xs text-gray-400">0°</span>
+        <!-- 進階參數 (僅在平行磁場模式顯示) -->
+        <div id="advancedControls" class="space-y-4 hidden bg-slate-700/30 p-3 rounded-lg border border-slate-600/50">
+            <div id="angleControl">
+                <div class="flex justify-between mb-1">
+                    <label class="text-xs font-medium text-gray-300">線圈角度 θ</label>
+                    <span id="angleValue" class="text-xs text-sky-300">0°</span>
+                </div>
+                <input type="range" id="angleSlider" min="0" max="90" step="1" value="0" class="w-full h-1.5">
             </div>
-            <input type="range" id="angleSlider" min="0" max="90" step="1" value="0" class="w-full">
-            <div class="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0°：平面 ∥ 磁力線 → 無感應</span>
-                <span>90°：平面 ⟂ 磁力線 → 感應最大</span>
-            </div>
-        </div>
 
-        <div id="BControl" class="mt-3 hidden">
-            <div class="flex justify-between mb-1">
-                <label class="text-sm font-medium text-gray-300">
-                    磁場強度 B (Tesla)
-                </label>
-                <span id="BValue" class="text-xs text-gray-400">0.80 T</span>
-            </div>
-            <input type="range" id="bSlider" min="0" max="1" step="0.01" value="0.8" class="w-full">
-            <div class="flex justify-between text-xs text-gray-500 mt-1">
-                <span>磁力線愈多 → B 愈強</span>
+            <div id="BControl">
+                <div class="flex justify-between mb-1">
+                    <label class="text-xs font-medium text-gray-300">磁場強度 B</label>
+                    <span id="BValue" class="text-xs text-sky-300">0.80 T</span>
+                </div>
+                <input type="range" id="bSlider" min="0" max="1" step="0.01" value="0.8" class="w-full h-1.5">
             </div>
         </div>
         
+        <!-- 按鈕與開關 -->
         <div class="space-y-3 pt-2 border-t border-gray-600">
             <button id="flipBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition-colors shadow-md flex items-center justify-center gap-2 text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
                 磁極翻轉
             </button>
 
-            <div id="showLinesRow" class="flex items-center justify-between">
-                <label class="text-sm font-medium text-gray-300">顯示磁力線</label>
-                <input type="checkbox" id="linesToggle" class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
-            </div>
-            <div id="hideMagnetRow" class="flex items-center justify-between">
-                <label class="text-sm font-medium text-gray-300">隱藏磁鐵本體</label>
-                <input type="checkbox" id="hideMagnetToggle" class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
-            </div>
-            <div id="showProjRow" class="flex items-center justify-between hidden">
-                <label class="text-sm font-medium text-gray-300">顯示投影面積</label>
-                <input type="checkbox" id="projToggle" class="w-5 h-5 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500 focus:ring-2">
+            <div class="grid grid-cols-1 gap-2">
+                <div id="showLinesRow" class="flex items-center justify-between">
+                    <label class="text-xs font-medium text-gray-300">顯示磁力線</label>
+                    <input type="checkbox" id="linesToggle" class="w-4 h-4 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500">
+                </div>
+                <div id="hideMagnetRow" class="flex items-center justify-between">
+                    <label class="text-xs font-medium text-gray-300">隱藏磁鐵本體</label>
+                    <input type="checkbox" id="hideMagnetToggle" class="w-4 h-4 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500">
+                </div>
+                <div id="showProjRow" class="flex items-center justify-between hidden">
+                    <label class="text-xs font-medium text-gray-300">顯示投影面積</label>
+                    <input type="checkbox" id="projToggle" class="w-4 h-4 text-sky-600 rounded bg-slate-700 border-gray-600 focus:ring-sky-500">
+                </div>
             </div>
         </div>
 
-        <div class="text-xs text-gray-300 bg-slate-700/50 p-3 rounded border border-slate-600 mb-2">
-            <p><strong>操作說明：</strong>預設為「磁鐵靠近 / 遠離線圈」。可拖曳 3D 畫面中的磁鐵或移動滑桿，快速移動會產生較大的感應電流。</p>
-            <div class="flex items-center gap-2 mt-2">
-                <div class="w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.9)]"></div>
-                <span class="text-orange-300">橘色箭頭：感應電流方向與大小</span>
-            </div>
+        <div class="text-[10px] text-gray-400 bg-slate-800/50 p-2 rounded border border-slate-700/50">
+            <p><strong>操作提示：</strong>直接拖曳畫面中的磁鐵或線圈，或使用滑桿。</p>
         </div>
     </div>
 </div>
@@ -203,7 +188,7 @@ const CONFIG = {
     magnetSColor: 0x2563eb,
     inducedColor: 0xea580c,
     fluxLineColor: 0x020617,
-    highlightColor: 0x444444 // 拖曳時的發光色
+    highlightColor: 0x666666 // 拖曳時的發光色
 };
 
 let state = {
@@ -234,6 +219,7 @@ let magnetFieldLines = new THREE.Group();
 let uniformFieldGroup = new THREE.Group();
 let projectedAreaMesh = null; 
 
+// 用於拖曳檢測的 Raycaster
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let dragPlane;
@@ -270,8 +256,7 @@ function init() {
     
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(10, 20, 10);
-    dirLight.castShadow = !isMobile; // 手機關閉陰影投射
-    // 優化陰影貼圖大小
+    dirLight.castShadow = !isMobile; 
     if(!isMobile) {
         dirLight.shadow.mapSize.width = 1024;
         dirLight.shadow.mapSize.height = 1024;
@@ -308,37 +293,61 @@ function init() {
     animate();
 }
 
-// 更新磁鐵發光狀態
-function updateMagnetHighlight(highlight) {
-    magnetBodyGroup.children.forEach(child => {
+// 通用發光回饋函式 (支援 Magnet 和 Coil)
+function updateHighlight(group, highlight) {
+    group.traverse(child => {
         if (child.isMesh && child.material && child.material.emissive) {
+            // 忽略看不見的輔助幾何體 (例如 hit box)
+            if (child.visible === false) return; 
+
             if (highlight) {
+                // 保存原始 emissive 顏色以便恢復? 這裡簡化處理
+                if (!child.userData.originalEmissive) {
+                    child.userData.originalEmissive = child.material.emissive.getHex();
+                }
                 child.material.emissive.setHex(CONFIG.highlightColor);
-                child.scale.setScalar(1.05); // 稍微放大
+                // 只有主體要放大，避免箭頭等亂跑
+                if(child.name !== 'arrow') child.scale.setScalar(1.02);
             } else {
-                child.material.emissive.setHex(0x000000);
-                child.scale.setScalar(1.0);
+                if (child.userData.originalEmissive !== undefined) {
+                    child.material.emissive.setHex(child.userData.originalEmissive);
+                } else {
+                    child.material.emissive.setHex(0x000000);
+                }
+                if(child.name !== 'arrow') child.scale.setScalar(1.0);
             }
         }
     });
 }
 
 function onPointerDown(event) {
-    if (!state.showMagnetBody) return;
-    if (state.mode === 'uniformField') return;
-
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(magnetBodyGroup.children, true);
 
-    if (intersects.length > 0) {
-        state.isDragging = true;
-        controls.enabled = false;
-        document.body.style.cursor = 'grabbing';
-        updateMagnetHighlight(true); // 開啟視覺回饋
+    // 平行磁力線模式：檢查是否點到線圈
+    if (state.mode === 'uniformField') {
+        const intersects = raycaster.intersectObjects(coilGroup.children, true);
+        if (intersects.length > 0) {
+            state.isDragging = true;
+            controls.enabled = false;
+            document.body.style.cursor = 'grabbing';
+            updateHighlight(coilGroup, true);
+            return;
+        }
+    } 
+    // 其他模式：檢查是否點到磁鐵
+    else if (state.showMagnetBody) {
+        const intersects = raycaster.intersectObjects(magnetBodyGroup.children, true);
+        if (intersects.length > 0) {
+            state.isDragging = true;
+            controls.enabled = false;
+            document.body.style.cursor = 'grabbing';
+            updateHighlight(magnetBodyGroup, true);
+            return;
+        }
     }
 }
 
@@ -358,18 +367,23 @@ function onPointerMove(event) {
             document.getElementById('positionSlider').value = newX;
         }
     } else {
-        if (state.showMagnetBody && state.mode !== 'uniformField') {
+        // Hover cursor effect
+        let hit = false;
+        if (state.mode === 'uniformField') {
+            const intersects = raycaster.intersectObjects(coilGroup.children, true);
+            hit = intersects.length > 0;
+        } else if (state.showMagnetBody) {
             const intersects = raycaster.intersectObjects(magnetBodyGroup.children, true);
-            document.body.style.cursor = intersects.length > 0 ? 'grab' : 'default';
-        } else {
-            document.body.style.cursor = 'default';
+            hit = intersects.length > 0;
         }
+        document.body.style.cursor = hit ? 'grab' : 'default';
     }
 }
 
 function onPointerUp() {
     if (state.isDragging) {
-        updateMagnetHighlight(false); // 關閉視覺回饋
+        updateHighlight(magnetBodyGroup, false);
+        updateHighlight(coilGroup, false);
     }
     state.isDragging = false;
     controls.enabled = true;
@@ -498,6 +512,7 @@ function createMagnetFieldLines(length, radius) {
             const arrow = new THREE.Mesh(arrowGeo, arrowMat);
             arrow.position.copy(pos3D);
             arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tan3D);
+            arrow.name = 'arrow'; // Tag for ignore scale
             magnetFieldLines.add(arrow);
         }
     }
@@ -515,15 +530,15 @@ function rebuildCoil() {
         roughness: 0.4 
     });
 
+    let mainMesh = null;
+
     if (state.mode === 'loop') {
         const R = 6;
         const tubeR = 0.5;
-        // 優化：降低線圈面數 (16, 64 -> 12, 32)
+        // 優化：降低線圈面數
         const geo = new THREE.TorusGeometry(R, tubeR, 12, 32);
         geo.rotateY(Math.PI / 2);
-        const mesh = new THREE.Mesh(geo, copperMat);
-        coilGroup.add(mesh);
-        coilGroup.rotation.set(0,0,0);
+        mainMesh = new THREE.Mesh(geo, copperMat);
         currentArrowGroup.userData = { radius: R + 0.8, xPos: 0 };
 
     } else if (state.mode === 'solenoid') {
@@ -541,23 +556,38 @@ function rebuildCoil() {
             }
         }
         const path = new HelixCurve();
-        // 優化：降低螺線管管狀分段 (200, 8 -> 100, 6)
+        // 優化：降低螺線管管狀分段
         const geo = new THREE.TubeGeometry(path, 100, 0.3, 6, false);
-        const mesh = new THREE.Mesh(geo, copperMat);
-        coilGroup.add(mesh);
-        coilGroup.rotation.set(0,0,0);
+        mainMesh = new THREE.Mesh(geo, copperMat);
         currentArrowGroup.userData = { radius: R + 0.6, xPos: 0 };
 
     } else if (state.mode === 'uniformField') {
         const R = 6;
         const tubeR = 0.5;
-        // 優化：降低線圈面數
         const geo = new THREE.TorusGeometry(R, tubeR, 12, 32); 
-        const mesh = new THREE.Mesh(geo, copperMat);
-        coilGroup.add(mesh);
-        coilGroup.rotation.set(0,0,0);
+        mainMesh = new THREE.Mesh(geo, copperMat);
         currentArrowGroup.userData = { radius: R + 0.8, xPos: 0 };
     }
+
+    if (mainMesh) {
+        coilGroup.add(mainMesh);
+        
+        // Add transparent hit box for easier interaction on mobile
+        const bbox = new THREE.Box3().setFromObject(mainMesh);
+        const size = new THREE.Vector3();
+        bbox.getSize(size);
+        // Make hit box slightly larger and ensure it has thickness
+        const hitGeo = new THREE.BoxGeometry(
+            Math.max(size.x, 2), 
+            Math.max(size.y, 14), // Larger Y/Z for easy grabbing
+            Math.max(size.z, 14)
+        );
+        const hitMat = new THREE.MeshBasicMaterial({ visible: false, wireframe: true });
+        const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+        coilGroup.add(hitMesh);
+    }
+
+    coilGroup.rotation.set(0,0,0);
 }
 
 function updateArrowGeometry(magnitude) {
@@ -609,7 +639,7 @@ function updateArrowGeometry(magnitude) {
         labelTargetPos.set(xPos, radius + 0.5, 0);
     }
 
-    // 優化：降低箭頭管狀面數 (64, 20 -> 32, 8)
+    // 優化：降低箭頭管狀面數
     const tubeGeo = new THREE.TubeGeometry(pathCurve, 32, 0.25, 8, false);
     const tubeMat = new THREE.MeshStandardMaterial({
         color: CONFIG.inducedColor,
@@ -622,7 +652,7 @@ function updateArrowGeometry(magnitude) {
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     currentArrowGroup.add(tube);
 
-    // 優化：降低箭頭圓錐面數 (22 -> 12)
+    // 優化：降低箭頭圓錐面數
     const coneGeo = new THREE.ConeGeometry(0.8, 2.0, 12);
     const cone = new THREE.Mesh(coneGeo, tubeMat);
 
@@ -683,7 +713,7 @@ function createUniformField() {
 /* ★ 投影面積橢圓：代表線圈在磁場垂直平面上的投影 */
 function createProjectedAreaDisc() {
     const R = 6; 
-    // 優化：降低圓形面數 (64 -> 32)
+    // 優化：降低圓形面數
     const geo = new THREE.CircleGeometry(R, 32);
     const mat = new THREE.MeshBasicMaterial({
         color: 0x38bdf8,
@@ -852,6 +882,7 @@ function setupUI() {
     const BControl = document.getElementById('BControl');
     const bSlider = document.getElementById('bSlider');
     const BValue = document.getElementById('BValue');
+    const advancedControls = document.getElementById('advancedControls');
 
     const showLinesRow = document.getElementById('showLinesRow');
     const hideMagnetRow = document.getElementById('hideMagnetRow');
@@ -926,7 +957,7 @@ function setupUI() {
         rebuildCoil();
 
         if (state.mode === 'uniformField') {
-            positionLabel.textContent = '線圈位置（在平行磁場中前進）';
+            positionLabel.textContent = '線圈位置 (拖曳線圈或滑桿)';
             state.position = -12;
             state.lastPosition = -12;
             slider.value = state.position;
@@ -936,8 +967,7 @@ function setupUI() {
             angleSlider.value = 0;
             angleValue.textContent = '0°';
 
-            angleControl.classList.remove('hidden');
-            BControl.classList.remove('hidden');
+            advancedControls.classList.remove('hidden'); // Show advanced block
 
             state.showFluxLines = true;
             linesToggle.checked = true;
@@ -964,8 +994,7 @@ function setupUI() {
             state.loopAngleDeg = 0;
             angleSlider.value = 0;
             angleValue.textContent = '0°';
-            angleControl.classList.add('hidden');
-            BControl.classList.add('hidden');
+            advancedControls.classList.add('hidden');
 
             uniformFieldGroup.visible = false;
             magnetFieldLines.visible = state.showFluxLines;
