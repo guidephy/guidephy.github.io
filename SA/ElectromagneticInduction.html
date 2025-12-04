@@ -12,14 +12,13 @@
         
         /* 底部控制面板動畫 */
         .bottom-panel {
-            background: rgba(15, 23, 42, 0.85); /* 保持深色面板以利對比 */
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             padding-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        /* 自訂滑桿樣式 */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -44,7 +43,6 @@
             border-radius: 2px;
         }
 
-        /* 浮動標籤 - 顏色加深以適應白底 */
         #currentLabel {
             position: absolute;
             top: 50%;
@@ -61,7 +59,21 @@
             z-index: 5; 
         }
 
-        /* 開關樣式 */
+        /* 提示覆蓋層 */
+        #gestureHint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            text-align: center;
+            color: rgba(15, 23, 42, 0.6);
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 4;
+        }
+
         .toggle-checkbox:checked {
             background-color: #0ea5e9;
             border-color: #0ea5e9;
@@ -81,10 +93,14 @@
 </head>
 <body>
 
-<!-- 浮動數值標籤 -->
 <div id="currentLabel">I = 0.0 A</div>
 
-<!-- 頂部資訊列 (字體顏色改深) -->
+<div id="gestureHint">
+    <div class="text-4xl mb-2">↔ ↕</div>
+    <div>滑動螢幕控制<br>位置與角度</div>
+</div>
+
+<!-- 頂部資訊列 -->
 <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-20 pointer-events-none">
     <div class="pointer-events-auto">
         <h1 class="text-lg font-bold text-slate-800 drop-shadow-sm">電磁感應</h1>
@@ -100,17 +116,16 @@
     </div>
 </div>
 
-<!-- 底部控制面板 Dock -->
+<!-- 底部控制面板 -->
 <div class="fixed bottom-0 left-0 right-0 z-30 bottom-panel shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
     
-    <!-- 擴充設定區 (預設隱藏) -->
+    <!-- 擴充設定區 -->
     <div id="expandedSettings" class="hidden px-5 py-4 space-y-5 border-b border-slate-700/50 max-h-[50vh] overflow-y-auto no-scrollbar">
         
-        <!-- 平行磁場專用控制 -->
         <div id="advancedControls" class="space-y-4 hidden">
             <div>
                 <div class="flex justify-between mb-2">
-                    <label class="text-xs text-slate-400">線圈角度 θ</label>
+                    <label class="text-xs text-slate-400">線圈角度 θ (或上下滑動)</label>
                     <span id="angleValue" class="text-xs text-sky-400 font-mono">0°</span>
                 </div>
                 <input type="range" id="angleSlider" min="0" max="90" step="1" value="0">
@@ -124,7 +139,6 @@
             </div>
         </div>
 
-        <!-- 通用開關 -->
         <div class="grid grid-cols-2 gap-4">
             <label class="flex items-center space-x-3 cursor-pointer group">
                 <input type="checkbox" id="linesToggle" class="sr-only peer">
@@ -146,9 +160,8 @@
         </div>
     </div>
 
-    <!-- 主要控制列 (常駐) -->
+    <!-- 主要控制列 -->
     <div class="px-4 py-4 flex items-center gap-4">
-        <!-- 設定按鈕 -->
         <button id="settingsBtn" class="p-3 rounded-full bg-slate-700/50 text-slate-300 hover:bg-slate-600 hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -156,13 +169,11 @@
             </svg>
         </button>
 
-        <!-- 位置滑桿 (佔據剩餘空間) -->
         <div class="flex-1 relative">
             <label id="positionLabel" class="absolute -top-5 left-0 text-[10px] text-slate-400">位置</label>
             <input type="range" id="positionSlider" min="-18" max="18" step="0.1" value="-12">
         </div>
 
-        <!-- 磁極翻轉按鈕 -->
         <button id="flipBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-full shadow-lg transition-transform active:scale-95 whitespace-nowrap">
             翻轉 N/S
         </button>
@@ -173,13 +184,13 @@
 
 <script>
 const CONFIG = {
-    bg: 0xffffff, // White Background
+    bg: 0xffffff, 
     wireColor: 0xcd7f32,
     magnetNColor: 0xdc2626,
     magnetSColor: 0x2563eb,
-    inducedColor: 0xea580c, // Darker Orange/Amber for visibility on white
-    fluxLineColor: 0x94a3b8, // Slate 400 for magnet field lines
-    uniformFluxColor: 0x3b82f6, // Nice Blue (Blue 500) for uniform field lines
+    inducedColor: 0xea580c, 
+    fluxLineColor: 0x94a3b8, 
+    uniformFluxColor: 0x0ea5e9, // Sky Blue 500
     highlightColor: 0xcccccc
 };
 
@@ -196,7 +207,8 @@ let state = {
     loopAngleDeg: 0,
     lastFluxUniform: 0,
     BStrength: 0.8,
-    showProjection: false
+    showProjection: false,
+    isSwipeMode: false, // Track if we are in full screen swipe control mode
 };
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -215,7 +227,16 @@ const mouse = new THREE.Vector2();
 let dragPlane;
 
 const currentLabel = document.getElementById('currentLabel');
+const gestureHint = document.getElementById('gestureHint');
 let labelTargetPos = new THREE.Vector3(0, 0, 0);
+
+// Camera target for animation
+let targetCameraPos = new THREE.Vector3(0, 20, 40);
+let targetLookAt = new THREE.Vector3(0, 0, 0);
+
+// Touch interaction tracking
+let lastPointerX = 0;
+let lastPointerY = 0;
 
 function init() {
     const container = document.getElementById('canvas-container');
@@ -251,7 +272,6 @@ function init() {
     }
     scene.add(dirLight);
 
-    // Subtle backlight
     const backLight = new THREE.DirectionalLight(0x38bdf8, 0.2);
     backLight.position.set(-10, 10, -20);
     scene.add(backLight);
@@ -286,30 +306,19 @@ function init() {
     animate();
 }
 
-function updateHighlight(group, highlight) {
-    group.traverse(child => {
-        if (child.isMesh && child.material && child.material.emissive) {
-            if (child.visible === false) return; 
-            if (highlight) {
-                if (!child.userData.originalEmissive) {
-                    child.userData.originalEmissive = child.material.emissive.getHex();
-                }
-                child.material.emissive.setHex(CONFIG.highlightColor);
-                if(child.name !== 'arrow') child.scale.setScalar(1.05);
-            } else {
-                if (child.userData.originalEmissive !== undefined) {
-                    child.material.emissive.setHex(child.userData.originalEmissive);
-                } else {
-                    child.material.emissive.setHex(0x000000);
-                }
-                if(child.name !== 'arrow') child.scale.setScalar(1.0);
-            }
-        }
-    });
-}
-
 function onPointerDown(event) {
     if(event.target !== renderer.domElement) return;
+
+    // Record start position for swipe
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+
+    if (state.isSwipeMode) {
+        state.isDragging = true;
+        // Don't disable controls here, we manage camera manually in animate
+        document.body.style.cursor = 'grabbing';
+        return;
+    }
 
     if (!state.showMagnetBody && state.mode !== 'uniformField') return;
 
@@ -319,22 +328,16 @@ function onPointerDown(event) {
 
     raycaster.setFromCamera(mouse, camera);
 
-    if (state.mode === 'uniformField') {
-        const intersects = raycaster.intersectObjects(coilGroup.children, true);
-        if (intersects.length > 0) {
-            state.isDragging = true;
-            controls.enabled = false;
-            document.body.style.cursor = 'grabbing';
-            updateHighlight(coilGroup, true);
-            return;
-        }
-    } else if (state.showMagnetBody) {
+    if (state.showMagnetBody) {
         const intersects = raycaster.intersectObjects(magnetBodyGroup.children, true);
         if (intersects.length > 0) {
             state.isDragging = true;
             controls.enabled = false;
             document.body.style.cursor = 'grabbing';
-            updateHighlight(magnetBodyGroup, true);
+            // Simple highlight effect
+            magnetBodyGroup.children.forEach(c => {
+                if(c.isMesh && c.material.emissive) c.material.emissive.setHex(CONFIG.highlightColor);
+            });
             return;
         }
     }
@@ -345,9 +348,36 @@ function onPointerMove(event) {
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
+    // --- Swipe Mode Logic (Uniform Field) ---
+    if (state.isSwipeMode && state.isDragging) {
+        const dx = event.clientX - lastPointerX;
+        const dy = event.clientY - lastPointerY;
+        
+        lastPointerX = event.clientX;
+        lastPointerY = event.clientY;
+
+        // Horizontal drag -> Position
+        const moveSensitivity = 0.05;
+        let newPos = state.position + dx * moveSensitivity;
+        newPos = Math.max(-18, Math.min(18, newPos));
+        state.position = newPos;
+        document.getElementById('positionSlider').value = newPos;
+
+        // Vertical drag -> Angle
+        const angleSensitivity = 0.5;
+        let newAngle = state.loopAngleDeg + dy * angleSensitivity;
+        newAngle = Math.max(0, Math.min(90, newAngle));
+        state.loopAngleDeg = newAngle;
+        document.getElementById('angleSlider').value = newAngle;
+        document.getElementById('angleValue').textContent = `${Math.round(newAngle)}°`;
+
+        return; // Skip normal drag logic
+    }
+
+    // --- Normal Object Drag Logic ---
     raycaster.setFromCamera(mouse, camera);
 
-    if (state.isDragging) {
+    if (state.isDragging && !state.isSwipeMode) {
         const intersects = raycaster.intersectObject(dragPlane);
         if (intersects.length > 0) {
             let point = intersects[0].point;
@@ -359,15 +389,18 @@ function onPointerMove(event) {
 }
 
 function onPointerUp() {
-    if (state.isDragging) {
-        updateHighlight(magnetBodyGroup, false);
-        updateHighlight(coilGroup, false);
-    }
     state.isDragging = false;
-    controls.enabled = true;
+    if (!state.isSwipeMode) {
+        controls.enabled = true;
+        // Reset highlight
+        magnetBodyGroup.children.forEach(c => {
+            if(c.isMesh && c.material.emissive) c.material.emissive.setHex(0x000000);
+        });
+    }
     document.body.style.cursor = 'default';
 }
 
+// ... (Helper functions createLabelSprite, createMagnet, createMagnetFieldLines remain similar, omitted for brevity but assumed present)
 function createLabelSprite(text) {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
@@ -380,115 +413,64 @@ function createLabelSprite(text) {
     ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
     ctx.shadowBlur = 4;
     ctx.fillStyle = 'white';
-    // Darker outline for white background visibility
     ctx.strokeStyle = 'rgba(0,0,0,0.5)';
     ctx.lineWidth = 4;
     ctx.strokeText(text, 64, 64);
     ctx.fillText(text, 64, 64);
-    
     const tex = new THREE.CanvasTexture(canvas);
-    const mat = new THREE.SpriteMaterial({ map: tex });
-    const sprite = new THREE.Sprite(mat);
-    sprite.scale.set(2.5, 2.5, 1);
-    return sprite;
+    return new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
 }
 
 function createMagnet() {
     while(magnetBodyGroup.children.length > 0) magnetBodyGroup.remove(magnetBodyGroup.children[0]);
-
-    const radius = 1.2;
-    const length = 6;
-    const geo = new THREE.CylinderGeometry(radius, radius, length / 2, 24);
-    geo.rotateZ(Math.PI / 2);
-
+    const radius = 1.2, length = 6;
+    const geo = new THREE.CylinderGeometry(radius, radius, length/2, 24).rotateZ(Math.PI/2);
     const nMat = new THREE.MeshPhongMaterial({ color: CONFIG.magnetNColor, shininess: 100 });
     const sMat = new THREE.MeshPhongMaterial({ color: CONFIG.magnetSColor, shininess: 100 });
-
     const rightMat = state.polarity === 1 ? nMat : sMat;
     const leftMat = state.polarity === 1 ? sMat : nMat;
     
-    const rightPole = new THREE.Mesh(geo, rightMat);
-    rightPole.position.x = length / 4;
+    const rightPole = new THREE.Mesh(geo, rightMat); rightPole.position.x = length/4;
     magnetBodyGroup.add(rightPole);
-
-    const leftPole = new THREE.Mesh(geo, leftMat);
-    leftPole.position.x = -length / 4;
+    const leftPole = new THREE.Mesh(geo, leftMat); leftPole.position.x = -length/4;
     magnetBodyGroup.add(leftPole);
 
-    const labelX = length / 2 - 0.4; 
-    
-    const rightLabelText = state.polarity === 1 ? "N" : "S";
-    const leftLabelText = state.polarity === 1 ? "S" : "N";
-
-    const rightLabel = createLabelSprite(rightLabelText);
-    rightLabel.position.set(labelX, radius + 0.8, 0); 
-    magnetBodyGroup.add(rightLabel);
-
-    const leftLabel = createLabelSprite(leftLabelText);
-    leftLabel.position.set(-labelX, radius + 0.8, 0); 
-    magnetBodyGroup.add(leftLabel);
+    const l1 = createLabelSprite(state.polarity===1?"N":"S"); l1.position.set(length/2-0.4, radius+0.8, 0); l1.scale.set(2.5,2.5,1);
+    magnetBodyGroup.add(l1);
+    const l2 = createLabelSprite(state.polarity===1?"S":"N"); l2.position.set(-length/2+0.4, radius+0.8, 0); l2.scale.set(2.5,2.5,1);
+    magnetBodyGroup.add(l2);
     
     createMagnetFieldLines(length, radius);
-    
     magnetFieldLines.visible = state.showFluxLines; 
     magnetGroup.position.x = state.position;
 }
 
 function createMagnetFieldLines(length, radius) {
     magnetFieldLines.clear();
-
     const material = new THREE.LineBasicMaterial({ color: CONFIG.fluxLineColor, transparent: true, opacity: 0.5 });
     const arrowGeo = new THREE.ConeGeometry(0.2, 0.6, 6); 
     const arrowMat = new THREE.MeshBasicMaterial({ color: CONFIG.fluxLineColor, transparent: true, opacity: 0.8 });
-    
-    const numStrands = 8; 
-    const loopsPerAngle = 3; 
-
+    const numStrands = 8, loopsPerAngle = 3; 
     for(let i=0; i<numStrands; i++) {
         const angle = (i / numStrands) * Math.PI * 2;
-        
         for(let j=0; j<loopsPerAngle; j++) {
             const scale = 4.0 + j * 3.5; 
             const p = state.polarity;
-            const startX = (length/2) * p;
-            const endX = -(length/2) * p;
-            const stretchFactor = 2.5 + j * 0.8;
-            const radialHeight = scale * 0.8;
-
-            const v0 = new THREE.Vector3(startX, 0, 0);
-            const v1 = new THREE.Vector3(startX + (scale * stretchFactor * p), radialHeight, 0);
-            const v2 = new THREE.Vector3(endX - (scale * stretchFactor * p), radialHeight, 0);
-            const v3 = new THREE.Vector3(endX, 0, 0);
-
-            const curve = new THREE.CubicBezierCurve3(v0, v1, v2, v3);
+            const startX = (length/2) * p, endX = -(length/2) * p;
+            const stretch = 2.5 + j * 0.8, rHeight = scale * 0.8;
+            const curve = new THREE.CubicBezierCurve3(
+                new THREE.Vector3(startX, 0, 0),
+                new THREE.Vector3(startX + scale*stretch*p, rHeight, 0),
+                new THREE.Vector3(endX - scale*stretch*p, rHeight, 0),
+                new THREE.Vector3(endX, 0, 0)
+            );
             const points = curve.getPoints(30); 
-
-            const rotatedPoints = points.map(pt => {
-                const y = pt.y * Math.cos(angle);
-                const z = pt.y * Math.sin(angle);
-                return new THREE.Vector3(pt.x, y, z);
-            });
-
-            const geometry = new THREE.BufferGeometry().setFromPoints(rotatedPoints);
-            const line = new THREE.Line(geometry, material);
-            magnetFieldLines.add(line);
-
-            const t = 0.5;
-            const pt = curve.getPoint(t);
-            const tan = curve.getTangent(t).normalize();
-            
-            const py = pt.y * Math.cos(angle);
-            const pz = pt.y * Math.sin(angle);
-            const pos3D = new THREE.Vector3(pt.x, py, pz);
-
-            const ty = tan.y * Math.cos(angle);
-            const tz = tan.y * Math.sin(angle);
-            const tan3D = new THREE.Vector3(tan.x, ty, tz).normalize();
-
+            const rotatedPoints = points.map(pt => new THREE.Vector3(pt.x, pt.y*Math.cos(angle), pt.y*Math.sin(angle)));
+            magnetFieldLines.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(rotatedPoints), material));
+            const t = 0.5, pt = curve.getPoint(t), tan = curve.getTangent(t).normalize();
             const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-            arrow.position.copy(pos3D);
-            arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tan3D);
-            arrow.name = 'arrow';
+            arrow.position.set(pt.x, pt.y*Math.cos(angle), pt.y*Math.sin(angle));
+            arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3(tan.x, tan.y*Math.cos(angle), tan.y*Math.sin(angle)).normalize());
             magnetFieldLines.add(arrow);
         }
     }
@@ -496,68 +478,29 @@ function createMagnetFieldLines(length, radius) {
 
 function rebuildCoil() {
     while(coilGroup.children.length > 0) coilGroup.remove(coilGroup.children[0]);
-    
     currentArrowGroup = new THREE.Group();
     coilGroup.add(currentArrowGroup);
-
-    const copperMat = new THREE.MeshStandardMaterial({ 
-        color: CONFIG.wireColor, 
-        metalness: 0.6, 
-        roughness: 0.4,
-        emissive: 0x000000
-    });
-
+    const copperMat = new THREE.MeshStandardMaterial({ color: CONFIG.wireColor, metalness: 0.6, roughness: 0.4 });
     let mainMesh = null;
 
     if (state.mode === 'loop') {
-        const R = 6;
-        const tubeR = 0.5;
-        const geo = new THREE.TorusGeometry(R, tubeR, 12, 32);
-        geo.rotateY(Math.PI / 2);
+        const geo = new THREE.TorusGeometry(6, 0.5, 12, 32).rotateY(Math.PI/2);
         mainMesh = new THREE.Mesh(geo, copperMat);
-        currentArrowGroup.userData = { radius: R + 0.8, xPos: 0 };
-
+        currentArrowGroup.userData = { radius: 6.8, xPos: 0 };
     } else if (state.mode === 'solenoid') {
-        const turns = 10;
-        const R = 3.5;
-        const len = 12;
         class HelixCurve extends THREE.Curve {
             getPoint(t) {
-                const angle = t * Math.PI * 2 * turns;
-                const x = (t - 0.5) * len;
-                const y = R * Math.cos(angle);
-                const z = R * Math.sin(angle);
-                return new THREE.Vector3(x, y, z);
+                const angle = t * Math.PI * 2 * 10;
+                return new THREE.Vector3((t - 0.5) * 12, 3.5 * Math.cos(angle), 3.5 * Math.sin(angle));
             }
         }
-        const path = new HelixCurve();
-        const geo = new THREE.TubeGeometry(path, 100, 0.3, 6, false);
-        mainMesh = new THREE.Mesh(geo, copperMat);
-        currentArrowGroup.userData = { radius: R + 0.6, xPos: 0 };
-
+        mainMesh = new THREE.Mesh(new THREE.TubeGeometry(new HelixCurve(), 100, 0.3, 6, false), copperMat);
+        currentArrowGroup.userData = { radius: 4.1, xPos: 0 };
     } else if (state.mode === 'uniformField') {
-        const R = 6;
-        const tubeR = 0.5;
-        const geo = new THREE.TorusGeometry(R, tubeR, 12, 32); 
-        mainMesh = new THREE.Mesh(geo, copperMat);
-        currentArrowGroup.userData = { radius: R + 0.8, xPos: 0 };
+        mainMesh = new THREE.Mesh(new THREE.TorusGeometry(6, 0.5, 12, 32), copperMat);
+        currentArrowGroup.userData = { radius: 6.8, xPos: 0 };
     }
-
-    if (mainMesh) {
-        coilGroup.add(mainMesh);
-        const bbox = new THREE.Box3().setFromObject(mainMesh);
-        const size = new THREE.Vector3();
-        bbox.getSize(size);
-        const hitGeo = new THREE.BoxGeometry(
-            Math.max(size.x, 2), 
-            Math.max(size.y, 14), 
-            Math.max(size.z, 14)
-        );
-        const hitMat = new THREE.MeshBasicMaterial({ visible: false });
-        const hitMesh = new THREE.Mesh(hitGeo, hitMat);
-        coilGroup.add(hitMesh);
-    }
-
+    if (mainMesh) coilGroup.add(mainMesh);
     coilGroup.rotation.set(0,0,0);
 }
 
@@ -567,50 +510,31 @@ function updateArrowGeometry(magnitude) {
         if (child.geometry) child.geometry.dispose();
         currentArrowGroup.remove(child);
     }
-
     if (magnitude < 0.1) return;
 
-    const radius = currentArrowGroup.userData.radius || 7.0;
-    const xPos = currentArrowGroup.userData.xPos || 0;
+    const radius = currentArrowGroup.userData.radius;
+    const xPos = currentArrowGroup.userData.xPos;
     const arcLength = Math.min(Math.PI * 1.8, magnitude * 1.0);
-    if (arcLength < 0.1) return;
-
-    const startAngle = Math.PI / 2 - arcLength / 2;
-    const endAngle = Math.PI / 2 + arcLength / 2;
-
-    let curve2D, pts, pathCurve;
-    const samplePoints = Math.max(8, Math.floor(arcLength * 12));
-
+    const startAngle = Math.PI/2 - arcLength/2;
+    const endAngle = Math.PI/2 + arcLength/2;
+    const pts = new THREE.EllipseCurve(0, 0, radius, radius, startAngle, endAngle, false, 0).getPoints(Math.max(8, Math.floor(arcLength*12)));
+    
+    let pathCurve;
     if (state.mode === 'uniformField') {
-        curve2D = new THREE.EllipseCurve(0, 0, radius, radius, startAngle, endAngle, false, 0);
-        pts = curve2D.getPoints(samplePoints);
         pathCurve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(p.x, p.y, 0)));
         labelTargetPos.set(0, radius + 0.5, 0);
     } else {
-        curve2D = new THREE.EllipseCurve(0, 0, radius, radius, startAngle, endAngle, false, 0);
-        pts = curve2D.getPoints(samplePoints);
         pathCurve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(xPos, p.y, p.x)));
         labelTargetPos.set(xPos, radius + 0.5, 0);
     }
 
-    const tubeGeo = new THREE.TubeGeometry(pathCurve, 32, 0.25, 8, false);
-    const tubeMat = new THREE.MeshStandardMaterial({
-        color: CONFIG.inducedColor,
-        emissive: CONFIG.inducedColor,
-        emissiveIntensity: 1.5,
-        transparent: true,
-        opacity: 0.9
-    });
-
-    const tube = new THREE.Mesh(tubeGeo, tubeMat);
-    currentArrowGroup.add(tube);
-
-    const coneGeo = new THREE.ConeGeometry(0.8, 2.0, 12);
-    const cone = new THREE.Mesh(coneGeo, tubeMat);
+    const tubeMat = new THREE.MeshStandardMaterial({ color: CONFIG.inducedColor, emissive: CONFIG.inducedColor, emissiveIntensity: 1.5, transparent: true, opacity: 0.9 });
+    currentArrowGroup.add(new THREE.Mesh(new THREE.TubeGeometry(pathCurve, 32, 0.25, 8, false), tubeMat));
+    
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.8, 2.0, 12), tubeMat);
     const endPoint = pathCurve.getPoint(1);
-    const tangent = pathCurve.getTangent(1);
     cone.position.copy(endPoint);
-    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
+    cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), pathCurve.getTangent(1));
     currentArrowGroup.add(cone);
 }
 
@@ -618,33 +542,27 @@ function createUniformField() {
     uniformFieldGroup.clear();
     if (state.BStrength <= 0.001) return;
 
-    const lineMat = new THREE.LineBasicMaterial({ color: CONFIG.uniformFluxColor, transparent: true, opacity: 0.4 });
+    const lineMat = new THREE.LineBasicMaterial({ color: CONFIG.uniformFluxColor, transparent: true, opacity: 0.6 });
     const arrowGeo = new THREE.ConeGeometry(0.25, 0.9, 8);
     const arrowMat = new THREE.MeshBasicMaterial({ color: CONFIG.uniformFluxColor });
 
-    const fieldLength = 16;
-    const halfL = fieldLength / 2;
+    const halfL = 8;
     const regionHalfSize = 16;
-    const maxLinesPerAxis = 9;
-    let linesPerAxis = 1 + Math.round(state.BStrength * (maxLinesPerAxis - 1));
-    if (linesPerAxis < 1) linesPerAxis = 1;
-
-    const dir = new THREE.Vector3(0, 0, -1);
+    let linesPerAxis = 1 + Math.round(state.BStrength * 8);
+    
+    // Direction towards Camera (+Z)
+    const dir = new THREE.Vector3(0, 0, 1);
 
     for (let i = 0; i < linesPerAxis; i++) {
-        const tx = (linesPerAxis === 1) ? 0 : i / (linesPerAxis - 1);
+        const tx = linesPerAxis===1 ? 0 : i / (linesPerAxis - 1);
         const x = -regionHalfSize + tx * (regionHalfSize * 2);
         for (let j = 0; j < linesPerAxis; j++) {
-            const ty = (linesPerAxis === 1) ? 0 : j / (linesPerAxis - 1);
+            const ty = linesPerAxis===1 ? 0 : j / (linesPerAxis - 1);
             const y = -regionHalfSize + ty * (regionHalfSize * 2);
-            const geo = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(x, y, halfL),
-                new THREE.Vector3(x, y, -halfL)
-            ]);
-            const line = new THREE.Line(geo, lineMat);
-            uniformFieldGroup.add(line);
+            // Lines from -Z to +Z
+            uniformFieldGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, y, -halfL), new THREE.Vector3(x, y, halfL)]), lineMat));
             const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-            arrow.position.set(x, y, -halfL);
+            arrow.position.set(x, y, halfL);
             arrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
             uniformFieldGroup.add(arrow);
         }
@@ -652,46 +570,18 @@ function createUniformField() {
 }
 
 function createProjectedAreaDisc() {
-    const R = 6; 
-    const geo = new THREE.CircleGeometry(R, 32);
-    const mat = new THREE.MeshBasicMaterial({
-        color: 0x38bdf8,
-        transparent: true,
-        opacity: 0.25,
-        side: THREE.DoubleSide,
-        depthWrite: false
-    });
-    projectedAreaMesh = new THREE.Mesh(geo, mat);
+    projectedAreaMesh = new THREE.Mesh(new THREE.CircleGeometry(6, 32), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false }));
     projectedAreaMesh.position.set(0, 0, 0.05);
     scene.add(projectedAreaMesh);
     projectedAreaMesh.visible = false;
 }
 
-/* 線圈中心 x 在磁場區中的覆蓋比例，用來算磁通量 */
 function positionFluxFactor(x) {
-    // 磁場視覺範圍是 [-16, 16]
-    const fieldHalfWidth = 16; 
-    // 線圈半徑 (與 rebuildCoil 中的 R 一致)
-    const coilRadius = 6;
-    
+    const fieldHalfWidth = 16, coilRadius = 6;
     const ax = Math.abs(x);
-
-    // 1. 完全在磁場內 (邊緣未觸及邊界)
-    // 圓心位置 <= 16 - 6 = 10
     if (ax <= fieldHalfWidth - coilRadius) return 1;
-
-    // 2. 完全在磁場外
-    // 圓心位置 >= 16 + 6 = 22
     if (ax >= fieldHalfWidth + coilRadius) return 0;
-
-    // 3. 部分重疊 - 計算圓弓形面積佔比
-    // dist 為圓心到邊界(16)的距離。正值表示圓心在界內，負值在界外。
-    const dist = fieldHalfWidth - ax;
-    
-    // 正規化參數 t = dist / R (範圍 -1 到 1)
-    const t = dist / coilRadius;
-    
-    // 圓形重疊面積比例公式
+    const t = (fieldHalfWidth - ax) / coilRadius;
     return (Math.acos(-t) - t * Math.sqrt(1 - t * t)) / Math.PI;
 }
 
@@ -700,13 +590,20 @@ function updatePhysics() {
     const diff = newPos - state.lastPosition;
     let rawInduced = 0;
 
+    // Smoothly animate camera
+    if (state.isSwipeMode) {
+        camera.position.lerp(targetCameraPos, 0.05);
+        camera.lookAt(targetLookAt);
+    }
+
     if (state.mode === 'uniformField') {
         const alpha = state.loopAngleDeg * Math.PI / 180;    
         const posFactor = positionFluxFactor(newPos);
         const flux = state.BStrength * posFactor * Math.sin(alpha);   
         const dFlux = flux - state.lastFluxUniform;
-        rawInduced = -dFlux * 80;
-        if (Math.abs(dFlux) < 0.0005) rawInduced = 0;
+        // High gain for sensitivity
+        rawInduced = -dFlux * 150; 
+        if (Math.abs(dFlux) < 0.0001) rawInduced = 0;
 
         state.lastFluxUniform = flux;
         state.targetCurrent = rawInduced;
@@ -723,7 +620,7 @@ function updatePhysics() {
         if (projectedAreaMesh) {
             if (state.showProjection) {
                 const f = Math.abs(Math.sin(alpha));
-                if (f > 0.001) {
+                if (f > 0.001 && posFactor > 0) {
                     projectedAreaMesh.visible = true;
                     projectedAreaMesh.scale.set(1, f, 1);
                     projectedAreaMesh.position.x = coilGroup.position.x;
@@ -759,18 +656,14 @@ function updatePhysics() {
 function updateCoilIndicators() {
     const mag = Math.abs(state.inducedCurrent);
     const isVisible = mag > 0.1;
-    
-    // Update Floating Label - Colors adjusted for white background
     currentLabel.innerText = `I = ${mag.toFixed(2)} A`;
     if (isVisible) {
         currentLabel.style.opacity = 1;
-        // Direction indicator
-        if (state.inducedCurrent > 0) currentLabel.style.color = '#ea580c'; // Darker Orange
-        else currentLabel.style.color = '#dc2626'; // Red 600
+        if (state.inducedCurrent > 0) currentLabel.style.color = '#ea580c'; 
+        else currentLabel.style.color = '#dc2626'; 
     } else {
         currentLabel.style.opacity = 0;
     }
-
     updateArrowGeometry(mag);
     const targetRotY = (state.inducedCurrent > 0) ? Math.PI : 0;
     currentArrowGroup.rotation.y = targetRotY;
@@ -818,11 +711,10 @@ function setupUI() {
     const bSlider = document.getElementById('bSlider');
     const BValue = document.getElementById('BValue');
 
-    const showLinesRow = document.getElementById('showLinesRow'); // Used for logic check
+    const showLinesRow = document.getElementById('showLinesRow'); 
     const hideMagnetRow = document.getElementById('hideMagnetRow');
     const showProjRow = document.getElementById('showProjRow');
 
-    // Toggle Settings Panel
     settingsBtn.addEventListener('click', () => {
         expandedSettings.classList.toggle('hidden');
     });
@@ -911,6 +803,21 @@ function setupUI() {
             magnetBodyGroup.visible = true;
             hideMagnetToggle.checked = false;
 
+            // --- Switch to Swipe Control & Locked Camera ---
+            state.isSwipeMode = true;
+            controls.enabled = false; 
+            
+            // Initial Camera Transition: Start close, look forward
+            camera.position.set(0, 0, 50);
+            camera.lookAt(0, 0, 0);
+            
+            // Set Target to be slightly elevated (fixed)
+            targetCameraPos.set(0, 10, 50);
+            targetLookAt.set(0, 0, 0);
+
+            gestureHint.style.opacity = 1;
+            setTimeout(() => { gestureHint.style.opacity = 0; }, 3000);
+
         } else {
             coilGroup.position.x = 0;
             state.loopAngleDeg = 0;
@@ -928,6 +835,13 @@ function setupUI() {
             state.showProjection = false;
             projToggle.checked = false;
             if (projectedAreaMesh) projectedAreaMesh.visible = false;
+
+            // --- Reset to Orbit Controls ---
+            state.isSwipeMode = false;
+            controls.enabled = true;
+            camera.position.set(0, 20, 40);
+            camera.lookAt(0, 0, 0);
+            controls.target.set(0,0,0);
         }
     });
 
