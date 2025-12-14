@@ -124,13 +124,11 @@ function registerScore() {
     var seatNumber = document.getElementById('seat').value;
     var userName = document.getElementById('name').value;
 
-    // 基本防呆：不改 UI，只在缺資料時提示
     if (!sectionTitle) {
         alert("尚未選擇單元，請先選擇單元並完成測驗後再登記。");
         return;
     }
     if (score === 0 || score === "0" || score === "" || score == null) {
-        // 你的 score 是在 endQuiz() 才算出來:contentReference[oaicite:2]{index=2}
         alert("尚未產生成績，請完成此單元測驗後再登記。");
         return;
     }
@@ -139,11 +137,10 @@ function registerScore() {
         return;
     }
 
-    var url = "https://script.google.com/macros/s/AKfycby4jNSeXw5wVMwD6OUgZQKteaTax3-THO0R5V9c9MPfcRtdS8FaOFfPdIV1LBq4afFi/exec";
+    var url = "https://script.google.com/macros/s/AKfycbypZjEE5Uz9CVZOj4IXEuFcKzxnsTstNa8-jyXNhiWLrvdhA71agZBaD7BB6OvwKTR8/exec";
 
-    // 同時提供 script 常見的兩種命名：className / class、seatNumber / seat
-    // 不影響你現有後端；只提升相容性
-    parameter = {
+    // 參數同時給兩套命名，提高相容性
+    var parameter = {
         sectionTitle: sectionTitle,
         score: score,
         school: school,
@@ -153,48 +150,57 @@ function registerScore() {
         seat: seatNumber,
         userName: userName,
         name: userName,
-        // 避免瀏覽器快取同一個請求造成「以為沒送出」
         _ts: Date.now()
     };
 
-    // 先用 POST（很多 Apps Script 會只處理 doPost），失敗再 fallback GET（相容你原本邏輯）:contentReference[oaicite:3]{index=3}
+    // 先嘗試 XHR（如果後端允許跨域且不 redirect，就能看到回應）
     $.ajax({
         url: url,
-        method: "POST",
+        method: "GET",
         data: parameter,
         dataType: "text",
         timeout: 15000
     }).done(function (data) {
         alert(data || "登記完成");
-
         document.getElementById("registerScore").style.display = "none";
         document.getElementById("restartButton").style.display = "block";
         document.getElementById("scoreData").style.display = "none";
         document.getElementById("lookScore").style.display = "block";
     }).fail(function () {
-        // POST 失敗 → fallback GET
-        $.ajax({
-            url: url,
-            method: "GET",
-            data: parameter,
-            dataType: "text",
-            timeout: 15000
-        }).done(function (data) {
-            alert(data || "登記完成");
+        // XHR 被擋（你現在就是這種情況，HTTP 0）→ 用 Beacon / Image 強制送出（不需要 CORS）
+        var sent = false;
 
+        // 1) sendBeacon：最穩（POST），但拿不到回應
+        try {
+            if (navigator.sendBeacon) {
+                var body = new URLSearchParams(parameter).toString();
+                sent = navigator.sendBeacon(url, new Blob([body], { type: "application/x-www-form-urlencoded" }));
+            }
+        } catch (e) {}
+
+        // 2) Image GET 備援：同樣不需要 CORS
+        if (!sent) {
+            try {
+                var qs = Object.keys(parameter)
+                    .map(function(k){ return encodeURIComponent(k) + "=" + encodeURIComponent(parameter[k]); })
+                    .join("&");
+                var img = new Image();
+                img.src = url + "?" + qs;
+                sent = true;
+            } catch (e) {}
+        }
+
+        if (sent) {
+            // 送出成功與否無法由前端確認（因為繞過 CORS），但流程不變
+            alert("已送出登記資料（若網路正常，成績將寫入試算表）。");
             document.getElementById("registerScore").style.display = "none";
             document.getElementById("restartButton").style.display = "block";
             document.getElementById("scoreData").style.display = "none";
             document.getElementById("lookScore").style.display = "block";
-        }).fail(function (xhr, status, err) {
-            // 失敗時給明確訊息（不改 UI，只多一個提示）
-            var msg = "登記失敗。";
-            if (status) msg += "\n狀態: " + status;
-            if (xhr && typeof xhr.status !== "undefined") msg += "\nHTTP: " + xhr.status;
-            if (err) msg += "\n錯誤: " + err;
-            msg += "\n\n請確認：Apps Script 已部署為 Web App（/exec），並允許任何人存取。";
-            alert(msg);
-        });
+        } else {
+            alert("登記失敗：瀏覽器無法送出請求。請確認網路、或 Apps Script Web App 是否可公開存取。");
+        }
     });
 }
+
 
