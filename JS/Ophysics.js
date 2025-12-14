@@ -81,7 +81,7 @@ function handleSectionClick(section) {
 
     parameter = { "sectionTitle": sectionTitle };
 
-    $.get("https://script.google.com/macros/s/AKfycbypZjEE5Uz9CVZOj4IXEuFcKzxnsTstNa8-jyXNhiWLrvdhA71agZBaD7BB6OvwKTR8/exec", parameter, function (data) {
+    $.get("https://script.google.com/macros/s/AKfycbw1qWHs2g6IpUrrnm6enGV_jJGLdXXaqFI7PlJuzu27UeEdFe7h0XvYjGOK95Sj15Ft/exec", parameter, function (data) {
         questiondata = data.split(",");
         questionNumber = questiondata[0];
 
