@@ -124,21 +124,77 @@ function registerScore() {
     var seatNumber = document.getElementById('seat').value;
     var userName = document.getElementById('name').value;
 
+    // 基本防呆：不改 UI，只在缺資料時提示
+    if (!sectionTitle) {
+        alert("尚未選擇單元，請先選擇單元並完成測驗後再登記。");
+        return;
+    }
+    if (score === 0 || score === "0" || score === "" || score == null) {
+        // 你的 score 是在 endQuiz() 才算出來:contentReference[oaicite:2]{index=2}
+        alert("尚未產生成績，請完成此單元測驗後再登記。");
+        return;
+    }
+    if (!school || school === "請選擇學校" || !className || !seatNumber || !userName) {
+        alert("請完整填寫學校、班級、座號、姓名後再登記。");
+        return;
+    }
+
+    var url = "https://script.google.com/macros/s/AKfycby4jNSeXw5wVMwD6OUgZQKteaTax3-THO0R5V9c9MPfcRtdS8FaOFfPdIV1LBq4afFi/exec";
+
+    // 同時提供 script 常見的兩種命名：className / class、seatNumber / seat
+    // 不影響你現有後端；只提升相容性
     parameter = {
-        "sectionTitle": sectionTitle,
-        "score": score,
-        "school": school,
-        "className": className,
-        "seatNumber": seatNumber,
-        "userName": userName
+        sectionTitle: sectionTitle,
+        score: score,
+        school: school,
+        className: className,
+        "class": className,
+        seatNumber: seatNumber,
+        seat: seatNumber,
+        userName: userName,
+        name: userName,
+        // 避免瀏覽器快取同一個請求造成「以為沒送出」
+        _ts: Date.now()
     };
 
-    $.get("https://script.google.com/macros/s/AKfycby4jNSeXw5wVMwD6OUgZQKteaTax3-THO0R5V9c9MPfcRtdS8FaOFfPdIV1LBq4afFi/exec", parameter, function (data) {
-        alert(data);
+    // 先用 POST（很多 Apps Script 會只處理 doPost），失敗再 fallback GET（相容你原本邏輯）:contentReference[oaicite:3]{index=3}
+    $.ajax({
+        url: url,
+        method: "POST",
+        data: parameter,
+        dataType: "text",
+        timeout: 15000
+    }).done(function (data) {
+        alert(data || "登記完成");
 
         document.getElementById("registerScore").style.display = "none";
         document.getElementById("restartButton").style.display = "block";
         document.getElementById("scoreData").style.display = "none";
         document.getElementById("lookScore").style.display = "block";
+    }).fail(function () {
+        // POST 失敗 → fallback GET
+        $.ajax({
+            url: url,
+            method: "GET",
+            data: parameter,
+            dataType: "text",
+            timeout: 15000
+        }).done(function (data) {
+            alert(data || "登記完成");
+
+            document.getElementById("registerScore").style.display = "none";
+            document.getElementById("restartButton").style.display = "block";
+            document.getElementById("scoreData").style.display = "none";
+            document.getElementById("lookScore").style.display = "block";
+        }).fail(function (xhr, status, err) {
+            // 失敗時給明確訊息（不改 UI，只多一個提示）
+            var msg = "登記失敗。";
+            if (status) msg += "\n狀態: " + status;
+            if (xhr && typeof xhr.status !== "undefined") msg += "\nHTTP: " + xhr.status;
+            if (err) msg += "\n錯誤: " + err;
+            msg += "\n\n請確認：Apps Script 已部署為 Web App（/exec），並允許任何人存取。";
+            alert(msg);
+        });
     });
 }
+
