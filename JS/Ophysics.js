@@ -81,7 +81,7 @@ function handleSectionClick(section) {
 
     parameter = { "sectionTitle": sectionTitle };
 
-    $.get("https://script.google.com/macros/s/AKfycbw1qWHs2g6IpUrrnm6enGV_jJGLdXXaqFI7PlJuzu27UeEdFe7h0XvYjGOK95Sj15Ft/exec", parameter, function (data) {
+    $.get("https://script.google.com/macros/s/AKfycbx6S9WYY36HFdKW6VlDvKgzGlwbKXbXBZSza2k8FrGlwr7h77gm4J1wriBf8fERg_4/exec", parameter, function (data) {
         questiondata = data.split(",");
         questionNumber = questiondata[0];
 
@@ -124,83 +124,21 @@ function registerScore() {
     var seatNumber = document.getElementById('seat').value;
     var userName = document.getElementById('name').value;
 
-    if (!sectionTitle) {
-        alert("尚未選擇單元，請先選擇單元並完成測驗後再登記。");
-        return;
-    }
-    if (score === 0 || score === "0" || score === "" || score == null) {
-        alert("尚未產生成績，請完成此單元測驗後再登記。");
-        return;
-    }
-    if (!school || school === "請選擇學校" || !className || !seatNumber || !userName) {
-        alert("請完整填寫學校、班級、座號、姓名後再登記。");
-        return;
-    }
-
-    var url = "https://script.google.com/macros/s/AKfycbypZjEE5Uz9CVZOj4IXEuFcKzxnsTstNa8-jyXNhiWLrvdhA71agZBaD7BB6OvwKTR8/exec";
-
-    // 參數同時給兩套命名，提高相容性
-    var parameter = {
-        sectionTitle: sectionTitle,
-        score: score,
-        school: school,
-        className: className,
-        "class": className,
-        seatNumber: seatNumber,
-        seat: seatNumber,
-        userName: userName,
-        name: userName,
-        _ts: Date.now()
+    parameter = {
+        "sectionTitle": sectionTitle,
+        "score": score,
+        "school": school,
+        "className": className,
+        "seatNumber": seatNumber,
+        "userName": userName
     };
 
-    // 先嘗試 XHR（如果後端允許跨域且不 redirect，就能看到回應）
-    $.ajax({
-        url: url,
-        method: "GET",
-        data: parameter,
-        dataType: "text",
-        timeout: 15000
-    }).done(function (data) {
-        alert(data || "登記完成");
+    $.get("https://script.google.com/macros/s/AKfycbypZjEE5Uz9CVZOj4IXEuFcKzxnsTstNa8-jyXNhiWLrvdhA71agZBaD7BB6OvwKTR8/exec", parameter, function (data) {
+        alert(data);
+
         document.getElementById("registerScore").style.display = "none";
         document.getElementById("restartButton").style.display = "block";
         document.getElementById("scoreData").style.display = "none";
         document.getElementById("lookScore").style.display = "block";
-    }).fail(function () {
-        // XHR 被擋（你現在就是這種情況，HTTP 0）→ 用 Beacon / Image 強制送出（不需要 CORS）
-        var sent = false;
-
-        // 1) sendBeacon：最穩（POST），但拿不到回應
-        try {
-            if (navigator.sendBeacon) {
-                var body = new URLSearchParams(parameter).toString();
-                sent = navigator.sendBeacon(url, new Blob([body], { type: "application/x-www-form-urlencoded" }));
-            }
-        } catch (e) {}
-
-        // 2) Image GET 備援：同樣不需要 CORS
-        if (!sent) {
-            try {
-                var qs = Object.keys(parameter)
-                    .map(function(k){ return encodeURIComponent(k) + "=" + encodeURIComponent(parameter[k]); })
-                    .join("&");
-                var img = new Image();
-                img.src = url + "?" + qs;
-                sent = true;
-            } catch (e) {}
-        }
-
-        if (sent) {
-            // 送出成功與否無法由前端確認（因為繞過 CORS），但流程不變
-            alert("已送出登記資料（若網路正常，成績將寫入試算表）。");
-            document.getElementById("registerScore").style.display = "none";
-            document.getElementById("restartButton").style.display = "block";
-            document.getElementById("scoreData").style.display = "none";
-            document.getElementById("lookScore").style.display = "block";
-        } else {
-            alert("登記失敗：瀏覽器無法送出請求。請確認網路、或 Apps Script Web App 是否可公開存取。");
-        }
     });
 }
-
-
