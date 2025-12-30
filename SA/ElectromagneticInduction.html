@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>電磁感應 3D 實驗室 - 橫向優化版</title>
+    <title>電磁感應 3D 實驗室</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -15,98 +15,98 @@
             background-color: #ffffff; font-family: 'Noto Sans TC', sans-serif; touch-action: none; 
         }
 
-        /* 主容器：支援響應式分向 */
-        .main-container { 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            width: 100vw; 
-        }
+        .main-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
 
-        /* 橫向模式 (Landscape) 下的佈局調整 */
+        /* 橫向模式適配 */
         @media (orientation: landscape) {
             .main-container { flex-direction: row; }
-            #experiment-area { flex: 1.6 !important; border-bottom: none !important; border-right: 2px solid #f1f5f9; }
-            #control-area { flex: 1.2 !important; height: 100%; padding: 20px !important; }
+            #experiment-area { flex: 1.8 !important; border-right: 2px solid #f1f5f9; border-bottom: none !important; }
+            #control-area { flex: 1.1 !important; height: 100%; padding: 15px !important; }
         }
 
-        /* 上方/左側：實驗區 */
         #experiment-area { 
-            flex: 1.3; position: relative; background-color: #ffffff; border-bottom: 2px solid #f1f5f9; 
+            flex: 2; position: relative; background-color: #ffffff; border-bottom: 2px solid #f1f5f9; 
             min-height: 40%;
         }
 
-        /* 下方/右側：控制區 */
         #control-area { 
-            flex: 1; background-color: #f8fafc; padding: 12px 20px; overflow-y: auto; 
+            flex: 1; background-color: #f8fafc; padding: 12px 16px; overflow-y: auto; 
             box-shadow: 0 -4px 15px rgba(0,0,0,0.05); z-index: 10; 
         }
 
         .hud-overlay { 
-            position: absolute; top: 12px; left: 12px; right: 12px; display: flex; 
-            flex-direction: column; gap: 6px; pointer-events: none; 
+            position: absolute; top: 10px; left: 10px; right: 10px; display: flex; 
+            flex-direction: column; gap: 5px; pointer-events: none; 
         }
 
-        .hud-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .hud-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
 
         .glass-tag { 
-            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); 
-            border: 1px solid rgba(0, 0, 0, 0.08); padding: 10px 16px; border-radius: 18px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px); 
+            border: 1px solid rgba(0, 0, 0, 0.08); padding: 8px 12px; border-radius: 14px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
             white-space: nowrap;
+            pointer-events: auto;
         }
 
-        /* 浮動標籤：兩行顯示、置中 */
+        /* 感應電流標籤 */
         #currentLabel { 
             position: absolute; color: #ea580c; font-family: 'JetBrains Mono', monospace; 
-            font-weight: 800; font-size: 1.2rem; pointer-events: none; opacity: 0; z-index: 100; 
-            text-shadow: 0 0 10px rgba(255,255,255,0.9);
-            text-align: center;
-            line-height: 1.1;
-            white-space: nowrap;
+            font-weight: 800; font-size: 1.15rem; pointer-events: none; opacity: 0; z-index: 100; 
+            text-shadow: 0 0 10px rgba(255,255,255,0.9); text-align: center; line-height: 1.1;
         }
 
-        /* 滑桿優化 */
-        input[type=range] { -webkit-appearance: none; background: transparent; height: 40px; width: 100%; }
+        /* 緊湊滑桿 */
+        input[type=range] { -webkit-appearance: none; background: transparent; height: 36px; width: 100%; }
         input[type=range]::-webkit-slider-thumb { 
-            -webkit-appearance: none; height: 32px; width: 32px; border-radius: 50%; 
-            background: #0ea5e9; border: 4px solid #ffffff; margin-top: -11px; 
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); 
+            -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; 
+            background: #0ea5e9; border: 3px solid #ffffff; margin-top: -10px; 
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); 
         }
-        input[type=range]::-webkit-slider-runnable-track { height: 10px; background: #e2e8f0; border-radius: 5px; }
+        input[type=range]::-webkit-slider-runnable-track { height: 8px; background: #e2e8f0; border-radius: 4px; }
 
-        /* 按鈕設計 */
-        .btn-action { 
-            flex: 1; height: 74px; background: white; border: 2px solid #e2e8f0; 
-            border-radius: 20px; display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; transition: all 0.2s; gap: 4px;
-            white-space: nowrap;
-        }
-        .btn-action:active { transform: scale(0.95); background: #f1f5f9; border-color: #0ea5e9; }
-        .btn-active { border-color: #10b981; background: #f0fdf4; }
+        .label-text { font-size: 12px; font-weight: 900; color: #64748b; text-transform: uppercase; white-space: nowrap; }
+        .value-text { font-size: 14px; font-weight: 900; color: #0284c7; }
         
-        .label-text { font-size: 14px; font-weight: 900; color: #64748b; text-transform: uppercase; white-space: nowrap; }
-        .value-text { font-size: 16px; font-weight: 900; color: #0284c7; }
+        .btn-sm-action { 
+            background: white; border: 1.5px solid #e2e8f0; 
+            border-radius: 12px; display: flex; align-items: center; 
+            justify-content: center; transition: all 0.2s; gap: 4px;
+            padding: 6px 12px;
+        }
+        .btn-sm-action:active { transform: scale(0.95); background: #f1f5f9; border-color: #0ea5e9; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
     <div id="experiment-area">
-        <!-- 感應電流標籤：兩行 -->
         <div id="currentLabel">Induced current<br>= 0.00 A</div>
         
         <div class="hud-overlay">
             <div class="hud-row">
-                <div class="glass-tag flex-shrink-0">
-                    <h1 class="text-slate-900 text-2xl font-black tracking-tighter leading-none whitespace-nowrap">電磁感應</h1>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.1em] mt-1 whitespace-nowrap">Electromagnetic Induction</p>
+                <!-- 左上：標題 -->
+                <div class="glass-tag">
+                    <h1 class="text-slate-900 text-lg font-black tracking-tighter leading-none whitespace-nowrap">電磁感應</h1>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.1em] mt-1 whitespace-nowrap">EM Induction</p>
                 </div>
-                <div class="flex flex-col gap-2 items-end flex-1">
-                    <div id="fluxCounter" class="glass-tag text-right min-w-[130px] hidden">
-                        <span class="text-[10px] text-emerald-600 font-black uppercase block mb-1 tracking-wider whitespace-nowrap">通過線圈磁力線數</span>
-                        <div class="text-2xl font-black text-emerald-600 font-mono leading-none">
-                            <span id="fluxLinesCount">0</span> <span class="text-sm">條</span>
+                <!-- 右上：磁力線控制與數據 -->
+                <div class="flex flex-col gap-2 items-end">
+                    <div class="glass-tag text-right min-w-[125px] flex flex-col items-end gap-1.5">
+                        <button id="linesToggle" class="w-full text-[11px] font-black py-2 px-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 bg-white border-slate-200 text-slate-500 shadow-sm">
+                            <span id="toggleDot" class="w-2.5 h-2.5 rounded-full bg-slate-300 shadow-inner"></span>
+                            顯示磁力線
+                        </button>
+                        
+                        <div id="fluxInfo" class="hidden w-full space-y-1 mt-1 border-t border-slate-100 pt-2">
+                            <div class="flex justify-between items-baseline px-1">
+                                <span class="text-[9px] text-emerald-600 font-black uppercase">通過磁力線數</span>
+                                <div class="text-xl font-black text-emerald-600 font-mono leading-none">
+                                    <span id="fluxLinesCount">0</span><span class="text-[10px] ml-0.5">條</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -115,49 +115,40 @@
         <div id="canvas-container" class="w-full h-full"></div>
     </div>
 
-    <div id="control-area">
-        <div class="max-w-xl mx-auto space-y-5">
+    <div id="control-area" class="no-scrollbar">
+        <div class="max-w-xl mx-auto space-y-3">
             <!-- 位置控制組 -->
-            <div class="space-y-4">
+            <div class="grid grid-cols-1 gap-2">
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center px-1">
-                        <span class="label-text">磁鐵中心位置 (Magnet)</span>
+                        <span class="label-text">磁鐵位置 (Magnet)</span>
                         <span id="magText" class="value-text">0.0</span>
                     </div>
                     <input type="range" id="magSlider" min="-30" max="30" step="0.1" value="-15">
                 </div>
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center px-1">
-                        <span class="label-text">線圈中心位置 (Coil)</span>
+                        <span class="label-text">線圈位置 (Coil)</span>
                         <span id="coilText" class="value-text">0.0</span>
                     </div>
                     <input type="range" id="coilSlider" min="-30" max="30" step="0.1" value="0">
                 </div>
             </div>
 
-            <!-- 線圈角度控制 -->
-            <div class="flex flex-col">
-                <div class="flex justify-between items-center px-1">
-                    <span class="label-text">線圈傾斜角度 θ</span>
-                    <span id="angleText" class="value-text">0°</span>
+            <!-- 角度與磁極合併行 -->
+            <div class="flex items-end gap-3">
+                <div class="flex-1 flex flex-col">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="label-text">線圈角度 θ</span>
+                        <span id="angleText" class="value-text">0°</span>
+                    </div>
+                    <input type="range" id="angleSlider" min="0" max="90" step="1" value="0">
                 </div>
-                <input type="range" id="angleSlider" min="0" max="90" step="1" value="0">
-            </div>
-
-            <!-- 按鈕組 -->
-            <div class="flex gap-4 pt-1">
-                <button id="flipBtn" class="btn-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button id="flipBtn" class="btn-sm-action h-[40px] flex-shrink-0 px-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
-                    <span class="text-[12px] font-black text-slate-700 uppercase leading-none">磁極交換</span>
-                </button>
-                <button id="linesToggle" class="btn-action">
-                    <svg id="linesIcon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span id="linesText" class="text-[12px] font-black text-slate-400 uppercase leading-none">顯示磁力線</span>
+                    <span class="text-[11px] font-black text-slate-700">磁極交換</span>
                 </button>
             </div>
         </div>
@@ -166,7 +157,7 @@
 
 <script>
 /**
- * 物理配色與參數
+ * 物理與視覺常數
  */
 const COLORS = {
     bg: 0xffffff,
@@ -174,7 +165,7 @@ const COLORS = {
     magnetS: 0x2563eb, 
     copper: 0xb45309,
     fluxLine: 0x10b981,
-    induced: 0xea580c // 修正了語法錯誤：補上了 0x 前綴
+    induced: 0xea580c 
 };
 
 let scene, camera, renderer, controls;
@@ -256,8 +247,7 @@ function createMagnet() {
         ctx.font = 'bold 100px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.strokeStyle = 'white'; ctx.lineWidth = 15;
-        ctx.strokeText(txt, 64, 64);
-        ctx.fillText(txt, 64, 64);
+        ctx.strokeText(txt, 64, 64); ctx.fillText(txt, 64, 64);
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas) }));
         sprite.scale.set(3, 3, 1);
         return sprite;
@@ -289,14 +279,20 @@ function createCoil() {
 
 function createFieldLines() {
     fieldLinesGroup.clear();
+    // 固定使用普通寬度 0.035
     const tubeRadius = 0.035; 
-    const tubeMat = new THREE.MeshBasicMaterial({ color: COLORS.fluxLine, transparent: true, opacity: 0.15, depthWrite: false });
+    const tubeMat = new THREE.MeshBasicMaterial({ 
+        color: COLORS.fluxLine, 
+        transparent: true, 
+        opacity: 0.18, 
+        depthWrite: false 
+    });
+    
     const h = 6.5, numLoops = 10, layers = 6;    
-
     for (let i = 0; i < numLoops; i++) {
         const angle = (i / numLoops) * Math.PI * 2;
         for (let j = 1; j <= layers; j++) {
-            const curveWidth = 30 * j, curveHeight = 5 * j; 
+            const curveWidth = 35 * j, curveHeight = 5.5 * j; 
             const p = state.polarity;
             const startX = (h/2) * p, endX = -(h/2) * p;
             const curve = new THREE.CubicBezierCurve3(
@@ -325,11 +321,9 @@ function updateInductionVisuals(val) {
         const x = (v.x * 0.5 + 0.5) * container.clientWidth;
         const y = (-(v.y * 0.5) + 0.5) * container.clientHeight;
         label.style.left = `${x}px`;
-        label.style.top = `${y - 45}px`;
+        label.style.top = `${y - 40}px`;
         label.style.transform = 'translateX(-50%)';
-    } else {
-        label.style.opacity = 0;
-    }
+    } else { label.style.opacity = 0; }
 
     currentArrowGroup.clear();
     if (absVal > 0.1) {
@@ -343,7 +337,6 @@ function updateInductionVisuals(val) {
         const tubeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, 0.22, 8, false);
         const tubeMat = new THREE.MeshBasicMaterial({ color: COLORS.induced });
         currentArrowGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
-        
         const cone = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.3, 12), tubeMat);
         cone.position.copy(pts[pts.length - 1]);
         const tangent = new THREE.Vector3(0, Math.cos(endAngle), -Math.sin(endAngle)).normalize();
@@ -421,23 +414,30 @@ function setupUI() {
         state.coilAngle = parseFloat(e.target.value);
         document.getElementById('angleText').innerText = `${state.coilAngle}°`;
     });
-    document.getElementById('linesToggle').addEventListener('click', () => {
+    
+    const linesToggle = document.getElementById('linesToggle');
+    const fluxInfo = document.getElementById('fluxInfo');
+    const toggleDot = document.getElementById('toggleDot');
+
+    linesToggle.addEventListener('click', () => {
         state.showLines = !state.showLines;
         fieldLinesGroup.visible = state.showLines;
-        const btn = document.getElementById('linesToggle'), icon = document.getElementById('linesIcon'), text = document.getElementById('linesText');
-        document.getElementById('fluxCounter').classList.toggle('hidden', !state.showLines);
+        
         if (state.showLines) {
-            btn.classList.add('btn-active');
-            icon.classList.replace('text-slate-300', 'text-emerald-500');
-            text.classList.replace('text-slate-400', 'text-emerald-600');
-            text.innerText = "磁力線：開啟";
+            linesToggle.classList.replace('border-slate-200', 'border-emerald-500');
+            linesToggle.classList.replace('text-slate-500', 'text-emerald-600');
+            toggleDot.classList.replace('bg-slate-300', 'bg-emerald-500');
+            fluxInfo.classList.remove('hidden');
+            linesToggle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 磁力線：已開啟';
         } else {
-            btn.classList.remove('btn-active');
-            icon.classList.replace('text-emerald-500', 'text-slate-300');
-            text.classList.replace('text-emerald-600', 'text-slate-400');
-            text.innerText = "顯示磁力線";
+            linesToggle.classList.replace('border-emerald-500', 'border-slate-200');
+            linesToggle.classList.replace('text-emerald-600', 'text-slate-500');
+            toggleDot.classList.replace('bg-emerald-500', 'bg-slate-300');
+            fluxInfo.classList.add('hidden');
+            linesToggle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span> 顯示磁力線';
         }
     });
+
     document.getElementById('flipBtn').addEventListener('click', () => {
         state.polarity *= -1;
         createMagnet();
