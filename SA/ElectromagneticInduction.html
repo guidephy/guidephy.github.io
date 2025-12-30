@@ -17,7 +17,6 @@
 
         .main-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
 
-        /* 響應式佈局：橫屏自動切換左右分欄 */
         @media (orientation: landscape) {
             .main-container { flex-direction: row; }
             #experiment-area { flex: 1.8 !important; border-right: 2px solid #f1f5f9; border-bottom: none !important; }
@@ -45,19 +44,26 @@
             background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); 
             border: 1px solid rgba(0, 0, 0, 0.08); padding: 10px 14px; border-radius: 14px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            white-space: nowrap;
-            pointer-events: auto;
-            width: fit-content;
+            white-space: nowrap; pointer-events: auto; width: fit-content;
         }
 
-        /* 感應電流標籤 */
+        /* 感應電流標籤視覺：改回兩行顯示並優化 */
         #currentLabel { 
-            position: absolute; color: #ea580c; font-family: 'JetBrains Mono', monospace; 
-            font-weight: 800; font-size: 1.15rem; pointer-events: none; opacity: 0; z-index: 100; 
-            text-shadow: 0 0 10px rgba(255,255,255,0.9); text-align: center; line-height: 1.1;
+            position: absolute; 
+            color: #ea580c; 
+            font-family: 'JetBrains Mono', monospace; 
+            font-weight: 800; 
+            font-size: 1.2rem; 
+            pointer-events: none; 
+            opacity: 0; 
+            z-index: 100; 
+            text-align: center; 
+            line-height: 1.1;
+            text-shadow: 0 0 12px #ffffff, 0 0 4px #ffffff, 0 0 20px rgba(255,255,255,0.5); 
+            transform: translateX(-50%);
+            transition: opacity 0.3s ease;
         }
 
-        /* 滑桿設計 */
         input[type=range] { -webkit-appearance: none; background: transparent; height: 34px; width: 100%; }
         input[type=range]::-webkit-slider-thumb { 
             -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%; 
@@ -72,49 +78,73 @@
         .btn-sm-action { 
             background: white; border: 1.5px solid #e2e8f0; 
             border-radius: 12px; display: flex; align-items: center; 
-            justify-content: center; transition: all 0.2s; gap: 4px;
-            padding: 5px 10px;
+            justify-content: center; transition: all 0.2s; gap: 4px; padding: 5px 10px;
         }
         .btn-sm-action:active { transform: scale(0.95); background: #f1f5f9; border-color: #0ea5e9; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* 標題視覺優化 */
         .title-container { display: flex; flex-direction: column; align-items: flex-start; }
         .title-main { font-size: 1.1rem; font-weight: 900; color: #1e293b; line-height: 1.1; letter-spacing: -0.02em; }
         .title-sub { font-size: 1.1rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 4px; }
         .divider-full { height: 3px; background-color: #e2e8f0; width: 100%; margin: 6px 0; border-radius: 99px; }
+
+        .hud-tool-btn { 
+            width: 100%; text-align: center; font-size: 10px; font-weight: 900; 
+            padding: 6px 8px; border-radius: 10px; border: 2px solid #e2e8f0;
+            transition: all 0.2s; background: white; color: #94a3b8;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .hud-tool-btn.active { border-color: #0ea5e9; color: #0ea5e9; background: #f0f9ff; }
+        .hud-tool-btn.active-green { border-color: #10b981; color: #059669; background: #f0fdf4; }
+
+        #it-graph-box { width: 140px; height: 75px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 8px; }
     </style>
 </head>
 <body>
 
 <div class="main-container">
     <div id="experiment-area">
-        <div id="currentLabel">Induced current<br>= 0.00 A</div>
+        <!-- 感應電流標籤 -->
+        <div id="currentLabel">Induced current<br>= 0.0 A</div>
         
         <div class="hud-overlay">
             <div class="hud-row">
-                <!-- 左上：標題設計優化，灰條與文字等寬 -->
                 <div class="glass-tag title-container">
                     <div class="title-main">Electromagnetic<br>Induction</div>
                     <div class="divider-full"></div>
-                    <div class="title-sub">電磁感應</div>
+                    <div class="title-sub text-sky-600">電磁感應</div>
                 </div>
 
-                <!-- 右上：磁力線控制與數據 -->
                 <div class="flex flex-col gap-2 items-end">
-                    <div class="glass-tag text-right min-w-[125px] flex flex-col items-end gap-1.5">
-                        <button id="linesToggle" class="w-full text-[11px] font-black py-1.5 px-2 rounded-xl border-2 transition-all flex items-center justify-center gap-2 bg-white border-slate-200 text-slate-500 shadow-sm">
-                            <span id="toggleDot" class="w-2.5 h-2.5 rounded-full bg-slate-300 shadow-inner"></span>
-                            顯示磁力線
-                        </button>
+                    <div class="glass-tag flex flex-col gap-2 min-w-[150px]">
+                        <div class="flex gap-1.5 w-full">
+                            <button id="linesToggle" class="hud-tool-btn flex-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span>
+                                磁力線
+                            </button>
+                            <button id="graphToggle" class="hud-tool-btn flex-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span>
+                                I-t 圖
+                            </button>
+                        </div>
                         
-                        <div id="fluxInfo" class="hidden w-full space-y-1 mt-1 border-t border-slate-100 pt-2">
+                        <div id="fluxLinesDisplay" class="hidden w-full border-t border-slate-100 pt-2 pb-1">
                             <div class="flex justify-between items-baseline px-1">
-                                <span class="text-[9px] text-emerald-600 font-black uppercase">通過磁力線數</span>
+                                <span class="text-[9px] text-emerald-600 font-black uppercase tracking-tighter">通過磁力線數</span>
                                 <div class="text-xl font-black text-emerald-600 font-mono leading-none">
                                     <span id="fluxLinesCount">0</span><span class="text-[10px] ml-0.5">條</span>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div id="itGraphDisplay" class="hidden w-full border-t border-slate-100 pt-2">
+                            <div class="w-full flex justify-between items-center mb-1 px-1">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Current (I) - Time (t)</span>
+                                <span class="text-[8px] font-bold text-orange-500">I(A)</span>
+                            </div>
+                            <div id="it-graph-box">
+                                <canvas id="currentGraph" width="140" height="75"></canvas>
                             </div>
                         </div>
                     </div>
@@ -126,7 +156,6 @@
 
     <div id="control-area" class="no-scrollbar">
         <div class="max-w-xl mx-auto space-y-3.5">
-            <!-- 位置控制組：精簡標籤 -->
             <div class="grid grid-cols-1 gap-2.5">
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center px-1 mb-0.5">
@@ -142,7 +171,6 @@
                 </div>
             </div>
 
-            <!-- 角度與磁極合併行 -->
             <div class="flex items-end gap-3">
                 <div class="flex-1 flex flex-col">
                     <div class="flex justify-between items-center px-1 mb-0.5">
@@ -178,14 +206,25 @@ let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 let dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
+const graphHistory = [];
+const maxGraphPoints = 150; 
+
+let averageBuffer = [];
+const bufferSize = 10; 
+
+let labelVisibilityTimer = 0;
+const labelHoldTime = 12; 
+
 let state = {
     magX: -15,
     coilX: 0,
     coilAngle: 0,
     polarity: 1, 
     showLines: false,
+    showGraph: false,
     lastFlux: 0,
-    inducedI: 0
+    inducedI: 0,
+    displayedValueI: 0
 };
 
 function init() {
@@ -220,6 +259,10 @@ function init() {
     createCoil();
     createFieldLines();
 
+    const dist = state.coilX - state.magX;
+    const angleRad = state.coilAngle * Math.PI / 180;
+    state.lastFlux = (350 / (dist * dist + 50)) * Math.cos(angleRad) * state.polarity;
+
     window.addEventListener('resize', onResize);
     renderer.domElement.addEventListener('pointerdown', onPointerDown);
     renderer.domElement.addEventListener('pointermove', onPointerMove);
@@ -234,11 +277,9 @@ function createMagnet() {
     const body = new THREE.Group();
     const r = 1.3, h = 6.5;
     const geo = new THREE.CylinderGeometry(r, r, h/2, 32).rotateZ(Math.PI/2);
-    
     const mRight = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: state.polarity === 1 ? COLORS.magnetN : COLORS.magnetS }));
     mRight.position.x = h/4;
     body.add(mRight);
-
     const mLeft = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: state.polarity === 1 ? COLORS.magnetS : COLORS.magnetN }));
     mLeft.position.x = -h/4;
     body.add(mLeft);
@@ -255,15 +296,12 @@ function createMagnet() {
         sprite.scale.set(3, 3, 1);
         return sprite;
     };
-
     const labelR = createLabel(state.polarity === 1 ? "N" : "S", state.polarity === 1 ? "#dc2626" : "#2563eb");
     labelR.position.set(h/2-0.5, r+1.3, 0);
     body.add(labelR);
-
     const labelL = createLabel(state.polarity === 1 ? "S" : "N", state.polarity === 1 ? "#2563eb" : "#dc2626");
     labelL.position.set(-h/2+0.5, r+1.3, 0);
     body.add(labelL);
-
     body.name = "MAGNET_BODY";
     magnetGroup.add(body);
     magnetGroup.position.x = state.magX;
@@ -305,11 +343,18 @@ function createFieldLines() {
     fieldLinesGroup.visible = state.showLines;
 }
 
-function updateInductionVisuals(val) {
-    const absVal = Math.abs(val);
+function updateInductionVisuals(rawVal) {
     const label = document.getElementById('currentLabel');
-    if (absVal > 0.05) {
-        label.innerHTML = `Induced current<br>= ${absVal.toFixed(2)} A`;
+    averageBuffer.push(rawVal);
+    if (averageBuffer.length > bufferSize) averageBuffer.shift();
+    const avgI = averageBuffer.reduce((a, b) => a + b, 0) / averageBuffer.length;
+    state.displayedValueI += (avgI - state.displayedValueI) * 0.15;
+    const stableI = Math.abs(rawVal) < 0.008 ? 0 : state.displayedValueI;
+
+    if (Math.abs(stableI) > 0.02) {
+        labelVisibilityTimer = labelHoldTime;
+        // 修正：= A 在第二行
+        label.innerHTML = `Induced current<br>= ${stableI.toFixed(1)} A`;
         label.style.opacity = 1;
         const v = new THREE.Vector3(state.coilX, 7.5, 0);
         v.project(camera);
@@ -317,16 +362,19 @@ function updateInductionVisuals(val) {
         const x = (v.x * 0.5 + 0.5) * container.clientWidth;
         const y = (-(v.y * 0.5) + 0.5) * container.clientHeight;
         label.style.left = `${x}px`;
-        label.style.top = `${y - 40}px`;
-        label.style.transform = 'translateX(-50%)';
-    } else { label.style.opacity = 0; }
+        label.style.top = `${y - 45}px`;
+    } else {
+        if (labelVisibilityTimer > 0) labelVisibilityTimer--;
+        else label.style.opacity = 0;
+    }
 
     currentArrowGroup.clear();
+    const absVal = Math.abs(stableI);
     if (absVal > 0.1) {
         const arrowRadius = 6.4;
         const arcLength = Math.min(Math.PI * 0.5, absVal * 0.15); 
         const startAngle = Math.PI / 2;
-        const isClockwise = val > 0; 
+        const isClockwise = stableI < 0; 
         const endAngle = isClockwise ? startAngle - arcLength : startAngle + arcLength;
         const curve = new THREE.EllipseCurve(0, 0, arrowRadius, arrowRadius, startAngle, endAngle, isClockwise);
         const pts = curve.getPoints(25).map(p => new THREE.Vector3(0, p.y, p.x));
@@ -342,17 +390,46 @@ function updateInductionVisuals(val) {
     }
 }
 
+function drawGraph() {
+    if (!state.showGraph) return;
+    const canvas = document.getElementById('currentGraph');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    const fixedMaxI = 20.0; 
+    ctx.setLineDash([2, 2]);
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+    ctx.setLineDash([]); 
+    if (graphHistory.length < 2) return;
+    ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    const step = w / (maxGraphPoints - 1);
+    const yScale = (h / 2 * 0.85) / fixedMaxI; 
+    for (let i = 0; i < graphHistory.length; i++) {
+        const x = i * step;
+        const val = Math.max(-fixedMaxI, Math.min(fixedMaxI, graphHistory[i]));
+        const y = h/2 - (val * yScale);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+}
+
 function calculatePhysics() {
     const fluxDir = state.polarity; 
     const dist = state.coilX - state.magX;
     const angleRad = state.coilAngle * Math.PI / 180;
     const flux = (350 / (dist * dist + 50)) * Math.cos(angleRad) * fluxDir;
     const dFlux = flux - state.lastFlux;
-    const targetI = -dFlux * 55; 
-    state.inducedI += (targetI - state.inducedI) * 0.18;
+    state.inducedI = dFlux * 40; 
     state.lastFlux = flux;
-    if (document.getElementById('fluxLinesCount')) document.getElementById('fluxLinesCount').innerText = Math.round(Math.abs(flux) * 12);
+    graphHistory.push(state.inducedI);
+    if (graphHistory.length > maxGraphPoints) graphHistory.shift();
+    if (document.getElementById('fluxLinesCount')) {
+        document.getElementById('fluxLinesCount').innerText = Math.round(Math.abs(flux) * 12);
+    }
     updateInductionVisuals(state.inducedI);
+    drawGraph();
 }
 
 function onPointerDown(e) {
@@ -396,40 +473,28 @@ function onResize() {
 }
 
 function setupUI() {
-    document.getElementById('magSlider').addEventListener('input', (e) => {
-        state.magX = parseFloat(e.target.value);
-    });
-    document.getElementById('coilSlider').addEventListener('input', (e) => {
-        state.coilX = parseFloat(e.target.value);
-    });
+    document.getElementById('magSlider').addEventListener('input', (e) => state.magX = parseFloat(e.target.value));
+    document.getElementById('coilSlider').addEventListener('input', (e) => state.coilX = parseFloat(e.target.value));
     document.getElementById('angleSlider').addEventListener('input', (e) => {
         state.coilAngle = parseFloat(e.target.value);
         document.getElementById('angleText').innerText = `${state.coilAngle}°`;
     });
-    
     const linesToggle = document.getElementById('linesToggle');
-    const fluxInfo = document.getElementById('fluxInfo');
-    const toggleDot = document.getElementById('toggleDot');
-
+    const fluxLinesDisplay = document.getElementById('fluxLinesDisplay');
     linesToggle.addEventListener('click', () => {
         state.showLines = !state.showLines;
         fieldLinesGroup.visible = state.showLines;
-        
-        if (state.showLines) {
-            linesToggle.classList.replace('border-slate-200', 'border-emerald-500');
-            linesToggle.classList.replace('text-slate-500', 'text-emerald-600');
-            toggleDot.classList.replace('bg-slate-300', 'bg-emerald-500');
-            fluxInfo.classList.remove('hidden');
-            linesToggle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span> 磁力線：已開啟';
-        } else {
-            linesToggle.classList.replace('border-emerald-500', 'border-slate-200');
-            linesToggle.classList.replace('text-emerald-600', 'text-slate-500');
-            toggleDot.classList.replace('bg-emerald-500', 'bg-slate-300');
-            fluxInfo.classList.add('hidden');
-            linesToggle.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span> 顯示磁力線';
-        }
+        linesToggle.classList.toggle('active-green', state.showLines);
+        fluxLinesDisplay.classList.toggle('hidden', !state.showLines);
     });
-
+    const graphToggle = document.getElementById('graphToggle');
+    const itGraphDisplay = document.getElementById('itGraphDisplay');
+    graphToggle.addEventListener('click', () => {
+        state.showGraph = !state.showGraph;
+        graphToggle.classList.toggle('active', state.showGraph);
+        itGraphDisplay.classList.toggle('hidden', !state.showGraph);
+        if (state.showGraph) drawGraph();
+    });
     document.getElementById('flipBtn').addEventListener('click', () => {
         state.polarity *= -1;
         createMagnet();
