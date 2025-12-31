@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>電磁感應 3D 實驗室</title>
+    <title>電磁感應實驗</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -47,7 +47,7 @@
             white-space: nowrap; pointer-events: auto; width: fit-content;
         }
 
-        /* 感應電流標籤視覺：改回兩行顯示並優化 */
+        /* 感應電流標籤視覺 */
         #currentLabel { 
             position: absolute; 
             color: #ea580c; 
@@ -259,6 +259,7 @@ function init() {
     createCoil();
     createFieldLines();
 
+    // 初始化同步 Flux
     const dist = state.coilX - state.magX;
     const angleRad = state.coilAngle * Math.PI / 180;
     state.lastFlux = (350 / (dist * dist + 50)) * Math.cos(angleRad) * state.polarity;
@@ -318,15 +319,21 @@ function createCoil() {
     coilGroup.position.x = state.coilX;
 }
 
+/**
+ * 修改處：增加磁力線的整體間距
+ */
 function createFieldLines() {
     fieldLinesGroup.clear();
     const tubeRadius = 0.035; 
     const tubeMat = new THREE.MeshBasicMaterial({ color: COLORS.fluxLine, transparent: true, opacity: 0.18, depthWrite: false });
-    const h = 6.5, numLoops = 10, layers = 6;    
+    
+    // 調低 numLoops 與 layers 以配合更大的間距，避免視覺雜亂
+    const h = 6.5, numLoops = 8, layers = 5;    
     for (let i = 0; i < numLoops; i++) {
         const angle = (i / numLoops) * Math.PI * 2;
         for (let j = 1; j <= layers; j++) {
-            const curveWidth = 35 * j, curveHeight = 5.5 * j; 
+            // 關鍵修改：調大寬度與高度的倍數 (原本是 35*j 與 5.5*j)
+            const curveWidth = 50 * j, curveHeight = 8.5 * j; 
             const p = state.polarity;
             const startX = (h/2) * p, endX = -(h/2) * p;
             const curve = new THREE.CubicBezierCurve3(
@@ -353,7 +360,6 @@ function updateInductionVisuals(rawVal) {
 
     if (Math.abs(stableI) > 0.02) {
         labelVisibilityTimer = labelHoldTime;
-        // 修正：= A 在第二行
         label.innerHTML = `Induced current<br>= ${stableI.toFixed(1)} A`;
         label.style.opacity = 1;
         const v = new THREE.Vector3(state.coilX, 7.5, 0);
