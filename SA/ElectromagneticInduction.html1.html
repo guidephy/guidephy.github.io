@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電磁感應教學逐字稿</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .lesson-card {
+            transition: all 0.3s ease;
+        }
+        .lesson-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .slide-container {
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+        }
+        .slide-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: white;
+        }
+        .slide-placeholder {
+            color: #64748b;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .play-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            flex-shrink: 0;
+        }
+        .play-btn:hover {
+            background-color: #1d4ed8;
+            transform: scale(1.1);
+        }
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">電磁感應 (Electromagnetic Induction)</h1>
+            <p class="text-slate-600 italic">互動教學逐字稿 - 內容已嚴格依照原始文件修正</p>
+        </header>
+
+        <div id="content-container" class="space-y-8">
+            <!-- 內容由 JS 生成 -->
+        </div>
+
+        <footer class="mt-12 py-8 text-center text-slate-500 border-t">
+            <p>© 教學資源分享 - 語音功能使用瀏覽器內建 TTS 技術</p>
+        </footer>
+    </div>
+
+    <script>
+        const lessonData = [
+            { 
+                page: 1, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXfInqYwHmp64vilu15edQ82Tv-GKdd8R-sAEhw2KI4dnEfetQ2zpOFt45DT8yLm4qe4_tjD3Ta6ZuHauW_KXsJmDmhVPh28tVuRwP4evdfh7DHcDdzUMSI263dzzIfVNA?key=m9JcCzJQtFRtfPvlNcMUZw",
+                english: "Hello! Let’s start today’s lesson. Today, we are going to talk about electromagnetic induction. It is a very abstract concept, so some of you may be thinking, “Why are we learning this?” But it is very important in our daily life.", 
+                chinese: "大家好！讓我們開始今天的課程。今天我們要談談電磁感應。這是一個非常抽象的概念，所以你們中有些人可能會想：「為什麼我們要學這個？」但它在我們的日常生活中非常重要。" 
+            },
+            { 
+                page: 2, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXd6iyenWFtUNIkfLqWq_z-2gQzxC6zpgY2fbG5pxffQ3BtGxk1s9hLJv4fl6vSulQTkJz9Nys5CUfHsH6UMLiWABLhv-lZC0RljpFNWqOgJ29PTjhDhcV7bxvk_mVdI_vc?key=m9JcCzJQtFRtfPvlNcMUZw",
+                english: "Before we start, can anyone tell me what this picture is? We learned this in the last lesson.", 
+                chinese: "在我們開始之前，有人能告訴我這張照片是什麼嗎？我們在上一堂課學過這個。" 
+            },
+            { 
+                page: 3, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdKNC4Y3o7JiVhUinVLXYU_negLhiCWfOCYRjfNPKeyD7VGORO1eg7vG7gKLFDfge1-vw_VVAfH5sTPgbSd0Aft_bTY5ur21Oy-3RrqvFODyC21v8dyQjYLISYeO1kBLSQ?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Yes, great! This place is called 觀新 algal reefs.", 
+                chinese: "是的，太棒了！這個地方叫做觀新藻礁。" 
+            },
+            { 
+                page: 4, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXchci9NZyDro4rf_vk-Rd6QnchsjIJiSJoyxIVY73i3K1GYl1ZRYqAFrNRDGm3kgJ0MR3sKLqLcjppmLcH2UJiw1VB4Rrgfa0j5nEXX9y0cS4Q8dS50ZbWYuuNv5alu-as?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Because I heard that we might visit Guanyin this year, I want to show you some other well-known places on the Guanyin coast. The first place is Caota Sand Dunes. Do you know this place? It is formed because the wind piles up the sand. so it is a very special place. Some people call it the Sahara Desert of Taiwan. Because the wind is very strong here, we can see many windmills here.", 
+                chinese: "因為聽說我們今年可能會去觀音，我想給你們看看觀音海岸其他一些著名的地方。第一個地方是草漯沙丘。你知道這個地方嗎？它是因為風力堆積沙子而形成的。所以這是一個非常特別的地方。有些人稱它為台灣的撒哈拉沙漠。因為這裡的風非常強，我們可以在這裡看到很多風車。" 
+            },
+            { 
+                page: 5, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdmYFuCd5yoQLCsSSpMjZCOobAouwUwZkbDfXkqKRq2ALytdK_kQp6P-e9_LvabLe0v6O0npqPEYWrmBlh8YQuNRY2Ekw-7WHd3bym7Pn22420WFPKrGh7Apnxbv-x2m8A?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Another place is Guanyin Beach. We can walk by the sea and see the sunset there. The video was filmed on the beach, We can also see many windmills are rotating here.", 
+                chinese: "另一個地方是觀音海灘。我們可以漫步海邊欣賞日落。這段影片是在海灘上拍攝的，我們也可以看到很多風車在這裡旋轉。" 
+            },
+            { 
+                page: 6, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXe8KvG4FnJhL3p1vT4ZQ2EUv4vt5V0tPKMmoE8k53rRG5UBr-G3NaHuqOJZRGLN8w2LydDUFtq2014I-wt9Oli7nHIjA1ljLWZxo8m5NNqh1y_-76QHHj-GxLcHkezVUU4?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "I have a question for you. Why do the windmills rotate here? (You’re right, it is for generating electricity.) (Good idea.) Let’s do some experiments and check it out.", 
+                chinese: "我有一個問題想問大家。為什麼風車會在這裡旋轉？（你說得對，是為了發電。）（好主意。）讓我們做一些實驗來看看吧。" 
+            },
+            { 
+                page: 7, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXeZCG98lgq9fyoJ-hlxgrrmjaYEKNI1ghlOIQzZbLEPfxitOSQTwXY4VI4EVwjV7C8kI7R2S8h0-MNjlyGRTXPa69v39rHGyk8pDUl5oPFA6b6do1Xe0EL_vXc0yW0j2AQ?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "You will get two batteries, a battery holder, and an LED. Your task is to make the LED light up. If your LED lights up, please raise your hand!", 
+                chinese: "你們會得到兩個電池、一個電池盒和一個 LED 燈。你們的任務是讓 LED 亮起來。如果你的 LED 亮了，請舉手！" 
+            },
+            { 
+                page: 8, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXeDvXvsGQWoqfLmvFtjh85M1BVQX5k_qRkOq7IsHGKCiWRvPRT5ctVpudmrKBYgoU0ED4SG1LjUfaZ34L2c7NCnMIk29o9sm3NDGdxHkIqFwV0b6B4R_4OpuhX_Won6Hw?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Every group did a good job! Now I would like to ask you, why can the LED light up?", 
+                chinese: "每組都做得很好！現在我想問問大家，為什麼 LED 會亮呢？" 
+            },
+            { 
+                page: 9, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXe5XfBOVhM9xuvLMPKQ7WNbCdfTZdThB1WXYLDy_DJ0Gf7yTxpHcYMHfsQ2ezObA5F8Ka3Hi1YaP2BwVxMMhDbTA6zkgXkz8f0cBsp_W9zBuFkczUajqOnZcKF3xmqcYw?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "You can see it in the diagram. Just like what was said, the battery provides electric current, so the LED gets electricity and lights up.", 
+                chinese: "你可以從圖表中看到。就像剛才說的，電池提供電流，所以 LED 得到電並亮了起來。" 
+            },
+            { 
+                page: 10, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXfHbR3v19ZfqwoEPPUVJocXgsVSup_K0qEv_fDCYiqUWOZiZS33nzh5CQoZlHz952tFwY47wDKpjWG-rfD9WumAzknp1c1jG9iwzcP6ZfUGXHtAa1sMee8OoxTrUgcwj58?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Let’s do another experiment. You will get a motor and an LED. Just like before, make the LED light up.", 
+                chinese: "讓我們做另一個實驗。你們會得到一個馬達和一個 LED。就像之前一樣，讓 LED 亮起來。" 
+            },
+            { 
+                page: 11, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXf7dys44dLnqQTRiE7TzpnFoGRd-InaCvhzAuKCe1M0p7fcNptXPMXHKRkI48dIaMyexMxQsxegak0-TtQTCwzTzcbRSdomWCdsCrpGCT-IEraUXYScKQ7DAZ93w_9GwcQ?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "(Okay, everyone, stop for a moment and look here.) This experiment is interesting. I see every group make the LED light up. But we didn’t use a battery. Why can the LED light up? It seems that when the motor rotates, it can generate current.", 
+                chinese: "（好了，大家先停一下看這裡。）這個實驗很有趣。我看到每組都讓 LED 亮了。但我們沒用電池。為什麼 LED 會亮？看來當馬達旋轉時，它能產生電流。" 
+            },
+            { 
+                page: 12, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdaAwmmTPqGqmnP4wj8MVRwT_KdctKQg2-dgZu8zhv75lhV1E9MhKq04yRIGZvV1xdKJUN8Mxn1K2TXdk2yAcsB4lEFHqajPwvl5ihEF92HmIebLAhj9zqf__d-6-hwUYM?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "And in fact, this is true. We call this current ‘induced current’.", 
+                chinese: "事實上，這是真的。我們稱這種電流為「感應電流」。" 
+            },
+            { 
+                page: 13, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXetwaTqTjmFxAUVqge5_KQIEeeMHHi0atyXvCUwCSOCCdPmKtqiSoABwBV1KvchA_n9CQn2MsOuQzRAOhxVvTE4Sq6oiyuzYHoUzw6EU5W7CVTcL4Ik3_0TY8kjHLXR15Y?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "From these two diagrams, we can see the difference. Electric current comes from a battery, but induced current is generated by a rotating motor.", 
+                chinese: "從這兩張圖中，我們可以看到差異。電流來自電池，但感應電流是由旋轉的馬達產生的。" 
+            },
+            { 
+                page: 14, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXehBVE8zV1r4g3B-t_s4y9fTJUqcX5an35RN3y0RqHruWrDkGnKm_pGkNxrBAGphgFarFhsGbIu82FT1A85T2tXEBT6O5GfVZHnidSVwJco_KccyqMYCqEVVuoPoXPCyhQ?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "So let’s go back to the question we asked before. The answer is the windmill rotates to generate induced current. So we also call it a wind turbine because it generate electricity.", 
+                chinese: "所以讓我們回到之前問的問題。答案是風車旋轉產生感應電流。所以我們也稱它為風力發電機，因為它能發電。" 
+            },
+            { 
+                page: 15, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdDA7hLewD2C1B23XfhkMdSo_v4iFHyQVWqhK2ke-MVZcLTfjNj0hOdNB_XcHUZSQBr3z67slwMBKvDX3G7nYzErWVN3oXdvqW86P2og7HVwU_CgkwTIQz-uaFRbdqGzuw?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "But why can a motor or a wind turbine generate induced current when it rotates?", 
+                chinese: "但是為什麼馬達或風力發電機在旋轉時會產生感應電流呢？" 
+            },
+            { 
+                page: 16, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdVp4x0hofN0HgXw1S72ljytl_-Ovj-D-paj7KWjkfrkhkWMc4FlO6uicgLXQtH2N10GdJHQ7Aq8TAAmbHhXtZsoGS5KSfQxhm_t7KJy0BWNdyKZoWg_rmoJjJY39dl--o?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Now, please take out your phone or tablet. Scan the QR code on the screen. You will see a simulation. You can try different things in this simulation. Observe if there is induced current in the coil, and answer the questions on the worksheet.", 
+                chinese: "現在，請拿出你的手機或平板。掃描螢幕上的 QR code。你會看到一個模擬實驗。你可以在這個模擬中嘗試不同的操作。觀察線圈中是否有感應電流，並回答工作表上的問題。" 
+            },
+            { 
+                page: 17, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXfUfM1HkFQPvRfRnmKmtLB2UD25mrqigYyYRgNNfYOQkYH8FWOM8Mzo1Cv_XtBU8kOEbL1RBM2emeMfp2QdI3l6jXaPs-lbZiAnc1LGqETBAJOoO7RUwzLPDqAbu1b-Sfs?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "After the simulation, please write your observations on your worksheet.", 
+                chinese: "模擬結束後，請將你的觀察結果寫在工作表上。" 
+            },
+            { 
+                page: 18, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdAncKoOGT8RN9HqL42QIzagsaBkuf25kHCZyiBXKewCdfPOBOxfhDDPjQOqdgUU3bfvqunA0ARdG_vbJZ-giHmTERDKr9wS3fWLi59K7K0htEIhM_Jzk644kkHmgALdg?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Discuss your observations with your group. Talk about what you found. You have three minutes.", 
+                chinese: "與小組討論你的觀察結果。談談你的發現。你有三分鐘時間。" 
+            },
+            { 
+                page: 19, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXfrF2bSixmguZjTxnpz_ZfCH1Nsbe4g_QNF4x8ZVqI6s3qtZGaZUT7oXqdHSYF4txxk4OG2tCfcwIBDfUUIgYMXPfPeHx-bN3ORSg6Q_ts9OxPpkszpzbF_vaLFLF5FXbM?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Let’s share your observations. One observation per group. No repeats. Thank you, that’s a good observation.", 
+                chinese: "讓我們分享大家的觀察。每組一個觀察結果。不重複。謝謝，這是一個很好的觀察。" 
+            },
+            { 
+                page: 20, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXfJUeU5C4ZmKZeqXxcIcqtR76GiAbY-RtLgeIHnKzf9GjbxQabZeKk4BpK1FYeUxWRa2XO6qRRPD0xOMJ89WTU-0Gqe8rYikajqQAwGIaqrH0MNgFDFkud4GhjhYPmjxU0?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Let’s look at our observations. We can see three key points.", 
+                chinese: "讓我們看看我們的觀察結果。我們可以看到三個重點。" 
+            },
+            { 
+                page: 21, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdEVr6jzqTKGUkbrOrPiy70ZH3_OY4YKNYydPzZDwpN6vH91Fb5nksDNG0p2QgQLIEXSHqFqa65_oDL_fHJEfsQZyvNo7yteD0B-l0Zdsz5w4ZYX5emY-CcV2PXj9YX5A?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Now, we focus on the first one. We will discuss the others later.", 
+                chinese: "現在，我們先專注於第一個。其他的我們稍後再討論。" 
+            },
+            { 
+                page: 22, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdr4jl6bxFFjLP_nT2tgSTDvjD3q4_pmoFpFplZwOhGHUIVvhx46bL4eM1eXp5c6GezcEnduThlpphMewwpi5XECJ4RAlioLu4LK0gJEM2Rx42iQnsvnsD-LthzKSrmmzs?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Today, we found something important. This is called electromagnetic induction. It was discovered by Michael Faraday. He said, ‘Induced current is generated when the magnetic field (or number of magnetic field lines) through a coil changes.’ Isn’t this the same as what we found today? If you were born earlier, this law might be named after you.", 
+                chinese: "今天，我們發現了一些重要的東西。這叫做電磁感應。它是由麥可·法拉第發現的。他說：『當穿過線圈的磁場（或磁力線數量）發生變化時，就會產生感應電流。』這不正是我們今天的發現嗎？如果你早點出生，這個定律可能會以你的名字命名。" 
+            },
+            { 
+                page: 23, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXe5QYgmLhV-REfS-2YsXOUDihr9LdUJ1AOkUh2wPnrraUeLJwtRedmLELPO2hJKMtvNW2OeJSQGkTXTJBuJUX_nfM1-ETrPNdgAQMXa69jvMWquABJRzXXMapAfS1nrwH0?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "If you think this is hard to remember, you can imagine you are the coil. When you feel the magnetic field change, you will generate induced current!", 
+                chinese: "如果你覺得這很難記，你可以想像你自己就是那個線圈。當你感覺到磁場變化時，你就會產生感應電流！" 
+            },
+            { 
+                page: 24, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXebUKkLnHaLJx_JjCysJZLvuV7xzyMNFrV7Wf_Ez-t_J0K0s-TU0v-hNqCPK6zPQ4e4W8QVtqV1VYFuTw8Ad-N-OMYArKvoQY6Plrh5k-Pv1RsBJxaOinZFQskheFeCrug?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "Now, let’s come back to this question. Why can a motor or a wind turbine generate induced current when it rotates? The wind turbine rotate and make the coil rotate. When the coil rotates, the magnetic field through it changes. So the coil generates induced current and electricity.", 
+                chinese: "現在，讓我們回到這個問題。為什麼馬達或風力發電機在旋轉時能產生感應電流？風力發電機旋轉帶動線圈旋轉。當線圈旋轉時，穿過它的磁場就會發生變化。因此，線圈會產生感應電流和電力。" 
+            }
+            ,
+            { 
+                page: 25, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXfY1mJC7ybu8Ojz1EhkDj6GnukOI9Hle_z6cTF6e7d7inMGzWHRgrJmVYhu-efCFYlpAeCvGMO3DGnE2-XXA2kcp7CditLs7y7pt5HA8ehgcY6cbWumZiujuHPQd_hXulk?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "", 
+                chinese: "" 
+            },
+            { 
+                page: 26, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXfcxbEseJ22zd8vhuUMcV6kaMrCOL-Y8IwN9soAN0DmVTtlhgQdQZPj4Rznvm_R-ym-OmuRdAQq1JS9VnQPjaknuGFzZuxNW9sl4J-p7WalCaQOwhqMZATqoeWz83d9nEE?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "", 
+                chinese: "" 
+            }
+            ,
+            { 
+                page: 27, 
+                image: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXdkY8pVNNd5ljjHwMZlCR7Jt-JKcqsEDYJh_0qZTJp_FH0pK6N3fwEelxZ8K0tQDOJm9jFvAx_v3hmyutkfQLnDHUPfjQk1DC61oQTLkprbq3SOVu-KMJC8nv1qivC2sw?key=m9JcCzJQtFRtfPvlNcMUZw", 
+                english: "", 
+                chinese: "" 
+            }
+
+        ];
+
+        const container = document.getElementById('content-container');
+        const synth = window.speechSynthesis;
+
+        function speak(text) {
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            synth.speak(utterance);
+        }
+
+        lessonData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = "lesson-card bg-white rounded-xl shadow-md overflow-hidden border border-slate-200";
+            
+            const imageHtml = item.image 
+                ? `<img src="${item.image}" alt="Slide ${item.page}" class="slide-image">`
+                : `<div class="slide-placeholder">Slide ${item.page} Image</div>`;
+
+            card.innerHTML = `
+                <div class="md:flex">
+                    <!-- 左側簡報圖片區域 -->
+                    <div class="md:w-1/3 bg-slate-50 p-4 border-r border-slate-100 flex flex-col justify-center">
+                        <div class="mb-2 flex justify-between items-center">
+                            <span class="bg-blue-600 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded">
+                                Slide ${item.page}
+                            </span>
+                        </div>
+                        <div class="slide-container">
+                             ${imageHtml}
+                        </div>
+                    </div>
+                    
+                    <!-- 右側文字內容區域 -->
+                    <div class="md:w-2/3 p-6 flex flex-col justify-center">
+                        <div class="flex items-start mb-4">
+                            <button class="play-btn mr-4" title="播放英文朗讀">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                    <path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <p class="text-xl text-slate-800 font-semibold leading-snug">${item.english}</p>
+                        </div>
+                        <div class="pl-14">
+                            <p class="text-slate-600 text-lg border-l-4 border-blue-500/30 pl-4 py-1 italic bg-slate-50/50 rounded-r">
+                                ${item.chinese}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const btn = card.querySelector('.play-btn');
+            btn.onclick = () => speak(item.english);
+            
+            container.appendChild(card);
+        });
+
+        if (!window.speechSynthesis) {
+            alert("您的瀏覽器不支持語音合成功能，建議使用最新版 Chrome 或 Edge 瀏覽器。");
+        }
+    </script>
+</body>
+</html>
