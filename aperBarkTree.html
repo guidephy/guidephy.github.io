@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>白千層的祕密任務</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自定義動畫與樣式 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounceSubtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-bounce-subtle {
+            animation: bounceSubtle 2s infinite;
+        }
+        .touch-action-manipulation {
+            touch-action: manipulation;
+        }
+        /* 隱藏滾動條但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased selection:bg-emerald-200">
+
+    <!-- 應用程式主容器 -->
+    <div id="app" class="max-w-md mx-auto min-h-screen bg-white shadow-2xl relative flex flex-col">
+        <!-- 內容將由 JavaScript 動態生成 -->
+    </div>
+
+    <!-- 邏輯腳本 -->
+    <script>
+        // --- 1. 圖示資源 (SVG Strings) ---
+        const Icons = {
+            MapPin: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+            Wind: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>`,
+            BookOpen: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+            Globe: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+            Shield: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>`,
+            Award: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+            CheckCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>`,
+            HelpCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>`,
+            ArrowRight: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`,
+            Camera: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`,
+            Upload: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>`
+        };
+
+        // --- 2. 遊戲資料 (Levels Data) ---
+        const levels = [
+            {
+                id: 1,
+                title: "關卡一：誰住在這條步道？",
+                type: "quiz",
+                icon: Icons.MapPin,
+                story: `【在地傳說：石頭變神明？】<br><br>很久很久以前，這裡是一片荒涼的溪流。有一天，一位農夫在溪水裡發現了一顆石頭，形狀長得非常像「觀音菩薩」。<br><br>農夫覺得這是一個奇蹟，於是將石頭撿回家供奉，後來這裡的人越來越多，大家就習慣把這個地方叫做「觀音」。<br><br>這個地名，其實是先有人們的發現，才有後來的信仰喔！`,
+                question: "根據剛剛的故事，為什麼這個地方叫「觀音」？",
+                options: [
+                    { id: 'A', text: "A. 因為這裡以前很多觀音鳥" },
+                    { id: 'B', text: "B. 因為農民發現像觀音的石頭" },
+                    { id: 'C', text: "C. 因為這裡有一座很高的觀音山" }
+                ],
+                correctAnswer: 'B',
+                hint: "故事裡提到，農夫在溪水裡撿到了什麼東西？",
+                explanation: "沒錯！觀音的地名由來就是源自「石觀音」的傳說。這顆像觀音的石頭凝聚了當地人的感情，也讓這裡成為一個充滿故事的地方。"
+            },
+            {
+                id: 2,
+                title: "關卡二：千層不是蛋糕",
+                type: "matching",
+                icon: Icons.Wind,
+                story: `【植物知識：穿著厚外套的樹】<br><br>這條步道兩旁種滿了「白千層」。它的老家其實在遙遠的澳洲！<br>澳洲的天氣很熱、又乾燥，甚至常常發生森林大火。為了活下來，白千層演化出厲害的裝備：<br><br>1. 它的樹皮像海綿一樣，軟軟的、一層又一層，這是為了「保護大樹不怕火燒」。<br>2. 它的葉子揉一揉有特殊的香味，可以提煉成大家常用的「綠油精」或精油。<br>3. 它的根扎得很深，在海邊可以「擋住強風」。<br>4. 它開的小白花形狀很特別，就像洗杯子的「瓶刷」一樣可愛！<br><br>【為什麼觀音要種它？】<br>其實，觀音海邊的風非常強勁，以前的農作物常被吹壞。所以在幾十年前，人們特地請來這位「澳洲大力士」，把它們排排站種在田邊，變成守護大家的「防風林」！`,
+                question: "請將白千層的「特徵」連線到正確的「功能」或「形狀」：",
+                leftItems: [
+                    { id: 'bark', text: "🌳 樹皮軟軟像海綿" },
+                    { id: 'root', text: "🌱 根扎得很深" },
+                    { id: 'leaf', text: "🍃 葉子有特殊香味" },
+                    { id: 'flower', text: "🌼 開出白色的小花" }
+                ],
+                rightItems: [
+                    { id: 'fire', text: "🔥 防火、隔絕高熱" },
+                    { id: 'wind', text: "🛡️ 變成防風林保護農作物" },
+                    { id: 'oil', text: "💧 提煉精油、防蚊" },
+                    { id: 'brush', text: "🍼 形狀像瓶子刷" }
+                ],
+                correctMatches: { bark: 'fire', root: 'wind', leaf: 'oil', flower: 'brush' },
+                hint: "故事有提到：海綿般的樹皮是為了怕火燒，而種在觀音主要是為了「擋風」喔！",
+                explanation: "太厲害了！白千層全身都是寶。那層厚厚的樹皮是它的防火衣，葉子是天然的防蚊液，而深根則是守護觀音農田最重要的防風牆！"
+            },
+            {
+                id: 3,
+                title: "關卡三：誰來這裡吃飯？",
+                type: "multiselect",
+                icon: Icons.BookOpen,
+                story: `【生態觀察：24小時的餐廳】<br><br>走在白千層步道，你不只會看到樹。仔細看旁邊，這裡有水田、有埤塘（池塘），還有樹林。<br><br>這樣的環境就像是動物們的「超級餐廳」！<br><br>● 白鷺鷥喜歡在淺水的地方找小魚吃。<br>● 青蛙需要在濕濕的泥土或水邊產卵。<br>● 樹林則提供了躲藏的地方。<br><br>這裡不是沙漠，也不是冰原，而是一個溫暖潮濕的家。`,
+                question: "哪些動物「最可能」把這裡當成家？(請選 2 個)",
+                options: [
+                    { id: 'bird', text: "🐦 白鷺鷥" },
+                    { id: 'bear', text: "🐻‍❄️ 北極熊" },
+                    { id: 'frog', text: "🐸 青蛙" },
+                    { id: 'lizard', text: "🦎 沙漠蜥蜴" }
+                ],
+                correctAnswers: ['bird', 'frog'],
+                hint: "想一想，哪些動物喜歡「有水」又有「田」的地方？",
+                explanation: "答對了！農田＋樹林＋水＝很多動物的家。白鷺鷥和青蛙都是這裡的常客。這裡是一個豐富的生態接力站！"
+            },
+            {
+                id: 4,
+                title: "關卡四：世界在做一樣的事",
+                type: "matching",
+                icon: Icons.Globe,
+                story: `【國際連線：步道大不同】<br><br>世界各個國家都有步道，但功能不太一樣喔！<br><br>🇹🇼 台灣觀音：因為海邊風很大，我們種白千層步道主要是為了「防風、保護農作物」。<br><br>🇦🇺 澳洲紙樹步道：在澳洲的白千層森林，地上都是爛泥巴，所以他們蓋了架高的木棧道，是為了「讓遊客安全走進濕地」，不破壞生態。<br><br>🇸🇬 新加坡：他們把城市裡的公園用步道連起來，讓動物可以從這個公園跑到那個公園，目的是「在城市中保護動物」。`,
+                question: "請根據剛剛的文本，將國家連線到正確的步道目的：",
+                leftItems: [
+                    { id: 'tw', text: "🇹🇼 台灣觀音" },
+                    { id: 'au', text: "🇦🇺 澳洲紙樹" },
+                    { id: 'sg', text: "🇸🇬 新加坡" }
+                ],
+                rightItems: [
+                    { id: 'safe', text: "🚶 架高木棧道 (安全進入濕地)" },
+                    { id: 'protect', text: "🌾 種防風林 (保護農田)" },
+                    { id: 'urban', text: "🏙️ 連結公園 (城市生態廊道)" }
+                ],
+                correctMatches: { tw: 'protect', au: 'safe', sg: 'urban' },
+                hint: "台灣是為了種田；澳洲是為了走進濕地；新加坡是為了城市裡的動物。",
+                explanation: "世界各地都在努力！雖然方法不同（防風、架高、連結），但大家愛護自然的心是一樣的！"
+            },
+            {
+                id: 5,
+                title: "最終關：我是步道守護員",
+                type: "sorting",
+                icon: Icons.Shield,
+                story: `【守護宣言】<br><br>恭喜你來到最後一關！<br><br>透過今天的任務，你已經認識了「石觀音」的故事、知道了「白千層」的超能力，也看到了世界各國的做法。<br><br>現在，我們要邀請你成為正式的守護員。在你心中，要維持一條美好的步道，哪些元素是不可或缺的呢？`,
+                question: "請「依照重要順序」，依序點選你認為步道最重要的 3 個元素：\n(你的第一選擇，將決定你會成為哪一種守護員喔！)",
+                options: [
+                    { id: 'tree', text: "🌳 樹 (自然環境)" },
+                    { id: 'human', text: "🧑 人 (你的參與)" },
+                    { id: 'animal', text: "🐿️ 動物 (生態多樣)" },
+                    { id: 'story', text: "📖 故事 (文化傳承)" }
+                ],
+                requiredCount: 3,
+                hint: "其實每一個都很重要，請聽從你內心的聲音，選出你最有感覺的吧！",
+                explanation: "" // 動態生成
+            }
+        ];
+
+        // --- 3. 狀態管理 (State) ---
+        const state = {
+            gameState: 'intro', // intro, playing, success
+            currentLevel: 0,
+            levelPhase: 'story', // story, quiz, feedback
+            showHint: false,
+            // 遊戲互動狀態
+            selectedOption: null, // 單選
+            multiSelections: [], // 多選
+            matches: {}, // 配對 {leftId: rightId}
+            selectedLeft: null, // 配對中選中的左邊
+            sortOrder: [], // 排序
+            dynamicFeedback: "" // 第五關回饋
+        };
+
+        // --- 4. 渲染邏輯 (Render Functions) ---
+        const app = document.getElementById('app');
+
+        function render() {
+            app.innerHTML = ''; // 清空內容
+
+            if (state.gameState === 'intro') {
+                renderIntro();
+            } else if (state.gameState === 'success') {
+                renderSuccess();
+            } else {
+                renderLevel();
+            }
+            
+            // 每次渲染後滾動到頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 渲染：開場畫面
+        function renderIntro() {
+            const html = `
+                <div class="flex-1 flex flex-col items-center justify-center p-6 text-center animate-fade-in bg-emerald-50 min-h-screen">
+                    <div class="bg-white p-8 rounded-2xl shadow-xl w-full border-b-4 border-emerald-600">
+                        <div class="bg-emerald-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600">
+                            ${Icons.Globe.replace('width="24"', 'width="48"').replace('height="24"', 'height="48"')}
+                        </div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">白千層的祕密任務</h1>
+                        <p class="text-emerald-700 font-medium mb-6">觀音步道守護者捎來了一則訊息...</p>
+                        
+                        <div class="bg-gray-50 p-5 rounded-lg text-left text-gray-600 text-sm mb-8 leading-relaxed border border-gray-200 shadow-inner">
+                            「親愛的小小探險家：<br><br>
+                            觀音白千層步道正逐漸被人們遺忘...<br>
+                            只有完成 <span class="font-bold text-emerald-600">5 道知識任務</span>，
+                            才能重新啟動它的文化、生態與世界連線。<br><br>
+                            每一關都有一個小故事，請仔細閱讀後再回答問題喔！<br><br>
+                            你願意接受挑戰，成為守護員嗎？」
+                        </div>
+
+                        <button onclick="startGame()" class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2 text-lg">
+                            接受任務，出發！ <span class="w-6 h-6">${Icons.ArrowRight}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            app.innerHTML = html;
+        }
+
+        // 渲染：成功畫面
+        function renderSuccess() {
+             const html = `
+                <div class="flex-1 flex flex-col items-center justify-center p-6 text-center animate-fade-in bg-gradient-to-b from-emerald-100 to-white min-h-screen">
+                    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full border-4 border-yellow-400 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-2 opacity-10 text-yellow-500 scale-150 transform translate-x-4 -translate-y-4">
+                            ${Icons.Award.replace('width="24"', 'width="120"').replace('height="24"', 'height="120"')}
+                        </div>
+                    
+                        <div class="bg-yellow-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce text-yellow-600">
+                             ${Icons.Award.replace('width="24"', 'width="48"').replace('height="24"', 'height="48"')}
+                        </div>
+                        
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">任務完成！</h1>
+                        <div class="text-lg font-bold text-emerald-600 mb-6">🎉 白千層國際小小守護員</div>
+                        
+                        <div class="space-y-3 text-left bg-emerald-50 p-5 rounded-xl mb-6 text-sm sm:text-base">
+                            <div class="flex items-center gap-3">
+                                <span class="text-emerald-500 w-5 h-5">${Icons.CheckCircle}</span>
+                                <span class="text-gray-700">你守護了自然生態</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-emerald-500 w-5 h-5">${Icons.CheckCircle}</span>
+                                <span class="text-gray-700">你理解了在地文化</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-emerald-500 w-5 h-5">${Icons.CheckCircle}</span>
+                                <span class="text-gray-700">你將觀音連上了世界</span>
+                            </div>
+                        </div>
+
+                        <!-- Photo Task Section -->
+                        <div class="bg-yellow-50 border-2 border-yellow-200 border-dashed rounded-xl p-4 mb-8 text-center">
+                            <div class="flex justify-center mb-2 text-yellow-600">
+                                ${Icons.Camera.replace('width="24"', 'width="32"').replace('height="24"', 'height="32"')}
+                            </div>
+                            <h3 class="font-bold text-yellow-800 mb-2">【終極任務：與樹合影】</h3>
+                            <p class="text-sm text-yellow-700 mb-4">
+                                請找到一棵你最喜歡的白千層，和它拍張合照，證明你到此一遊！
+                            </p>
+                            <a 
+                                href="https://tycedu.padlet.org/tyc1255/padlet-ppnkl8dh1qepvrsd" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center justify-center gap-2 w-full bg-yellow-500 active:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors"
+                            >
+                                <span class="w-5 h-5">${Icons.Upload}</span> 上傳照片到 Padlet
+                            </a>
+                        </div>
+
+                        <button onclick="window.location.reload()" class="w-full bg-gray-800 active:bg-gray-900 text-white font-bold py-3 px-6 rounded-xl shadow-lg text-lg">
+                            再次挑戰 / 分享給朋友
+                        </button>
+                    </div>
+                </div>
+             `;
+             app.innerHTML = html;
+        }
+
+        // 渲染：遊戲關卡
+        function renderLevel() {
+            const data = levels[state.currentLevel];
+            const progressPercent = ((state.currentLevel + 1) / levels.length) * 100;
+
+            let contentHtml = '';
+
+            // 階段 1: 故事模式
+            if (state.levelPhase === 'story') {
+                contentHtml = `
+                    <div class="p-6 animate-fade-in bg-white min-h-[50vh] flex flex-col">
+                        <div class="prose prose-lg prose-emerald text-gray-700 leading-relaxed whitespace-pre-line mb-8 flex-1 text-base sm:text-lg">
+                            ${data.story}
+                        </div>
+                        <button onclick="goToQuiz()" class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg flex justify-center items-center gap-2 text-lg animate-bounce-subtle mt-auto">
+                            <span class="w-6 h-6">${Icons.BookOpen}</span> 我讀完了，開始解謎！
+                        </button>
+                    </div>
+                `;
+            } 
+            // 階段 2 & 3: 答題與回饋
+            else {
+                // 決定操作區域內容
+                let interactiveArea = '';
+                if (state.levelPhase === 'quiz') {
+                    // 根據題型渲染
+                    if (data.type === 'quiz') {
+                        interactiveArea = renderTypeQuiz(data);
+                    } else if (data.type === 'matching') {
+                        interactiveArea = renderTypeMatching(data);
+                    } else if (data.type === 'multiselect') {
+                        interactiveArea = renderTypeMultiSelect(data);
+                    } else if (data.type === 'sorting') {
+                        interactiveArea = renderTypeSorting(data);
+                    }
+                } else {
+                    // 回饋顯示
+                    const feedbackText = (state.currentLevel === 4) ? state.dynamicFeedback : data.explanation;
+                    interactiveArea = `
+                        <div class="animate-fade-in">
+                            <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl mb-6 text-emerald-900 shadow-sm">
+                                <h4 class="font-bold flex items-center gap-2 mb-3 text-lg">
+                                    <span class="text-emerald-600 w-5 h-5">${Icons.CheckCircle}</span> 
+                                    ${state.currentLevel === 4 ? "專屬分析結果" : "詳解與知識"}
+                                </h4>
+                                <p class="text-base leading-relaxed whitespace-pre-line">${feedbackText}</p>
+                            </div>
+                            <button onclick="nextLevel()" class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-md flex justify-center items-center gap-2 text-lg">
+                                ${state.currentLevel < levels.length - 1 ? "前往下一關" : "領取證書"} <span class="w-6 h-6">${Icons.ArrowRight}</span>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                // 提示區塊
+                let hintSection = '';
+                if (state.levelPhase === 'quiz') {
+                    hintSection = `
+                        <div class="mt-8 flex justify-between items-center px-2">
+                            <button onclick="goToStory()" class="text-gray-400 text-sm flex items-center gap-1 active:text-gray-600 p-2">
+                                <span class="w-4 h-4">${Icons.BookOpen}</span> 回去看故事
+                            </button>
+                            <div class="relative">
+                                <button onclick="toggleHint()" class="text-amber-500 text-sm font-bold flex items-center gap-1 active:text-amber-600 p-2">
+                                    <span class="w-4 h-4">${Icons.HelpCircle}</span>
+                                    ${state.showHint ? "隱藏提示" : "如果不確定..."}
+                                </button>
+                                ${state.showHint ? `
+                                    <div class="absolute bottom-full right-0 mb-2 w-64 bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-sm shadow-lg z-10 animate-fade-in">
+                                        💡 ${data.hint}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button onclick="checkAnswer()" class="w-full bg-gray-800 active:bg-gray-700 text-white font-bold py-4 rounded-xl shadow-md text-lg">
+                                決定是這個了！
+                            </button>
+                        </div>
+                    `;
+                }
+
+                contentHtml = `
+                    <div class="animate-fade-in">
+                        <!-- 問題標題 -->
+                        <div class="p-6 bg-yellow-50 border-b border-yellow-100">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded mt-1 shrink-0">Q</span>
+                                <p class="text-gray-800 font-bold text-lg leading-snug whitespace-pre-line">${data.question}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 互動區 -->
+                        <div class="p-6">
+                            ${interactiveArea}
+                            ${hintSection}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="flex flex-col min-h-screen">
+                    <div class="p-4 bg-gray-50 sticky top-0 z-20 shadow-sm">
+                         <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider">實境解謎通關中</h2>
+                            <div class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
+                                Level ${state.currentLevel + 1}
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-emerald-600 h-2.5 rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-white">
+                        <!-- 關卡標題 -->
+                        <div class="p-4 bg-emerald-50 border-b border-emerald-100 flex items-center gap-3">
+                            <div class="p-2 bg-white rounded-lg shadow-sm text-emerald-600">
+                                ${data.icon}
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-800">${data.title}</h3>
+                        </div>
+
+                        ${contentHtml}
+                    </div>
+                    
+                    <p class="text-center text-gray-400 text-xs py-6 bg-gray-50 mt-auto">
+                        © 觀音白千層步道守護計畫
+                    </p>
+                </div>
+            `;
+            app.innerHTML = html;
+        }
+
+        // --- 子渲染函數：題型 ---
+
+        function renderTypeQuiz(data) {
+            return `
+                <div class="space-y-3">
+                    ${data.options.map(opt => `
+                        <button onclick="selectOption('${opt.id}')" 
+                            class="w-full text-left p-4 rounded-xl border-2 transition-all active:scale-[0.98] ${state.selectedOption === opt.id ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold ring-2 ring-emerald-200' : 'border-gray-100 bg-white text-gray-600'}">
+                            ${opt.text}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderTypeMatching(data) {
+            return `
+                <div class="flex gap-2 justify-between">
+                    <div class="flex flex-col gap-3 w-[48%]">
+                        ${data.leftItems.map(item => `
+                            <button onclick="clickLeft('${item.id}')" 
+                                class="p-3 text-sm rounded-lg border-2 text-left transition-all min-h-[60px] flex items-center
+                                ${state.matches[item.id] ? 'bg-emerald-100 border-emerald-500 opacity-70' : 
+                                  state.selectedLeft === item.id ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-200 font-bold' : 'border-gray-200 bg-white'}">
+                                ${item.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="flex flex-col gap-3 w-[48%]">
+                        ${data.rightItems.map(item => {
+                            const isMatched = Object.values(state.matches).includes(item.id);
+                            return `
+                                <button onclick="clickRight('${item.id}')"
+                                    class="p-3 text-sm rounded-lg border-2 text-left min-h-[60px] flex items-center transition-all
+                                    ${isMatched ? 'bg-emerald-100 border-emerald-500 opacity-70 font-bold' : 'border-gray-200 border-dashed bg-gray-50'}">
+                                    ${isMatched ? "✅ " + item.text : item.text}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTypeMultiSelect(data) {
+            return `
+                <div class="grid grid-cols-2 gap-3">
+                    ${data.options.map(opt => `
+                        <button onclick="toggleMulti('${opt.id}')"
+                            class="p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all active:scale-[0.98]
+                            ${state.multiSelections.includes(opt.id) ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200' : 'border-gray-100 bg-white text-gray-600'}">
+                            <span class="text-3xl block mb-1">${opt.text.split(' ')[0]}</span>
+                            <span class="font-bold text-sm text-center">${opt.text.split(' ')[1]}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderTypeSorting(data) {
+            return `
+                <div class="space-y-4">
+                    <div class="flex flex-wrap gap-2 justify-center mb-4 min-h-[60px] p-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed items-center">
+                        ${state.sortOrder.length === 0 ? '<span class="text-gray-400 text-sm">請依序點擊下方選項...</span>' : ''}
+                        ${state.sortOrder.map((id, index) => {
+                            const item = data.options.find(o => o.id === id);
+                            return `
+                                <span class="bg-emerald-600 text-white px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-sm animate-fade-in">
+                                    <span class="mr-2 bg-white text-emerald-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-extrabold">${index + 1}</span>
+                                    ${item.text}
+                                </span>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        ${data.options.map(opt => `
+                            <button onclick="toggleSort('${opt.id}')"
+                                class="p-3 rounded-lg border-2 text-sm font-bold transition-all min-h-[50px]
+                                ${state.sortOrder.includes(opt.id) ? 'opacity-40 cursor-not-allowed border-gray-200 bg-gray-100' : 'border-gray-200 bg-white text-gray-700 active:border-emerald-400 active:bg-emerald-50'}">
+                                ${opt.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                    ${state.sortOrder.length > 0 ? `
+                        <button onclick="resetSort()" class="w-full text-center text-gray-400 text-xs underline py-2">重置選擇</button>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // --- 5. 邏輯處理 (Logic Handlers) ---
+
+        window.startGame = () => {
+            state.gameState = 'playing';
+            state.currentLevel = 0;
+            state.levelPhase = 'story';
+            render();
+        };
+
+        window.goToQuiz = () => {
+            state.levelPhase = 'quiz';
+            state.showHint = false;
+            // Reset interaction states
+            state.selectedOption = null;
+            state.multiSelections = [];
+            state.matches = {};
+            state.selectedLeft = null;
+            state.sortOrder = [];
+            render();
+        };
+        
+        window.goToStory = () => {
+            state.levelPhase = 'story';
+            render();
+        };
+
+        window.toggleHint = () => {
+            state.showHint = !state.showHint;
+            render();
+        };
+
+        window.nextLevel = () => {
+            if (state.currentLevel < levels.length - 1) {
+                state.currentLevel++;
+                state.levelPhase = 'story';
+                render();
+            } else {
+                state.gameState = 'success';
+                render();
+            }
+        };
+
+        // --- 互動邏輯 ---
+
+        // 單選
+        window.selectOption = (id) => {
+            state.selectedOption = id;
+            render();
+        };
+
+        // 配對
+        window.clickLeft = (id) => {
+            // 如果已經配對，點擊則取消配對
+            if (state.matches[id]) {
+                delete state.matches[id];
+            }
+            state.selectedLeft = id;
+            render();
+        };
+
+        window.clickRight = (id) => {
+            if (!state.selectedLeft) return;
+            state.matches[state.selectedLeft] = id;
+            state.selectedLeft = null;
+            render();
+        };
+
+        // 多選
+        window.toggleMulti = (id) => {
+            if (state.multiSelections.includes(id)) {
+                state.multiSelections = state.multiSelections.filter(item => item !== id);
+            } else {
+                if (state.multiSelections.length < 2) {
+                    state.multiSelections.push(id);
+                }
+            }
+            render();
+        };
+
+        // 排序
+        window.toggleSort = (id) => {
+            if (state.sortOrder.includes(id)) {
+                state.sortOrder = state.sortOrder.filter(item => item !== id);
+            } else {
+                if (state.sortOrder.length < 3) {
+                    state.sortOrder.push(id);
+                }
+            }
+            render();
+        };
+
+        window.resetSort = () => {
+            state.sortOrder = [];
+            render();
+        };
+
+
+        // --- 答案檢查 ---
+
+        window.checkAnswer = () => {
+            const currentData = levels[state.currentLevel];
+
+            // 1. 單選題
+            if (currentData.type === 'quiz') {
+                if (state.selectedOption === currentData.correctAnswer) {
+                    state.levelPhase = 'feedback';
+                    render();
+                } else {
+                    alert("答案不對喔，回去看看故事怎麼說的！");
+                }
+            }
+
+            // 2. 配對題
+            else if (currentData.type === 'matching') {
+                const correctConfig = currentData.correctMatches;
+                const currentKeys = Object.keys(state.matches);
+
+                if (currentKeys.length !== currentData.leftItems.length) {
+                    alert("還有選項還沒連線喔！");
+                    return;
+                }
+
+                let allCorrect = true;
+                currentKeys.forEach(leftKey => {
+                    if (state.matches[leftKey] !== correctConfig[leftKey]) {
+                        allCorrect = false;
+                    }
+                });
+
+                if (allCorrect) {
+                    state.levelPhase = 'feedback';
+                    render();
+                } else {
+                    alert("有連線錯誤喔！\n\n不用全部重來，請點擊「錯誤的左邊選項」取消連線，然後再選一次正確的答案！");
+                }
+            }
+
+            // 3. 多選題
+            else if (currentData.type === 'multiselect') {
+                const correct = currentData.correctAnswers;
+                if (state.multiSelections.length !== 2) {
+                    alert("請選擇 2 個答案！");
+                    return;
+                }
+                const isCorrect = state.multiSelections.every(val => correct.includes(val));
+                if (isCorrect) {
+                    state.levelPhase = 'feedback';
+                    render();
+                } else {
+                    alert("好像有選到不適合這裡的動物喔？");
+                }
+            }
+
+            // 4. 排序題 (Level 5)
+            else if (currentData.type === 'sorting') {
+                if (state.sortOrder.length !== 3) {
+                    alert("請選出 3 個最重要的元素！");
+                    return;
+                }
+
+                // 生成專屬回饋
+                const firstChoice = state.sortOrder[0];
+                let feedback = "";
+                switch(firstChoice) {
+                    case 'tree':
+                        feedback = "很有眼光！你將「自然環境」放在第一位。\n\n沒錯，健康的樹木是所有生命的基石。有了穩固的防風林，生態與人類生活才能得到保障。你是一位「自然守護者」！\n\n不過別忘了，人與故事也是賦予步道靈魂的重要元素喔！";
+                        break;
+                    case 'human':
+                        feedback = "你認為「人的參與」最重要！\n\n真的，唯有在地居民與遊客願意親近、愛護，這條步道才不會被遺忘。你是一位充滿熱情的「社群守護者」！\n\n當然，我們也要努力維持樹木與生態的健康，讓人們永遠有綠地可以走！";
+                        break;
+                    case 'animal':
+                        feedback = "你擁有一顆溫柔的心，將「動物」放在第一位。\n\n保護棲地讓白鷺鷥、青蛙能安居樂業，展現了對生命的尊重。你是一位很有愛心的「生態守護者」！\n\n而這也需要健康的樹木與人類的守護才能達成喔！";
+                        break;
+                    case 'story':
+                        feedback = "你選擇了「故事」作為核心。\n\n文化的傳承讓步道不只是路，而是一條連結過去與未來的時光隧道！你是一位有深度的「文化守護者」！\n\n希望你能把白千層與石觀音的故事，繼續說給更多人聽！";
+                        break;
+                    default:
+                        feedback = "每個元素都缺一不可！很高興你完成了這項艱難的選擇。";
+                }
+                state.dynamicFeedback = feedback;
+                state.levelPhase = 'feedback';
+                render();
+            }
+        };
+
+        // 初始化
+        render();
+
+    </script>
+</body>
+</html>
