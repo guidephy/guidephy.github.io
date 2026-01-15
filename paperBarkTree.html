@@ -121,21 +121,23 @@
                 title: "關卡四：世界在做一樣的事",
                 type: "matching",
                 icon: Icons.Globe,
-                story: `【國際連線：步道大不同】<br><br>世界各個國家都有步道，但功能不太一樣喔！<br><br>🇹🇼 台灣觀音：因為海邊風很大，我們種白千層步道主要是為了「防風、保護農作物」。<br><br>🇦🇺 澳洲紙樹步道：在澳洲的白千層森林，地上都是爛泥巴，所以他們蓋了架高的木棧道，是為了「讓遊客安全走進濕地」，不破壞生態。<br><br>🇸🇬 新加坡：他們把城市裡的公園用步道連起來，讓動物可以從這個公園跑到那個公園，目的是「在城市中保護動物」。`,
-                question: "請根據剛剛的文本，將國家連線到正確的步道目的：",
+                story: `【樹木外交：各國的樹木步道】<br><br>世界各地都有以「樹」為主角的步道，但因為當地的環境需求不同，這些樹木步道的任務也完全不一樣喔！<br><br>🇹🇼 台灣（白千層）：觀音海邊的風很大，我們種樹形成「綠色長城」，主要是為了「擋風」來保護農作物。<br><br>🇦🇺 澳洲（茶樹/白千層）：他們的樹長在爛泥巴濕地裡，為了不踩壞樹根，他們蓋了架高的「木棧道」，讓人可以走進去觀察。<br><br>🇸🇬 新加坡（雨樹）：這是一個花園城市，他們種巨大的雨樹把公園串連起來，形成「生態走廊」，讓動物可以在城市裡安全移動。<br><br>🇯🇵 日本（檜木/柳杉）：日本有很多森林步道，走進去深呼吸可以放鬆心情、讓身體更健康，這叫做「森林浴」。`,
+                question: "請根據剛剛的文本，將國家與樹木連線到正確的「步道目的」：",
                 leftItems: [
-                    { id: 'tw', text: "🇹🇼 台灣觀音" },
-                    { id: 'au', text: "🇦🇺 澳洲紙樹" },
-                    { id: 'sg', text: "🇸🇬 新加坡" }
+                    { id: 'tw', text: "🇹🇼 台灣 (白千層)" },
+                    { id: 'au', text: "🇦🇺 澳洲 (濕地樹)" },
+                    { id: 'sg', text: "🇸🇬 新加坡 (雨樹)" },
+                    { id: 'jp', text: "🇯🇵 日本 (檜木林)" }
                 ],
                 rightItems: [
-                    { id: 'safe', text: "🚶 架高木棧道 (安全進入濕地)" },
-                    { id: 'protect', text: "🌾 種防風林 (保護農田)" },
-                    { id: 'urban', text: "🏙️ 連結公園 (城市生態廊道)" }
+                    { id: 'protect', text: "🛡️ 防風護農田" },
+                    { id: 'safe', text: "🛤️ 架高木棧道" },
+                    { id: 'urban', text: "🏙️ 城市生態廊道" },
+                    { id: 'health', text: "🛀 健康森林浴" }
                 ],
-                correctMatches: { tw: 'protect', au: 'safe', sg: 'urban' },
-                hint: "台灣是為了種田；澳洲是為了走進濕地；新加坡是為了城市裡的動物。",
-                explanation: "世界各地都在努力！雖然方法不同（防風、架高、連結），但大家愛護自然的心是一樣的！"
+                correctMatches: { tw: 'protect', au: 'safe', sg: 'urban', jp: 'health' },
+                hint: "台灣是為了種田；澳洲是為了走進濕地；新加坡是為了城市連結；日本是為了身體健康。",
+                explanation: "世界各地的樹木步道都很厲害！台灣擋風、澳洲親水、新加坡連結城市、日本療癒身心。我們都是用樹木守護地球的一份子！"
             },
             {
                 id: 5,
@@ -331,16 +333,16 @@
                     `;
                 }
 
-                // 提示區塊
+                // 提示區塊 - 修正切版問題：加入 flex-wrap 和間距調整
                 let hintSection = '';
                 if (state.levelPhase === 'quiz') {
                     hintSection = `
-                        <div class="mt-8 flex justify-between items-center px-2">
-                            <button onclick="goToStory()" class="text-gray-400 text-sm flex items-center gap-1 active:text-gray-600 p-2">
+                        <div class="mt-8 flex flex-wrap justify-between items-center gap-2 px-1">
+                            <button onclick="goToStory()" class="text-gray-400 text-sm flex items-center gap-1 active:text-gray-600 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                                 <span class="w-4 h-4">${Icons.BookOpen}</span> 回去看故事
                             </button>
                             <div class="relative">
-                                <button onclick="toggleHint()" class="text-amber-500 text-sm font-bold flex items-center gap-1 active:text-amber-600 p-2">
+                                <button onclick="toggleHint()" class="text-amber-500 text-sm font-bold flex items-center gap-1 active:text-amber-600 p-2 hover:bg-amber-50 rounded-lg transition-colors">
                                     <span class="w-4 h-4">${Icons.HelpCircle}</span>
                                     ${state.showHint ? "隱藏提示" : "如果不確定..."}
                                 </button>
@@ -428,12 +430,13 @@
         }
 
         function renderTypeMatching(data) {
+            // 修正：增加固定高度 h-24 和 flex 屬性，確保對齊
             return `
                 <div class="flex gap-2 justify-between">
                     <div class="flex flex-col gap-3 w-[48%]">
                         ${data.leftItems.map(item => `
                             <button onclick="clickLeft('${item.id}')" 
-                                class="p-3 text-sm rounded-lg border-2 text-left transition-all min-h-[60px] flex items-center
+                                class="p-3 text-sm rounded-lg border-2 text-left transition-all h-24 flex items-center justify-start
                                 ${state.matches[item.id] ? 'bg-emerald-100 border-emerald-500 opacity-70' : 
                                   state.selectedLeft === item.id ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-200 font-bold' : 'border-gray-200 bg-white'}">
                                 ${item.text}
@@ -445,7 +448,7 @@
                             const isMatched = Object.values(state.matches).includes(item.id);
                             return `
                                 <button onclick="clickRight('${item.id}')"
-                                    class="p-3 text-sm rounded-lg border-2 text-left min-h-[60px] flex items-center transition-all
+                                    class="p-3 text-sm rounded-lg border-2 text-left h-24 flex items-center justify-start transition-all
                                     ${isMatched ? 'bg-emerald-100 border-emerald-500 opacity-70 font-bold' : 'border-gray-200 border-dashed bg-gray-50'}">
                                     ${isMatched ? "✅ " + item.text : item.text}
                                 </button>
