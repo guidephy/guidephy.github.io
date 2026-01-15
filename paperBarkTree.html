@@ -89,11 +89,12 @@
                     { id: 'leaf', text: "🍃 葉子有特殊香味" },
                     { id: 'flower', text: "🌼 開出白色的小花" }
                 ],
+                // 右側選項已打亂順序，避免直接水平對應
                 rightItems: [
-                    { id: 'fire', text: "🔥 防火、隔絕高熱" },
-                    { id: 'wind', text: "🛡️ 變成防風林保護農作物" },
+                    { id: 'brush', text: "🍼 形狀像瓶子刷" },
                     { id: 'oil', text: "💧 提煉精油、防蚊" },
-                    { id: 'brush', text: "🍼 形狀像瓶子刷" }
+                    { id: 'fire', text: "🔥 防火、隔絕高熱" },
+                    { id: 'wind', text: "🛡️ 變成防風林保護農作物" }
                 ],
                 correctMatches: { bark: 'fire', root: 'wind', leaf: 'oil', flower: 'brush' },
                 hint: "故事有提到：海綿般的樹皮是為了怕火燒，而種在觀音主要是為了「擋風」喔！",
@@ -121,23 +122,24 @@
                 title: "關卡四：世界在做一樣的事",
                 type: "matching",
                 icon: Icons.Globe,
-                story: `【樹木外交：各國的樹木步道】<br><br>世界各地都有以「樹」為主角的步道，但因為當地的環境需求不同，這些樹木步道的任務也完全不一樣喔！<br><br>🇹🇼 台灣（白千層）：觀音海邊的風很大，我們種樹形成「綠色長城」，主要是為了「擋風」來保護農作物。<br><br>🇦🇺 澳洲（茶樹/白千層）：他們的樹長在爛泥巴濕地裡，為了不踩壞樹根，他們蓋了架高的「木棧道」，讓人可以走進去觀察。<br><br>🇸🇬 新加坡（雨樹）：這是一個花園城市，他們種巨大的雨樹把公園串連起來，形成「生態走廊」，讓動物可以在城市裡安全移動。<br><br>🇯🇵 日本（檜木/柳杉）：日本有很多森林步道，走進去深呼吸可以放鬆心情、讓身體更健康，這叫做「森林浴」。`,
-                question: "請根據剛剛的文本，將國家與樹木連線到正確的「步道目的」：",
+                story: `【樹木外交：世界知名的樹林步道】<br><br>世界各地都有以「樹」為主角的步道，但因為當地的環境與樹種不同，這些步道的設計與任務也完全不一樣喔！<br><br>🇹🇼 台灣：觀音的「白千層林道」，整排樹木像是綠色長城，任務是「擋風」來保護旁邊的農田。<br><br>🇦🇺 澳洲：在「巨樹谷」有一種很珍貴的紅叮格樹，為了保護老樹的根部不被踩死，人們蓋了很高的「天空步道」，讓大家走在樹冠層。<br><br>🇸🇬 新加坡：在「麥里芝水庫」有知名的樹頂吊橋，連結了破碎的雨林棲地，讓猴子、松鼠等動物可以安全地在城市裡移動。<br><br>🇯🇵 日本：長野縣的「赤澤自然休養林」，擁有美麗的檜木林，是「森林浴」的發源地，走在裡面深呼吸可以療癒身心。`,
+                question: "請根據剛剛的文本，將國家知名步道連線到正確的「步道目的」：",
                 leftItems: [
-                    { id: 'tw', text: "🇹🇼 台灣 (白千層)" },
-                    { id: 'au', text: "🇦🇺 澳洲 (濕地樹)" },
-                    { id: 'sg', text: "🇸🇬 新加坡 (雨樹)" },
-                    { id: 'jp', text: "🇯🇵 日本 (檜木林)" }
+                    { id: 'tw', text: "🇹🇼 台灣 (白千層林道)" },
+                    { id: 'au', text: "🇦🇺 澳洲 (巨樹谷天空步道)" },
+                    { id: 'sg', text: "🇸🇬 新加坡 (麥里芝樹頂吊橋)" },
+                    { id: 'jp', text: "🇯🇵 日本 (赤澤自然休養林)" }
                 ],
+                // 右側選項已打亂順序，避免直接水平對應
                 rightItems: [
-                    { id: 'protect', text: "🛡️ 防風護農田" },
-                    { id: 'safe', text: "🛤️ 架高木棧道" },
-                    { id: 'urban', text: "🏙️ 城市生態廊道" },
-                    { id: 'health', text: "🛀 健康森林浴" }
+                    { id: 'health', text: "🛀 享受森林浴 (療癒身心)" },
+                    { id: 'protect', text: "🛡️ 防風護農田 (保護作物)" },
+                    { id: 'safe', text: "🛤️ 保護樹根 (行走於樹冠)" },
+                    { id: 'urban', text: "🏙️ 連結動物棲地 (生態廊道)" }
                 ],
                 correctMatches: { tw: 'protect', au: 'safe', sg: 'urban', jp: 'health' },
-                hint: "台灣是為了種田；澳洲是為了走進濕地；新加坡是為了城市連結；日本是為了身體健康。",
-                explanation: "世界各地的樹木步道都很厲害！台灣擋風、澳洲親水、新加坡連結城市、日本療癒身心。我們都是用樹木守護地球的一份子！"
+                hint: "台灣是為了種田；澳洲是為了保護樹根；新加坡是為了連結棲地；日本是為了森林浴。",
+                explanation: "世界各地的樹木步道都很厲害！台灣擋風、澳洲護根、新加坡連結棲地、日本療癒身心。我們都是用樹木守護地球的一份子！"
             },
             {
                 id: 5,
@@ -333,24 +335,26 @@
                     `;
                 }
 
-                // 提示區塊 - 修正切版問題：加入 flex-wrap 和間距調整
+                // 提示區塊 - 修正為 Flex-col 以避免手機上擠壓，並調整間距
                 let hintSection = '';
                 if (state.levelPhase === 'quiz') {
                     hintSection = `
-                        <div class="mt-8 flex flex-wrap justify-between items-center gap-2 px-1">
-                            <button onclick="goToStory()" class="text-gray-400 text-sm flex items-center gap-1 active:text-gray-600 p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                                <span class="w-4 h-4">${Icons.BookOpen}</span> 回去看故事
-                            </button>
-                            <div class="relative">
-                                <button onclick="toggleHint()" class="text-amber-500 text-sm font-bold flex items-center gap-1 active:text-amber-600 p-2 hover:bg-amber-50 rounded-lg transition-colors">
-                                    <span class="w-4 h-4">${Icons.HelpCircle}</span>
-                                    ${state.showHint ? "隱藏提示" : "如果不確定..."}
+                        <div class="mt-8 flex flex-col gap-3 px-1">
+                            <div class="flex justify-between items-center w-full gap-2">
+                                <button onclick="goToStory()" class="flex-1 text-gray-500 text-sm flex justify-center items-center gap-1 active:text-gray-700 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 shadow-sm">
+                                    <span class="w-4 h-4">${Icons.BookOpen}</span> 回去看故事
                                 </button>
-                                ${state.showHint ? `
-                                    <div class="absolute bottom-full right-0 mb-2 w-64 bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-sm shadow-lg z-10 animate-fade-in">
-                                        💡 ${data.hint}
-                                    </div>
-                                ` : ''}
+                                <div class="relative flex-1">
+                                    <button onclick="toggleHint()" class="w-full text-amber-600 text-sm font-bold flex justify-center items-center gap-1 active:text-amber-700 py-3 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors border border-amber-200 shadow-sm">
+                                        <span class="w-4 h-4">${Icons.HelpCircle}</span>
+                                        ${state.showHint ? "隱藏提示" : "如果不確定..."}
+                                    </button>
+                                    ${state.showHint ? `
+                                        <div class="absolute bottom-full left-0 right-0 mb-2 bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-sm shadow-lg z-10 animate-fade-in">
+                                            💡 ${data.hint}
+                                        </div>
+                                    ` : ''}
+                                </div>
                             </div>
                         </div>
                         <div class="mt-6">
