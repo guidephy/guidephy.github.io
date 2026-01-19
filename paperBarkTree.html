@@ -301,7 +301,7 @@
                             />
                         </div>
                         <button onclick="goToQuiz()" class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg flex justify-center items-center gap-2 text-lg animate-bounce-subtle mt-auto">
-                            <span class="w-6 h-6">${Icons.BookOpen}</span> 我讀完了，開始解謎！
+                            <span class="w-6 h-6">${Icons.BookOpen}</span> 我讀完了，開始作答！
                         </button>
                     </div>
                 `;
@@ -334,7 +334,7 @@
                                 <p class="text-base leading-relaxed whitespace-pre-line">${feedbackText}</p>
                             </div>
                             <button onclick="nextLevel()" class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-md flex justify-center items-center gap-2 text-lg">
-                                ${state.currentLevel < levels.length - 1 ? "前往下一關" : "領取證書"} <span class="w-6 h-6">${Icons.ArrowRight}</span>
+                                ${state.currentLevel < levels.length - 1 ? "前往下一關" : "永續承諾"} <span class="w-6 h-6">${Icons.ArrowRight}</span>
                             </button>
                         </div>
                     `;
@@ -393,7 +393,7 @@
                 <div class="flex flex-col min-h-screen">
                     <div class="p-4 bg-gray-50 sticky top-0 z-20 shadow-sm">
                          <div class="flex justify-between items-center mb-2">
-                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider">實境解謎通關中</h2>
+                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-wider">遊戲學習中</h2>
                             <div class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
                                 Level ${state.currentLevel + 1}
                             </div>
