@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v9</title>
+    <title>⚡ 像素能源：決戰台灣 v10</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -37,24 +37,21 @@
                 linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
             background-size: 40px 40px;
             
-            /* === 手機版面核心修正 === */
             width: 100vw;
-            height: 100vh;       /* 相容舊瀏覽器 */
-            height: 100dvh;      /* 關鍵：動態扣除瀏覽器工具列高度 */
-            overflow: hidden;    /* 禁止捲動整個頁面 */
+            height: 100dvh;
+            overflow: hidden;
             color: var(--text-white);
             display: flex;
             flex-direction: column;
             image-rendering: pixelated;
         }
 
-        /* === 頂部 HUD === */
+        /* === HUD === */
         #hud {
             flex: 0 0 auto;
             background: var(--ui-bg);
             border-bottom: 4px solid var(--ui-border);
             padding: 8px 4px;
-            /* 避開 iPhone 瀏海 */
             padding-top: max(8px, env(safe-area-inset-top)); 
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -77,7 +74,7 @@
             text-align: center; border-bottom-left-radius: 4px;
         }
 
-        /* === 資訊面板 === */
+        /* === Info Panels === */
         .info-panel {
             position: absolute; top: 80px; width: 140px;
             background: rgba(33, 37, 41, 0.95); padding: 8px; z-index: 90;
@@ -94,15 +91,9 @@
         .goal-item { font-size: 11px; margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 2px; }
         .goal-check.done { color: var(--land-green); font-weight:bold; }
 
-        /* === 中央地圖區 (彈性伸縮) === */
+        /* === Map Stage === */
         #game-stage {
-            flex: 1; /* 自動填滿中間剩餘空間 */
-            position: relative; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden;
-            width: 100%;
+            flex: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; width: 100%;
         }
         #map-container { position: relative; width: 100%; height: 100%; }
 
@@ -131,7 +122,6 @@
             font-size: 11px; border-radius: 3px; white-space: nowrap;
         }
 
-        /* 左下角戰情數據 */
         #map-data-overlay {
             position: absolute;
             bottom: 10px; left: 10px;   
@@ -147,18 +137,15 @@
         .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 16px; }
         .data-sep { border-top: 1px dashed #555; margin: 5px 0; }
 
-        /* === 底部控制台 (固定高度但適配底部安全區) === */
+        /* === Bottom Panel === */
         #bottom-panel {
             flex: 0 0 auto; 
             background: var(--ui-bg); 
             border-top: 4px solid var(--ui-border);
             height: 260px; 
-            /* 關鍵：增加底部內距以避開手機 Home Bar */
             padding: 10px;
             padding-bottom: calc(10px + env(safe-area-inset-bottom));
-            display: flex; 
-            flex-direction: column; 
-            z-index: 100;
+            display: flex; flex-direction: column; z-index: 100;
         }
         .arcade-tabs { display: flex; gap: 8px; margin-bottom: 8px; flex-shrink: 0; }
         .pixel-btn {
@@ -171,7 +158,7 @@
         .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
         .tab-content.active { display: flex; }
 
-        /* 建設卡牌 */
+        /* Build Deck */
         #build-deck { display: flex; gap: 4px; flex: 1; width: 100%; }
         .pixel-card {
             flex: 1; position: relative;
@@ -192,22 +179,20 @@
             padding-top: 6px; border-top: 1px solid #444; margin-top: 6px; flex-shrink: 0;
         }
 
-        /* === 燃料市場 (優化捲動) === */
+        /* Market */
         #market-container { display: flex; gap: 8px; height: 100%; width: 100%; }
         .market-col {
             flex: 1; display: flex; flex-direction: column;
             background: #111; border: 1px solid #444; padding: 0; border-radius: 4px;
             height: 100%; 
-            overflow-y: auto; /* 整個欄位可捲動 */
-            position: relative;
-            -webkit-overflow-scrolling: touch; /* iOS 滑動順暢 */
+            overflow-y: auto; position: relative;
+            -webkit-overflow-scrolling: touch;
         }
         .market-header { 
             font-size: 13px; color: var(--accent-gold); text-align: center; 
             background: #222; border-bottom: 1px solid #555; padding: 6px; 
             position: sticky; top: 0; z-index: 10;
         }
-        
         .market-country-row {
             display: flex; flex-direction: column; background: #222; border: 1px solid #555; 
             padding: 6px; margin: 4px;
@@ -231,10 +216,9 @@
             width: 100%; padding: 6px; font-size: 13px; cursor: pointer; font-weight: bold;
         }
 
-        /* === 下一回合按鈕 (位置隨底部面板調整) === */
+        /* Next Button */
         #next-btn {
             position: fixed;
-            /* 260px (panel height) + 20px (gap) + safe-area */
             bottom: calc(270px + env(safe-area-inset-bottom)); 
             right: 15px;
             width: 80px; height: 80px;
@@ -249,7 +233,7 @@
         #next-btn:active { transform: scale(0.95); box-shadow: 2px 2px 0px #000; }
         @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* 彈窗 */
+        /* Modal */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
             display: none; justify-content: center; align-items: center; padding: 20px;
@@ -258,6 +242,7 @@
         .retro-inner { background: var(--ui-bg); border: 2px solid #000; padding: 20px; text-align: center; }
         .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; }
         .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
+        .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
 
         .float-pixel {
             position: fixed; font-family: 'VT323', monospace; font-size: 28px; font-weight: bold;
@@ -384,7 +369,6 @@
     </div>
 
     <script>
-        // === 資料庫設定 ===
         const PLANTS = {
             coal: { name: '燃煤', emoji: '🏭', cost: 500, output: 100, fuel: 20, type: 'land', color: '#7f8c8d' },
             gas: { name: '燃氣', emoji: '🔥', cost: 800, output: 120, fuel: 15, type: 'land', color: '#d35400' },
@@ -394,10 +378,11 @@
             nuclear: { name: '核能', emoji: '☢️', cost: 3000, output: 300, fuel: 0, type: 'land', color: '#8e44ad' }
         };
 
+        // 移除年份，改為階段描述
         const STAGES = [
             {
                 title: "階段一：基礎建設",
-                desc: "1975年，十大建設啟動。請建設電廠，滿足工業發展的電力需求。",
+                desc: "發展初期，十大建設啟動。請建設電廠，滿足工業發展的電力需求。",
                 goals: [
                     { txt: "發電量 > 800MW", check: g => g.calcPower() >= 800 },
                     { txt: "燃煤電廠 4 座", check: g => g.counts.coal >= 4 },
@@ -406,7 +391,7 @@
             },
             {
                 title: "階段二：經濟起飛",
-                desc: "1990年，竹科崛起。需要穩定的燃氣電力與接收站。",
+                desc: "經濟成長期，竹科崛起。需要穩定的燃氣電力與接收站。",
                 goals: [
                     { txt: "接收站 > 1 座", check: g => g.counts.terminal >= 2 },
                     { txt: "燃氣電廠 3 座", check: g => g.counts.gas >= 3 }
@@ -414,7 +399,7 @@
             },
             {
                 title: "階段三：能源轉型",
-                desc: "2010年，面對封鎖風險，必須提高天然氣安全存量並發展綠能。",
+                desc: "成熟期，面對封鎖風險，必須提高天然氣安全存量並發展綠能。",
                 goals: [
                     { txt: "安全存量 > 14天", check: g => g.getSafetyDays() >= 14 },
                     { txt: "離岸風電 5 座", check: g => g.counts.green >= 5 }
@@ -435,20 +420,19 @@
             ]
         };
 
-        // === 遊戲核心 ===
         const game = {
             year: 1975, funds: 2500, comp: 100, demand: 600,
             fuel: { coal: 500, gas: 0 }, cap: { coal: 3000, gas: 0 },
             counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
             stageIdx: 0, selected: null, blockade: false, bDays: 0,
             marketPrices: {}, 
+            isFreePlay: false, // 自由模式標記
 
             init() {
                 this.resetVariables();
                 this.counts.coal = 2;
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
-                // 嘗試全螢幕 (部分瀏覽器可能阻擋)
                 document.body.requestFullscreen().catch(e=>{});
                 ui.showModal(STAGES[0].title, STAGES[0].desc);
             },
@@ -458,7 +442,7 @@
                 this.fuel = { coal: 500, gas: 0 }; 
                 this.cap = { coal: 3000, gas: 0 };
                 this.counts = { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 };
-                this.stageIdx = 0; this.selected = null; this.blockade = false;
+                this.stageIdx = 0; this.selected = null; this.blockade = false; this.isFreePlay = false;
                 document.getElementById('buildings-layer').innerHTML = '';
                 document.body.classList.remove('crisis-mode');
             },
@@ -469,7 +453,7 @@
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 ui.closeModal();
-                setTimeout(() => ui.showModal("遊戲重啟", "一切回到1975年，請重新規劃台灣能源政策！"), 300);
+                setTimeout(() => ui.showModal("遊戲重啟", "一切回到原點，請重新規劃能源政策！"), 300);
             },
 
             selectCard(key) {
@@ -494,6 +478,13 @@
 
                 this.funds -= p.cost;
                 this.counts[this.selected]++;
+                
+                // 燃煤電廠增加煤炭上限 (新邏輯)
+                if (this.selected === 'coal') {
+                    this.cap.coal += 300; 
+                }
+
+                if (this.selected === 'terminal') this.cap.gas += 500;
                 
                 ui.floatText(`-$${p.cost}`, 'gold');
                 this.placeBuilding(this.selected);
@@ -532,8 +523,7 @@
                         x = 100 + Math.random() * 100; y = 50 + Math.random() * 350; break;
                 }
                 el.style.left = x + 'px'; el.style.top = y + 'px';
-                // 為了保持圓餅圖焦點，這裡不實際添加建築圖標到地圖
-                // document.getElementById('buildings-layer').appendChild(el);
+                // document.getElementById('buildings-layer').appendChild(el); // 可選：不顯示以保持圓餅圖乾淨
             },
 
             buyFuel(type, countryId) {
@@ -585,15 +575,22 @@
                     this.comp = Math.min(100, this.comp + 5);
                 }
 
-                const stage = STAGES[this.stageIdx];
-                if (stage && stage.goals.every(g => g.check(this))) {
-                    if (this.stageIdx < STAGES.length - 1) {
-                        this.stageIdx++;
-                        ui.showModal(STAGES[this.stageIdx].title, STAGES[this.stageIdx].desc);
+                // 階段與勝利判斷
+                if (!this.isFreePlay) {
+                    const stage = STAGES[this.stageIdx];
+                    if (stage && stage.goals.every(g => g.check(this))) {
+                        if (this.stageIdx < STAGES.length - 1) {
+                            this.stageIdx++;
+                            ui.showModal(STAGES[this.stageIdx].title, STAGES[this.stageIdx].desc);
+                        } else {
+                            // 最後一關通過，顯示勝利
+                            ui.showVictory();
+                        }
                     }
                 }
 
-                if (this.year > 2020 && Math.random() < 0.15) this.startBlockade();
+                if (this.year > 2020 && Math.random() < 0.15 && !this.isFreePlay) this.startBlockade();
+                
                 if (this.comp <= 0) { 
                     ui.showGameOver();
                     return;
@@ -620,11 +617,6 @@
                 return Math.min(cDay, gDay);
             },
             
-            getCoalDays() {
-                 const cUse = Math.max(1, this.counts.coal * 20);
-                 return Math.floor(this.fuel.coal / cUse);
-            },
-
             startBlockade() {
                 this.blockade = true; this.bDays = 11;
                 document.body.classList.add('crisis-mode');
@@ -727,11 +719,16 @@
                 document.getElementById('cnt-solar').innerText = game.counts.solar;
                 document.getElementById('cnt-term').innerText = game.counts.terminal;
 
-                const s = STAGES[game.stageIdx];
-                document.getElementById('story-text').innerText = s.desc;
-                document.getElementById('goal-list').innerHTML = s.goals.map(g => `
-                    <div class="goal-item"><span class="goal-check ${g.check(game) ? 'done' : ''}">${g.check(game) ? '✅' : '⬜'}</span> <span>${g.txt}</span></div>
-                `).join('');
+                if (!game.isFreePlay) {
+                    const s = STAGES[game.stageIdx];
+                    document.getElementById('story-text').innerText = s.desc;
+                    document.getElementById('goal-list').innerHTML = s.goals.map(g => `
+                        <div class="goal-item"><span class="goal-check ${g.check(game) ? 'done' : ''}">${g.check(game) ? '✅' : '⬜'}</span> <span>${g.txt}</span></div>
+                    `).join('');
+                } else {
+                    document.getElementById('story-text').innerText = "自由執政模式";
+                    document.getElementById('goal-list').innerHTML = "<div class='goal-item'>維持競爭力 > 0%</div>";
+                }
 
                 if (game.blockade) {
                     document.getElementById('next-btn').innerHTML = `撐住<br>${game.bDays}天`;
@@ -762,6 +759,7 @@
                 document.getElementById('modal-btn').innerText = "確 定";
                 document.getElementById('modal-btn').onclick = ui.closeModal;
                 document.getElementById('modal-btn').classList.remove('restart');
+                document.getElementById('modal-btn').classList.remove('victory');
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
             
@@ -853,9 +851,38 @@
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
 
+            showVictory() {
+                document.getElementById('modal-title').innerText = "🏆 能源轉型成功！";
+                document.getElementById('modal-desc').style.display = 'block';
+                document.getElementById('modal-desc').innerText = "您成功帶領台灣度過能源危機，建立了高韌性的電力系統！";
+                
+                const btn = document.getElementById('modal-btn');
+                btn.innerText = "繼續執政 (自由模式)";
+                btn.classList.add('victory');
+                btn.onclick = () => {
+                    game.isFreePlay = true;
+                    ui.closeModal();
+                };
+                
+                // Add Restart option
+                const contentArea = document.getElementById('modal-content-area');
+                const restartBtn = document.createElement('button');
+                restartBtn.className = 'retro-btn restart';
+                restartBtn.innerText = "🔄 重新挑戰";
+                restartBtn.style.marginTop = '10px';
+                restartBtn.onclick = () => game.restart();
+                
+                if(!contentArea.querySelector('.restart')) contentArea.appendChild(restartBtn);
+                
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+
             closeModal() { 
                 document.getElementById('modal-overlay').style.display = 'none'; 
                 document.getElementById('modal-content-area').innerHTML = '<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">CONTENT</p>';
+                // Reset button style
+                const btn = document.getElementById('modal-btn');
+                btn.className = 'retro-btn';
             }
         };
 
