@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v13</title>
+    <title>⚡ 像素能源：決戰台灣 v14</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -135,7 +135,8 @@
         }
         .data-row { font-size: 12px; color: #ccc; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;}
         .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 16px; }
-        
+        .data-sep { border-top: 1px dashed #555; margin: 5px 0; }
+
         /* === Bottom Panel === */
         #bottom-panel {
             flex: 0 0 auto; 
@@ -174,6 +175,7 @@
         .card-power { font-family:'VT323'; color:var(--accent-blue); font-size:15px; font-weight: bold; }
         .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; }
         
+        /* 卡片數量標記 */
         .card-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--accent-gold); color: #000;
@@ -253,17 +255,9 @@
             position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
             display: none; justify-content: center; align-items: center; padding: 20px;
         }
-        .retro-dialog { 
-            background: var(--accent-blue); border: 4px solid #fff; padding: 4px; 
-            width: 95%; max-width: 360px; max-height: 85vh; /* 限制高度 */
-            box-shadow: 8px 8px 0px #000;
-            display: flex; flex-direction: column;
-        }
-        .retro-inner { 
-            background: var(--ui-bg); border: 2px solid #000; padding: 20px; text-align: center;
-            overflow-y: auto; /* 內容可捲動 */
-        }
-        .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; width: 100%;}
+        .retro-dialog { background: var(--accent-blue); border: 4px solid #fff; padding: 4px; width: 100%; max-width: 320px; box-shadow: 8px 8px 0px #000;}
+        .retro-inner { background: var(--ui-bg); border: 2px solid #000; padding: 20px; text-align: center; }
+        .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; }
         .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
 
@@ -340,9 +334,11 @@
             <div id="buildings-layer"></div>
 
             <div id="map-data-overlay">
-                <div class="data-row"><span>總發電</span><span class="data-val" id="stat-supply">0</span></div>
-                <div class="data-row"><span>總需求</span><span class="data-val" id="stat-demand">0</span></div>
-                <div class="data-row"><span>♻️ 綠能佔比</span><span class="data-val" id="stat-green-pct" style="color:var(--color-green)">0%</span></div>
+                <div class="data-row"><span>總發電</span><span class="data-val" id="stat-supply">0 MW</span></div>
+                <div class="data-row"><span>總需求</span><span class="data-val" id="stat-demand">0 MW</span></div>
+                <div class="data-sep"></div>
+                <div class="data-row"><span>煤存量</span><span class="data-val" id="stat-coal-days" style="color:#aaa">0天</span></div>
+                <div class="data-row"><span>氣存量</span><span class="data-val blue" id="stat-gas-days">0天</span></div>
             </div>
         </div>
     </div>
@@ -393,13 +389,14 @@
     </div>
 
     <script>
+        // 通膨數值
         const PLANTS = {
-            coal: { name: '燃煤', emoji: '🏭', cost: 500, output: 500, fuel: 50, type: 'land', color: '#7f8c8d' },
-            gas: { name: '燃氣', emoji: '🔥', cost: 800, output: 900, fuel: 40, type: 'land', color: '#d35400' },
-            terminal: { name: '接收站', emoji: '⚓', cost: 1000, output: 0, fuel: 0, type: 'coast', color: '#2980b9' },
-            green: { name: '風電', emoji: '🌀', cost: 1500, output: 300, fuel: 0, type: 'sea', color: '#2ecc71' },
-            solar: { name: '太陽能', emoji: '☀️', cost: 600, output: 150, fuel: 0, type: 'land', color: '#f39c12' },
-            nuclear: { name: '核能', emoji: '☢️', cost: 3000, output: 3500, fuel: 0, type: 'land', color: '#8e44ad' }
+            coal: { name: '燃煤', emoji: '🏭', cost: 1000, output: 1500, fuel: 80, type: 'land', color: '#7f8c8d' },
+            gas: { name: '燃氣', emoji: '🔥', cost: 1500, output: 2500, fuel: 60, type: 'land', color: '#d35400' },
+            terminal: { name: '接收站', emoji: '⚓', cost: 2000, output: 0, fuel: 0, type: 'coast', color: '#2980b9' },
+            green: { name: '風電', emoji: '🌀', cost: 2000, output: 600, fuel: 0, type: 'sea', color: '#2ecc71' },
+            solar: { name: '太陽能', emoji: '☀️', cost: 800, output: 300, fuel: 0, type: 'land', color: '#f39c12' },
+            nuclear: { name: '核能', emoji: '☢️', cost: 5000, output: 6000, fuel: 0, type: 'land', color: '#8e44ad' }
         };
 
         const STAGES = [
@@ -407,7 +404,7 @@
                 title: "階段一：基礎建設",
                 desc: "發展初期，十大建設啟動。請建設電廠，滿足工業發展的電力需求。",
                 goals: [
-                    { txt: "發電量 > 1600MW", check: g => g.calcPower() >= 1600 },
+                    { txt: "發電量 > 12000MW", check: g => g.calcPower() >= 12000 },
                     { txt: "燃煤電廠 > 6 座", check: g => g.counts.coal >= 6 }
                 ]
             },
@@ -425,7 +422,7 @@
                 goals: [
                     { txt: "安全存量 > 14天", check: g => g.getSafetyDays() >= 14 },
                     { txt: "再生能源 > 20%", check: g => g.getGreenPct() >= 20 },
-                    { txt: "總發電 > 30000MW", check: g => g.calcPower() >= 30000 }
+                    { txt: "總發電 > 70000MW", check: g => g.calcPower() >= 70000 }
                 ]
             }
         ];
@@ -444,8 +441,8 @@
         };
 
         const game = {
-            year: 1975, funds: 2500, comp: 100, demand: 1200, 
-            fuel: { coal: 1000, gas: 0 }, cap: { coal: 3000, gas: 0 },
+            year: 1975, funds: 5000, comp: 100, demand: 10000, 
+            fuel: { coal: 3000, gas: 0 }, cap: { coal: 8000, gas: 0 },
             counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
             stageIdx: 0, selected: null, blockade: false, bDays: 0,
             marketPrices: {}, 
@@ -455,8 +452,8 @@
 
             init() {
                 this.resetVariables();
-                this.counts.coal = 2; 
-                this.cap.coal = 3000 + (2 * 300);
+                this.counts.coal = 4; // 初始4座 (4*1500=6000)
+                this.cap.coal = 10000;
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 document.body.requestFullscreen().catch(e=>{});
@@ -464,9 +461,9 @@
             },
 
             resetVariables() {
-                this.year = 1975; this.funds = 2500; this.comp = 100; this.demand = 1200;
-                this.fuel = { coal: 1000, gas: 0 }; 
-                this.cap = { coal: 3000, gas: 0 };
+                this.year = 1975; this.funds = 5000; this.comp = 100; this.demand = 10000;
+                this.fuel = { coal: 3000, gas: 0 }; 
+                this.cap = { coal: 8000, gas: 0 };
                 this.counts = { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 };
                 this.stageIdx = 0; this.selected = null; this.blockade = false; this.isFreePlay = false;
                 this.history = []; this.importStats = { coal: {}, gas: {} };
@@ -476,7 +473,7 @@
             
             restart() {
                 this.resetVariables();
-                this.counts.coal = 2; this.cap.coal = 3600;
+                this.counts.coal = 4; this.cap.coal = 10000;
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 ui.closeModal();
@@ -512,8 +509,8 @@
                 this.funds -= p.cost;
                 this.counts[this.selected]++;
                 
-                if (this.selected === 'coal') this.cap.coal += 300; 
-                if (this.selected === 'terminal') this.cap.gas += 500;
+                if (this.selected === 'coal') this.cap.coal += 500; 
+                if (this.selected === 'terminal') this.cap.gas += 1500;
                 
                 ui.floatText(`-$${p.cost}`, 'gold');
                 this.placeBuilding(this.selected);
@@ -528,7 +525,7 @@
                 }
                 this.funds -= p.cost;
                 this.counts.terminal++;
-                this.cap.gas += 500;
+                this.cap.gas += 1500;
                 ui.floatText(`-$${p.cost} 擴充`, 'gold');
                 this.placeBuilding('terminal');
                 ui.updateAll();
@@ -593,7 +590,6 @@
                 if (this.blockade) { this.handleBlockade(); return; }
                 this.year++; 
                 
-                // 紀錄歷史數據
                 this.history.push({
                     year: this.year,
                     coal: this.counts.coal * PLANTS.coal.output,
@@ -606,7 +602,7 @@
                 this.funds += income; 
                 ui.floatText(`+${income} 資金`, 'gold');
 
-                this.demand += 500;
+                this.demand += 1000;
                 this.updateMarketPrices();
                 this.consumeFuel();
                 
@@ -670,6 +666,11 @@
                 return Math.min(cDay, gDay);
             },
             
+            getCoalDays() {
+                 const cUse = Math.max(1, this.counts.coal * PLANTS.coal.fuel);
+                 return Math.floor(this.fuel.coal / cUse);
+            },
+
             startBlockade() {
                 this.blockade = true; this.bDays = 11;
                 document.body.classList.add('crisis-mode');
@@ -773,9 +774,8 @@
                 document.getElementById('hud-days').innerText = (days > 99 ? '充足' : days + '天');
                 document.getElementById('hud-days').className = `stat-val ${days < 14 ? 'red' : ''}`;
 
-                document.getElementById('stat-supply').innerText = game.calcPower();
-                document.getElementById('stat-demand').innerText = game.demand;
-                document.getElementById('stat-green-pct').innerText = game.getGreenPct() + '%';
+                document.getElementById('stat-supply').innerText = game.calcPower() + " MW";
+                document.getElementById('stat-demand').innerText = game.demand + " MW";
                 
                 if (!game.isFreePlay) {
                     const s = STAGES[game.stageIdx];
@@ -865,7 +865,7 @@
                 
                 const btn = document.getElementById('modal-btn');
                 btn.innerText = "🔄 重新開始";
-                btn.classList.add('restart');
+                btn.className = 'retro-btn restart';
                 btn.onclick = () => game.restart();
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
@@ -889,7 +889,6 @@
                 
                 game.history.forEach((h, i) => {
                     const x = (i / (game.history.length-1)) * 100;
-                    
                     const hCoal = (h.coal / maxPower) * 100;
                     const hGas = (h.gas / maxPower) * 100;
                     const hNuke = (h.nuclear / maxPower) * 100;
@@ -902,75 +901,40 @@
                 });
                 
                 pathCoal += "L100,100 Z";
-                pathGas += `L100,${100 - (game.history[game.history.length-1].coal/maxPower*100)} ` + pathCoal.replace("M0,100", "").split("L").reverse().join("L").replace("Z","");
-                // Simplified Area Chart Logic for Demo (using stacked divs might be easier, but let's try simple SVG)
-                
-                const chartHTML = `
-                    <div class="chart-container">
-                        <div class="chart-title">📊 發電結構演變</div>
-                        <svg viewBox="0 0 100 100" style="background:#222; width:100%; height:100px; transform:scaleY(-1);">
-                            <path d="${pathCoal}" fill="#7f8c8d" opacity="0.8"/>
-                            <path d="${pathGas}" fill="#d35400" opacity="0.8" style="mix-blend-mode: screen;"/> 
-                            </svg>
-                        <div style="font-size:10px; color:#888; text-align:center;">(灰:煤 / 橘:氣 / 紫:核 / 綠:再生)</div>
-                    </div>
-                    
-                    <div style="display:flex; gap:10px;">
-                        <div style="flex:1;">
-                            <div class="chart-title">🪨 煤炭來源</div>
-                            <div style="width:60px; height:60px; border-radius:50%; background:conic-gradient(
-                                #f1c40f 0% 33%, #e74c3c 33% 66%, #3498db 66% 100%
-                            ); margin:0 auto;"></div>
-                        </div>
-                        <div style="flex:1;">
-                            <div class="chart-title">🔥 天然氣來源</div>
-                            <div style="width:60px; height:60px; border-radius:50%; background:conic-gradient(
-                                #f1c40f 0% 50%, #e74c3c 50% 100%
-                            ); margin:0 auto;"></div>
-                        </div>
-                    </div>
-                `;
-
-                // Recalculating Area Chart Paths correctly is complex without library. 
-                // Let's perform a simple "End Game Stats" display instead to ensure robustness.
-                
-                // Calculate Totals for Pie
-                const totalCoalImp = (game.importStats.coal.au||0) + (game.importStats.coal.id||0) + (game.importStats.coal.ru||0);
-                const totalGasImp = (game.importStats.gas.au||0) + (game.importStats.gas.qa||0) + (game.importStats.gas.us||0);
-                
-                const c1 = (game.importStats.coal.au||0)/totalCoalImp * 100 || 0;
-                const c2 = (game.importStats.coal.id||0)/totalCoalImp * 100 || 0;
-                
-                const g1 = (game.importStats.gas.au||0)/totalGasImp * 100 || 0;
-                const g2 = (game.importStats.gas.qa||0)/totalGasImp * 100 || 0;
-
+                // 簡單的堆疊圖模擬
                 const finalHTML = `
                     <p style="color:#2ecc71; margin-bottom:10px;">您建立了高韌性的電力系統！</p>
                     
                     <div class="chart-container">
-                        <div class="chart-title">📈 電力成長趨勢</div>
-                        <svg viewBox="0 0 100 50" style="width:100%; background:#222; border:1px solid #555;">
-                             <polyline points="${game.history.map((h,i) => `${(i/(game.history.length-1))*100},${50 - ((h.coal+h.gas+h.nuclear+h.green)/maxPower)*40}`).join(' ')}" fill="none" stroke="#f1c40f" stroke-width="2"/>
+                        <div class="chart-title">📈 電力成長趨勢 (總: ${game.calcPower()} MW)</div>
+                        <svg viewBox="0 0 100 100" style="background:#222; width:100%; height:80px; transform:scaleY(-1);">
+                            <polygon points="${pathGreen}" fill="#2ecc71" opacity="0.9"/>
+                            <polygon points="${pathNuke}" fill="#8e44ad" opacity="0.9"/>
+                            <polygon points="${pathGas}" fill="#d35400" opacity="0.9"/>
+                            <polygon points="${pathCoal}" fill="#7f8c8d" opacity="0.9"/>
                         </svg>
                         <div class="chart-legend">
-                            <span style="color:#f1c40f">總發電量: ${game.calcPower()} MW</span>
+                            <div class="legend-item"><span class="color-box" style="background:#7f8c8d"></span>煤</div>
+                            <div class="legend-item"><span class="color-box" style="background:#d35400"></span>氣</div>
+                            <div class="legend-item"><span class="color-box" style="background:#8e44ad"></span>核</div>
+                            <div class="legend-item"><span class="color-box" style="background:#2ecc71"></span>綠</div>
                         </div>
                     </div>
 
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <div style="flex:1; text-align:center;">
                             <div class="chart-title" style="text-align:center">🪨 煤炭進口</div>
-                            <div style="width:60px; height:60px; border-radius:50%; margin:5px auto;
-                                background: conic-gradient(#f1c40f 0% ${c1}%, #e74c3c ${c1}% ${c1+c2}%, #3498db ${c1+c2}% 100%)">
+                            <div style="width:50px; height:50px; border-radius:50%; margin:5px auto;
+                                background: conic-gradient(#f1c40f 0% 33%, #e74c3c 33% 66%, #3498db 66% 100%)">
                             </div>
-                            <div style="font-size:10px; color:#aaa;">🇦🇺/🇮🇩/🇷🇺</div>
+                            <div style="font-size:10px; color:#aaa;">🇦🇺 🇮🇩 🇷🇺</div>
                         </div>
                         <div style="flex:1; text-align:center;">
                             <div class="chart-title" style="text-align:center">🔥 天然氣進口</div>
-                            <div style="width:60px; height:60px; border-radius:50%; margin:5px auto;
-                                background: conic-gradient(#f1c40f 0% ${g1}%, #e74c3c ${g1}% ${g1+g2}%, #3498db ${g1+g2}% 100%)">
+                            <div style="width:50px; height:50px; border-radius:50%; margin:5px auto;
+                                background: conic-gradient(#f1c40f 0% 33%, #e74c3c 33% 66%, #3498db 66% 100%)">
                             </div>
-                            <div style="font-size:10px; color:#aaa;">🇦🇺/🇶🇦/🇺🇸</div>
+                            <div style="font-size:10px; color:#aaa;">🇦🇺 🇶🇦 🇺🇸</div>
                         </div>
                     </div>
                 `;
@@ -978,16 +942,14 @@
                 document.getElementById('modal-content-area').innerHTML = finalHTML;
                 
                 const btn = document.getElementById('modal-btn');
-                btn.innerText = "繼續執政 (自由模式)";
+                btn.innerText = "繼續執政";
                 btn.className = 'retro-btn victory';
                 btn.onclick = () => {
                     game.isFreePlay = true;
                     ui.closeModal();
                 };
                 
-                // Add Restart
                 const contentArea = document.querySelector('.retro-inner');
-                // Check if button exists to avoid duplicates
                 if(!contentArea.querySelector('.restart')) {
                     const restartBtn = document.createElement('button');
                     restartBtn.className = 'retro-btn restart';
@@ -1002,12 +964,10 @@
 
             closeModal() { 
                 document.getElementById('modal-overlay').style.display = 'none'; 
-                // Reset content to default for other modals
                 document.getElementById('modal-content-area').innerHTML = '<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">CONTENT</p>';
                 const btn = document.getElementById('modal-btn');
                 btn.className = 'retro-btn';
                 
-                // Remove restart button if exists from Victory screen
                 const restartBtn = document.querySelector('.retro-btn.restart');
                 if(restartBtn) restartBtn.remove();
             }
