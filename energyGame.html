@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v15</title>
+    <title>⚡ 像素能源：決戰台灣 v16 (地獄版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -175,6 +175,7 @@
         .card-power { font-family:'VT323'; color:var(--accent-blue); font-size:15px; font-weight: bold; }
         .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; }
         
+        /* 卡片數量標記 */
         .card-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--accent-gold); color: #000;
@@ -286,7 +287,7 @@
         <div class="stat-box"><span class="stat-label">西元</span><span class="stat-val" id="hud-year">1975</span></div>
         <div class="stat-box">
             <span class="stat-label">資金</span>
-            <span class="stat-val gold" id="hud-funds">2500</span>
+            <span class="stat-val gold" id="hud-funds">5000</span>
             <div class="help-btn" onclick="ui.showFundsHelp()">?</div>
         </div>
         <div class="stat-box">
@@ -388,12 +389,13 @@
     </div>
 
     <script>
+        // 地獄難度數值
         const PLANTS = {
             coal: { name: '燃煤', emoji: '🏭', cost: 1000, output: 1500, fuel: 80, type: 'land', color: '#7f8c8d' },
             gas: { name: '燃氣', emoji: '🔥', cost: 1500, output: 2500, fuel: 60, type: 'land', color: '#d35400' },
             terminal: { name: '接收站', emoji: '⚓', cost: 2000, output: 0, fuel: 0, type: 'coast', color: '#2980b9' },
-            green: { name: '風電', emoji: '🌀', cost: 2000, output: 600, fuel: 0, type: 'sea', color: '#2ecc71' },
-            solar: { name: '太陽能', emoji: '☀️', cost: 800, output: 300, fuel: 0, type: 'land', color: '#f39c12' },
+            green: { name: '風電', emoji: '🌀', cost: 3000, output: 100, fuel: 0, type: 'sea', color: '#2ecc71' },
+            solar: { name: '太陽能', emoji: '☀️', cost: 1200, output: 50, fuel: 0, type: 'land', color: '#f39c12' },
             nuclear: { name: '核能', emoji: '☢️', cost: 5000, output: 6000, fuel: 0, type: 'land', color: '#8e44ad' }
         };
 
@@ -440,7 +442,7 @@
 
         const game = {
             year: 1975, funds: 5000, comp: 100, demand: 10000, 
-            fuel: { coal: 3000, gas: 0 }, cap: { coal: 8000, gas: 0 },
+            fuel: { coal: 1000, gas: 0 }, cap: { coal: 3000, gas: 0 },
             counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
             stageIdx: 0, selected: null, blockade: false, bDays: 0,
             marketPrices: {}, 
@@ -450,9 +452,8 @@
 
             init() {
                 this.resetVariables();
-                // 初始為 0 座燃煤
-                this.counts.coal = 0; 
-                this.cap.coal = 3000; // 基礎倉庫
+                this.counts.coal = 0; // 初始 0 座
+                this.cap.coal = 3000;
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 document.body.requestFullscreen().catch(e=>{});
@@ -461,8 +462,8 @@
 
             resetVariables() {
                 this.year = 1975; this.funds = 5000; this.comp = 100; this.demand = 10000;
-                this.fuel = { coal: 3000, gas: 0 }; 
-                this.cap = { coal: 8000, gas: 0 };
+                this.fuel = { coal: 1000, gas: 0 }; 
+                this.cap = { coal: 3000, gas: 0 };
                 this.counts = { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 };
                 this.stageIdx = 0; this.selected = null; this.blockade = false; this.isFreePlay = false;
                 this.history = []; this.importStats = { coal: {}, gas: {} };
@@ -490,12 +491,9 @@
                 const p = PLANTS[this.selected];
                 
                 if (this.selected === 'nuclear') {
-                    if (this.year < 2030) {
-                        ui.floatText('🔒 2030年解鎖(SMR)', 'red'); this.selected = null; return;
-                    }
-                    if (this.comp <= 60) {
-                        ui.floatText('🔒 需競爭力>60%', 'red'); this.selected = null; return;
-                    }
+                    // 移除 2030 限制，但扣滿意度
+                    ui.floatText('⚠️ 競爭力-20%', 'red');
+                    this.comp -= 20;
                 }
 
                 if (this.funds < p.cost) {
@@ -508,7 +506,8 @@
                 this.funds -= p.cost;
                 this.counts[this.selected]++;
                 
-                if (this.selected === 'coal') this.cap.coal += 300; 
+                // 燃煤電廠增加 1500 煤炭上限
+                if (this.selected === 'coal') this.cap.coal += 1500; 
                 if (this.selected === 'terminal') this.cap.gas += 1500;
                 
                 ui.floatText(`-$${p.cost}`, 'gold');
@@ -562,7 +561,6 @@
                 this.funds -= cost;
                 this.fuel[type] += 100;
                 
-                // 紀錄進口數據
                 if (!this.importStats[type][countryId]) this.importStats[type][countryId] = 0;
                 this.importStats[type][countryId] += 100;
 
@@ -580,12 +578,12 @@
             },
 
             calcIncome() {
-                // 階段性基礎稅收
                 let baseIncome = 500;
                 if (game.stageIdx === 1) baseIncome = 1000;
                 if (game.stageIdx === 2) baseIncome = 2000;
 
-                const powerBonus = Math.floor(this.calcPower() * 0.8); // 倍率調降至 0.8
+                // 稅收係數降至 0.4
+                const powerBonus = Math.floor(this.calcPower() * 0.4); 
                 return baseIncome + powerBonus;
             },
 
@@ -605,7 +603,7 @@
                 this.funds += income; 
                 ui.floatText(`+${income} 資金`, 'gold');
 
-                this.demand += 1000;
+                this.demand += 1200; // 年增1200
                 this.updateMarketPrices();
                 this.consumeFuel();
                 
@@ -641,7 +639,7 @@
                 const cNeed = this.counts.coal * PLANTS.coal.fuel;
                 const gNeed = this.counts.gas * PLANTS.gas.fuel;
                 if (this.fuel.coal >= cNeed) this.fuel.coal -= cNeed;
-                else { this.fuel.coal = 0; if(this.counts.coal>0) {this.comp -= 5; ui.floatText('缺煤', 'red');} }
+                else { this.fuel.coal = 0; if(this.counts.coal>0){this.comp -= 5; ui.floatText('缺煤', 'red');} }
                 if (this.fuel.gas >= gNeed) this.fuel.gas -= gNeed;
                 else { this.fuel.gas = 0; if(this.counts.gas>0){this.comp -= 5; ui.floatText('缺氣', 'red');} }
             },
@@ -714,10 +712,6 @@
                 document.getElementById('build-deck').innerHTML = buildable.map(([k, v]) => {
                     let locked = false;
                     let lockReason = '';
-                    if (k === 'nuclear') {
-                        if (game.year < 2030) { locked = true; lockReason = '🔒 2030'; }
-                        else if (game.comp <= 60) { locked = true; lockReason = '🔒 競>60'; }
-                    }
                     const count = game.counts[k];
                     
                     return `
@@ -787,7 +781,6 @@
                 document.getElementById('stat-supply').innerText = game.calcPower() + " MW";
                 document.getElementById('stat-demand').innerText = game.demand + " MW";
                 
-                // 顯示存量天數
                 const cDays = game.getCoalDays();
                 document.getElementById('stat-coal-days').innerText = (cDays > 99 ? '∞' : cDays + '天');
                 
@@ -827,11 +820,15 @@
 
             showModal(title, desc) {
                 document.getElementById('modal-title').innerText = title;
-                document.getElementById('modal-content-area').innerHTML = `<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">${desc}</p>`;
+                document.getElementById('modal-desc').style.display = 'block';
+                document.getElementById('modal-desc').innerText = desc;
+                const oldList = document.querySelector('.rule-list');
+                if(oldList) oldList.remove();
                 
                 document.getElementById('modal-btn').innerText = "確 定";
                 document.getElementById('modal-btn').onclick = ui.closeModal;
-                document.getElementById('modal-btn').className = 'retro-btn';
+                document.getElementById('modal-btn').classList.remove('restart');
+                document.getElementById('modal-btn').classList.remove('victory');
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
             
@@ -848,15 +845,15 @@
             },
 
             showFundsHelp() {
-                ui.showModal("資金說明", `
+                ui.showModal("工業稅收說明", `
                     <div class="rule-list">
-                        <div class="rule-title">工業稅收公式</div>
+                        <div class="rule-title">計算公式</div>
                         <div class="rule-item"><span>💰 基礎稅收</span><span>$${game.stageIdx===0?500:(game.stageIdx===1?1000:2000)}</span></div>
-                        <div class="rule-item"><span>⚡ 發電稅收</span><span>+$${Math.floor(game.calcPower()*0.8)}</span></div>
+                        <div class="rule-item"><span>⚡ 工業稅收</span><span>+$${Math.floor(game.calcPower()*0.4)}</span></div>
                         <div class="rule-item" style="border-top:1px solid #fff; margin-top:5px; padding-top:5px;">
                             <span>預計下年收入</span><span style="color:#f1c40f">$${game.calcIncome()}</span>
                         </div>
-                        <div style="font-size:10px; color:#888; margin-top:5px;">(公式：發電量 x 0.8 + 基礎稅)</div>
+                        <div style="font-size:10px; color:#888; margin-top:5px;">(公式：發電量 x 0.4 + 基礎稅)</div>
                     </div>
                 `);
             },
@@ -874,6 +871,7 @@
                             消耗公式：<br>
                             燃煤消耗 = 電廠數 x ${PLANTS.coal.fuel}<br>
                             燃氣消耗 = 電廠數 x ${PLANTS.gas.fuel}<br>
+                            天數 = 庫存 / 年消耗<br>
                             <span style="color:#e74c3c">*封鎖期間無法進口，需靠存量撐過11天。</span>
                         </div>
                     </div>
@@ -882,12 +880,14 @@
 
             showGameOver() {
                 document.getElementById('modal-title').innerText = "國家破產";
-                document.getElementById('modal-content-area').innerHTML = '<p style="color:#e74c3c">電力不穩導致產業外移，競爭力歸零。</p>';
+                document.getElementById('modal-desc').style.display = 'block';
+                document.getElementById('modal-desc').innerText = "電力不穩導致產業外移，台灣競爭力歸零。";
                 
                 const btn = document.getElementById('modal-btn');
                 btn.innerText = "🔄 重新開始";
-                btn.className = 'retro-btn restart';
+                btn.classList.add('restart');
                 btn.onclick = () => game.restart();
+                
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
 
