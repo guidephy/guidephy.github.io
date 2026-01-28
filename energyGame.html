@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v16 (地獄版)</title>
+    <title>⚡ 像素能源：決戰台灣 v17 (平衡版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -60,7 +60,7 @@
         }
         .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; }
         .stat-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
-        .stat-val { font-family: 'VT323', monospace; font-size: 22px; color: #fff; font-weight: bold; line-height: 1; }
+        .stat-val { font-family: 'VT323', monospace; font-size: 20px; color: #fff; font-weight: bold; line-height: 1; }
         .stat-val.gold { color: var(--accent-gold); }
         .stat-val.blue { color: var(--accent-blue); }
         .stat-val.red { color: var(--accent-red); animation: blink 1s infinite; }
@@ -175,7 +175,6 @@
         .card-power { font-family:'VT323'; color:var(--accent-blue); font-size:15px; font-weight: bold; }
         .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; }
         
-        /* 卡片數量標記 */
         .card-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--accent-gold); color: #000;
@@ -255,9 +254,17 @@
             position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
             display: none; justify-content: center; align-items: center; padding: 20px;
         }
-        .retro-dialog { background: var(--accent-blue); border: 4px solid #fff; padding: 4px; width: 100%; max-width: 320px; box-shadow: 8px 8px 0px #000;}
-        .retro-inner { background: var(--ui-bg); border: 2px solid #000; padding: 20px; text-align: center; }
-        .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; }
+        .retro-dialog { 
+            background: var(--accent-blue); border: 4px solid #fff; padding: 4px; 
+            width: 95%; max-width: 360px; max-height: 85vh;
+            box-shadow: 8px 8px 0px #000;
+            display: flex; flex-direction: column;
+        }
+        .retro-inner { 
+            background: var(--ui-bg); border: 2px solid #000; padding: 20px; text-align: center;
+            overflow-y: auto;
+        }
+        .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; width: 100%;}
         .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
 
@@ -287,7 +294,7 @@
         <div class="stat-box"><span class="stat-label">西元</span><span class="stat-val" id="hud-year">1975</span></div>
         <div class="stat-box">
             <span class="stat-label">資金</span>
-            <span class="stat-val gold" id="hud-funds">5000</span>
+            <span class="stat-val gold" id="hud-funds">8,000</span>
             <div class="help-btn" onclick="ui.showFundsHelp()">?</div>
         </div>
         <div class="stat-box">
@@ -389,13 +396,12 @@
     </div>
 
     <script>
-        // 地獄難度數值
         const PLANTS = {
             coal: { name: '燃煤', emoji: '🏭', cost: 1000, output: 1500, fuel: 80, type: 'land', color: '#7f8c8d' },
             gas: { name: '燃氣', emoji: '🔥', cost: 1500, output: 2500, fuel: 60, type: 'land', color: '#d35400' },
             terminal: { name: '接收站', emoji: '⚓', cost: 2000, output: 0, fuel: 0, type: 'coast', color: '#2980b9' },
-            green: { name: '風電', emoji: '🌀', cost: 3000, output: 100, fuel: 0, type: 'sea', color: '#2ecc71' },
-            solar: { name: '太陽能', emoji: '☀️', cost: 1200, output: 50, fuel: 0, type: 'land', color: '#f39c12' },
+            green: { name: '風電', emoji: '🌀', cost: 3000, output: 200, fuel: 0, type: 'sea', color: '#2ecc71' },
+            solar: { name: '太陽能', emoji: '☀️', cost: 1200, output: 80, fuel: 0, type: 'land', color: '#f39c12' },
             nuclear: { name: '核能', emoji: '☢️', cost: 5000, output: 6000, fuel: 0, type: 'land', color: '#8e44ad' }
         };
 
@@ -441,8 +447,8 @@
         };
 
         const game = {
-            year: 1975, funds: 5000, comp: 100, demand: 10000, 
-            fuel: { coal: 1000, gas: 0 }, cap: { coal: 3000, gas: 0 },
+            year: 1975, funds: 8000, comp: 100, demand: 10000, 
+            fuel: { coal: 3000, gas: 0 }, cap: { coal: 3000, gas: 0 },
             counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
             stageIdx: 0, selected: null, blockade: false, bDays: 0,
             marketPrices: {}, 
@@ -452,7 +458,8 @@
 
             init() {
                 this.resetVariables();
-                this.counts.coal = 0; // 初始 0 座
+                // 初始為 0 座燃煤
+                this.counts.coal = 0; 
                 this.cap.coal = 3000;
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
@@ -461,8 +468,8 @@
             },
 
             resetVariables() {
-                this.year = 1975; this.funds = 5000; this.comp = 100; this.demand = 10000;
-                this.fuel = { coal: 1000, gas: 0 }; 
+                this.year = 1975; this.funds = 8000; this.comp = 100; this.demand = 10000;
+                this.fuel = { coal: 3000, gas: 0 }; 
                 this.cap = { coal: 3000, gas: 0 };
                 this.counts = { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 };
                 this.stageIdx = 0; this.selected = null; this.blockade = false; this.isFreePlay = false;
@@ -491,7 +498,6 @@
                 const p = PLANTS[this.selected];
                 
                 if (this.selected === 'nuclear') {
-                    // 移除 2030 限制，但扣滿意度
                     ui.floatText('⚠️ 競爭力-20%', 'red');
                     this.comp -= 20;
                 }
@@ -506,11 +512,10 @@
                 this.funds -= p.cost;
                 this.counts[this.selected]++;
                 
-                // 燃煤電廠增加 1500 煤炭上限
                 if (this.selected === 'coal') this.cap.coal += 1500; 
                 if (this.selected === 'terminal') this.cap.gas += 1500;
                 
-                ui.floatText(`-$${p.cost}`, 'gold');
+                ui.floatText(`-$${p.cost.toLocaleString()}`, 'gold');
                 this.placeBuilding(this.selected);
                 this.selected = null;
                 ui.renderDeck(); ui.updateAll();
@@ -524,7 +529,7 @@
                 this.funds -= p.cost;
                 this.counts.terminal++;
                 this.cap.gas += 1500;
-                ui.floatText(`-$${p.cost} 擴充`, 'gold');
+                ui.floatText(`-$${p.cost.toLocaleString()} 擴充`, 'gold');
                 this.placeBuilding('terminal');
                 ui.updateAll();
             },
@@ -582,7 +587,6 @@
                 if (game.stageIdx === 1) baseIncome = 1000;
                 if (game.stageIdx === 2) baseIncome = 2000;
 
-                // 稅收係數降至 0.4
                 const powerBonus = Math.floor(this.calcPower() * 0.4); 
                 return baseIncome + powerBonus;
             },
@@ -601,9 +605,9 @@
 
                 const income = this.calcIncome();
                 this.funds += income; 
-                ui.floatText(`+${income} 資金`, 'gold');
+                ui.floatText(`+${income.toLocaleString()} 資金`, 'gold');
 
-                this.demand += 1200; // 年增1200
+                this.demand += 1200;
                 this.updateMarketPrices();
                 this.consumeFuel();
                 
@@ -721,16 +725,16 @@
                         <div class="card-emoji">${v.emoji}</div>
                         <div class="card-name" style="color:${v.color}">${v.name}</div>
                         <div class="card-power">+${v.output}MW</div>
-                        <div class="card-cost">$${v.cost}</div>
+                        <div class="card-cost">$${v.cost.toLocaleString()}</div>
                     </div>
                 `}).join('');
             },
 
             renderMarket() {
-                document.getElementById('val-coal-stock').innerText = game.fuel.coal;
-                document.getElementById('val-gas-stock').innerText = game.fuel.gas;
+                document.getElementById('val-coal-stock').innerText = game.fuel.coal.toLocaleString();
+                document.getElementById('val-gas-stock').innerText = game.fuel.gas.toLocaleString();
                 
-                document.getElementById('val-gas-cap').innerText = game.cap.gas;
+                document.getElementById('val-gas-cap').innerText = game.cap.gas.toLocaleString();
                 document.getElementById('val-term-cnt').innerText = game.counts.terminal;
 
                 document.getElementById('market-coal-list').innerHTML = MARKET_SOURCES.coal.map(src => `
@@ -771,15 +775,15 @@
 
             updateAll() {
                 document.getElementById('hud-year').innerText = game.year;
-                document.getElementById('hud-funds').innerText = game.funds;
+                document.getElementById('hud-funds').innerText = game.funds.toLocaleString();
                 document.getElementById('hud-comp').innerText = game.comp + '%';
                 
                 const days = game.getSafetyDays();
                 document.getElementById('hud-days').innerText = (days > 99 ? '充足' : days + '天');
                 document.getElementById('hud-days').className = `stat-val ${days < 14 ? 'red' : ''}`;
 
-                document.getElementById('stat-supply').innerText = game.calcPower() + " MW";
-                document.getElementById('stat-demand').innerText = game.demand + " MW";
+                document.getElementById('stat-supply').innerText = game.calcPower().toLocaleString() + " MW";
+                document.getElementById('stat-demand').innerText = game.demand.toLocaleString() + " MW";
                 
                 const cDays = game.getCoalDays();
                 document.getElementById('stat-coal-days').innerText = (cDays > 99 ? '∞' : cDays + '天');
@@ -820,15 +824,11 @@
 
             showModal(title, desc) {
                 document.getElementById('modal-title').innerText = title;
-                document.getElementById('modal-desc').style.display = 'block';
-                document.getElementById('modal-desc').innerText = desc;
-                const oldList = document.querySelector('.rule-list');
-                if(oldList) oldList.remove();
+                document.getElementById('modal-content-area').innerHTML = `<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">${desc}</p>`;
                 
                 document.getElementById('modal-btn').innerText = "確 定";
                 document.getElementById('modal-btn').onclick = ui.closeModal;
-                document.getElementById('modal-btn').classList.remove('restart');
-                document.getElementById('modal-btn').classList.remove('victory');
+                document.getElementById('modal-btn').className = 'retro-btn';
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
             
@@ -845,13 +845,13 @@
             },
 
             showFundsHelp() {
-                ui.showModal("工業稅收說明", `
+                ui.showModal("資金說明", `
                     <div class="rule-list">
-                        <div class="rule-title">計算公式</div>
+                        <div class="rule-title">收入公式</div>
                         <div class="rule-item"><span>💰 基礎稅收</span><span>$${game.stageIdx===0?500:(game.stageIdx===1?1000:2000)}</span></div>
-                        <div class="rule-item"><span>⚡ 工業稅收</span><span>+$${Math.floor(game.calcPower()*0.4)}</span></div>
+                        <div class="rule-item"><span>⚡ 工業稅收</span><span>+$${Math.floor(game.calcPower()*0.4).toLocaleString()}</span></div>
                         <div class="rule-item" style="border-top:1px solid #fff; margin-top:5px; padding-top:5px;">
-                            <span>預計下年收入</span><span style="color:#f1c40f">$${game.calcIncome()}</span>
+                            <span>預計下年收入</span><span style="color:#f1c40f">$${game.calcIncome().toLocaleString()}</span>
                         </div>
                         <div style="font-size:10px; color:#888; margin-top:5px;">(公式：發電量 x 0.4 + 基礎稅)</div>
                     </div>
@@ -880,14 +880,12 @@
 
             showGameOver() {
                 document.getElementById('modal-title').innerText = "國家破產";
-                document.getElementById('modal-desc').style.display = 'block';
-                document.getElementById('modal-desc').innerText = "電力不穩導致產業外移，台灣競爭力歸零。";
+                document.getElementById('modal-content-area').innerHTML = '<p style="color:#e74c3c">電力不穩導致產業外移，競爭力歸零。</p>';
                 
                 const btn = document.getElementById('modal-btn');
                 btn.innerText = "🔄 重新開始";
-                btn.classList.add('restart');
+                btn.className = 'retro-btn restart';
                 btn.onclick = () => game.restart();
-                
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
 
@@ -933,7 +931,7 @@
                     <p style="color:#2ecc71; margin-bottom:10px;">您建立了高韌性的電力系統！</p>
                     
                     <div class="chart-container">
-                        <div class="chart-title">📈 電力成長趨勢 (總: ${game.calcPower()} MW)</div>
+                        <div class="chart-title">📈 電力成長趨勢 (總: ${game.calcPower().toLocaleString()} MW)</div>
                         <svg viewBox="0 0 100 100" style="background:#222; width:100%; height:80px; transform:scaleY(-1);">
                             <polygon points="${pathGreen}" fill="#2ecc71" opacity="0.9"/>
                             <polygon points="${pathNuke}" fill="#8e44ad" opacity="0.9"/>
