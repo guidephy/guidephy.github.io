@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣</title>
+    <title>⚡ 像素能源：決戰台灣 v22</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -104,7 +104,6 @@
         }
         .map-path { fill: var(--land-green); stroke: var(--land-border); stroke-width: 3px; }
 
-        /* 圓餅圖與圖例 */
         #power-pie-chart {
             position: absolute;
             top: 40%; left: 55%;
@@ -317,12 +316,11 @@
         .rule-item { display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid #333; padding-bottom: 2px;}
         .rule-title { font-weight: bold; color: var(--accent-gold); margin-bottom: 5px; text-align: center;}
 
-        /* Charts Styles */
         .chart-container { margin: 15px 0; border: 1px solid #555; background: #111; padding: 5px; }
         .chart-title { font-size: 12px; color: #aaa; margin-bottom: 5px; text-align: left; }
         .chart-legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 10px; justify-content: center; margin-top: 5px;}
         .legend-item { display: flex; align-items: center; gap: 3px; }
-        .color-box { width: 10px; height: 10px; border: 1px solid #fff; }
+        .color-box { width: 8px; height: 8px; border: 1px solid #fff; }
         .rank-list { text-align: left; font-size: 11px; color:#ddd; margin-top: 5px; }
         .rank-item { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 2px 0;}
     </style>
@@ -448,8 +446,8 @@
     </div>
 
     <script>
+        // 燃料需求減半: 煤 40, 氣 30
         const PLANTS = {
-            // 燃料需求減半: 煤 80->40, 氣 60->30
             coal: { name: '燃煤', emoji: '🏭', cost: 1000, output: 1500, fuel: 40, type: 'land', color: '#7f8c8d' },
             gas: { name: '燃氣', emoji: '🔥', cost: 1500, output: 2500, fuel: 30, type: 'land', color: '#d35400' },
             terminal: { name: '接收站', emoji: '⚓', cost: 2000, output: 0, fuel: 0, type: 'coast', color: '#2980b9' },
@@ -525,7 +523,7 @@
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 document.body.requestFullscreen().catch(e=>{});
                 
-                // 1. Show Story Intro
+                // Show mission intro first, then tutorial
                 ui.showModal("任務簡報", 
                     "歡迎來到《像素能源》。<br>您將扮演台灣能源決策者，在長達50年的歷史中，面對經濟發展、環保轉型與地緣政治的挑戰。<br><br>目標：建立穩定、安全且潔淨的電力系統。");
             },
@@ -612,8 +610,7 @@
                     if (this.isNukePermanentlyBanned) {
                         ui.floatText('⛔ 核能已永久廢止', 'red'); this.selected = null; return;
                     }
-                    ui.floatText('⚠️ 競爭力-20%', 'red');
-                    this.comp -= 20;
+                    // Removed immediate penalty as per previous request, keeping logic clean
                 }
 
                 if (this.funds < p.cost) {
@@ -746,14 +743,19 @@
                 this.year++; 
                 if (this.nukeShutdownTimer > 0) this.nukeShutdownTimer--;
 
-                // 紀錄發電結構用於圖表
-                // 注意：這裡記錄的是「當下」的發電組合，用於繪製堆疊圖
+                // 紀錄發電結構用於圖表 (Layer Stacking Logic)
+                // We record cumulative values for simpler stacking in SVG later
+                const pCoal = this.counts.coal * PLANTS.coal.output;
+                const pGas = this.counts.gas * PLANTS.gas.output;
+                const pNuke = this.calcNukeOutput();
+                const pGreen = (this.counts.green * PLANTS.green.output) + (this.counts.solar * PLANTS.solar.output);
+                
                 this.history.push({
                     year: this.year,
-                    coal: this.counts.coal * PLANTS.coal.output,
-                    gas: this.counts.gas * PLANTS.gas.output,
-                    nuclear: this.calcNukeOutput(),
-                    green: (this.counts.green * PLANTS.green.output) + (this.counts.solar * PLANTS.solar.output)
+                    coal: pCoal,
+                    gas: pGas,
+                    nuclear: pNuke,
+                    green: pGreen
                 });
 
                 this.checkNuclearDisaster();
@@ -871,15 +873,11 @@
                 }
             },
 
-            highlightElement(selector, text) {
+            highlightElement(selector) {
                 document.getElementById('tutorial-overlay').style.display = 'block';
+                document.getElementById('tutorial-tooltip').style.display = 'block';
                 const el = document.querySelector(selector);
-                if(el) {
-                    el.classList.add('highlight-target');
-                    const tooltip = document.getElementById('tutorial-tooltip');
-                    document.getElementById('tut-text').innerText = text;
-                    tooltip.style.display = 'block';
-                }
+                if(el) el.classList.add('highlight-target');
             },
 
             clearHighlight() {
@@ -1099,29 +1097,27 @@
                     if(total > maxPower) maxPower = total;
                 });
                 
-                // 產生堆疊圖 SVG Path (層疊法: 底=煤, 中=氣+核, 頂=綠)
+                // SVG Stacked Area Chart Logic
                 let paths = { coal: "M0,100 ", gas: "M0,100 ", nuke: "M0,100 ", green: "M0,100 " };
                 
                 game.history.forEach((h, i) => {
                     const x = (i / (game.history.length-1)) * 100;
                     
-                    // 累加高度
+                    // Normalize to 100 height
                     const hCoal = (h.coal / maxPower) * 100;
                     const hGas = (h.coal + h.gas) / maxPower * 100;
                     const hNuke = (h.coal + h.gas + h.nuclear) / maxPower * 100;
                     const hGreen = (h.coal + h.gas + h.nuclear + h.green) / maxPower * 100;
                     
-                    // Y座標是 100 - 高度
                     paths.coal += `L${x},${100 - hCoal} `;
                     paths.gas += `L${x},${100 - hGas} `;
                     paths.nuke += `L${x},${100 - hNuke} `;
                     paths.green += `L${x},${100 - hGreen} `;
                 });
                 
-                // 封口 (從右下回到左下)
                 const closePath = `L100,100 L0,100 Z`;
                 
-                // 計算進口排名
+                // Import Ranking Logic
                 const getRank = (obj) => Object.entries(obj)
                     .sort((a,b) => b[1] - a[1])
                     .map(e => {
