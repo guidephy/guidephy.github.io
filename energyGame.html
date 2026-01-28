@@ -2,8 +2,10 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>⚡ 像素能源：決戰台灣 v8</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>⚡ 像素能源：決戰台灣 v9</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -18,7 +20,6 @@
             --accent-red: #e74c3c;
             --text-white: #ecf0f1;
             
-            /* 電廠代表色 */
             --color-coal: #7f8c8d;
             --color-gas: #d35400;
             --color-green: #2ecc71;
@@ -35,8 +36,12 @@
                 linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
             background-size: 40px 40px;
-            height: 100vh;
-            overflow: hidden;
+            
+            /* === 手機版面核心修正 === */
+            width: 100vw;
+            height: 100vh;       /* 相容舊瀏覽器 */
+            height: 100dvh;      /* 關鍵：動態扣除瀏覽器工具列高度 */
+            overflow: hidden;    /* 禁止捲動整個頁面 */
             color: var(--text-white);
             display: flex;
             flex-direction: column;
@@ -49,6 +54,8 @@
             background: var(--ui-bg);
             border-bottom: 4px solid var(--ui-border);
             padding: 8px 4px;
+            /* 避開 iPhone 瀏海 */
+            padding-top: max(8px, env(safe-area-inset-top)); 
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 4px;
@@ -72,7 +79,7 @@
 
         /* === 資訊面板 === */
         .info-panel {
-            position: absolute; top: 75px; width: 140px;
+            position: absolute; top: 80px; width: 140px;
             background: rgba(33, 37, 41, 0.95); padding: 8px; z-index: 90;
             box-shadow: 4px 4px 0px #000; pointer-events: none; border-radius: 2px;
         }
@@ -87,9 +94,15 @@
         .goal-item { font-size: 11px; margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 2px; }
         .goal-check.done { color: var(--land-green); font-weight:bold; }
 
-        /* === 中央地圖區 === */
+        /* === 中央地圖區 (彈性伸縮) === */
         #game-stage {
-            flex: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden;
+            flex: 1; /* 自動填滿中間剩餘空間 */
+            position: relative; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden;
+            width: 100%;
         }
         #map-container { position: relative; width: 100%; height: 100%; }
 
@@ -100,7 +113,6 @@
         }
         .map-path { fill: var(--land-green); stroke: var(--land-border); stroke-width: 3px; }
 
-        /* 圓餅圖 */
         #power-pie-chart {
             position: absolute;
             top: 40%; left: 55%;
@@ -135,10 +147,18 @@
         .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 16px; }
         .data-sep { border-top: 1px dashed #555; margin: 5px 0; }
 
-        /* === 底部控制台 === */
+        /* === 底部控制台 (固定高度但適配底部安全區) === */
         #bottom-panel {
-            flex: 0 0 auto; background: var(--ui-bg); border-top: 4px solid var(--ui-border);
-            height: 260px; display: flex; flex-direction: column; padding: 10px; z-index: 100;
+            flex: 0 0 auto; 
+            background: var(--ui-bg); 
+            border-top: 4px solid var(--ui-border);
+            height: 260px; 
+            /* 關鍵：增加底部內距以避開手機 Home Bar */
+            padding: 10px;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            display: flex; 
+            flex-direction: column; 
+            z-index: 100;
         }
         .arcade-tabs { display: flex; gap: 8px; margin-bottom: 8px; flex-shrink: 0; }
         .pixel-btn {
@@ -164,7 +184,6 @@
         .pixel-card.disabled { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
         .card-emoji { font-size: 26px; }
         .card-name { font-size: 12px; text-align: center; white-space: nowrap; color: #fff; font-weight: bold; }
-        /* 字體加大區 */
         .card-power { font-family:'VT323'; color:var(--accent-blue); font-size:15px; font-weight: bold; }
         .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; }
 
@@ -181,17 +200,17 @@
             height: 100%; 
             overflow-y: auto; /* 整個欄位可捲動 */
             position: relative;
+            -webkit-overflow-scrolling: touch; /* iOS 滑動順暢 */
         }
         .market-header { 
             font-size: 13px; color: var(--accent-gold); text-align: center; 
-            background: #222; /* 確保標題有背景 */
-            border-bottom: 1px solid #555; padding: 6px; 
-            position: sticky; top: 0; z-index: 10; /* 黏性標題 */
+            background: #222; border-bottom: 1px solid #555; padding: 6px; 
+            position: sticky; top: 0; z-index: 10;
         }
         
         .market-country-row {
             display: flex; flex-direction: column; background: #222; border: 1px solid #555; 
-            padding: 6px; margin: 4px; /* Margin移到裡面 */
+            padding: 6px; margin: 4px;
         }
         .m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .flag { font-size: 14px; color:#fff; }
@@ -202,7 +221,6 @@
         }
         .buy-btn-mini:active { background: #fff; color: #000; }
 
-        /* 接收站建設區 (在捲動容器內) */
         .terminal-build-area {
             background: #2c3e50; border: 1px solid var(--accent-blue);
             padding: 8px; margin: 4px; text-align: center;
@@ -213,10 +231,12 @@
             width: 100%; padding: 6px; font-size: 13px; cursor: pointer; font-weight: bold;
         }
 
-        /* === 下一回合按鈕 === */
+        /* === 下一回合按鈕 (位置隨底部面板調整) === */
         #next-btn {
             position: fixed;
-            bottom: 280px; right: 20px;
+            /* 260px (panel height) + 20px (gap) + safe-area */
+            bottom: calc(270px + env(safe-area-inset-bottom)); 
+            right: 15px;
             width: 80px; height: 80px;
             background: var(--accent-red);
             border: 4px solid #fff; border-radius: 50%;
@@ -292,8 +312,8 @@
                     C 260 270, 240 320, 220 370
                     C 200 420, 185 450, 175 460
                     L 165 455
-                    C 110 420, 60 350, 55 250  
-                    C 50 180, 75 120, 100 80
+                    C 110 420, 60 350, 50 250  
+                    C 45 180, 75 120, 100 80
                     C 140 50, 170 30, 210 30 Z
                 "/>
             </svg>
@@ -364,6 +384,7 @@
     </div>
 
     <script>
+        // === 資料庫設定 ===
         const PLANTS = {
             coal: { name: '燃煤', emoji: '🏭', cost: 500, output: 100, fuel: 20, type: 'land', color: '#7f8c8d' },
             gas: { name: '燃氣', emoji: '🔥', cost: 800, output: 120, fuel: 15, type: 'land', color: '#d35400' },
@@ -414,6 +435,7 @@
             ]
         };
 
+        // === 遊戲核心 ===
         const game = {
             year: 1975, funds: 2500, comp: 100, demand: 600,
             fuel: { coal: 500, gas: 0 }, cap: { coal: 3000, gas: 0 },
@@ -426,6 +448,8 @@
                 this.counts.coal = 2;
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
+                // 嘗試全螢幕 (部分瀏覽器可能阻擋)
+                document.body.requestFullscreen().catch(e=>{});
                 ui.showModal(STAGES[0].title, STAGES[0].desc);
             },
 
@@ -596,6 +620,11 @@
                 return Math.min(cDay, gDay);
             },
             
+            getCoalDays() {
+                 const cUse = Math.max(1, this.counts.coal * 20);
+                 return Math.floor(this.fuel.coal / cUse);
+            },
+
             startBlockade() {
                 this.blockade = true; this.bDays = 11;
                 document.body.classList.add('crisis-mode');
