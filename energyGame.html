@@ -3,1474 +3,834 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>能源小島 - 守護台灣</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>⚡ 像素能源：決戰台灣 v8</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
+
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --ocean: #0ea5e9;
-            --ocean-dark: #0369a1;
-            --land: #22c55e;
-            --land-dark: #15803d;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-card-light: #334155;
-            --text: #f1f5f9;
-            --text-dim: #94a3b8;
-            --gold: #fbbf24;
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --bg-ocean: #2c3e50;
+            --land-green: #27ae60;
+            --land-border: #145a32;
+            --ui-bg: #212529;
+            --ui-border: #95a5a6;
+            --accent-blue: #3498db;
+            --accent-gold: #f1c40f;
+            --accent-red: #e74c3c;
+            --text-white: #ecf0f1;
+            
+            /* 電廠代表色 */
+            --color-coal: #7f8c8d;
+            --color-gas: #d35400;
+            --color-green: #2ecc71;
+            --color-solar: #f39c12;
+            --color-nuclear: #8e44ad;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; user-select: none; }
+        
         body {
-            font-family: 'Noto Sans TC', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
-            touch-action: manipulation;
-        }
-
-        /* === APP CONTAINER === */
-        #app {
+            font-family: 'Noto Sans TC', monospace;
+            background-color: var(--bg-ocean);
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-white);
             display: flex;
             flex-direction: column;
-            height: 100%;
-            height: 100dvh;
-            max-width: 500px;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden;
+            image-rendering: pixelated;
         }
 
-        /* === TOP STATUS BAR === */
-        #status-bar {
+        /* === 頂部 HUD === */
+        #hud {
+            flex: 0 0 auto;
+            background: var(--ui-bg);
+            border-bottom: 4px solid var(--ui-border);
+            padding: 8px 4px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            padding: 10px 12px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
-            position: relative;
+            gap: 4px;
             z-index: 100;
         }
+        .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; }
+        .stat-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
+        .stat-val { font-family: 'VT323', monospace; font-size: 22px; color: #fff; font-weight: bold; line-height: 1; }
+        .stat-val.gold { color: var(--accent-gold); }
+        .stat-val.blue { color: var(--accent-blue); }
+        .stat-val.red { color: var(--accent-red); animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .status-item {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 8px 6px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
+        .help-btn {
+            position: absolute; top: 0; right: 0;
+            color: #000; background: var(--accent-gold); 
+            font-size: 12px; font-weight: bold; cursor: pointer;
+            width: 14px; height: 14px; line-height: 14px;
+            text-align: center; border-bottom-left-radius: 4px;
         }
 
-        .status-item .label {
-            font-size: 9px;
-            color: var(--text-dim);
-            margin-bottom: 2px;
+        /* === 資訊面板 === */
+        .info-panel {
+            position: absolute; top: 75px; width: 140px;
+            background: rgba(33, 37, 41, 0.95); padding: 8px; z-index: 90;
+            box-shadow: 4px 4px 0px #000; pointer-events: none; border-radius: 2px;
         }
-
-        .status-item .value {
-            font-size: 16px;
-            font-weight: 900;
-            font-family: monospace;
+        #story-panel { left: 10px; border: 3px solid var(--ui-border); }
+        #goal-panel { right: 10px; border: 3px solid var(--accent-blue); }
+        
+        .pixel-title { 
+            font-size: 13px; color: var(--accent-gold); border-bottom: 2px dashed #555;
+            padding-bottom: 4px; margin-bottom: 4px; font-weight: 900;
         }
+        .pixel-text { font-size: 12px; line-height: 1.4; color: #ddd; }
+        .goal-item { font-size: 11px; margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 2px; }
+        .goal-check.done { color: var(--land-green); font-weight:bold; }
 
-        .status-item.year .value { color: var(--primary); }
-        .status-item.funds .value { color: var(--gold); }
-        .status-item.happy .value { color: var(--success); }
-        .status-item.safety .value { color: var(--ocean); }
-        .status-item.safety.danger .value { color: var(--danger); }
-
-        /* === MAP AREA === */
-        #map-area {
-            flex: 1;
-            position: relative;
-            background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 30%, #0284c7 60%, #0369a1 100%);
-            overflow: hidden;
-            min-height: 0;
+        /* === 中央地圖區 === */
+        #game-stage {
+            flex: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
+        #map-container { position: relative; width: 100%; height: 100%; }
 
-        /* Animated waves */
-        .wave-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
-            overflow: hidden;
-        }
-
-        .wave {
-            position: absolute;
-            bottom: -5px;
-            left: -100%;
-            width: 300%;
-            height: 40px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath fill='%230369a1' d='M0,60 C300,100 600,20 900,60 C1200,100 1200,60 1200,60 L1200,120 L0,120 Z'/%3E%3C/svg%3E") repeat-x;
-            background-size: 400px 40px;
-            animation: wave-move 8s linear infinite;
-            opacity: 0.6;
-        }
-
-        .wave:nth-child(2) {
-            animation-duration: 12s;
-            animation-delay: -3s;
-            opacity: 0.4;
-            bottom: 0;
-        }
-
-        @keyframes wave-move {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(33.33%); }
-        }
-
-        /* Sun */
-        .sun {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-            background: radial-gradient(circle, #fff 0%, #fbbf24 50%, #f59e0b 100%);
-            border-radius: 50%;
-            box-shadow: 0 0 30px #fbbf24;
-        }
-
-        /* Taiwan SVG - 正確方向：東部在右邊 */
         #taiwan-svg {
+            width: 100%; height: 100%;
+            filter: drop-shadow(6px 6px 0px rgba(0,0,0,0.5));
+            overflow: visible;
+        }
+        .map-path { fill: var(--land-green); stroke: var(--land-border); stroke-width: 3px; }
+
+        /* 圓餅圖 */
+        #power-pie-chart {
             position: absolute;
-            left: 50%;
-            top: 45%;
+            top: 40%; left: 55%;
             transform: translate(-50%, -50%);
-            width: 55%;
-            max-width: 200px;
-            height: auto;
-            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: #444;
+            border: 3px solid #fff;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            z-index: 50; pointer-events: none;
+            transition: background 0.5s ease;
+        }
+        #pie-label {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); color: #fff; padding: 3px 6px;
+            font-size: 11px; border-radius: 3px; white-space: nowrap;
         }
 
-        .taiwan-land {
-            fill: url(#landGrad);
-            stroke: var(--land-dark);
-            stroke-width: 2;
-        }
-
-        .mountain {
-            fill: #15803d;
-            opacity: 0.5;
-        }
-
-        /* Region buttons on map */
-        .region-btn {
+        /* 左下角戰情數據 */
+        #map-data-overlay {
             position: absolute;
-            background: rgba(0,0,0,0.7);
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 10px;
-            padding: 6px 8px;
-            color: white;
-            font-size: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 48px;
-            backdrop-filter: blur(4px);
-        }
-
-        .region-btn:active {
-            transform: scale(0.95);
-        }
-
-        .region-btn.selected {
-            border-color: var(--gold);
-            background: rgba(251,191,36,0.3);
-            box-shadow: 0 0 15px rgba(251,191,36,0.5);
-        }
-
-        .region-btn .r-name {
-            font-size: 11px;
-            margin-bottom: 2px;
-        }
-
-        .region-btn .r-icons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1px;
-            font-size: 12px;
-            max-width: 50px;
-        }
-
-        .region-btn .r-count {
-            font-size: 9px;
-            color: var(--text-dim);
-            margin-top: 2px;
-        }
-
-        /* Region positions - 正確方位 */
-        #region-north { left: 50%; top: 12%; transform: translateX(-50%); }
-        #region-west { left: 15%; top: 40%; }
-        #region-central { left: 50%; top: 50%; transform: translateX(-50%); }
-        #region-south { left: 35%; top: 78%; }
-        #region-east { right: 10%; top: 45%; }
-
-        /* === BOTTOM PANEL === */
-        #bottom-panel {
-            background: var(--bg-dark);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            padding-bottom: var(--safe-bottom);
-        }
-
-        /* Tab navigation */
-        #tabs {
-            display: flex;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px 8px;
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .tab-btn .tab-icon {
-            font-size: 18px;
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            background: rgba(99,102,241,0.1);
-            border-bottom: 2px solid var(--primary);
-        }
-
-        /* Tab content */
-        .tab-content {
-            display: none;
-            padding: 12px;
-            max-height: 38vh;
-            overflow-y: auto;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* === BUILD TAB === */
-        .build-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .build-item {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 10px 6px;
-            text-align: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .build-item:active {
-            transform: scale(0.96);
-        }
-
-        .build-item.selected {
-            border-color: var(--gold);
-            background: rgba(251,191,36,0.15);
-        }
-
-        .build-item.disabled {
-            opacity: 0.4;
+            bottom: 10px; left: 10px;   
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #fff;
+            padding: 8px;
+            width: 150px;
+            z-index: 95;
             pointer-events: none;
+            box-shadow: 4px 4px 0px #000;
         }
+        .data-row { font-size: 12px; color: #ccc; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;}
+        .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 16px; }
+        .data-sep { border-top: 1px dashed #555; margin: 5px 0; }
 
-        .build-item .b-icon {
-            font-size: 28px;
-            margin-bottom: 4px;
+        /* === 底部控制台 === */
+        #bottom-panel {
+            flex: 0 0 auto; background: var(--ui-bg); border-top: 4px solid var(--ui-border);
+            height: 260px; display: flex; flex-direction: column; padding: 10px; z-index: 100;
         }
+        .arcade-tabs { display: flex; gap: 8px; margin-bottom: 8px; flex-shrink: 0; }
+        .pixel-btn {
+            flex: 1; background: #444; border: 2px solid #fff; color: #fff;
+            padding: 8px; font-weight: bold; font-size: 15px;
+            box-shadow: 3px 3px 0px #000; cursor: pointer; text-align: center;
+        }
+        .pixel-btn.active { background: var(--accent-blue); transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
+        
+        .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+        .tab-content.active { display: flex; }
 
-        .build-item .b-name {
-            font-size: 10px;
-            font-weight: 700;
-            margin-bottom: 2px;
-            color: var(--text);
+        /* 建設卡牌 */
+        #build-deck { display: flex; gap: 4px; flex: 1; width: 100%; }
+        .pixel-card {
+            flex: 1; position: relative;
+            background: #333; border: 2px solid #888;
+            box-shadow: 2px 2px 0px #000; padding: 2px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
+            min-width: 0;
         }
-
-        .build-item .b-cost {
-            font-size: 11px;
-            color: var(--gold);
-            font-weight: 700;
-        }
-
-        .build-item .b-power {
-            font-size: 9px;
-            color: var(--ocean);
-        }
+        .pixel-card.selected { background: #555; border-color: var(--accent-gold); transform: translateY(-3px); }
+        .pixel-card.disabled { opacity: 0.3; filter: grayscale(1); pointer-events: none; }
+        .card-emoji { font-size: 26px; }
+        .card-name { font-size: 12px; text-align: center; white-space: nowrap; color: #fff; font-weight: bold; }
+        /* 字體加大區 */
+        .card-power { font-family:'VT323'; color:var(--accent-blue); font-size:15px; font-weight: bold; }
+        .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; }
 
         .build-hint {
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: var(--text-dim);
-            background: var(--bg-card);
-            border-radius: 8px;
-            margin-top: 10px;
+            font-size: 11px; color: #888; text-align: center; 
+            padding-top: 6px; border-top: 1px solid #444; margin-top: 6px; flex-shrink: 0;
         }
 
-        /* === FUEL TAB === */
-        .fuel-section {
-            margin-bottom: 15px;
-        }
-
-        .fuel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .fuel-title {
-            font-size: 14px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .fuel-stock {
-            font-size: 18px;
-            font-weight: 900;
-            font-family: monospace;
-        }
-
-        .fuel-stock.coal { color: #a1887f; }
-        .fuel-stock.gas { color: #4fc3f7; }
-
-        .fuel-bar {
-            height: 8px;
-            background: var(--bg-card-light);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 4px;
-        }
-
-        .fuel-bar-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s;
-        }
-
-        .fuel-bar-fill.coal { background: linear-gradient(90deg, #6d4c41, #a1887f); }
-        .fuel-bar-fill.gas { background: linear-gradient(90deg, #0277bd, #4fc3f7); }
-        .fuel-bar-fill.low { animation: pulse-bar 1s infinite; }
-
-        @keyframes pulse-bar {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .fuel-days {
-            font-size: 10px;
-            color: var(--text-dim);
-            text-align: right;
-            margin-bottom: 8px;
-        }
-
-        .fuel-days.danger {
-            color: var(--danger);
-            font-weight: bold;
-        }
-
-        .fuel-countries {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .country-btn {
-            display: flex;
-            align-items: center;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 13px;
-            font-weight: 600;
-            color: white;
-        }
-
-        .country-btn:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        .country-btn:disabled {
-            opacity: 0.4;
-        }
-
-        .country-btn .c-flag {
-            font-size: 20px;
-            margin-right: 10px;
-        }
-
-        .country-btn .c-name {
-            flex: 1;
-            text-align: left;
-        }
-
-        .country-btn .c-price {
-            font-weight: 900;
-            font-family: monospace;
-            font-size: 14px;
-        }
-
-        .country-btn .c-trend {
-            margin-left: 6px;
-            font-size: 12px;
-        }
-
-        .country-btn.au { background: linear-gradient(135deg, #1565c0, #1e88e5); }
-        .country-btn.id { background: linear-gradient(135deg, #c62828, #e53935); }
-        .country-btn.ru { background: linear-gradient(135deg, #37474f, #546e7a); }
-        .country-btn.qa { background: linear-gradient(135deg, #6a1b9a, #8e24aa); }
-        .country-btn.us { background: linear-gradient(135deg, #0d47a1, #1976d2); }
-
-        .gas-locked {
-            background: var(--bg-card);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            color: var(--warning);
-            font-size: 12px;
-        }
-
-        /* === INFO TAB === */
-        .info-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-
-        .info-card-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .power-display {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            height: 80px;
-            padding: 0 20px;
-        }
-
-        .power-col {
-            text-align: center;
-            width: 60px;
-        }
-
-        .power-bar-outer {
-            width: 40px;
-            height: 60px;
-            background: var(--bg-card-light);
-            border-radius: 6px;
-            margin: 0 auto 6px;
+        /* === 燃料市場 (優化捲動) === */
+        #market-container { display: flex; gap: 8px; height: 100%; width: 100%; }
+        .market-col {
+            flex: 1; display: flex; flex-direction: column;
+            background: #111; border: 1px solid #444; padding: 0; border-radius: 4px;
+            height: 100%; 
+            overflow-y: auto; /* 整個欄位可捲動 */
             position: relative;
-            overflow: hidden;
+        }
+        .market-header { 
+            font-size: 13px; color: var(--accent-gold); text-align: center; 
+            background: #222; /* 確保標題有背景 */
+            border-bottom: 1px solid #555; padding: 6px; 
+            position: sticky; top: 0; z-index: 10; /* 黏性標題 */
+        }
+        
+        .market-country-row {
+            display: flex; flex-direction: column; background: #222; border: 1px solid #555; 
+            padding: 6px; margin: 4px; /* Margin移到裡面 */
+        }
+        .m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .flag { font-size: 14px; color:#fff; }
+        .price { color: #fff; font-family: 'VT323'; font-size: 18px; font-weight: bold; color: var(--accent-gold); }
+        .buy-btn-mini {
+            width: 100%; background: var(--land-green); border: 1px solid #fff; color: white;
+            padding: 4px; font-size: 12px; cursor: pointer; text-align: center; font-weight: bold;
+        }
+        .buy-btn-mini:active { background: #fff; color: #000; }
+
+        /* 接收站建設區 (在捲動容器內) */
+        .terminal-build-area {
+            background: #2c3e50; border: 1px solid var(--accent-blue);
+            padding: 8px; margin: 4px; text-align: center;
+        }
+        .terminal-info { font-size: 11px; color: #aec6cf; margin-bottom: 4px; }
+        .build-term-btn {
+            background: var(--accent-blue); color: #fff; border: 1px solid #fff;
+            width: 100%; padding: 6px; font-size: 13px; cursor: pointer; font-weight: bold;
         }
 
-        .power-bar-inner {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-radius: 6px;
-            transition: height 0.3s;
-        }
-
-        .power-bar-inner.supply { background: linear-gradient(0deg, #0ea5e9, #38bdf8); }
-        .power-bar-inner.demand { background: linear-gradient(0deg, #dc2626, #f87171); }
-
-        .power-label {
-            font-size: 10px;
-            color: var(--text-dim);
-        }
-
-        .power-value {
-            font-size: 14px;
-            font-weight: 900;
-        }
-
-        .import-display {
-            text-align: center;
-        }
-
-        .import-ships {
-            font-size: 20px;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
-
-        .import-ships .ship {
-            opacity: 0.2;
-            transition: opacity 0.3s;
-        }
-
-        .import-ships .ship.active {
-            opacity: 1;
-        }
-
-        .import-percent {
-            font-size: 28px;
-            font-weight: 900;
-            color: var(--warning);
-        }
-
-        .import-hint {
-            font-size: 10px;
-            color: var(--text-dim);
-        }
-
-        .mission-box {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            border-radius: 12px;
-            padding: 12px;
-        }
-
-        .mission-title {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--gold);
-        }
-
-        .mission-desc {
-            font-size: 11px;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 10px;
-        }
-
-        .mission-goal {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 8px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 6px;
-            margin-bottom: 4px;
-            font-size: 11px;
-        }
-
-        .mission-goal.done {
-            background: rgba(34,197,94,0.3);
-        }
-
-        /* === NEXT TURN BUTTON === */
+        /* === 下一回合按鈕 === */
         #next-btn {
-            position: absolute;
-            bottom: 12px;
-            right: 12px;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            border: none;
-            color: white;
-            font-size: 11px;
-            font-weight: 900;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(236,72,153,0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            transition: all 0.2s;
-        }
-
-        #next-btn:active {
-            transform: scale(0.95);
-        }
-
-        #next-btn .btn-icon {
-            font-size: 24px;
-            margin-bottom: 2px;
-        }
-
-        /* === POPUPS === */
-        .popup-overlay {
             position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
+            bottom: 280px; right: 20px;
+            width: 80px; height: 80px;
+            background: var(--accent-red);
+            border: 4px solid #fff; border-radius: 50%;
+            box-shadow: 5px 5px 0px #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 150; cursor: pointer;
+            font-size: 14px; font-weight: bold; text-align: center; line-height: 1.2;
+            animation: pulse-btn 1.5s infinite;
         }
+        #next-btn:active { transform: scale(0.95); box-shadow: 2px 2px 0px #000; }
+        @keyframes pulse-btn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        .popup-overlay.show {
-            display: flex;
+        /* 彈窗 */
+        #modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000;
+            display: none; justify-content: center; align-items: center; padding: 20px;
         }
+        .retro-dialog { background: var(--accent-blue); border: 4px solid #fff; padding: 4px; width: 100%; max-width: 320px; box-shadow: 8px 8px 0px #000;}
+        .retro-inner { background: var(--ui-bg); border: 2px solid #000; padding: 20px; text-align: center; }
+        .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; }
+        .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
 
-        .popup-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 24px;
-            max-width: 340px;
-            width: 100%;
-            text-align: center;
-            animation: popup-in 0.3s ease;
+        .float-pixel {
+            position: fixed; font-family: 'VT323', monospace; font-size: 28px; font-weight: bold;
+            text-shadow: 2px 2px 0px #000; pointer-events: none; z-index: 300;
+            animation: floatPixel 1.2s steps(8) forwards;
         }
-
-        @keyframes popup-in {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .popup-badge {
-            display: inline-block;
-            background: var(--primary);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .popup-icon {
-            font-size: 50px;
-            margin-bottom: 10px;
-        }
-
-        .popup-title {
-            font-size: 20px;
-            font-weight: 900;
-            margin-bottom: 8px;
-        }
-
-        .popup-desc {
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-
-        .popup-stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 15px;
-            padding: 12px;
-            background: var(--bg-dark);
-            border-radius: 12px;
-        }
-
-        .popup-stat {
-            text-align: center;
-        }
-
-        .popup-stat-value {
-            font-size: 22px;
-            font-weight: 900;
-            color: var(--ocean);
-        }
-
-        .popup-stat-label {
-            font-size: 10px;
-            color: var(--text-dim);
-        }
-
-        .popup-effects {
-            background: var(--bg-dark);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-
-        .popup-effect {
-            padding: 5px 0;
-            font-size: 13px;
-        }
-
-        .popup-effect.bad { color: var(--danger); }
-        .popup-effect.good { color: var(--success); }
-
-        .popup-btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .popup-btn.primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-        }
-
-        .popup-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Game Over */
-        .gameover-score {
-            font-size: 60px;
-            font-weight: 900;
-            color: var(--gold);
-            margin: 15px 0;
-        }
-
-        /* === FLOAT TEXT === */
-        .float-text {
-            position: fixed;
-            font-weight: 900;
-            font-size: 16px;
-            pointer-events: none;
-            z-index: 500;
-            animation: float-up 1s ease-out forwards;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .float-text.good { color: var(--success); }
-        .float-text.bad { color: var(--danger); }
-        .float-text.gold { color: var(--gold); }
-
-        @keyframes float-up {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-30px); }
-        }
-
-        /* === SCROLLBAR === */
-        .tab-content::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .tab-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .tab-content::-webkit-scrollbar-thumb {
-            background: var(--bg-card-light);
-            border-radius: 2px;
-        }
+        @keyframes floatPixel { 0%{transform:translate(-50%,0);} 100%{transform:translate(-50%,-60px); opacity: 0;} }
+        .crisis-mode { filter: sepia(100%) hue-rotate(-50deg) saturate(300%); }
+        
+        .rule-list { text-align: left; font-size: 14px; color: #ccc; margin: 10px 0; border: 1px solid #555; padding: 10px; background: #222; }
+        .rule-item { display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid #333; padding-bottom: 2px;}
+        .rule-title { font-weight: bold; color: var(--accent-gold); margin-bottom: 5px; text-align: center;}
     </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Status Bar -->
-        <div id="status-bar">
-            <div class="status-item year">
-                <div class="label">西元</div>
-                <div class="value" id="s-year">1975</div>
-            </div>
-            <div class="status-item funds">
-                <div class="label">資金(億)</div>
-                <div class="value" id="s-funds">2500</div>
-            </div>
-            <div class="status-item happy">
-                <div class="label">滿意度</div>
-                <div class="value" id="s-happy">100</div>
-            </div>
-            <div class="status-item safety" id="safety-item">
-                <div class="label">安全存量</div>
-                <div class="value" id="s-safety">25天</div>
-            </div>
+
+    <div id="hud">
+        <div class="stat-box"><span class="stat-label">西元</span><span class="stat-val" id="hud-year">1975</span></div>
+        <div class="stat-box">
+            <span class="stat-label">資金</span>
+            <span class="stat-val gold" id="hud-funds">2500</span>
+            <div class="help-btn" onclick="ui.showFundsHelp()">?</div>
         </div>
+        <div class="stat-box">
+            <span class="stat-label">競爭力</span>
+            <span class="stat-val blue" id="hud-comp">100%</span>
+            <div class="help-btn" onclick="ui.showCompHelp()">?</div>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">存量</span>
+            <span class="stat-val" id="hud-days">30天</span>
+            <div class="help-btn" onclick="ui.showStockHelp()">?</div>
+        </div>
+    </div>
 
-        <!-- Map Area -->
-        <div id="map-area">
-            <div class="sun"></div>
-            <div class="wave-container">
-                <div class="wave"></div>
-                <div class="wave"></div>
-            </div>
+    <div id="story-panel" class="info-panel">
+        <div class="pixel-title">任務簡報</div>
+        <div class="pixel-text" id="story-text">...</div>
+    </div>
+    <div id="goal-panel" class="info-panel">
+        <div class="pixel-title" style="color:var(--accent-blue)">階段目標</div>
+        <div id="goal-list"></div>
+    </div>
 
-            <!-- Taiwan SVG - 正確方向 -->
-            <svg id="taiwan-svg" viewBox="0 0 200 320">
-                <defs>
-                    <linearGradient id="landGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#4ade80"/>
-                        <stop offset="100%" stop-color="#22c55e"/>
-                    </linearGradient>
-                </defs>
-                <!-- 台灣本島 - 東邊(右)是陡峭海岸，西邊(左)是平緩 -->
-                <path class="taiwan-land" d="
-                    M 100 15
-                    C 115 18, 130 28, 142 45
-                    C 155 65, 165 90, 170 120
-                    C 175 150, 175 180, 170 210
-                    C 165 240, 152 270, 135 290
-                    C 120 305, 100 310, 85 305
-                    C 65 298, 50 275, 40 245
-                    C 30 215, 28 180, 30 145
-                    C 32 110, 42 75, 58 50
-                    C 74 28, 88 15, 100 15
-                    Z
+    <div id="game-stage">
+        <div id="map-container">
+            <svg id="taiwan-svg" viewBox="0 0 320 480">
+                <path class="map-path" d="
+                    M 210 30 
+                    C 230 35, 250 50, 260 80
+                    C 275 120, 270 180, 265 220
+                    C 260 270, 240 320, 220 370
+                    C 200 420, 185 450, 175 460
+                    L 165 455
+                    C 110 420, 60 350, 55 250  
+                    C 50 180, 75 120, 100 80
+                    C 140 50, 170 30, 210 30 Z
                 "/>
-                <!-- 中央山脈 - 偏東側 -->
-                <path class="mountain" d="M 95 60 L 115 30 L 135 60 L 120 70 L 140 100 L 115 80 L 95 100 L 105 70 Z"/>
-                <path class="mountain" d="M 90 120 L 115 75 L 140 120 L 125 135 L 145 175 L 115 145 L 90 175 L 100 135 Z"/>
-                <path class="mountain" d="M 88 200 L 115 150 L 142 200 L 125 220 L 135 260 L 115 235 L 95 260 L 105 220 Z"/>
             </svg>
+            
+            <div id="power-pie-chart">
+                <div id="pie-label">發電占比</div>
+            </div>
+            
+            <div id="buildings-layer"></div>
 
-            <!-- Region Buttons - 正確方位 -->
-            <div class="region-btn" id="region-north">
-                <div class="r-name">北部</div>
-                <div class="r-icons" id="icons-north"></div>
-                <div class="r-count" id="count-north">0座</div>
+            <div id="map-data-overlay">
+                <div class="data-row"><span>總發電</span><span class="data-val" id="stat-supply">0</span></div>
+                <div class="data-row"><span>總需求</span><span class="data-val" id="stat-demand">0</span></div>
+                <div class="data-sep"></div>
+                <div class="data-row"><span>🏭 燃煤電廠</span><span class="data-val" id="cnt-coal">0</span></div>
+                <div class="data-row"><span>🔥 燃氣電廠</span><span class="data-val" id="cnt-gas">0</span></div>
+                <div class="data-row"><span>☢️ 核能電廠</span><span class="data-val" id="cnt-nuke">0</span></div>
+                <div class="data-row"><span>🌀 離岸風電</span><span class="data-val" id="cnt-wind">0</span></div>
+                <div class="data-row"><span>☀️ 太陽能</span><span class="data-val" id="cnt-solar">0</span></div>
+                <div class="data-row"><span>⚓ 接收站</span><span class="data-val" id="cnt-term">0</span></div>
             </div>
-            <div class="region-btn" id="region-west">
-                <div class="r-name">西部</div>
-                <div class="r-icons" id="icons-west"></div>
-                <div class="r-count" id="count-west">0座</div>
-            </div>
-            <div class="region-btn" id="region-central">
-                <div class="r-name">中部</div>
-                <div class="r-icons" id="icons-central"></div>
-                <div class="r-count" id="count-central">0座</div>
-            </div>
-            <div class="region-btn" id="region-south">
-                <div class="r-name">南部</div>
-                <div class="r-icons" id="icons-south"></div>
-                <div class="r-count" id="count-south">0座</div>
-            </div>
-            <div class="region-btn" id="region-east">
-                <div class="r-name">東部</div>
-                <div class="r-icons" id="icons-east"></div>
-                <div class="r-count" id="count-east">0座</div>
-            </div>
+        </div>
+    </div>
 
-            <!-- Next Turn Button -->
-            <button id="next-btn" onclick="game.nextTurn()">
-                <span class="btn-icon">🌅</span>
-                <span>下一年</span>
-            </button>
+    <div id="next-btn" onclick="game.nextTurn()">下一<br>年度</div>
+
+    <div id="bottom-panel">
+        <div class="arcade-tabs">
+            <button class="pixel-btn active" onclick="ui.switchTab('build')">🔨 建設</button>
+            <button class="pixel-btn" onclick="ui.switchTab('market')">🚢 燃料市場</button>
         </div>
 
-        <!-- Bottom Panel -->
-        <div id="bottom-panel">
-            <!-- Tabs -->
-            <div id="tabs">
-                <button class="tab-btn active" onclick="switchTab('build')">
-                    <span class="tab-icon">🏗️</span>
-                    <span>建設</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('fuel')">
-                    <span class="tab-icon">⛽</span>
-                    <span>燃料</span>
-                </button>
-                <button class="tab-btn" onclick="switchTab('info')">
-                    <span class="tab-icon">📊</span>
-                    <span>資訊</span>
-                </button>
-            </div>
+        <div id="tab-build" class="tab-content active">
+            <div id="build-deck"></div>
+            <div class="build-hint">點擊卡片系統將自動選址建設</div>
+        </div>
 
-            <!-- Build Tab -->
-            <div class="tab-content active" id="tab-build">
-                <div class="build-grid" id="build-grid"></div>
-                <div class="build-hint" id="build-hint">💡 選擇設施後，點擊地圖上的區域建設</div>
-            </div>
-
-            <!-- Fuel Tab -->
-            <div class="tab-content" id="tab-fuel">
-                <!-- Coal -->
-                <div class="fuel-section">
-                    <div class="fuel-header">
-                        <div class="fuel-title">🪨 煤炭</div>
-                        <div class="fuel-stock coal" id="coal-stock">500</div>
-                    </div>
-                    <div class="fuel-bar">
-                        <div class="fuel-bar-fill coal" id="coal-bar" style="width:50%"></div>
-                    </div>
-                    <div class="fuel-days" id="coal-days">可用 25 天</div>
-                    <div class="fuel-countries" id="coal-countries"></div>
+        <div id="tab-market" class="tab-content">
+            <div id="market-container">
+                <div class="market-col">
+                    <div class="market-header">🪨 煤 (存:<span id="val-coal-stock">0</span>)</div>
+                    <div class="market-list" id="market-coal-list"></div>
                 </div>
-
-                <!-- Gas -->
-                <div class="fuel-section">
-                    <div class="fuel-header">
-                        <div class="fuel-title">🔥 天然氣</div>
-                        <div class="fuel-stock gas" id="gas-stock">0</div>
+                <div class="market-col">
+                    <div class="market-header">🔥 氣 (存:<span id="val-gas-stock">0</span>)</div>
+                    
+                    <div class="terminal-build-area">
+                        <div class="terminal-info">上限: <span id="val-gas-cap">0</span> | 已有 <span id="val-term-cnt">0</span> 座</div>
+                        <button class="build-term-btn" onclick="game.buildTerminal()">新建接收站 ($1000)</button>
                     </div>
-                    <div class="fuel-bar">
-                        <div class="fuel-bar-fill gas" id="gas-bar" style="width:0%"></div>
-                    </div>
-                    <div class="fuel-days" id="gas-days">需建接收站</div>
-                    <div id="gas-countries-wrapper"></div>
-                </div>
-            </div>
 
-            <!-- Info Tab -->
-            <div class="tab-content" id="tab-info">
-                <div class="info-card">
-                    <div class="info-card-title">⚡ 電力供需</div>
-                    <div class="power-display">
-                        <div class="power-col">
-                            <div class="power-bar-outer">
-                                <div class="power-bar-inner supply" id="pw-supply" style="height:30%"></div>
-                            </div>
-                            <div class="power-label">供給</div>
-                            <div class="power-value" id="pw-supply-val">160</div>
-                        </div>
-                        <div class="power-col">
-                            <div class="power-bar-outer">
-                                <div class="power-bar-inner demand" id="pw-demand" style="height:50%"></div>
-                            </div>
-                            <div class="power-label">需求</div>
-                            <div class="power-value" id="pw-demand-val">600</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="info-card">
-                    <div class="info-card-title">🚢 進口依賴度</div>
-                    <div class="import-display">
-                        <div class="import-ships" id="import-ships">
-                            <span class="ship active">🚢</span>
-                            <span class="ship active">🚢</span>
-                            <span class="ship active">🚢</span>
-                            <span class="ship active">🚢</span>
-                            <span class="ship">🚢</span>
-                        </div>
-                        <div class="import-percent" id="import-pct">98%</div>
-                        <div class="import-hint">發展綠能可降低風險</div>
-                    </div>
-                </div>
-
-                <div class="mission-box">
-                    <div class="mission-title" id="m-title">🎯 基礎建設期</div>
-                    <div class="mission-desc" id="m-desc">經濟起飛需要電力！</div>
-                    <div id="m-goals"></div>
+                    <div class="market-list" id="market-gas-list"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Event Popup -->
-    <div class="popup-overlay" id="event-popup">
-        <div class="popup-card">
-            <div class="popup-badge" id="evt-year">1975年</div>
-            <div class="popup-icon" id="evt-icon">🛢️</div>
-            <div class="popup-title" id="evt-title">事件</div>
-            <div class="popup-desc" id="evt-desc">描述</div>
-            <div class="popup-stats">
-                <div class="popup-stat">
-                    <div class="popup-stat-value" id="evt-income">+0</div>
-                    <div class="popup-stat-label">營收</div>
+    <div id="modal-overlay">
+        <div class="retro-dialog">
+            <div class="retro-inner">
+                <div class="retro-title" id="modal-title">TITLE</div>
+                <div id="modal-content-area">
+                    <p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">CONTENT</p>
                 </div>
-                <div class="popup-stat">
-                    <div class="popup-stat-value" id="evt-power">0</div>
-                    <div class="popup-stat-label">發電</div>
-                </div>
+                <button class="retro-btn" id="modal-btn" onclick="ui.closeModal()">確 定</button>
             </div>
-            <div class="popup-effects" id="evt-effects"></div>
-            <button class="popup-btn primary" onclick="game.closeEvent()">繼續</button>
-        </div>
-    </div>
-
-    <!-- Game Over Popup -->
-    <div class="popup-overlay" id="gameover-popup">
-        <div class="popup-card">
-            <div class="popup-icon" id="go-icon">🏆</div>
-            <div class="popup-title" id="go-title">遊戲結束</div>
-            <div class="popup-desc" id="go-desc">描述</div>
-            <div class="gameover-score" id="go-score">0</div>
-            <button class="popup-btn primary" onclick="location.reload()">🔄 再玩一次</button>
         </div>
     </div>
 
     <script>
-    // === CONFIG ===
-    const PLANTS = {
-        coal:     { name: '燃煤', emoji: '🏭', cost: 500,  output: 80,  fuelUse: 20, fuel: 'coal' },
-        gas:      { name: '燃氣', emoji: '🔥', cost: 800,  output: 100, fuelUse: 15, fuel: 'gas' },
-        nuclear:  { name: '核能', emoji: '⚛️', cost: 2500, output: 280, fuelUse: 0,  fuel: null },
-        wind:     { name: '風電', emoji: '🌬️', cost: 1200, output: 35,  fuelUse: 0,  fuel: null },
-        solar:    { name: '太陽能', emoji: '☀️', cost: 600,  output: 25,  fuelUse: 0,  fuel: null },
-        terminal: { name: '接收站', emoji: '🏗️', cost: 1000, output: 0,   fuelUse: 0,  fuel: null }
-    };
+        const PLANTS = {
+            coal: { name: '燃煤', emoji: '🏭', cost: 500, output: 100, fuel: 20, type: 'land', color: '#7f8c8d' },
+            gas: { name: '燃氣', emoji: '🔥', cost: 800, output: 120, fuel: 15, type: 'land', color: '#d35400' },
+            terminal: { name: '接收站', emoji: '⚓', cost: 1000, output: 0, fuel: 0, type: 'coast', color: '#2980b9' },
+            green: { name: '風電', emoji: '🌀', cost: 1500, output: 20, fuel: 0, type: 'sea', color: '#2ecc71' },
+            solar: { name: '太陽能', emoji: '☀️', cost: 600, output: 10, fuel: 0, type: 'land', color: '#f39c12' },
+            nuclear: { name: '核能', emoji: '☢️', cost: 3000, output: 300, fuel: 0, type: 'land', color: '#8e44ad' }
+        };
 
-    const FUEL_SOURCES = {
-        coal: [
-            { id: 'au', name: '澳洲', flag: '🇦🇺', base: 200, css: 'au' },
-            { id: 'id', name: '印尼', flag: '🇮🇩', base: 150, css: 'id' },
-            { id: 'ru', name: '俄羅斯', flag: '🇷🇺', base: 180, css: 'ru' }
-        ],
-        gas: [
-            { id: 'qa', name: '卡達', flag: '🇶🇦', base: 350, css: 'qa' },
-            { id: 'au', name: '澳洲', flag: '🇦🇺', base: 380, css: 'au' },
-            { id: 'us', name: '美國', flag: '🇺🇸', base: 420, css: 'us' }
-        ]
-    };
-
-    const REGIONS = ['north', 'west', 'central', 'south', 'east'];
-
-    const SCENARIOS = [
-        { start: 1975, end: 1990, title: '🎯 基礎建設期', desc: '經濟起飛需要電力！', goals: [
-            { text: '發電 ≥ 800 MW', check: g => g.output >= 800 },
-            { text: '資金 ≥ 5000 億', check: g => g.funds >= 5000 }
-        ]},
-        { start: 1991, end: 2005, title: '🎯 經濟奇蹟', desc: '穩定供電支撐科技業', goals: [
-            { text: '發電 ≥ 1500 MW', check: g => g.output >= 1500 },
-            { text: '滿意度 > 85', check: g => g.satisfaction > 85 }
-        ]},
-        { start: 2006, end: 2020, title: '🎯 能源轉型', desc: '減碳與多元能源', goals: [
-            { text: '燃氣電廠 ≥ 2', check: g => g.counts.gas >= 2 },
-            { text: '接收站 ≥ 1', check: g => g.counts.terminal >= 1 }
-        ]},
-        { start: 2021, end: 2025, title: '🎯 能源安全', desc: '追求自主降低風險', goals: [
-            { text: '安全存量 ≥ 14天', check: g => g.safetyDays >= 14 },
-            { text: '進口依賴 < 85%', check: g => g.importDep < 85 }
-        ]}
-    ];
-
-    const EVENTS = {
-        early: [
-            { icon: '🛢️', title: '石油危機', desc: '中東戰爭油價暴漲', fx: [{ t: 'priceUp', v: 1.5, txt: '燃料漲 50%', bad: 1 }] },
-            { icon: '🏗️', title: '十大建設', desc: '政府補助重工業', fx: [{ t: 'funds', v: 800, txt: '+800 億', bad: 0 }] },
-            { icon: '💰', title: '經濟起飛', desc: '出口暢旺', fx: [{ t: 'funds', v: 1000, txt: '+1000 億', bad: 0 }] },
-            { icon: '🔌', title: '用電成長', desc: '家電普及', fx: [{ t: 'demand', v: 80, txt: '需求 +80', bad: 1 }] },
-            { icon: '🌤️', title: '風調雨順', desc: '平穩的一年', fx: [{ t: 'happy', v: 5, txt: '滿意度 +5', bad: 0 }] }
-        ],
-        mid: [
-            { icon: '🏚️', title: '921地震', desc: '電網嚴重受損', fx: [{ t: 'funds', v: -600, txt: '-600 億', bad: 1 }, { t: 'happy', v: -10, txt: '滿意度 -10', bad: 1 }] },
-            { icon: '💻', title: '科技業擴張', desc: '晶圓廠設立', fx: [{ t: 'demand', v: 200, txt: '需求 +200', bad: 1 }, { t: 'income', v: 1.15, txt: '營收 +15%', bad: 0 }] },
-            { icon: '📉', title: '金融海嘯', desc: '經濟衰退', fx: [{ t: 'demand', v: -100, txt: '需求 -100', bad: 0 }] },
-            { icon: '🌍', title: '京都議定書', desc: '碳排放關注', fx: [{ t: 'co2', v: 1, txt: '高碳排扣分', bad: 1 }] }
-        ],
-        late: [
-            { icon: '🇯🇵', title: '福島核災', desc: '反核聲浪', fx: [{ t: 'funds', v: -400, txt: '-400 億', bad: 1 }] },
-            { icon: '💡', title: '815停電', desc: '全台大跳電', fx: [{ t: 'happy', v: -15, txt: '滿意度 -15', bad: 1 }] },
-            { icon: '🇺🇦', title: '烏俄戰爭', desc: '天然氣飆漲', fx: [{ t: 'gasPrice', v: 2, txt: '氣價 x2', bad: 1 }] },
-            { icon: '🤖', title: 'AI熱潮', desc: '算力需求暴增', fx: [{ t: 'demand', v: 250, txt: '需求 +250', bad: 1 }, { t: 'income', v: 1.2, txt: '營收 +20%', bad: 0 }] },
-            { icon: '🚢', title: '海峽封鎖', desc: '船隻無法入港', fx: [{ t: 'blockade', v: 1, txt: '⚠️ 無法進口', bad: 1 }] },
-            { icon: '☀️', title: '綠能補助', desc: '太陽能降價', fx: [{ t: 'solarCost', v: -150, txt: '太陽能 -150', bad: 0 }] }
-        ]
-    };
-
-    // === GAME STATE ===
-    const game = {
-        year: 1975,
-        funds: 2500,
-        satisfaction: 100,
-        baseDemand: 600,
-        fuel: { coal: 500, gas: 0 },
-        price: { coal: 1, gas: 1 },
-        counts: { coal: 0, gas: 0, nuclear: 0, wind: 0, solar: 0, terminal: 0 },
-        regions: { north: [], west: [], central: [], south: [], east: [] },
-        output: 0,
-        safetyDays: 25,
-        importDep: 98,
-        incomeMult: 1,
-        co2Tax: false,
-        blockade: false,
-        selected: null,
-
-        init() {
-            this.regions.north.push('coal');
-            this.regions.west.push('coal');
-            this.counts.coal = 2;
-            this.output = 160;
-
-            this.renderBuildGrid();
-            this.renderFuelCountries();
-            this.setupRegions();
-            this.updateUI();
-        },
-
-        renderBuildGrid() {
-            const grid = document.getElementById('build-grid');
-            grid.innerHTML = '';
-            Object.entries(PLANTS).forEach(([type, p]) => {
-                const div = document.createElement('div');
-                div.className = 'build-item';
-                div.dataset.type = type;
-                div.innerHTML = `
-                    <div class="b-icon">${p.emoji}</div>
-                    <div class="b-name">${p.name}</div>
-                    <div class="b-cost">$${p.cost}</div>
-                    <div class="b-power">${p.output > 0 ? '⚡' + p.output : '📦+500'}</div>
-                `;
-                div.onclick = () => this.selectBuild(type);
-                grid.appendChild(div);
-            });
-        },
-
-        renderFuelCountries() {
-            // Coal
-            const coalDiv = document.getElementById('coal-countries');
-            coalDiv.innerHTML = '';
-            FUEL_SOURCES.coal.forEach(s => {
-                const btn = document.createElement('button');
-                btn.className = `country-btn ${s.css}`;
-                btn.id = `fuel-coal-${s.id}`;
-                btn.onclick = () => this.buyFuel('coal', s);
-                coalDiv.appendChild(btn);
-            });
-
-            // Gas wrapper
-            const gasWrapper = document.getElementById('gas-countries-wrapper');
-            gasWrapper.innerHTML = `
-                <div class="fuel-countries" id="gas-countries"></div>
-                <div class="gas-locked" id="gas-locked">⚠️ 需先建造 LNG 接收站</div>
-            `;
-            const gasDiv = document.getElementById('gas-countries');
-            FUEL_SOURCES.gas.forEach(s => {
-                const btn = document.createElement('button');
-                btn.className = `country-btn ${s.css}`;
-                btn.id = `fuel-gas-${s.id}`;
-                btn.onclick = () => this.buyFuel('gas', s);
-                gasDiv.appendChild(btn);
-            });
-
-            this.updateFuelPrices();
-        },
-
-        updateFuelPrices() {
-            FUEL_SOURCES.coal.forEach(s => {
-                const btn = document.getElementById(`fuel-coal-${s.id}`);
-                const price = Math.floor(s.base * this.price.coal);
-                const trend = this.price.coal > 1.2 ? '📈' : this.price.coal < 0.9 ? '📉' : '';
-                btn.innerHTML = `
-                    <span class="c-flag">${s.flag}</span>
-                    <span class="c-name">${s.name}</span>
-                    <span class="c-price">$${price}</span>
-                    <span class="c-trend">${trend}</span>
-                `;
-                btn.disabled = this.blockade || this.funds < price;
-            });
-
-            FUEL_SOURCES.gas.forEach(s => {
-                const btn = document.getElementById(`fuel-gas-${s.id}`);
-                const price = Math.floor(s.base * this.price.gas);
-                const trend = this.price.gas > 1.2 ? '📈' : this.price.gas < 0.9 ? '📉' : '';
-                btn.innerHTML = `
-                    <span class="c-flag">${s.flag}</span>
-                    <span class="c-name">${s.name}</span>
-                    <span class="c-price">$${price}</span>
-                    <span class="c-trend">${trend}</span>
-                `;
-                btn.disabled = this.blockade || this.funds < price || this.counts.terminal === 0;
-            });
-
-            document.getElementById('gas-countries').style.display = this.counts.terminal > 0 ? 'flex' : 'none';
-            document.getElementById('gas-locked').style.display = this.counts.terminal > 0 ? 'none' : 'block';
-        },
-
-        setupRegions() {
-            REGIONS.forEach(r => {
-                document.getElementById(`region-${r}`).onclick = () => this.buildAt(r);
-            });
-        },
-
-        selectBuild(type) {
-            const p = PLANTS[type];
-            if (this.funds < p.cost) {
-                this.float(window.innerWidth / 2, window.innerHeight / 2, '資金不足', 'bad');
-                return;
+        const STAGES = [
+            {
+                title: "階段一：基礎建設",
+                desc: "1975年，十大建設啟動。請建設電廠，滿足工業發展的電力需求。",
+                goals: [
+                    { txt: "發電量 > 800MW", check: g => g.calcPower() >= 800 },
+                    { txt: "燃煤電廠 4 座", check: g => g.counts.coal >= 4 },
+                    { txt: "燃氣電廠 1 座", check: g => g.counts.gas >= 1 }
+                ]
+            },
+            {
+                title: "階段二：經濟起飛",
+                desc: "1990年，竹科崛起。需要穩定的燃氣電力與接收站。",
+                goals: [
+                    { txt: "接收站 > 1 座", check: g => g.counts.terminal >= 2 },
+                    { txt: "燃氣電廠 3 座", check: g => g.counts.gas >= 3 }
+                ]
+            },
+            {
+                title: "階段三：能源轉型",
+                desc: "2010年，面對封鎖風險，必須提高天然氣安全存量並發展綠能。",
+                goals: [
+                    { txt: "安全存量 > 14天", check: g => g.getSafetyDays() >= 14 },
+                    { txt: "離岸風電 5 座", check: g => g.counts.green >= 5 }
+                ]
             }
-            if (type === 'gas' && this.counts.terminal === 0) {
-                this.float(window.innerWidth / 2, window.innerHeight / 2, '需先建接收站', 'bad');
-                return;
-            }
+        ];
 
-            this.selected = this.selected === type ? null : type;
+        const MARKET_SOURCES = {
+            coal: [
+                { id: 'au', name: '澳洲', flag: '🇦🇺', base: 100 },
+                { id: 'id', name: '印尼', flag: '🇮🇩', base: 80 },
+                { id: 'ru', name: '俄國', flag: '🇷🇺', base: 90 }
+            ],
+            gas: [
+                { id: 'qa', name: '卡達', flag: '🇶🇦', base: 200 },
+                { id: 'au', name: '澳洲', flag: '🇦🇺', base: 220 },
+                { id: 'us', name: '美國', flag: '🇺🇸', base: 250 }
+            ]
+        };
 
-            document.querySelectorAll('.build-item').forEach(el => {
-                el.classList.toggle('selected', el.dataset.type === this.selected);
-            });
-            REGIONS.forEach(r => {
-                document.getElementById(`region-${r}`).classList.toggle('selected', !!this.selected);
-            });
+        const game = {
+            year: 1975, funds: 2500, comp: 100, demand: 600,
+            fuel: { coal: 500, gas: 0 }, cap: { coal: 3000, gas: 0 },
+            counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
+            stageIdx: 0, selected: null, blockade: false, bDays: 0,
+            marketPrices: {}, 
 
-            document.getElementById('build-hint').textContent = this.selected
-                ? `🔨 點擊地圖區域建設 ${p.name}`
-                : '💡 選擇設施後，點擊地圖上的區域建設';
-        },
+            init() {
+                this.resetVariables();
+                this.counts.coal = 2;
+                this.updateMarketPrices();
+                ui.renderDeck(); ui.renderMarket(); ui.updateAll();
+                ui.showModal(STAGES[0].title, STAGES[0].desc);
+            },
 
-        buildAt(region) {
-            if (!this.selected) {
-                this.float(window.innerWidth / 2, window.innerHeight / 3, '請先選擇設施', 'bad');
-                return;
-            }
+            resetVariables() {
+                this.year = 1975; this.funds = 2500; this.comp = 100; this.demand = 600;
+                this.fuel = { coal: 500, gas: 0 }; 
+                this.cap = { coal: 3000, gas: 0 };
+                this.counts = { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 };
+                this.stageIdx = 0; this.selected = null; this.blockade = false;
+                document.getElementById('buildings-layer').innerHTML = '';
+                document.body.classList.remove('crisis-mode');
+            },
+            
+            restart() {
+                this.resetVariables();
+                this.counts.coal = 2;
+                this.updateMarketPrices();
+                ui.renderDeck(); ui.renderMarket(); ui.updateAll();
+                ui.closeModal();
+                setTimeout(() => ui.showModal("遊戲重啟", "一切回到1975年，請重新規劃台灣能源政策！"), 300);
+            },
 
-            const type = this.selected;
-            const p = PLANTS[type];
+            selectCard(key) {
+                if(this.selected === key) { this.selected = null; }
+                else { this.selected = key; this.tryBuild(); }
+                ui.renderDeck();
+            },
 
-            this.funds -= p.cost;
-            this.regions[region].push(type);
-            this.counts[type]++;
+            tryBuild() {
+                if (!this.selected) return;
+                const p = PLANTS[this.selected];
+                
+                if (this.selected === 'nuclear' && this.year < 2025) {
+                    ui.floatText('🔒 技術未解鎖', 'red'); this.selected = null; return;
+                }
+                if (this.funds < p.cost) {
+                    ui.floatText('💸 資金不足', 'red'); this.selected = null; return;
+                }
+                if (this.selected === 'gas' && this.counts.terminal === 0) {
+                    ui.floatText('⚠️ 需建接收站', 'red'); this.selected = null; return;
+                }
 
-            const el = document.getElementById(`region-${region}`);
-            const rect = el.getBoundingClientRect();
-            this.float(rect.left + rect.width / 2, rect.top, `-${p.cost}`, 'gold');
+                this.funds -= p.cost;
+                this.counts[this.selected]++;
+                
+                ui.floatText(`-$${p.cost}`, 'gold');
+                this.placeBuilding(this.selected);
+                this.selected = null;
+                ui.renderDeck(); ui.updateAll();
+            },
 
-            this.selected = null;
-            document.querySelectorAll('.build-item').forEach(el => el.classList.remove('selected'));
-            REGIONS.forEach(r => document.getElementById(`region-${r}`).classList.remove('selected'));
-            document.getElementById('build-hint').textContent = '💡 選擇設施後，點擊地圖上的區域建設';
+            buildTerminal() {
+                const p = PLANTS.terminal;
+                if (this.funds < p.cost) {
+                    ui.floatText('💸 資金不足', 'red'); return;
+                }
+                this.funds -= p.cost;
+                this.counts.terminal++;
+                this.cap.gas += 500;
+                ui.floatText(`-$${p.cost} 擴充`, 'gold');
+                this.placeBuilding('terminal');
+                ui.updateAll();
+            },
 
-            this.updateUI();
-        },
+            placeBuilding(type) {
+                const pInfo = PLANTS[type];
+                const el = document.createElement('div');
+                el.innerText = pInfo.emoji;
+                el.style.position = 'absolute';
+                el.style.fontSize = '18px';
+                el.style.animation = 'dropIn 0.3s';
+                
+                let x, y;
+                switch(pInfo.type) {
+                    case 'sea': 
+                        x = 10 + Math.random() * 50; y = 100 + Math.random() * 300; break;
+                    case 'coast': 
+                        x = 60 + Math.random() * 20; y = 50 + Math.random() * 300; break;
+                    case 'land': 
+                        x = 100 + Math.random() * 100; y = 50 + Math.random() * 350; break;
+                }
+                el.style.left = x + 'px'; el.style.top = y + 'px';
+                // 為了保持圓餅圖焦點，這裡不實際添加建築圖標到地圖
+                // document.getElementById('buildings-layer').appendChild(el);
+            },
 
-        buyFuel(type, source) {
-            if (this.blockade) {
-                this.float(window.innerWidth / 2, 150, '封鎖中！', 'bad');
-                return;
-            }
-
-            const amount = 100;
-            const price = Math.floor(source.base * this.price[type]);
-
-            if (type === 'gas') {
-                const cap = this.counts.terminal * 500;
-                if (this.fuel.gas + amount > cap) {
-                    this.float(window.innerWidth / 2, 150, '儲槽已滿', 'bad');
+            buyFuel(type, countryId) {
+                if (this.blockade) { ui.floatText('🚫 封鎖中', 'red'); return; }
+                const cost = this.marketPrices[`${type}_${countryId}`];
+                if (this.funds < cost) { ui.floatText('💸 資金不足', 'red'); return; }
+                if (this.fuel[type] + 100 > this.cap[type]) {
+                    ui.floatText('📦 倉庫已滿', 'red');
+                    if(type==='gas' && this.counts.terminal===0) ui.floatText('⚠️ 需接收站', 'red');
                     return;
                 }
-            }
+                this.funds -= cost;
+                this.fuel[type] += 100;
+                ui.floatText(`+100`, 'blue');
+                ui.updateAll();
+            },
 
-            if (this.funds < price) {
-                this.float(window.innerWidth / 2, 150, '資金不足', 'bad');
-                return;
-            }
+            updateMarketPrices() {
+                ['coal', 'gas'].forEach(type => {
+                    MARKET_SOURCES[type].forEach(src => {
+                        const fluc = 0.8 + Math.random() * 0.5;
+                        this.marketPrices[`${type}_${src.id}`] = Math.floor(src.base * fluc);
+                    });
+                });
+            },
 
-            this.funds -= price;
-            this.fuel[type] += amount;
-            this.float(window.innerWidth / 2, 120, `${source.flag} +100`, 'good');
-            this.updateUI();
-        },
+            calcIncome() {
+                const baseIncome = 500;
+                const powerBonus = Math.floor(this.calcPower() * 2); 
+                return baseIncome + powerBonus;
+            },
 
-        nextTurn() {
-            const coalUse = this.counts.coal * PLANTS.coal.fuelUse;
-            const gasUse = this.counts.gas * PLANTS.gas.fuelUse;
+            nextTurn() {
+                if (this.blockade) { this.handleBlockade(); return; }
+                this.year++; 
+                
+                const income = this.calcIncome();
+                this.funds += income; 
+                ui.floatText(`+${income} 資金`, 'gold');
 
-            let power = 0;
-            power += this.counts.nuclear * PLANTS.nuclear.output;
-            power += this.counts.wind * PLANTS.wind.output;
-            power += this.counts.solar * PLANTS.solar.output;
-
-            if (coalUse > 0) {
-                const ratio = Math.min(1, this.fuel.coal / coalUse);
-                power += this.counts.coal * PLANTS.coal.output * ratio;
-            }
-            if (gasUse > 0) {
-                const ratio = Math.min(1, this.fuel.gas / gasUse);
-                power += this.counts.gas * PLANTS.gas.output * ratio;
-            }
-            power = Math.floor(power);
-
-            this.fuel.coal = Math.max(0, this.fuel.coal - coalUse);
-            this.fuel.gas = Math.max(0, this.fuel.gas - gasUse);
-
-            let income = Math.floor(Math.min(power, this.baseDemand) * 2.5 * this.incomeMult);
-
-            if (power < this.baseDemand) {
-                const penalty = Math.ceil((this.baseDemand - power) / 30);
-                this.satisfaction -= penalty;
-            } else {
-                this.satisfaction = Math.min(100, this.satisfaction + 2);
-            }
-
-            if (this.co2Tax && (this.counts.coal * 12 + this.counts.gas * 6) > 40) {
-                this.satisfaction -= 3;
-            }
-
-            this.funds += income;
-
-            this.price.coal = Math.max(0.7, Math.min(2, this.price.coal * (0.85 + Math.random() * 0.3)));
-            this.price.gas = Math.max(0.7, Math.min(2.5, this.price.gas * (0.85 + Math.random() * 0.3)));
-
-            let pool = this.year < 1991 ? EVENTS.early : this.year < 2006 ? EVENTS.mid : EVENTS.late;
-            const evt = pool[Math.floor(Math.random() * pool.length)];
-
-            this.blockade = false;
-
-            evt.fx.forEach(f => {
-                switch (f.t) {
-                    case 'funds': this.funds += f.v; break;
-                    case 'demand': this.baseDemand = Math.max(200, this.baseDemand + f.v); break;
-                    case 'happy': this.satisfaction = Math.max(0, Math.min(100, this.satisfaction + f.v)); break;
-                    case 'priceUp': this.price.coal *= f.v; this.price.gas *= f.v; break;
-                    case 'gasPrice': this.price.gas *= f.v; break;
-                    case 'income': this.incomeMult *= f.v; break;
-                    case 'co2': this.co2Tax = true; break;
-                    case 'blockade': this.blockade = true; break;
-                    case 'solarCost': PLANTS.solar.cost = Math.max(200, PLANTS.solar.cost + f.v); break;
+                this.demand += 30;
+                this.updateMarketPrices();
+                this.consumeFuel();
+                
+                const power = this.calcPower();
+                if (power < this.demand) {
+                    this.comp -= 15; ui.floatText('⚡ 缺電!', 'red');
+                } else {
+                    this.comp = Math.min(100, this.comp + 5);
                 }
-            });
 
-            this.showEvent(evt, income, power);
+                const stage = STAGES[this.stageIdx];
+                if (stage && stage.goals.every(g => g.check(this))) {
+                    if (this.stageIdx < STAGES.length - 1) {
+                        this.stageIdx++;
+                        ui.showModal(STAGES[this.stageIdx].title, STAGES[this.stageIdx].desc);
+                    }
+                }
 
-            this.year++;
-            this.baseDemand += 30;
+                if (this.year > 2020 && Math.random() < 0.15) this.startBlockade();
+                if (this.comp <= 0) { 
+                    ui.showGameOver();
+                    return;
+                }
+                ui.renderMarket(); ui.updateAll();
+            },
 
-            if (this.satisfaction <= 0) {
-                setTimeout(() => this.gameOver(false, '民眾滿意度歸零'), 300);
-            } else if (this.year > 2025) {
-                setTimeout(() => this.gameOver(true, '完成50年挑戰！'), 300);
+            consumeFuel() {
+                const cNeed = this.counts.coal * 20;
+                const gNeed = this.counts.gas * 20;
+                if (this.fuel.coal >= cNeed) this.fuel.coal -= cNeed;
+                else { this.fuel.coal = 0; this.comp -= 5; ui.floatText('缺煤', 'red'); }
+                if (this.fuel.gas >= gNeed) this.fuel.gas -= gNeed;
+                else { this.fuel.gas = 0; if(gNeed>0){this.comp -= 5; ui.floatText('缺氣', 'red');} }
+            },
+
+            calcPower() { return (this.counts.coal*100) + (this.counts.gas*120) + (this.counts.green*20) + (this.counts.solar*10) + (this.counts.nuclear*300); },
+            
+            getSafetyDays() {
+                const cUse = Math.max(1, this.counts.coal * 20);
+                const gUse = Math.max(1, this.counts.gas * 20);
+                const cDay = Math.floor(this.fuel.coal / cUse);
+                const gDay = (this.counts.gas === 0) ? 99 : Math.floor(this.fuel.gas / gUse);
+                return Math.min(cDay, gDay);
+            },
+            
+            startBlockade() {
+                this.blockade = true; this.bDays = 11;
+                document.body.classList.add('crisis-mode');
+                ui.showModal("⚠️ 紅色警報", "海峽封鎖開始！進口中斷，請撐過 11 天。");
+            },
+
+            handleBlockade() {
+                this.bDays--; this.consumeFuel();
+                ui.floatText(`剩 ${this.bDays} 天`, 'red');
+                if (this.bDays <= 0) {
+                    this.blockade = false; document.body.classList.remove('crisis-mode');
+                    ui.showModal("🏳️ 危機解除", "封鎖結束，台灣存活！");
+                }
+                ui.updateAll();
             }
+        };
 
-            this.updateUI();
-        },
+        const ui = {
+            switchTab(tab) {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.pixel-btn').forEach(el => el.classList.remove('active'));
+                document.getElementById(`tab-${tab}`).classList.add('active');
+                
+                const btns = document.querySelectorAll('.pixel-btn');
+                if(tab==='build') btns[0].classList.add('active');
+                if(tab==='market') btns[1].classList.add('active');
+            },
 
-        showEvent(evt, income, power) {
-            document.getElementById('evt-year').textContent = this.year + '年';
-            document.getElementById('evt-icon').textContent = evt.icon;
-            document.getElementById('evt-title').textContent = evt.title;
-            document.getElementById('evt-desc').textContent = evt.desc;
-            document.getElementById('evt-income').textContent = '+' + income;
-            document.getElementById('evt-power').textContent = power;
-            document.getElementById('evt-effects').innerHTML = evt.fx.map(f =>
-                `<div class="popup-effect ${f.bad ? 'bad' : 'good'}">${f.bad ? '📉' : '📈'} ${f.txt}</div>`
-            ).join('');
-            document.getElementById('event-popup').classList.add('show');
-        },
+            renderDeck() {
+                const buildable = Object.entries(PLANTS).filter(([k,v]) => k !== 'terminal');
+                document.getElementById('build-deck').innerHTML = buildable.map(([k, v]) => `
+                    <div class="pixel-card ${game.selected === k ? 'selected' : ''} ${(k==='nuclear' && game.year < 2025) ? 'disabled' : ''}" onclick="game.selectCard('${k}')">
+                        <div class="card-emoji">${v.emoji}</div>
+                        <div class="card-name" style="color:${v.color}">${v.name}</div>
+                        <div class="card-power">+${v.output}MW</div>
+                        <div class="card-cost">$${v.cost}</div>
+                    </div>
+                `).join('');
+            },
 
-        closeEvent() {
-            document.getElementById('event-popup').classList.remove('show');
-        },
+            renderMarket() {
+                document.getElementById('val-coal-stock').innerText = game.fuel.coal;
+                document.getElementById('val-gas-stock').innerText = game.fuel.gas;
+                
+                document.getElementById('val-gas-cap').innerText = game.cap.gas;
+                document.getElementById('val-term-cnt').innerText = game.counts.terminal;
 
-        gameOver(win, reason) {
-            const score = Math.floor(this.satisfaction * 10 + this.funds / 20 + (100 - this.importDep) * 3 + this.output / 5);
-            document.getElementById('go-icon').textContent = win ? '🏆' : '😢';
-            document.getElementById('go-title').textContent = win ? '任務完成！' : '遊戲結束';
-            document.getElementById('go-desc').textContent = reason;
-            document.getElementById('go-score').textContent = score;
-            document.getElementById('gameover-popup').classList.add('show');
-        },
+                document.getElementById('market-coal-list').innerHTML = MARKET_SOURCES.coal.map(src => `
+                    <div class="market-country-row">
+                        <div class="m-top"><span class="flag">${src.flag} ${src.name}</span><span class="price">$${game.marketPrices['coal_'+src.id]||src.base}</span></div>
+                        <button class="buy-btn-mini" onclick="game.buyFuel('coal', '${src.id}')">100噸 $${game.marketPrices['coal_'+src.id]||src.base}</button>
+                    </div>`).join('');
 
-        updateUI() {
-            let output = 0, renewable = 0;
-            Object.entries(this.counts).forEach(([t, n]) => {
-                if (t === 'terminal') return;
-                output += n * PLANTS[t].output;
-                if (t === 'wind' || t === 'solar') renewable += n * PLANTS[t].output;
-            });
-            this.output = output;
-            this.importDep = output > 0 ? Math.round(((output - renewable) / output) * 100) : 98;
+                document.getElementById('market-gas-list').innerHTML = MARKET_SOURCES.gas.map(src => `
+                    <div class="market-country-row">
+                        <div class="m-top"><span class="flag">${src.flag} ${src.name}</span><span class="price">$${game.marketPrices['gas_'+src.id]||src.base}</span></div>
+                        <button class="buy-btn-mini" onclick="game.buyFuel('gas', '${src.id}')">100噸 $${game.marketPrices['gas_'+src.id]||src.base}</button>
+                    </div>`).join('');
+            },
 
-            const coalDaily = this.counts.coal * PLANTS.coal.fuelUse;
-            const gasDaily = this.counts.gas * PLANTS.gas.fuelUse;
-            let coalDays = coalDaily > 0 ? Math.floor(this.fuel.coal / coalDaily) : 999;
-            let gasDays = gasDaily > 0 ? Math.floor(this.fuel.gas / gasDaily) : (this.counts.gas > 0 ? 0 : 999);
-            this.safetyDays = Math.min(coalDays, gasDays, 99);
+            updatePieChart() {
+                const pCoal = game.counts.coal * PLANTS.coal.output;
+                const pGas = game.counts.gas * PLANTS.gas.output;
+                const pGreen = (game.counts.green * PLANTS.green.output) + (game.counts.solar * PLANTS.solar.output);
+                const pNuke = game.counts.nuclear * PLANTS.nuclear.output;
+                const total = pCoal + pGas + pGreen + pNuke;
+                
+                if (total === 0) return;
 
-            // Status bar
-            document.getElementById('s-year').textContent = this.year;
-            document.getElementById('s-funds').textContent = this.funds;
-            document.getElementById('s-happy').textContent = this.satisfaction;
-            document.getElementById('s-safety').textContent = this.safetyDays + '天';
-            document.getElementById('safety-item').classList.toggle('danger', this.safetyDays < 14);
+                const degCoal = (pCoal / total) * 360;
+                const degGas = (pGas / total) * 360;
+                const degGreen = (pGreen / total) * 360;
+                const degNuke = (pNuke / total) * 360;
 
-            // Fuel
-            document.getElementById('coal-stock').textContent = Math.floor(this.fuel.coal);
-            document.getElementById('coal-bar').style.width = Math.min(100, this.fuel.coal / 10) + '%';
-            document.getElementById('coal-days').textContent = coalDaily > 0 ? `可用 ${coalDays} 天` : '無消耗';
-            document.getElementById('coal-days').classList.toggle('danger', coalDays < 14 && coalDaily > 0);
+                const chart = document.getElementById('power-pie-chart');
+                chart.style.background = `conic-gradient(
+                    var(--color-coal) 0deg ${degCoal}deg,
+                    var(--color-gas) ${degCoal}deg ${degCoal + degGas}deg,
+                    var(--color-nuclear) ${degCoal + degGas}deg ${degCoal + degGas + degNuke}deg,
+                    var(--color-green) ${degCoal + degGas + degNuke}deg 360deg
+                )`;
+            },
 
-            const gasCap = this.counts.terminal * 500;
-            document.getElementById('gas-stock').textContent = Math.floor(this.fuel.gas);
-            document.getElementById('gas-bar').style.width = gasCap > 0 ? Math.min(100, (this.fuel.gas / gasCap) * 100) + '%' : '0%';
-            document.getElementById('gas-days').textContent = this.counts.terminal === 0 ? '需建接收站' : (gasDaily > 0 ? `可用 ${gasDays} 天` : '無消耗');
-            document.getElementById('gas-days').classList.toggle('danger', gasDays < 14 && gasDaily > 0);
+            updateAll() {
+                document.getElementById('hud-year').innerText = game.year;
+                document.getElementById('hud-funds').innerText = game.funds;
+                document.getElementById('hud-comp').innerText = game.comp + '%';
+                
+                const days = game.getSafetyDays();
+                document.getElementById('hud-days').innerText = (days > 99 ? '充足' : days + '天');
+                document.getElementById('hud-days').className = `stat-val ${days < 14 ? 'red' : ''}`;
 
-            this.updateFuelPrices();
+                document.getElementById('stat-supply').innerText = game.calcPower();
+                document.getElementById('stat-demand').innerText = game.demand;
+                
+                document.getElementById('cnt-coal').innerText = game.counts.coal;
+                document.getElementById('cnt-gas').innerText = game.counts.gas;
+                document.getElementById('cnt-nuke').innerText = game.counts.nuclear;
+                document.getElementById('cnt-wind').innerText = game.counts.green;
+                document.getElementById('cnt-solar').innerText = game.counts.solar;
+                document.getElementById('cnt-term').innerText = game.counts.terminal;
 
-            // Power
-            const maxP = Math.max(this.baseDemand, output) * 1.3;
-            document.getElementById('pw-supply').style.height = (output / maxP * 100) + '%';
-            document.getElementById('pw-demand').style.height = (this.baseDemand / maxP * 100) + '%';
-            document.getElementById('pw-supply-val').textContent = output;
-            document.getElementById('pw-demand-val').textContent = this.baseDemand;
+                const s = STAGES[game.stageIdx];
+                document.getElementById('story-text').innerText = s.desc;
+                document.getElementById('goal-list').innerHTML = s.goals.map(g => `
+                    <div class="goal-item"><span class="goal-check ${g.check(game) ? 'done' : ''}">${g.check(game) ? '✅' : '⬜'}</span> <span>${g.txt}</span></div>
+                `).join('');
 
-            // Import
-            document.getElementById('import-pct').textContent = this.importDep + '%';
-            const ships = document.querySelectorAll('#import-ships .ship');
-            const activeShips = Math.ceil(this.importDep / 20);
-            ships.forEach((s, i) => s.classList.toggle('active', i < activeShips));
+                if (game.blockade) {
+                    document.getElementById('next-btn').innerHTML = `撐住<br>${game.bDays}天`;
+                    document.getElementById('next-btn').style.background = '#000';
+                } else {
+                    document.getElementById('next-btn').innerHTML = `下一<br>年度`;
+                    document.getElementById('next-btn').style.background = 'var(--accent-red)';
+                }
+                
+                this.updatePieChart();
+                this.renderMarket();
+            },
 
-            // Mission
-            const scenario = SCENARIOS.find(s => this.year >= s.start && this.year <= s.end) || SCENARIOS[3];
-            document.getElementById('m-title').textContent = scenario.title;
-            document.getElementById('m-desc').textContent = scenario.desc;
-            document.getElementById('m-goals').innerHTML = scenario.goals.map(g =>
-                `<div class="mission-goal ${g.check(this) ? 'done' : ''}">${g.check(this) ? '✅' : '⬜'} ${g.text}</div>`
-            ).join('');
+            floatText(txt, color) {
+                const el = document.createElement('div'); el.className = 'float-pixel'; el.innerText = txt;
+                el.style.color = color === 'red' ? '#e74c3c' : (color === 'gold' ? '#f1c40f' : '#fff');
+                el.style.left = '50%'; el.style.top = '40%';
+                document.body.appendChild(el); setTimeout(() => el.remove(), 1200);
+            },
 
-            // Regions
-            REGIONS.forEach(r => {
-                const plants = this.regions[r];
-                document.getElementById(`icons-${r}`).innerHTML = plants.slice(-3).map(t => PLANTS[t].emoji).join('');
-                document.getElementById(`count-${r}`).textContent = plants.length > 0 ? `${plants.length}座` : '空';
-            });
+            showModal(title, desc) {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-desc').style.display = 'block';
+                document.getElementById('modal-desc').innerText = desc;
+                const oldList = document.querySelector('.rule-list');
+                if(oldList) oldList.remove();
+                
+                document.getElementById('modal-btn').innerText = "確 定";
+                document.getElementById('modal-btn').onclick = ui.closeModal;
+                document.getElementById('modal-btn').classList.remove('restart');
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+            
+            showCompHelp() {
+                document.getElementById('modal-title').innerText = "競爭力說明";
+                document.getElementById('modal-desc').style.display = 'none';
+                const contentArea = document.getElementById('modal-content-area');
+                contentArea.innerHTML = ''; 
+                
+                const list = document.createElement('div');
+                list.className = 'rule-list';
+                list.innerHTML = `
+                    <div class="rule-title">評分規則</div>
+                    <div class="rule-item"><span>⚡ 供電充足</span><span style="color:#2ecc71">+5%</span></div>
+                    <div class="rule-item"><span>⚡ 供電不足</span><span style="color:#e74c3c">-15%</span></div>
+                    <div class="rule-item"><span>🪨 缺少煤炭</span><span style="color:#e74c3c">-5%</span></div>
+                    <div class="rule-item"><span>🔥 缺少天然氣</span><span style="color:#e74c3c">-5%</span></div>
+                `;
+                contentArea.appendChild(list);
+                document.getElementById('modal-btn').innerText = "關 閉";
+                document.getElementById('modal-btn').onclick = ui.closeModal;
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
 
-            // Build items
-            document.querySelectorAll('.build-item').forEach(el => {
-                const t = el.dataset.type;
-                const p = PLANTS[t];
-                const disabled = this.funds < p.cost || (t === 'gas' && this.counts.terminal === 0);
-                el.classList.toggle('disabled', disabled);
-                el.querySelector('.b-cost').textContent = `$${p.cost}`;
-            });
-        },
+            showFundsHelp() {
+                document.getElementById('modal-title').innerText = "資金收入說明";
+                document.getElementById('modal-desc').style.display = 'none';
+                const contentArea = document.getElementById('modal-content-area');
+                contentArea.innerHTML = '';
+                
+                const income = game.calcIncome();
+                
+                const list = document.createElement('div');
+                list.className = 'rule-list';
+                list.innerHTML = `
+                    <div class="rule-title">收入公式</div>
+                    <div class="rule-item"><span>💰 基礎稅收</span><span>$500</span></div>
+                    <div class="rule-item"><span>⚡ 發電獎勵</span><span>+$${Math.floor(game.calcPower()*2)}</span></div>
+                    <div class="rule-item" style="border-top:1px solid #fff; margin-top:5px; padding-top:5px;">
+                        <span>預計下年收入</span><span style="color:#f1c40f">$${income}</span>
+                    </div>
+                    <div style="font-size:10px; color:#888; margin-top:5px;">(公式：發電量 x 2 + 500)</div>
+                `;
+                contentArea.appendChild(list);
+                document.getElementById('modal-btn').innerText = "關 閉";
+                document.getElementById('modal-btn').onclick = ui.closeModal;
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
 
-        float(x, y, text, type) {
-            const el = document.createElement('div');
-            el.className = `float-text ${type}`;
-            el.textContent = text;
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
-        }
-    };
+            showStockHelp() {
+                document.getElementById('modal-title').innerText = "安全存量說明";
+                document.getElementById('modal-desc').style.display = 'none';
+                const contentArea = document.getElementById('modal-content-area');
+                contentArea.innerHTML = '';
+                
+                const cUse = Math.max(1, game.counts.coal * 20);
+                const gUse = Math.max(1, game.counts.gas * 20);
+                const cDays = Math.floor(game.fuel.coal / cUse);
+                const gDays = (game.counts.gas === 0) ? 99 : Math.floor(game.fuel.gas / gUse);
 
-    function switchTab(name) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(name === 'build' ? '建設' : name === 'fuel' ? '燃料' : '資訊')));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${name}`));
-    }
+                const list = document.createElement('div');
+                list.className = 'rule-list';
+                list.innerHTML = `
+                    <div class="rule-title">目前存量天數</div>
+                    <div class="rule-item"><span>🪨 煤炭</span><span>${cDays} 天</span></div>
+                    <div class="rule-item"><span>🔥 天然氣</span><span>${game.counts.gas===0 ? '-' : gDays+' 天'}</span></div>
+                    <div style="margin-top:10px; font-size:11px; color:#aaa; line-height:1.4;">
+                        消耗公式：<br>
+                        庫存量 ÷ (電廠數 x 20單位/年)<br>
+                        <span style="color:#e74c3c">*封鎖期間無法進口，需靠存量撐過11天。</span>
+                    </div>
+                `;
+                contentArea.appendChild(list);
+                document.getElementById('modal-btn').innerText = "關 閉";
+                document.getElementById('modal-btn').onclick = ui.closeModal;
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
 
-    window.onload = () => game.init();
+            showGameOver() {
+                document.getElementById('modal-title').innerText = "國家破產";
+                document.getElementById('modal-desc').style.display = 'block';
+                document.getElementById('modal-desc').innerText = "電力不穩導致產業外移，台灣競爭力歸零。";
+                
+                const btn = document.getElementById('modal-btn');
+                btn.innerText = "🔄 重新開始";
+                btn.classList.add('restart');
+                btn.onclick = () => game.restart();
+                
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+
+            closeModal() { 
+                document.getElementById('modal-overlay').style.display = 'none'; 
+                document.getElementById('modal-content-area').innerHTML = '<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">CONTENT</p>';
+            }
+        };
+
+        game.init();
     </script>
 </body>
 </html>
