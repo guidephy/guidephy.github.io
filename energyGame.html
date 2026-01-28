@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能源小島 - 守護台灣50年</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ocean: #1e6091;
+            --ocean-deep: #14405c;
+            --ocean-light: #3a8bc2;
+            --land: #5a9c47;
+            --land-dark: #3d7a2e;
+            --sky-top: #4a90c2;
+            --sky-bottom: #87ceeb;
+            --warning: #ff6b6b;
+            --success: #4caf50;
+            --gold: #ffc107;
+            --energy: #00e5ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 25%, var(--ocean-light) 50%, var(--ocean) 75%, var(--ocean-deep) 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* === WAVES === */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 60px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path fill="%231e6091" fill-opacity="0.4" d="M0,60 C150,90 350,30 600,60 C850,90 1050,30 1200,60 L1200,120 L0,120 Z"/></svg>') repeat-x;
+            animation: wave 12s linear infinite;
+        }
+        .wave:nth-child(2) { animation-delay: -3s; opacity: 0.6; bottom: 5px; animation-duration: 15s; }
+        .wave:nth-child(3) { animation-delay: -6s; opacity: 0.4; bottom: 10px; animation-duration: 18s; }
+        @keyframes wave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* === SUN === */
+        .sun {
+            position: absolute;
+            top: 15px;
+            right: 40px;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #fff 0%, #ffd54f 40%, #ffb300 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px #ffd54f, 0 0 100px rgba(255,213,79,0.4);
+            animation: pulse-sun 4s ease-in-out infinite;
+            z-index: 5;
+        }
+        @keyframes pulse-sun { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+        /* === CLOUDS === */
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50px;
+            filter: blur(1px);
+            z-index: 4;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+        }
+        .cloud-1 { width: 100px; height: 35px; top: 8%; left: -120px; animation: cloud-move 60s linear infinite; }
+        .cloud-1::before { width: 45px; height: 45px; top: -20px; left: 15px; }
+        .cloud-1::after { width: 35px; height: 35px; top: -12px; left: 50px; }
+        .cloud-2 { width: 70px; height: 25px; top: 15%; left: -80px; animation: cloud-move 80s linear infinite; animation-delay: -20s; }
+        .cloud-2::before { width: 30px; height: 30px; top: -15px; left: 10px; }
+        .cloud-2::after { width: 25px; height: 25px; top: -8px; left: 35px; }
+        .cloud-3 { width: 90px; height: 30px; top: 5%; left: -100px; animation: cloud-move 70s linear infinite; animation-delay: -35s; }
+        .cloud-3::before { width: 40px; height: 40px; top: -18px; left: 12px; }
+        .cloud-3::after { width: 30px; height: 30px; top: -10px; left: 45px; }
+        @keyframes cloud-move { 0% { transform: translateX(0); } 100% { transform: translateX(calc(100vw + 150px)); } }
+
+        /* === TAIWAN MAP === */
+        #taiwan-container {
+            position: absolute;
+            left: 50%;
+            top: 48%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        #taiwan-svg {
+            width: 240px;
+            height: 340px;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+        }
+
+        .taiwan-main {
+            fill: url(#taiwanGradient);
+            stroke: var(--land-dark);
+            stroke-width: 2;
+        }
+
+        .mountain-range {
+            fill: var(--land-dark);
+            opacity: 0.4;
+        }
+
+        /* === REGION ZONES === */
+        .region-zone {
+            position: absolute;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 15;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 5px;
+            min-width: 50px;
+        }
+
+        .region-zone:hover {
+            background: rgba(0,229,255,0.3);
+            border-color: var(--energy);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--energy);
+        }
+
+        .region-zone.selected {
+            background: rgba(0,229,255,0.4);
+            border-color: var(--energy);
+            box-shadow: 0 0 25px var(--energy);
+        }
+
+        .region-name {
+            font-size: 10px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .region-plants {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1px;
+            max-width: 60px;
+        }
+
+        .region-plants .mini-plant {
+            font-size: 14px;
+        }
+
+        .region-count {
+            font-size: 9px;
+            color: var(--energy);
+            margin-top: 2px;
+        }
+
+        /* === TOP HUD === */
+        #top-hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+        }
+
+        .hud-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            font-weight: 700;
+            border: 2px solid rgba(255,255,255,0.15);
+            font-size: 13px;
+        }
+        .stat-box .emoji { font-size: 16px; }
+        .stat-box .value { font-size: 16px; font-family: monospace; }
+        .stat-box .unit { font-size: 10px; color: #aaa; }
+
+        .year-box {
+            background: linear-gradient(135deg, #7b1fa2, #9c27b0);
+            padding: 6px 14px;
+        }
+        .year-box .label { font-size: 10px; opacity: 0.8; }
+        .year-box .year { font-size: 20px; font-weight: 900; }
+
+        .stat-box.danger {
+            border-color: var(--warning);
+            background: rgba(255,107,107,0.3);
+        }
+
+        /* === LEFT PANEL - 燃料市場 === */
+        #fuel-panel {
+            position: absolute;
+            left: 10px;
+            top: 70px;
+            bottom: 80px;
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+            overflow-y: auto;
+        }
+
+        .fuel-section {
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            padding: 10px;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .fuel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .fuel-title {
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .fuel-stock {
+            text-align: right;
+        }
+        .fuel-stock-num {
+            font-size: 18px;
+            font-weight: 900;
+            font-family: monospace;
+        }
+        .fuel-stock-num.coal { color: #bcaaa4; }
+        .fuel-stock-num.gas { color: #4fc3f7; }
+        .fuel-stock-label {
+            font-size: 9px;
+            color: #888;
+        }
+
+        .fuel-bar-container {
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .fuel-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        .fuel-bar-fill.coal { background: linear-gradient(90deg, #5d4037, #a1887f); }
+        .fuel-bar-fill.gas { background: linear-gradient(90deg, #0277bd, #4fc3f7); }
+        .fuel-bar-fill.low { animation: bar-pulse 1s infinite; }
+        @keyframes bar-pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.5; } }
+
+        .fuel-days {
+            font-size: 10px;
+            color: #aaa;
+            text-align: right;
+            margin-bottom: 8px;
+        }
+        .fuel-days.danger { color: var(--warning); font-weight: bold; }
+
+        .fuel-countries {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .country-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .country-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+        .country-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .country-btn .flag { font-size: 16px; margin-right: 5px; }
+        .country-btn .name { flex: 1; text-align: left; }
+        .country-btn .price {
+            font-weight: 900;
+            font-family: monospace;
+        }
+        .country-btn .trend {
+            font-size: 10px;
+            margin-left: 4px;
+        }
+
+        .country-btn.australia { background: linear-gradient(135deg, #1565c0, #1976d2); color: white; }
+        .country-btn.indonesia { background: linear-gradient(135deg, #c62828, #e53935); color: white; }
+        .country-btn.russia { background: linear-gradient(135deg, #37474f, #546e7a); color: white; }
+        .country-btn.qatar { background: linear-gradient(135deg, #6a1b9a, #8e24aa); color: white; }
+        .country-btn.usa { background: linear-gradient(135deg, #0d47a1, #1565c0); color: white; }
+
+        .gas-warning {
+            background: rgba(255,152,0,0.2);
+            border: 1px solid rgba(255,152,0,0.5);
+            border-radius: 6px;
+            padding: 6px;
+            font-size: 10px;
+            color: #ffb74d;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* === RIGHT PANEL === */
+        #right-panel {
+            position: absolute;
+            right: 10px;
+            top: 70px;
+            width: 170px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .info-card {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            padding: 12px;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .card-title {
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Power Meter */
+        .power-bars {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+        .power-col { text-align: center; }
+        .power-bar-outer {
+            width: 45px;
+            height: 80px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+        .power-bar-inner {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-radius: 6px;
+            transition: height 0.5s ease;
+        }
+        .power-bar-inner.supply { background: linear-gradient(0deg, #1565c0, var(--energy)); }
+        .power-bar-inner.demand { background: linear-gradient(0deg, #c62828, #ef5350); }
+        .power-label { color: #aaa; font-size: 9px; margin-top: 4px; }
+        .power-value { color: white; font-weight: bold; font-size: 12px; }
+
+        /* Import Danger */
+        .import-visual {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            margin: 8px 0;
+        }
+        .import-ship {
+            font-size: 14px;
+            opacity: 0.25;
+            transition: all 0.3s;
+        }
+        .import-ship.active { opacity: 1; }
+        .import-percent {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--warning);
+        }
+        .import-hint {
+            text-align: center;
+            font-size: 9px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        /* Mission */
+        .mission-title-text { color: var(--gold); font-size: 11px; }
+        .mission-desc {
+            color: #bbb;
+            font-size: 10px;
+            margin: 6px 0;
+            line-height: 1.4;
+        }
+        .mission-goal {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+            margin-bottom: 3px;
+            font-size: 10px;
+            color: #ccc;
+        }
+        .mission-goal.done {
+            background: rgba(76,175,80,0.2);
+            color: var(--success);
+        }
+
+        /* === BOTTOM BUILD PANEL === */
+        #bottom-panel {
+            position: absolute;
+            bottom: 0;
+            left: 220px;
+            right: 200px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 70%, transparent 100%);
+            padding: 35px 15px 12px 15px;
+            z-index: 90;
+        }
+
+        .build-cards-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .build-card {
+            width: 80px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 8px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 2px solid transparent;
+        }
+        .build-card:hover:not(.disabled) {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-4px);
+            border-color: var(--energy);
+        }
+        .build-card.selected {
+            background: rgba(0,229,255,0.25);
+            border-color: var(--energy);
+            box-shadow: 0 0 15px rgba(0,229,255,0.4);
+        }
+        .build-card.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .build-card .card-emoji { font-size: 28px; }
+        .build-card .card-name { color: white; font-size: 10px; font-weight: 700; margin: 3px 0 2px 0; }
+        .build-card .card-cost { color: var(--gold); font-size: 10px; font-weight: 700; }
+        .build-card .card-power { color: var(--energy); font-size: 9px; }
+
+        /* === NEXT TURN BUTTON === */
+        #next-turn-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 900;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 5px 25px rgba(233,30,99,0.5);
+            transition: all 0.3s;
+        }
+        #next-turn-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(233,30,99,0.6);
+        }
+
+        /* === INSTRUCTIONS === */
+        #instructions {
+            position: absolute;
+            bottom: 95px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 95;
+            white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* === EVENT POPUP === */
+        #event-popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        #event-popup.show { display: flex; }
+
+        .event-card {
+            background: linear-gradient(145deg, #1a237e, #311b92);
+            border-radius: 24px;
+            padding: 25px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid #7c4dff;
+            box-shadow: 0 0 60px rgba(124,77,255,0.4);
+            animation: pop-in 0.3s ease-out;
+        }
+        @keyframes pop-in { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        .event-year-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: #333;
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .event-emoji { font-size: 50px; margin-bottom: 10px; }
+        .event-title { color: white; font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+        .event-desc { color: #b0bec5; font-size: 13px; line-height: 1.5; margin-bottom: 15px; }
+
+        .event-summary {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 12px;
+        }
+        .summary-item { text-align: center; }
+        .summary-value { font-size: 20px; font-weight: 900; color: var(--energy); }
+        .summary-label { font-size: 10px; color: #888; }
+
+        .event-effects {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .effect-line {
+            padding: 4px 0;
+            font-size: 12px;
+        }
+        .effect-line.bad { color: var(--warning); }
+        .effect-line.good { color: var(--success); }
+
+        .event-btn {
+            background: linear-gradient(135deg, #7c4dff, #651fff);
+            color: white;
+            border: none;
+            padding: 12px 45px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .event-btn:hover { transform: scale(1.05); }
+
+        /* === GAME OVER === */
+        #gameover-popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        #gameover-popup.show { display: flex; }
+
+        .gameover-content { text-align: center; }
+        .gameover-emoji { font-size: 70px; margin-bottom: 15px; }
+        .gameover-title { color: white; font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+        .gameover-reason { color: #aaa; font-size: 16px; margin-bottom: 25px; }
+        .gameover-score { font-size: 60px; font-weight: 900; color: var(--gold); margin-bottom: 25px; }
+        .gameover-btn {
+            background: var(--energy);
+            color: #222;
+            border: none;
+            padding: 14px 45px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        /* === FLOAT TEXT === */
+        .float-text {
+            position: fixed;
+            font-weight: 900;
+            font-size: 18px;
+            pointer-events: none;
+            z-index: 500;
+            animation: float-up 1.2s ease-out forwards;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .float-text.good { color: var(--success); }
+        .float-text.bad { color: var(--warning); }
+        .float-text.gold { color: var(--gold); }
+        @keyframes float-up {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 900px) {
+            #taiwan-svg { width: 180px; height: 255px; }
+            #fuel-panel { width: 160px; left: 5px; }
+            #right-panel { width: 140px; right: 5px; }
+            #bottom-panel { left: 170px; right: 155px; }
+            .build-card { width: 65px; }
+            .build-card .card-emoji { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Background Effects -->
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="sun"></div>
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+
+        <!-- Top HUD -->
+        <div id="top-hud">
+            <div class="hud-group">
+                <div class="stat-box year-box">
+                    <div>
+                        <div class="label">西元</div>
+                        <div class="year" id="hud-year">1975</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <span class="emoji">💰</span>
+                    <span class="value" id="hud-funds">2500</span>
+                    <span class="unit">億</span>
+                </div>
+            </div>
+            <div class="hud-group">
+                <div class="stat-box">
+                    <span class="emoji">😊</span>
+                    <span class="value" id="hud-satisfaction">100</span>
+                </div>
+                <div class="stat-box" id="safety-box">
+                    <span class="emoji">🛡️</span>
+                    <span class="value" id="hud-safety">25</span>
+                    <span class="unit">天</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Taiwan Map -->
+        <div id="taiwan-container">
+            <svg id="taiwan-svg" viewBox="0 0 200 300">
+                <defs>
+                    <linearGradient id="taiwanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7cb342"/>
+                        <stop offset="50%" stop-color="#689f38"/>
+                        <stop offset="100%" stop-color="#558b2f"/>
+                    </linearGradient>
+                    <filter id="landShadow">
+                        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.35"/>
+                    </filter>
+                </defs>
+                <!-- 更精確的台灣本島形狀 -->
+                <path class="taiwan-main" filter="url(#landShadow)" d="
+                    M 95 8
+                    C 102 8, 115 12, 125 22
+                    C 138 35, 152 55, 160 80
+                    C 168 105, 172 130, 170 155
+                    C 168 180, 160 205, 148 230
+                    C 136 255, 118 275, 100 285
+                    C 90 290, 78 288, 70 280
+                    C 55 265, 42 240, 35 210
+                    C 28 180, 25 150, 28 120
+                    C 31 90, 40 60, 55 40
+                    C 70 20, 88 8, 95 8
+                    Z
+                "/>
+                <!-- 中央山脈 -->
+                <path class="mountain-range" d="M 85 50 L 100 25 L 115 50 L 105 55 L 120 75 L 100 60 L 80 75 L 95 55 Z"/>
+                <path class="mountain-range" d="M 80 90 L 100 55 L 120 90 L 105 100 L 115 130 L 100 110 L 85 130 L 95 100 Z"/>
+                <path class="mountain-range" d="M 78 150 L 100 110 L 122 150 L 108 165 L 115 200 L 100 175 L 85 200 L 92 165 Z"/>
+            </svg>
+
+            <!-- Region Zones (可無限建設) -->
+            <div class="region-zone" id="region-north" style="left: 105px; top: 20px;" data-region="north">
+                <div class="region-name">北部</div>
+                <div class="region-plants" id="plants-north"></div>
+                <div class="region-count" id="count-north">0 座</div>
+            </div>
+            <div class="region-zone" id="region-west" style="left: 140px; top: 100px;" data-region="west">
+                <div class="region-name">西部</div>
+                <div class="region-plants" id="plants-west"></div>
+                <div class="region-count" id="count-west">0 座</div>
+            </div>
+            <div class="region-zone" id="region-central" style="left: 145px; top: 175px;" data-region="central">
+                <div class="region-name">中部</div>
+                <div class="region-plants" id="plants-central"></div>
+                <div class="region-count" id="count-central">0 座</div>
+            </div>
+            <div class="region-zone" id="region-south" style="left: 110px; top: 250px;" data-region="south">
+                <div class="region-name">南部</div>
+                <div class="region-plants" id="plants-south"></div>
+                <div class="region-count" id="count-south">0 座</div>
+            </div>
+            <div class="region-zone" id="region-east" style="left: 35px; top: 150px;" data-region="east">
+                <div class="region-name">東部</div>
+                <div class="region-plants" id="plants-east"></div>
+                <div class="region-count" id="count-east">0 座</div>
+            </div>
+        </div>
+
+        <!-- Left Panel: Fuel Market -->
+        <div id="fuel-panel">
+            <!-- Coal Section -->
+            <div class="fuel-section">
+                <div class="fuel-header">
+                    <div class="fuel-title">🪨 煤炭</div>
+                    <div class="fuel-stock">
+                        <div class="fuel-stock-num coal" id="coal-amount">500</div>
+                        <div class="fuel-stock-label">庫存量</div>
+                    </div>
+                </div>
+                <div class="fuel-bar-container">
+                    <div class="fuel-bar-fill coal" id="coal-bar" style="width: 50%;"></div>
+                </div>
+                <div class="fuel-days" id="coal-days">可用 25 天</div>
+                <div class="fuel-countries" id="coal-countries"></div>
+            </div>
+
+            <!-- Gas Section -->
+            <div class="fuel-section">
+                <div class="fuel-header">
+                    <div class="fuel-title">🔥 天然氣</div>
+                    <div class="fuel-stock">
+                        <div class="fuel-stock-num gas" id="gas-amount">0</div>
+                        <div class="fuel-stock-label">庫存量</div>
+                    </div>
+                </div>
+                <div class="fuel-bar-container">
+                    <div class="fuel-bar-fill gas" id="gas-bar" style="width: 0%;"></div>
+                </div>
+                <div class="fuel-days" id="gas-days">需建接收站</div>
+                <div class="fuel-countries" id="gas-countries"></div>
+                <div class="gas-warning" id="gas-warning">⚠️ 需先建造 LNG 接收站</div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div id="right-panel">
+            <!-- Power Meter -->
+            <div class="info-card">
+                <div class="card-title">⚡ 電力供需</div>
+                <div class="power-bars">
+                    <div class="power-col">
+                        <div class="power-bar-outer">
+                            <div class="power-bar-inner supply" id="supply-bar" style="height: 30%;"></div>
+                        </div>
+                        <div class="power-label">供給</div>
+                        <div class="power-value" id="supply-val">160</div>
+                    </div>
+                    <div class="power-col">
+                        <div class="power-bar-outer">
+                            <div class="power-bar-inner demand" id="demand-bar" style="height: 50%;"></div>
+                        </div>
+                        <div class="power-label">需求</div>
+                        <div class="power-value" id="demand-val">600</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Dependency -->
+            <div class="info-card">
+                <div class="card-title">🚢 進口依賴度</div>
+                <div class="import-visual">
+                    <span class="import-ship active">🚢</span>
+                    <span class="import-ship active">🚢</span>
+                    <span class="import-ship active">🚢</span>
+                    <span class="import-ship active">🚢</span>
+                    <span class="import-ship">🚢</span>
+                </div>
+                <div class="import-percent" id="import-pct">98%</div>
+                <div class="import-hint">建綠能降低風險</div>
+            </div>
+
+            <!-- Mission -->
+            <div class="info-card">
+                <div class="card-title">🎯 <span class="mission-title-text" id="mission-title">基礎建設期</span></div>
+                <div class="mission-desc" id="mission-desc">建立穩定的發電系統</div>
+                <div id="mission-goals"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Build Panel -->
+        <div id="bottom-panel">
+            <div class="build-cards-row" id="build-cards"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div id="instructions">💡 點選下方卡片，再點地圖區域建設電廠</div>
+
+        <!-- Next Turn Button (右下角) -->
+        <button id="next-turn-btn" onclick="game.nextTurn()">🌅 下一年</button>
+
+        <!-- Event Popup -->
+        <div id="event-popup">
+            <div class="event-card">
+                <div class="event-year-badge" id="evt-year">1975年</div>
+                <div class="event-emoji" id="evt-emoji">🛢️</div>
+                <div class="event-title" id="evt-title">事件標題</div>
+                <div class="event-desc" id="evt-desc">事件描述</div>
+                <div class="event-summary">
+                    <div class="summary-item">
+                        <div class="summary-value" id="evt-income">+800</div>
+                        <div class="summary-label">本年營收</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="evt-power">160</div>
+                        <div class="summary-label">發電量</div>
+                    </div>
+                </div>
+                <div class="event-effects" id="evt-effects"></div>
+                <button class="event-btn" onclick="game.closeEvent()">繼 續</button>
+            </div>
+        </div>
+
+        <!-- Game Over -->
+        <div id="gameover-popup">
+            <div class="gameover-content">
+                <div class="gameover-emoji" id="go-emoji">🏆</div>
+                <div class="gameover-title" id="go-title">遊戲結束</div>
+                <div class="gameover-reason" id="go-reason">原因</div>
+                <div class="gameover-score" id="go-score">0</div>
+                <button class="gameover-btn" onclick="location.reload()">🔄 再玩一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ====== GAME CONFIGURATION ======
+    const PLANTS = {
+        coal:     { name: '燃煤電廠', emoji: '🏭', cost: 500,  output: 80,  fuelUse: 20, fuelType: 'coal', desc: '便宜但高污染' },
+        gas:      { name: '燃氣電廠', emoji: '🔥', cost: 800,  output: 100, fuelUse: 15, fuelType: 'gas',  desc: '需要接收站' },
+        nuclear:  { name: '核能電廠', emoji: '⚛️', cost: 2500, output: 280, fuelUse: 0,  fuelType: null,  desc: '穩定零碳排' },
+        wind:     { name: '風力發電', emoji: '🌬️', cost: 1200, output: 35,  fuelUse: 0,  fuelType: null,  desc: '自主能源' },
+        solar:    { name: '太陽能', emoji: '☀️', cost: 600,  output: 25,  fuelUse: 0,  fuelType: null,  desc: '潔淨能源' },
+        terminal: { name: 'LNG接收站', emoji: '🏗️', cost: 1000, output: 0,   fuelUse: 0,  fuelType: null,  desc: '+500氣儲量' }
+    };
+
+    const FUEL_SOURCES = {
+        coal: [
+            { id: 'au', name: '澳洲', flag: '🇦🇺', basePrice: 200, style: 'australia', risk: '穩定' },
+            { id: 'id', name: '印尼', flag: '🇮🇩', basePrice: 150, style: 'indonesia', risk: '較便宜' },
+            { id: 'ru', name: '俄羅斯', flag: '🇷🇺', basePrice: 180, style: 'russia', risk: '風險高' }
+        ],
+        gas: [
+            { id: 'qa', name: '卡達', flag: '🇶🇦', basePrice: 350, style: 'qatar', risk: '長約穩定' },
+            { id: 'au', name: '澳洲', flag: '🇦🇺', basePrice: 380, style: 'australia', risk: '品質好' },
+            { id: 'us', name: '美國', flag: '🇺🇸', basePrice: 420, style: 'usa', risk: '友好盟友' }
+        ]
+    };
+
+    const REGIONS = ['north', 'west', 'central', 'south', 'east'];
+
+    const SCENARIOS = [
+        { start: 1975, end: 1990, title: '基礎建設期', desc: '經濟起飛需要電力！', goals: [
+            { text: '發電 ≥ 800 MW', check: g => g.totalOutput >= 800 },
+            { text: '資金 ≥ 5000 億', check: g => g.funds >= 5000 }
+        ]},
+        { start: 1991, end: 2005, title: '經濟奇蹟', desc: '高科技產業需要穩定電力', goals: [
+            { text: '發電 ≥ 1500 MW', check: g => g.totalOutput >= 1500 },
+            { text: '滿意度 > 85', check: g => g.satisfaction > 85 }
+        ]},
+        { start: 2006, end: 2020, title: '能源轉型', desc: '減碳壓力與多元能源', goals: [
+            { text: '燃氣電廠 ≥ 2', check: g => g.counts.gas >= 2 },
+            { text: '接收站 ≥ 1', check: g => g.counts.terminal >= 1 }
+        ]},
+        { start: 2021, end: 2025, title: '能源安全', desc: '追求自主、降低風險', goals: [
+            { text: '安全存量 ≥ 14天', check: g => g.safetyDays >= 14 },
+            { text: '進口依賴 < 85%', check: g => g.importDep < 85 }
+        ]}
+    ];
+
+    const EVENTS = {
+        early: [
+            { emoji: '🛢️', title: '石油危機', desc: '中東戰爭導致油價暴漲', effects: [{ type: 'priceUp', val: 1.5, text: '燃料漲價 50%', bad: true }] },
+            { emoji: '🏗️', title: '十大建設', desc: '政府補助重工業發展', effects: [{ type: 'funds', val: 800, text: '獲得 800 億', bad: false }] },
+            { emoji: '💰', title: '經濟起飛', desc: '出口暢旺資金充裕', effects: [{ type: 'funds', val: 1000, text: '獲得 1000 億', bad: false }] },
+            { emoji: '🔌', title: '用電成長', desc: '家電普及需求增加', effects: [{ type: 'demand', val: 80, text: '需求 +80 MW', bad: true }] },
+            { emoji: '🌤️', title: '穩定發展', desc: '風調雨順的一年', effects: [{ type: 'satisfaction', val: 5, text: '滿意度 +5', bad: false }] }
+        ],
+        mid: [
+            { emoji: '🏚️', title: '921大地震', desc: '電網嚴重受損', effects: [{ type: 'funds', val: -600, text: '損失 600 億', bad: true }, { type: 'satisfaction', val: -10, text: '滿意度 -10', bad: true }] },
+            { emoji: '💻', title: '科技業擴張', desc: '晶圓廠大量設立', effects: [{ type: 'demand', val: 200, text: '需求 +200 MW', bad: true }, { type: 'income', val: 1.15, text: '營收 +15%', bad: false }] },
+            { emoji: '📉', title: '金融海嘯', desc: '全球經濟衰退', effects: [{ type: 'demand', val: -100, text: '需求 -100 MW', bad: false }] },
+            { emoji: '🌍', title: '京都議定書', desc: '國際關注碳排放', effects: [{ type: 'co2tax', val: true, text: '高碳排扣滿意度', bad: true }] }
+        ],
+        late: [
+            { emoji: '🇯🇵', title: '福島核災', desc: '反核聲浪升高', effects: [{ type: 'funds', val: -400, text: '維護成本增加', bad: true }] },
+            { emoji: '💡', title: '815大停電', desc: '全台大跳電', effects: [{ type: 'satisfaction', val: -15, text: '滿意度 -15', bad: true }] },
+            { emoji: '🇺🇦', title: '烏俄戰爭', desc: '天然氣價格飆漲', effects: [{ type: 'gasPrice', val: 2, text: '氣價 x2', bad: true }] },
+            { emoji: '🤖', title: 'AI熱潮', desc: '資料中心耗電劇增', effects: [{ type: 'demand', val: 250, text: '需求 +250 MW', bad: true }, { type: 'income', val: 1.2, text: '營收 +20%', bad: false }] },
+            { emoji: '🚢', title: '海峽危機', desc: '船隻無法入港', effects: [{ type: 'blockade', val: true, text: '⚠️ 本年無法進口', bad: true }] },
+            { emoji: '☀️', title: '綠能補助', desc: '政府推動再生能源', effects: [{ type: 'solarCost', val: -150, text: '太陽能降價', bad: false }] }
+        ]
+    };
+
+    // ====== GAME STATE ======
+    const game = {
+        year: 1975,
+        funds: 2500,
+        satisfaction: 100,
+        baseDemand: 600,
+        fuel: { coal: 500, gas: 0 },
+        fuelPrice: { coal: 1, gas: 1 },  // multiplier
+        counts: { coal: 0, gas: 0, nuclear: 0, wind: 0, solar: 0, terminal: 0 },
+        regions: { north: [], west: [], central: [], south: [], east: [] },
+        totalOutput: 0,
+        safetyDays: 25,
+        importDep: 98,
+        incomeMult: 1,
+        co2Tax: false,
+        blockade: false,
+        selectedPlant: null,
+
+        init() {
+            // Pre-build 2 coal plants
+            this.regions.north.push('coal');
+            this.regions.west.push('coal');
+            this.counts.coal = 2;
+            this.totalOutput = 160;
+
+            this.renderBuildCards();
+            this.renderFuelMarket();
+            this.setupRegionClicks();
+            this.updateUI();
+        },
+
+        renderBuildCards() {
+            const container = document.getElementById('build-cards');
+            container.innerHTML = '';
+            Object.entries(PLANTS).forEach(([type, p]) => {
+                const card = document.createElement('div');
+                card.className = 'build-card';
+                card.dataset.type = type;
+                card.innerHTML = `
+                    <div class="card-emoji">${p.emoji}</div>
+                    <div class="card-name">${p.name}</div>
+                    <div class="card-cost">💰${p.cost}</div>
+                    <div class="card-power">${p.output > 0 ? '⚡' + p.output : '📦+500'}</div>
+                `;
+                card.onclick = () => this.selectPlant(type);
+                container.appendChild(card);
+            });
+        },
+
+        renderFuelMarket() {
+            // Coal countries
+            const coalDiv = document.getElementById('coal-countries');
+            coalDiv.innerHTML = '';
+            FUEL_SOURCES.coal.forEach(src => {
+                const btn = document.createElement('button');
+                btn.className = `country-btn ${src.style}`;
+                btn.id = `buy-coal-${src.id}`;
+                btn.onclick = () => this.buyFuel('coal', src);
+                coalDiv.appendChild(btn);
+            });
+
+            // Gas countries
+            const gasDiv = document.getElementById('gas-countries');
+            gasDiv.innerHTML = '';
+            FUEL_SOURCES.gas.forEach(src => {
+                const btn = document.createElement('button');
+                btn.className = `country-btn ${src.style}`;
+                btn.id = `buy-gas-${src.id}`;
+                btn.onclick = () => this.buyFuel('gas', src);
+                gasDiv.appendChild(btn);
+            });
+
+            this.updateFuelPrices();
+        },
+
+        updateFuelPrices() {
+            // Update coal buttons
+            FUEL_SOURCES.coal.forEach(src => {
+                const btn = document.getElementById(`buy-coal-${src.id}`);
+                const price = Math.floor(src.basePrice * this.fuelPrice.coal);
+                const trend = this.fuelPrice.coal > 1.2 ? '📈' : (this.fuelPrice.coal < 0.9 ? '📉' : '');
+                btn.innerHTML = `
+                    <span class="flag">${src.flag}</span>
+                    <span class="name">${src.name}</span>
+                    <span class="price">$${price}</span>
+                    <span class="trend">${trend}</span>
+                `;
+                btn.disabled = this.blockade || this.funds < price;
+                btn.title = src.risk;
+            });
+
+            // Update gas buttons
+            FUEL_SOURCES.gas.forEach(src => {
+                const btn = document.getElementById(`buy-gas-${src.id}`);
+                const price = Math.floor(src.basePrice * this.fuelPrice.gas);
+                const trend = this.fuelPrice.gas > 1.2 ? '📈' : (this.fuelPrice.gas < 0.9 ? '📉' : '');
+                btn.innerHTML = `
+                    <span class="flag">${src.flag}</span>
+                    <span class="name">${src.name}</span>
+                    <span class="price">$${price}</span>
+                    <span class="trend">${trend}</span>
+                `;
+                btn.disabled = this.blockade || this.funds < price || this.counts.terminal === 0;
+                btn.title = src.risk;
+            });
+
+            // Gas warning
+            document.getElementById('gas-warning').style.display = this.counts.terminal === 0 ? 'block' : 'none';
+        },
+
+        setupRegionClicks() {
+            REGIONS.forEach(region => {
+                const el = document.getElementById(`region-${region}`);
+                el.onclick = () => this.buildAtRegion(region);
+            });
+        },
+
+        selectPlant(type) {
+            const plant = PLANTS[type];
+            
+            if (this.funds < plant.cost) {
+                this.floatText(window.innerWidth / 2, window.innerHeight / 2, '資金不足！', 'bad');
+                return;
+            }
+            
+            if (type === 'gas' && this.counts.terminal === 0) {
+                this.floatText(window.innerWidth / 2, window.innerHeight / 2, '需先建接收站！', 'bad');
+                return;
+            }
+
+            // Toggle selection
+            this.selectedPlant = this.selectedPlant === type ? null : type;
+
+            // Update card visuals
+            document.querySelectorAll('.build-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.type === this.selectedPlant);
+            });
+
+            // Update region visuals
+            REGIONS.forEach(r => {
+                document.getElementById(`region-${r}`).classList.toggle('selected', !!this.selectedPlant);
+            });
+
+            // Update instructions
+            const inst = document.getElementById('instructions');
+            if (this.selectedPlant) {
+                inst.textContent = `🔨 已選擇 ${plant.name}，點擊地圖任一區域建設`;
+            } else {
+                inst.textContent = '💡 點選下方卡片，再點地圖區域建設電廠';
+            }
+        },
+
+        buildAtRegion(region) {
+            if (!this.selectedPlant) {
+                this.floatText(window.innerWidth / 2, window.innerHeight / 2, '請先選擇電廠', 'bad');
+                return;
+            }
+
+            const type = this.selectedPlant;
+            const plant = PLANTS[type];
+
+            // Deduct cost
+            this.funds -= plant.cost;
+            this.regions[region].push(type);
+            this.counts[type]++;
+
+            // Show feedback
+            const el = document.getElementById(`region-${region}`);
+            const rect = el.getBoundingClientRect();
+            this.floatText(rect.left + 25, rect.top - 10, `-${plant.cost}`, 'gold');
+            this.floatText(rect.left + 25, rect.top + 20, `+${plant.emoji}`, 'good');
+
+            // Clear selection
+            this.selectedPlant = null;
+            document.querySelectorAll('.build-card').forEach(c => c.classList.remove('selected'));
+            REGIONS.forEach(r => document.getElementById(`region-${r}`).classList.remove('selected'));
+            document.getElementById('instructions').textContent = '💡 點選下方卡片，再點地圖區域建設電廠';
+
+            this.updateUI();
+        },
+
+        buyFuel(type, source) {
+            if (this.blockade) {
+                this.floatText(window.innerWidth / 2, 200, '封鎖中無法進口！', 'bad');
+                return;
+            }
+
+            const amount = 100;
+            const price = Math.floor(source.basePrice * this.fuelPrice[type]);
+
+            if (type === 'gas') {
+                const cap = this.counts.terminal * 500;
+                if (cap === 0) {
+                    this.floatText(window.innerWidth / 2, 200, '需先建接收站！', 'bad');
+                    return;
+                }
+                if (this.fuel.gas + amount > cap) {
+                    this.floatText(window.innerWidth / 2, 200, '儲槽已滿！', 'bad');
+                    return;
+                }
+            }
+
+            if (this.funds < price) {
+                this.floatText(window.innerWidth / 2, 200, '資金不足！', 'bad');
+                return;
+            }
+
+            this.funds -= price;
+            this.fuel[type] += amount;
+            this.floatText(window.innerWidth / 2, 150, `${source.flag} +${amount}`, 'good');
+            this.updateUI();
+        },
+
+        nextTurn() {
+            // Calculate fuel consumption
+            let coalUse = this.counts.coal * PLANTS.coal.fuelUse;
+            let gasUse = this.counts.gas * PLANTS.gas.fuelUse;
+
+            // Calculate actual power
+            let actualPower = 0;
+            actualPower += this.counts.nuclear * PLANTS.nuclear.output;
+            actualPower += this.counts.wind * PLANTS.wind.output;
+            actualPower += this.counts.solar * PLANTS.solar.output;
+
+            if (coalUse > 0) {
+                const coalRatio = Math.min(1, this.fuel.coal / coalUse);
+                actualPower += this.counts.coal * PLANTS.coal.output * coalRatio;
+            }
+            if (gasUse > 0) {
+                const gasRatio = Math.min(1, this.fuel.gas / gasUse);
+                actualPower += this.counts.gas * PLANTS.gas.output * gasRatio;
+            }
+
+            actualPower = Math.floor(actualPower);
+
+            // Consume fuel
+            this.fuel.coal = Math.max(0, this.fuel.coal - coalUse);
+            this.fuel.gas = Math.max(0, this.fuel.gas - gasUse);
+
+            // Calculate income
+            let income = Math.floor(Math.min(actualPower, this.baseDemand) * 2.5 * this.incomeMult);
+
+            // Power shortage penalty
+            if (actualPower < this.baseDemand) {
+                const shortage = this.baseDemand - actualPower;
+                const penalty = Math.ceil(shortage / 30);
+                this.satisfaction -= penalty;
+            } else {
+                this.satisfaction = Math.min(100, this.satisfaction + 2);
+            }
+
+            // CO2 penalty
+            if (this.co2Tax) {
+                const co2 = this.counts.coal * 12 + this.counts.gas * 6;
+                if (co2 > 40) this.satisfaction -= 3;
+            }
+
+            this.funds += income;
+
+            // Random price fluctuation
+            this.fuelPrice.coal = Math.max(0.7, Math.min(2, this.fuelPrice.coal * (0.85 + Math.random() * 0.3)));
+            this.fuelPrice.gas = Math.max(0.7, Math.min(2.5, this.fuelPrice.gas * (0.85 + Math.random() * 0.3)));
+
+            // Get event
+            let pool;
+            if (this.year < 1991) pool = EVENTS.early;
+            else if (this.year < 2006) pool = EVENTS.mid;
+            else pool = EVENTS.late;
+
+            const event = pool[Math.floor(Math.random() * pool.length)];
+
+            // Reset blockade
+            this.blockade = false;
+
+            // Apply event effects
+            event.effects.forEach(e => {
+                switch (e.type) {
+                    case 'funds': this.funds += e.val; break;
+                    case 'demand': this.baseDemand = Math.max(200, this.baseDemand + e.val); break;
+                    case 'satisfaction': this.satisfaction = Math.min(100, Math.max(0, this.satisfaction + e.val)); break;
+                    case 'priceUp': this.fuelPrice.coal *= e.val; this.fuelPrice.gas *= e.val; break;
+                    case 'gasPrice': this.fuelPrice.gas *= e.val; break;
+                    case 'income': this.incomeMult *= e.val; break;
+                    case 'co2tax': this.co2Tax = true; break;
+                    case 'blockade': this.blockade = true; break;
+                    case 'solarCost': PLANTS.solar.cost = Math.max(200, PLANTS.solar.cost + e.val); break;
+                }
+            });
+
+            this.showEvent(event, income, actualPower);
+
+            this.year++;
+            this.baseDemand += 30;
+
+            if (this.satisfaction <= 0) {
+                setTimeout(() => this.gameOver(false, '民眾滿意度歸零，你被罷免了...'), 300);
+            } else if (this.year > 2025) {
+                setTimeout(() => this.gameOver(true, '恭喜完成50年能源挑戰！'), 300);
+            }
+
+            this.updateUI();
+        },
+
+        showEvent(event, income, power) {
+            document.getElementById('evt-year').textContent = this.year + '年';
+            document.getElementById('evt-emoji').textContent = event.emoji;
+            document.getElementById('evt-title').textContent = event.title;
+            document.getElementById('evt-desc').textContent = event.desc;
+            document.getElementById('evt-income').textContent = '+' + income;
+            document.getElementById('evt-power').textContent = power;
+
+            const effectsDiv = document.getElementById('evt-effects');
+            effectsDiv.innerHTML = event.effects.map(e => 
+                `<div class="effect-line ${e.bad ? 'bad' : 'good'}">${e.bad ? '📉' : '📈'} ${e.text}</div>`
+            ).join('');
+
+            document.getElementById('event-popup').classList.add('show');
+        },
+
+        closeEvent() {
+            document.getElementById('event-popup').classList.remove('show');
+        },
+
+        gameOver(win, reason) {
+            const score = Math.floor(this.satisfaction * 10 + this.funds / 20 + (100 - this.importDep) * 3 + this.totalOutput / 5);
+            document.getElementById('go-emoji').textContent = win ? '🏆' : '😢';
+            document.getElementById('go-title').textContent = win ? '任務完成！' : '遊戲結束';
+            document.getElementById('go-reason').textContent = reason;
+            document.getElementById('go-score').textContent = score;
+            document.getElementById('gameover-popup').classList.add('show');
+        },
+
+        updateUI() {
+            // Recalculate totals
+            let output = 0, renewable = 0;
+            Object.entries(this.counts).forEach(([type, cnt]) => {
+                if (type === 'terminal') return;
+                output += cnt * PLANTS[type].output;
+                if (type === 'wind' || type === 'solar') renewable += cnt * PLANTS[type].output;
+            });
+            this.totalOutput = output;
+            this.importDep = output > 0 ? Math.round(((output - renewable) / output) * 100) : 98;
+
+            // Safety days
+            const coalDaily = this.counts.coal * PLANTS.coal.fuelUse;
+            const gasDaily = this.counts.gas * PLANTS.gas.fuelUse;
+            let coalDays = coalDaily > 0 ? Math.floor(this.fuel.coal / coalDaily) : 999;
+            let gasDays = gasDaily > 0 ? Math.floor(this.fuel.gas / gasDaily) : (this.counts.gas > 0 ? 0 : 999);
+            this.safetyDays = Math.min(coalDays, gasDays);
+            if (this.safetyDays > 99) this.safetyDays = 99;
+
+            // HUD
+            document.getElementById('hud-year').textContent = this.year;
+            document.getElementById('hud-funds').textContent = this.funds;
+            document.getElementById('hud-satisfaction').textContent = this.satisfaction;
+            document.getElementById('hud-safety').textContent = this.safetyDays;
+            document.getElementById('safety-box').classList.toggle('danger', this.safetyDays < 14);
+
+            // Fuel tanks
+            document.getElementById('coal-amount').textContent = Math.floor(this.fuel.coal);
+            document.getElementById('coal-bar').style.width = Math.min(100, this.fuel.coal / 10) + '%';
+            const coalDaysText = coalDaily > 0 ? `可用 ${coalDays} 天` : '無消耗';
+            document.getElementById('coal-days').textContent = coalDaysText;
+            document.getElementById('coal-days').classList.toggle('danger', coalDays < 14 && coalDaily > 0);
+
+            const gasCap = this.counts.terminal * 500;
+            document.getElementById('gas-amount').textContent = Math.floor(this.fuel.gas);
+            document.getElementById('gas-bar').style.width = gasCap > 0 ? Math.min(100, (this.fuel.gas / gasCap) * 100) + '%' : '0%';
+            const gasDaysText = this.counts.terminal === 0 ? '需建接收站' : (gasDaily > 0 ? `可用 ${gasDays} 天` : '無消耗');
+            document.getElementById('gas-days').textContent = gasDaysText;
+            document.getElementById('gas-days').classList.toggle('danger', gasDays < 14 && gasDaily > 0);
+
+            // Update fuel prices
+            this.updateFuelPrices();
+
+            // Power meter
+            const maxPower = Math.max(this.baseDemand, this.totalOutput) * 1.3;
+            document.getElementById('supply-bar').style.height = (this.totalOutput / maxPower * 100) + '%';
+            document.getElementById('demand-bar').style.height = (this.baseDemand / maxPower * 100) + '%';
+            document.getElementById('supply-val').textContent = this.totalOutput;
+            document.getElementById('demand-val').textContent = this.baseDemand;
+
+            // Import dependency
+            document.getElementById('import-pct').textContent = this.importDep + '%';
+            const ships = document.querySelectorAll('.import-ship');
+            const activeCount = Math.ceil(this.importDep / 20);
+            ships.forEach((s, i) => s.classList.toggle('active', i < activeCount));
+
+            // Mission
+            const scenario = SCENARIOS.find(s => this.year >= s.start && this.year <= s.end) || SCENARIOS[SCENARIOS.length - 1];
+            document.getElementById('mission-title').textContent = scenario.title;
+            document.getElementById('mission-desc').textContent = scenario.desc;
+            document.getElementById('mission-goals').innerHTML = scenario.goals.map(g =>
+                `<div class="mission-goal ${g.check(this) ? 'done' : ''}">${g.check(this) ? '✅' : '⬜'} ${g.text}</div>`
+            ).join('');
+
+            // Region displays
+            REGIONS.forEach(region => {
+                const plants = this.regions[region];
+                const plantsDiv = document.getElementById(`plants-${region}`);
+                const countDiv = document.getElementById(`count-${region}`);
+                
+                // Show up to 4 plant emojis
+                const displayPlants = plants.slice(-4);
+                plantsDiv.innerHTML = displayPlants.map(t => `<span class="mini-plant">${PLANTS[t].emoji}</span>`).join('');
+                countDiv.textContent = plants.length > 0 ? `${plants.length} 座` : '空';
+            });
+
+            // Build cards
+            document.querySelectorAll('.build-card').forEach(card => {
+                const type = card.dataset.type;
+                const plant = PLANTS[type];
+                const canAfford = this.funds >= plant.cost;
+                const needsTerminal = type === 'gas' && this.counts.terminal === 0;
+                card.classList.toggle('disabled', !canAfford || needsTerminal);
+                // Update cost display (for solar discount)
+                card.querySelector('.card-cost').textContent = `💰${plant.cost}`;
+            });
+        },
+
+        floatText(x, y, text, type) {
+            const el = document.createElement('div');
+            el.className = `float-text ${type}`;
+            el.textContent = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+    };
+
+    // ====== INITIALIZE ======
+    window.onload = () => game.init();
+    </script>
+</body>
+</html>
