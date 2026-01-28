@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -6,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣</title>
+    <title>⚡ 像素能源：決戰台灣 v20</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -61,7 +60,7 @@
         }
         .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; }
         .stat-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
-        .stat-val { font-family: 'VT323', monospace; font-size: 22px; color: #fff; font-weight: bold; line-height: 1; }
+        .stat-val { font-family: 'VT323', monospace; font-size: 20px; color: #fff; font-weight: bold; line-height: 1; }
         .stat-val.gold { color: var(--accent-gold); }
         .stat-val.blue { color: var(--accent-blue); }
         .stat-val.red { color: var(--accent-red); animation: blink 1s infinite; }
@@ -193,7 +192,7 @@
         .lock-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.7);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #fff; font-size: 12px; font-weight: bold; z-index: 5;
+            color: #fff; font-size: 12px; font-weight: bold; z-index: 5; text-align: center;
         }
 
         .build-hint {
@@ -469,6 +468,7 @@
             ]
         };
 
+        // 核災風險表 (座數 -> 機率%)
         const NUKE_RISK_MAP = [0, 1, 2, 5, 8, 11, 15, 20, 25, 30, 40]; 
 
         const game = {
@@ -482,6 +482,11 @@
             history: [],
             importStats: { coal: {}, gas: {} },
             tutorialStep: 0,
+            
+            // 核災系統變數
+            nukeDisasterCount: 0,
+            nukeShutdownTimer: 0,
+            isNukePermanentlyBanned: false,
 
             init() {
                 this.resetVariables();
@@ -501,6 +506,11 @@
                 this.stageIdx = 0; this.selected = null; this.blockade = false; this.isFreePlay = false;
                 this.history = []; this.importStats = { coal: {}, gas: {} };
                 this.purchaseCounts = { coal: {}, gas: {} };
+                
+                this.nukeDisasterCount = 0;
+                this.nukeShutdownTimer = 0;
+                this.isNukePermanentlyBanned = false;
+
                 document.getElementById('buildings-layer').innerHTML = '';
                 document.body.classList.remove('crisis-mode');
                 this.tutorialStep = 0;
@@ -526,10 +536,10 @@
                 const textEl = document.getElementById('tut-text');
                 
                 if(this.tutorialStep === 1) {
-                    textEl.innerText = "【建設區】\n點擊下方卡片即可建設電廠。";
+                    textEl.innerText = "【建設區】\n點擊下方卡片即可建設電廠。\n注意：初期資金有限，請謹慎規劃。";
                     ui.highlightElement('#build-deck');
                 } else if(this.tutorialStep === 2) {
-                    textEl.innerText = "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n注意價格會波動！";
+                    textEl.innerText = "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n注意：每買一次價格會上漲，請分散貨源！";
                     ui.highlightElement('.arcade-tabs button:nth-child(2)');
                 } else if(this.tutorialStep === 3) {
                     textEl.innerText = "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。";
@@ -562,6 +572,10 @@
                     if (this.year >= 2021) {
                         ui.floatText('🚫 2021後禁止新建核電', 'red'); this.selected = null; return;
                     }
+                    if (this.isNukePermanentlyBanned) {
+                        ui.floatText('⛔ 核能已永久廢止', 'red'); this.selected = null; return;
+                    }
+                    // 扣滿意度
                     ui.floatText('⚠️ 競爭力-20%', 'red');
                     this.comp -= 20;
                 }
@@ -660,7 +674,7 @@
                 if (game.stageIdx === 1) baseIncome = 1000;
                 if (game.stageIdx === 2) baseIncome = 2000;
 
-                const powerBonus = Math.floor(this.calcPower() * 0.4); 
+                const powerBonus = Math.floor(this.calcPower(true) * 0.4); 
                 return baseIncome + powerBonus;
             },
             
@@ -674,23 +688,57 @@
                 if (this.counts.nuclear > 0) {
                     const risk = this.getNukeRisk();
                     if (Math.random() * 100 < risk) {
-                        ui.showModal("☢️ 核災爆發！", `一座核電廠發生嚴重事故！<br>該電廠永久報廢，國家競爭力重創。`);
+                        this.nukeDisasterCount++;
+                        
+                        // 1. 資產損失 (取 5000 或 一半資金 的最大值)
+                        let loss = Math.max(5000, Math.floor(this.funds / 2));
+                        this.funds -= loss;
+                        
+                        // 2. 清理費 & 競爭力懲罰
+                        this.funds -= 2000;
+                        if(this.funds < 0) {
+                            this.comp -= 15;
+                            ui.floatText("💸 破產! 競爭力重創", "red");
+                        }
+
+                        // 3. 銷毀一座
                         this.counts.nuclear--;
+                        
+                        // 4. 其餘停機 2 年
+                        this.nukeShutdownTimer = 2;
+
+                        // 5. 競爭力直接扣除
                         this.comp -= 30;
+
+                        // 6. 三振出局
+                        if(this.nukeDisasterCount >= 3) {
+                            this.isNukePermanentlyBanned = true;
+                            this.counts.nuclear = 0; // 移除所有
+                            ui.showModal("☢️ 核能永久廢止", "核災發生三次，社會共識崩盤。<br>所有核電廠強制除役且永不續建！");
+                        } else {
+                            ui.showModal("☢️ 核災爆發！", `損失慘重！(-$${loss+2000})<br>其餘核電廠強制停機安檢 2 年。`);
+                        }
+                        
                         ui.renderDeck();
                     }
                 }
             },
 
             nextTurn() {
+                // Tutorial Step logic check
+                if(game.tutorialStep === 4) game.nextTutorialStep();
+
                 if (this.blockade) { this.handleBlockade(); return; }
                 this.year++; 
                 
+                // 減少停機計時
+                if (this.nukeShutdownTimer > 0) this.nukeShutdownTimer--;
+
                 this.history.push({
                     year: this.year,
                     coal: this.counts.coal * PLANTS.coal.output,
                     gas: this.counts.gas * PLANTS.gas.output,
-                    nuclear: this.counts.nuclear * PLANTS.nuclear.output,
+                    nuclear: this.calcNukeOutput(), // 使用計算後的核能輸出
                     green: (this.counts.green * PLANTS.green.output) + (this.counts.solar * PLANTS.solar.output)
                 });
 
@@ -741,12 +789,24 @@
                 else { this.fuel.gas = 0; if(this.counts.gas>0){this.comp -= 5; ui.floatText('缺氣', 'red');} }
             },
 
-            calcPower() { 
+            // 計算核能實際輸出 (考慮停機)
+            calcNukeOutput() {
+                if (this.nukeShutdownTimer > 0) return 0;
+                return this.counts.nuclear * PLANTS.nuclear.output;
+            },
+
+            // ignoreNukeShutdown 用於計算潛在收入或展示總產能
+            calcPower(ignoreShutdown = false) { 
+                let nukeOut = this.calcNukeOutput();
+                if (ignoreShutdown) nukeOut = this.counts.nuclear * PLANTS.nuclear.output; // 收入計算時可能仍給予補貼? 
+                // 這裡我們設定收入計算也受停機影響，比較真實
+                // 所以 calcIncome 呼叫時 calcPower() 會回傳 0 核能
+                
                 return (this.counts.coal * PLANTS.coal.output) + 
                        (this.counts.gas * PLANTS.gas.output) + 
                        (this.counts.green * PLANTS.green.output) + 
                        (this.counts.solar * PLANTS.solar.output) + 
-                       (this.counts.nuclear * PLANTS.nuclear.output); 
+                       nukeOut;
             },
             
             getGreenPct() {
@@ -825,6 +885,7 @@
                     let riskText = '';
                     if (k === 'nuclear') {
                         if (game.year >= 2021) { locked = true; lockReason = '🚫 2021限建'; }
+                        else if (game.isNukePermanentlyBanned) { locked = true; lockReason = '⛔ 永久廢止'; }
                         else {
                             const risk = game.getNukeRisk();
                             riskText = `<div class="nuke-risk">⚠️ 災率:${risk}%</div>`;
@@ -840,7 +901,7 @@
                         <div class="card-emoji">${v.emoji}</div>
                         <div class="card-name" style="color:${v.color}">${v.name}</div>
                         <div class="card-power">+${v.output}MW</div>
-                        <div class="card-cost">$${v.cost}</div>
+                        <div class="card-cost">$${v.cost.toLocaleString()}</div>
                     </div>
                 `}).join('');
             },
@@ -877,7 +938,7 @@
                 const pCoal = game.counts.coal * PLANTS.coal.output;
                 const pGas = game.counts.gas * PLANTS.gas.output;
                 const pGreen = (game.counts.green * PLANTS.green.output) + (game.counts.solar * PLANTS.solar.output);
-                const pNuke = game.counts.nuclear * PLANTS.nuclear.output;
+                const pNuke = game.calcNukeOutput(); // 反映停機狀態
                 const total = pCoal + pGas + pGreen + pNuke;
                 
                 if (total === 0) return;
@@ -979,7 +1040,7 @@
                     <div class="rule-list">
                         <div class="rule-title">計算公式</div>
                         <div class="rule-item"><span>💰 基礎稅收</span><span>$${game.stageIdx===0?500:(game.stageIdx===1?1000:2000)}</span></div>
-                        <div class="rule-item"><span>⚡ 工業稅收</span><span>+$${Math.floor(game.calcPower()*0.4).toLocaleString()}</span></div>
+                        <div class="rule-item"><span>⚡ 工業稅收</span><span>+$${Math.floor(game.calcPower(true)*0.4).toLocaleString()}</span></div>
                         <div class="rule-item" style="border-top:1px solid #fff; margin-top:5px; padding-top:5px;">
                             <span>預計下年收入</span><span style="color:#f1c40f">$${game.calcIncome().toLocaleString()}</span>
                         </div>
@@ -1132,5 +1193,3 @@
     </script>
 </body>
 </html>
-
-```
