@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v23</title>
+    <title>⚡ 像素能源：決戰台灣 v24</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -446,7 +446,6 @@
     </div>
 
     <script>
-        // 燃料需求減半: 煤 40, 氣 30
         const PLANTS = {
             coal: { name: '燃煤', emoji: '🏭', cost: 1000, output: 1500, fuel: 40, type: 'land', color: '#7f8c8d' },
             gas: { name: '燃氣', emoji: '🔥', cost: 1500, output: 2500, fuel: 30, type: 'land', color: '#d35400' },
@@ -526,7 +525,7 @@
                 ui.showModal("任務簡報", 
                     "歡迎來到《像素能源》。<br>您將扮演台灣能源決策者，在長達50年的歷史中，面對經濟發展、環保轉型與地緣政治的挑戰。<br><br>目標：建立穩定、安全且潔淨的電力系統。",
                     () => {
-                        // 當使用者點擊「確定」後執行
+                        // User clicked OK
                         try { document.documentElement.requestFullscreen().catch(()=>{}); } catch(e){}
                         ui.closeModal();
                         if(game.year === 1975 && game.tutorialStep === 0) {
@@ -574,14 +573,11 @@
                 const textEl = document.getElementById('tut-text');
                 
                 if(this.tutorialStep === 1) {
-                    textEl.innerText = "【建設區】\n點擊下方卡片即可建設電廠。\n注意：初期資金有限，請謹慎規劃。";
-                    ui.highlightElement('#build-deck');
+                    ui.highlightElement('#build-deck', "【建設區】\n點擊下方卡片即可建設電廠。\n注意：初期資金有限，請謹慎規劃。");
                 } else if(this.tutorialStep === 2) {
-                    textEl.innerText = "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n注意：每買一次價格會上漲，請分散貨源！";
-                    ui.highlightElement('.arcade-tabs button:nth-child(2)');
+                    ui.highlightElement('.arcade-tabs button:nth-child(2)', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n注意：每買一次價格會上漲，請分散貨源！");
                 } else if(this.tutorialStep === 3) {
-                    textEl.innerText = "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。";
-                    ui.highlightElement('#next-btn');
+                    ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
                 } else {
                     ui.clearHighlight();
                 }
@@ -621,7 +617,7 @@
                     if (this.isNukePermanentlyBanned) {
                         ui.floatText('⛔ 核能已永久廢止', 'red'); this.selected = null; return;
                     }
-                    // No penalty on build
+                    // Removed penalty on build
                 }
 
                 if (this.funds < p.cost) {
@@ -754,7 +750,7 @@
                 this.year++; 
                 if (this.nukeShutdownTimer > 0) this.nukeShutdownTimer--;
 
-                // Record history with cumulative stacking
+                // Record history
                 const pCoal = this.counts.coal * PLANTS.coal.output;
                 const pGas = this.counts.gas * PLANTS.gas.output;
                 const pNuke = this.calcNukeOutput();
