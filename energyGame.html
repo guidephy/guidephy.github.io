@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v22</title>
+    <title>⚡ 像素能源：決戰台灣 v23</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -394,8 +394,8 @@
                 <div class="data-row"><span>總發電</span><span class="data-val" id="stat-supply">0 MW</span></div>
                 <div class="data-row"><span>總需求</span><span class="data-val" id="stat-demand">0 MW</span></div>
                 <div class="data-sep"></div>
-                <div class="data-row"><span>煤存量</span><span class="data-val" id="stat-coal-days" style="color:#aaa">∞</span></div>
-                <div class="data-row"><span>氣存量</span><span class="data-val blue" id="stat-gas-days">∞</span></div>
+                <div class="data-row"><span>煤存量</span><span class="data-val" id="stat-coal-days" style="color:#aaa">--</span></div>
+                <div class="data-row"><span>氣存量</span><span class="data-val blue" id="stat-gas-days">--</span></div>
             </div>
         </div>
     </div>
@@ -521,11 +521,19 @@
                 this.cap.coal = 3000; 
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
-                document.body.requestFullscreen().catch(e=>{});
                 
                 // Show mission intro first, then tutorial
                 ui.showModal("任務簡報", 
-                    "歡迎來到《像素能源》。<br>您將扮演台灣能源決策者，在長達50年的歷史中，面對經濟發展、環保轉型與地緣政治的挑戰。<br><br>目標：建立穩定、安全且潔淨的電力系統。");
+                    "歡迎來到《像素能源》。<br>您將扮演台灣能源決策者，在長達50年的歷史中，面對經濟發展、環保轉型與地緣政治的挑戰。<br><br>目標：建立穩定、安全且潔淨的電力系統。",
+                    () => {
+                        // 當使用者點擊「確定」後執行
+                        try { document.documentElement.requestFullscreen().catch(()=>{}); } catch(e){}
+                        ui.closeModal();
+                        if(game.year === 1975 && game.tutorialStep === 0) {
+                            game.startTutorial();
+                        }
+                    }
+                );
             },
 
             resetVariables() {
@@ -585,7 +593,10 @@
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 ui.closeModal();
-                setTimeout(() => ui.showModal("遊戲重啟", "一切回到原點，請重新規劃能源政策！"), 300);
+                setTimeout(() => ui.showModal("遊戲重啟", "一切回到原點，請重新規劃能源政策！", () => {
+                     ui.closeModal();
+                     game.startTutorial();
+                }), 300);
             },
 
             selectCard(key) {
@@ -610,7 +621,7 @@
                     if (this.isNukePermanentlyBanned) {
                         ui.floatText('⛔ 核能已永久廢止', 'red'); this.selected = null; return;
                     }
-                    // Removed immediate penalty as per previous request, keeping logic clean
+                    // No penalty on build
                 }
 
                 if (this.funds < p.cost) {
@@ -728,9 +739,9 @@
                         if(this.nukeDisasterCount >= 3) {
                             this.isNukePermanentlyBanned = true;
                             this.counts.nuclear = 0; 
-                            ui.showModal("☢️ 核能永久廢止", "核災發生三次，社會共識崩盤。<br>所有核電廠強制除役！");
+                            ui.showModal("☢️ 核能永久廢止", "核災發生三次，社會共識崩盤。<br>所有核電廠強制除役！", () => ui.closeModal());
                         } else {
-                            ui.showModal("☢️ 核災爆發！", `損失慘重！(-$${loss+2000})<br>其餘核電廠強制停機安檢 2 年。`);
+                            ui.showModal("☢️ 核災爆發！", `損失慘重！(-$${loss+2000})<br>其餘核電廠強制停機安檢 2 年。`, () => ui.closeModal());
                         }
                         ui.renderDeck();
                     }
@@ -743,8 +754,7 @@
                 this.year++; 
                 if (this.nukeShutdownTimer > 0) this.nukeShutdownTimer--;
 
-                // 紀錄發電結構用於圖表 (Layer Stacking Logic)
-                // We record cumulative values for simpler stacking in SVG later
+                // Record history with cumulative stacking
                 const pCoal = this.counts.coal * PLANTS.coal.output;
                 const pGas = this.counts.gas * PLANTS.gas.output;
                 const pNuke = this.calcNukeOutput();
@@ -778,7 +788,7 @@
                     if (stage && stage.goals.every(g => g.check(this))) {
                         if (this.stageIdx < STAGES.length - 1) {
                             this.stageIdx++;
-                            ui.showModal(STAGES[this.stageIdx].title, STAGES[this.stageIdx].desc);
+                            ui.showModal(STAGES[this.stageIdx].title, STAGES[this.stageIdx].desc, () => ui.closeModal());
                         } else {
                             ui.showVictory();
                         }
@@ -830,13 +840,13 @@
             },
             
             getCoalDays() {
-                 if (this.counts.coal === 0) return 99;
+                 if (this.counts.coal === 0) return null;
                  const cUse = this.counts.coal * PLANTS.coal.fuel;
                  return Math.floor(this.fuel.coal / cUse);
             },
             
             getGasDays() {
-                 if (this.counts.gas === 0) return 99;
+                 if (this.counts.gas === 0) return null;
                  const gUse = this.counts.gas * PLANTS.gas.fuel;
                  return Math.floor(this.fuel.gas / gUse);
             },
@@ -844,7 +854,7 @@
             startBlockade() {
                 this.blockade = true; this.bDays = 11;
                 document.body.classList.add('crisis-mode');
-                ui.showModal("⚠️ 紅色警報", "海峽封鎖開始！進口中斷，請撐過 11 天。");
+                ui.showModal("⚠️ 紅色警報", "海峽封鎖開始！進口中斷，請撐過 11 天。", () => ui.closeModal());
             },
 
             handleBlockade() {
@@ -852,7 +862,7 @@
                 ui.floatText(`剩 ${this.bDays} 天`, 'red');
                 if (this.bDays <= 0) {
                     this.blockade = false; document.body.classList.remove('crisis-mode');
-                    ui.showModal("🏳️ 危機解除", "封鎖結束，台灣存活！");
+                    ui.showModal("🏳️ 危機解除", "封鎖結束，台灣存活！", () => ui.closeModal());
                 }
                 ui.updateAll();
             }
@@ -873,11 +883,15 @@
                 }
             },
 
-            highlightElement(selector) {
+            highlightElement(selector, text) {
                 document.getElementById('tutorial-overlay').style.display = 'block';
-                document.getElementById('tutorial-tooltip').style.display = 'block';
                 const el = document.querySelector(selector);
-                if(el) el.classList.add('highlight-target');
+                if(el) {
+                    el.classList.add('highlight-target');
+                    const tooltip = document.getElementById('tutorial-tooltip');
+                    document.getElementById('tut-text').innerText = text;
+                    tooltip.style.display = 'block';
+                }
             },
 
             clearHighlight() {
@@ -979,10 +993,10 @@
                 document.getElementById('stat-demand').innerText = game.demand.toLocaleString() + " MW";
                 
                 const cDays = game.getCoalDays();
-                document.getElementById('stat-coal-days').innerText = (cDays > 99 ? '∞' : cDays + '天');
+                document.getElementById('stat-coal-days').innerText = (cDays === null ? '--' : (cDays > 99 ? '∞' : cDays + '天'));
                 
                 const gDays = game.getGasDays();
-                document.getElementById('stat-gas-days').innerText = (gDays > 99 ? '∞' : gDays + '天');
+                document.getElementById('stat-gas-days').innerText = (gDays === null ? '--' : (gDays > 99 ? '∞' : gDays + '天'));
 
                 if (!game.isFreePlay) {
                     const s = STAGES[game.stageIdx];
@@ -1015,18 +1029,14 @@
                 document.body.appendChild(el); setTimeout(() => el.remove(), 1200);
             },
 
-            showModal(title, desc) {
+            showModal(title, desc, callback) {
                 document.getElementById('modal-title').innerText = title;
                 document.getElementById('modal-content-area').innerHTML = `<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">${desc}</p>`;
                 
                 const btn = document.getElementById('modal-btn');
                 btn.innerText = "確 定";
-                btn.onclick = () => {
-                    ui.closeModal();
-                    if(game.year === 1975 && game.tutorialStep === 0) {
-                        game.startTutorial();
-                    }
-                };
+                // IMPORTANT: Use the provided callback or default to just close
+                btn.onclick = callback ? callback : ui.closeModal;
                 btn.className = 'retro-btn';
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
@@ -1064,8 +1074,8 @@
                 ui.showModal("存量說明", `
                     <div class="rule-list">
                         <div class="rule-title">目前可支撐天數</div>
-                        <div class="rule-item"><span>🪨 煤炭</span><span>${cDays>99?'∞':cDays+' 天'}</span></div>
-                        <div class="rule-item"><span>🔥 天然氣</span><span>${gDays>99?'∞':gDays+' 天'}</span></div>
+                        <div class="rule-item"><span>🪨 煤炭</span><span>${cDays===null?'--':(cDays>99?'∞':cDays+' 天')}</span></div>
+                        <div class="rule-item"><span>🔥 天然氣</span><span>${gDays===null?'--':(gDays>99?'∞':gDays+' 天')}</span></div>
                         <div style="margin-top:10px; font-size:11px; color:#aaa; line-height:1.4;">
                             消耗公式：<br>
                             燃煤消耗 = 電廠數 x ${PLANTS.coal.fuel}<br>
@@ -1097,13 +1107,11 @@
                     if(total > maxPower) maxPower = total;
                 });
                 
-                // SVG Stacked Area Chart Logic
                 let paths = { coal: "M0,100 ", gas: "M0,100 ", nuke: "M0,100 ", green: "M0,100 " };
                 
                 game.history.forEach((h, i) => {
                     const x = (i / (game.history.length-1)) * 100;
                     
-                    // Normalize to 100 height
                     const hCoal = (h.coal / maxPower) * 100;
                     const hGas = (h.coal + h.gas) / maxPower * 100;
                     const hNuke = (h.coal + h.gas + h.nuclear) / maxPower * 100;
@@ -1117,7 +1125,6 @@
                 
                 const closePath = `L100,100 L0,100 Z`;
                 
-                // Import Ranking Logic
                 const getRank = (obj) => Object.entries(obj)
                     .sort((a,b) => b[1] - a[1])
                     .map(e => {
