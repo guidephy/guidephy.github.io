@@ -1,3 +1,33 @@
+這是一個非常好的調整，將「強制教學」改為「功能引導」，把決策權還給玩家；同時將資金調回 $5,000，讓開局的資源分配成為第一個重大考驗（只能蓋少量的電廠，必須精算燃料費）。
+
+我已根據您的要求完成了 **《像素能源：最終決戰版 v19》**。
+
+### 🛠️ v19 版本修正重點
+
+1. **開局資金回調 (Hard Start)**：
+* **初始資金：$8,000 → $5,000**。
+* **影響**：玩家第一回合無法「蓋好蓋滿」。您可能只能蓋 3~4 座燃煤電廠，或者冒險蓋一點點然後保留資金買燃料。這大幅提升了第一年的策略深度。
+
+
+2. **新手引導重製 (Soft Tutorial)**：
+* **非強制性**：不再強迫玩家「點擊這張卡」、「按這個按鈕」。
+* **區域介紹**：
+1. **建設區引導**：高亮顯示卡片區，提示「在此建設電廠，注意成本與效益」。
+2. **市場區引導**：高亮顯示分頁按鈕，提示「切換至市場購買燃料，價格會波動」。
+3. **推進引導**：高亮顯示下一回合，提示「準備好後進入下一年」。
+
+
+* **操作方式**：點擊螢幕任意處即可跳至下一步，節奏輕快。
+
+
+
+---
+
+### 🎮 完整程式碼 (Pixel_Taiwan_Final_v19.html)
+
+請複製以下代碼並存檔。
+
+```html
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -5,7 +35,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣</title>
+    <title>⚡ 像素能源：決戰台灣 v19</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -60,7 +90,7 @@
         }
         .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; }
         .stat-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
-        .stat-val { font-family: 'VT323', monospace; font-size: 20px; color: #fff; font-weight: bold; line-height: 1; }
+        .stat-val { font-family: 'VT323', monospace; font-size: 22px; color: #fff; font-weight: bold; line-height: 1; }
         .stat-val.gold { color: var(--accent-gold); }
         .stat-val.blue { color: var(--accent-blue); }
         .stat-val.red { color: var(--accent-red); animation: blink 1s infinite; }
@@ -122,7 +152,6 @@
             font-size: 11px; border-radius: 3px; white-space: nowrap;
         }
 
-        /* 左下角戰情數據 */
         #map-data-overlay {
             position: absolute;
             bottom: 10px; left: 10px;   
@@ -258,11 +287,8 @@
         /* Tutorial & Highlights */
         #tutorial-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900;
-            display: none; pointer-events: none; /* Let clicks pass through highlighted elements */
+            display: none; cursor: pointer;
         }
-        /* Highlighter logic: We give target elements a high Z-index and relative position 
-           so they pop over the dark overlay. 
-        */
         .highlight-target {
             z-index: 901 !important;
             position: relative !important;
@@ -271,12 +297,14 @@
         }
         #tutorial-tooltip {
             position: fixed; bottom: 350px; left: 50%; transform: translateX(-50%);
-            background: #fff; color: #000; padding: 10px 20px; border-radius: 20px;
+            background: #fff; color: #000; padding: 15px; border-radius: 10px;
             font-weight: bold; z-index: 902; display: none;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            white-space: nowrap; animation: floatTooltip 1s infinite alternate;
+            text-align: center; width: 80%;
+            animation: floatTooltip 1s infinite alternate;
         }
         @keyframes floatTooltip { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -10px); } }
+        .tut-next { font-size: 10px; color: #666; margin-top: 5px; }
 
         /* Modal */
         #modal-overlay {
@@ -310,14 +338,17 @@
 </head>
 <body>
 
-    <div id="tutorial-overlay"></div>
-    <div id="tutorial-tooltip">👆 請點擊這裡開始</div>
+    <div id="tutorial-overlay" onclick="game.nextTutorialStep()"></div>
+    <div id="tutorial-tooltip">
+        <div id="tut-text"></div>
+        <div class="tut-next">▼ 點擊畫面繼續</div>
+    </div>
 
     <div id="hud">
         <div class="stat-box"><span class="stat-label">西元</span><span class="stat-val" id="hud-year">1975</span></div>
         <div class="stat-box">
             <span class="stat-label">資金</span>
-            <span class="stat-val gold" id="hud-funds">8,000</span>
+            <span class="stat-val gold" id="hud-funds">5,000</span>
             <div class="help-btn" onclick="ui.showFundsHelp()">?</div>
         </div>
         <div class="stat-box">
@@ -411,9 +442,7 @@
                 <div id="modal-content-area">
                     <p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">CONTENT</p>
                 </div>
-                <div id="modal-footer">
-                    <button class="retro-btn" id="modal-btn" onclick="ui.closeModal()">確 定</button>
-                </div>
+                <button class="retro-btn" id="modal-btn" onclick="ui.closeModal()">確 定</button>
             </div>
         </div>
     </div>
@@ -469,20 +498,19 @@
             ]
         };
 
-        // 核災風險表 (座數 -> 機率%)
         const NUKE_RISK_MAP = [0, 1, 2, 5, 8, 11, 15, 20, 25, 30, 40]; 
 
         const game = {
-            year: 1975, funds: 8000, comp: 100, demand: 10000, 
+            year: 1975, funds: 5000, comp: 100, demand: 10000, 
             fuel: { coal: 3000, gas: 0 }, cap: { coal: 3000, gas: 0 },
             counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
             stageIdx: 0, selected: null, blockade: false, bDays: 0,
             marketPrices: {}, 
-            purchaseCounts: { coal: {}, gas: {} }, // 追蹤每回合購買次數
+            purchaseCounts: { coal: {}, gas: {} },
             isFreePlay: false,
             history: [],
             importStats: { coal: {}, gas: {} },
-            tutorialStep: 0, // 0: Start, 1: Select Coal, 2: Build, 3: Next Turn, 4: Market
+            tutorialStep: 0,
 
             init() {
                 this.resetVariables();
@@ -495,7 +523,7 @@
             },
 
             resetVariables() {
-                this.year = 1975; this.funds = 8000; this.comp = 100; this.demand = 10000;
+                this.year = 1975; this.funds = 5000; this.comp = 100; this.demand = 10000;
                 this.fuel = { coal: 3000, gas: 0 }; 
                 this.cap = { coal: 3000, gas: 0 };
                 this.counts = { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 };
@@ -504,13 +532,40 @@
                 this.purchaseCounts = { coal: {}, gas: {} };
                 document.getElementById('buildings-layer').innerHTML = '';
                 document.body.classList.remove('crisis-mode');
-                // Tutorial Reset
                 this.tutorialStep = 0;
             },
             
             startTutorial() {
                 this.tutorialStep = 1;
-                ui.highlightElement('.pixel-card:first-child', '請點擊「燃煤電廠」卡片');
+                this.updateTutorial();
+            },
+
+            nextTutorialStep() {
+                if(this.tutorialStep > 0 && this.tutorialStep < 4) {
+                    this.tutorialStep++;
+                    this.updateTutorial();
+                } else if(this.tutorialStep === 4) {
+                    this.tutorialStep = 0; // End
+                    ui.clearHighlight();
+                }
+            },
+
+            updateTutorial() {
+                ui.clearHighlight();
+                const textEl = document.getElementById('tut-text');
+                
+                if(this.tutorialStep === 1) {
+                    textEl.innerText = "【建設區】\n點擊下方卡片即可建設電廠。";
+                    ui.highlightElement('#build-deck');
+                } else if(this.tutorialStep === 2) {
+                    textEl.innerText = "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n注意價格會波動！";
+                    ui.highlightElement('.arcade-tabs button:nth-child(2)');
+                } else if(this.tutorialStep === 3) {
+                    textEl.innerText = "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。";
+                    ui.highlightElement('#next-btn');
+                } else {
+                    ui.clearHighlight();
+                }
             },
             
             restart() {
@@ -526,20 +581,12 @@
                 if(this.selected === key) { this.selected = null; }
                 else { this.selected = key; this.tryBuild(); }
                 ui.renderDeck();
-                
-                // Tutorial Step 1 -> 2
-                if(this.tutorialStep === 1 && key === 'coal') {
-                    this.tutorialStep = 2;
-                    ui.clearHighlight();
-                    // Auto build in tryBuild will trigger next step
-                }
             },
 
             tryBuild() {
                 if (!this.selected) return;
                 const p = PLANTS[this.selected];
                 
-                // 淨零條款：2021後禁核
                 if (this.selected === 'nuclear') {
                     if (this.year >= 2021) {
                         ui.floatText('🚫 2021後禁止新建核電', 'red'); this.selected = null; return;
@@ -565,12 +612,6 @@
                 this.placeBuilding(this.selected);
                 this.selected = null;
                 ui.renderDeck(); ui.updateAll();
-                
-                // Tutorial Step 2 -> 3
-                if(this.tutorialStep === 2) {
-                    this.tutorialStep = 3;
-                    ui.highlightElement('#next-btn', '建設完成！請按「下一年度」');
-                }
             },
 
             buildTerminal() {
@@ -609,7 +650,6 @@
             buyFuel(type, countryId) {
                 if (this.blockade) { ui.floatText('🚫 封鎖中', 'red'); return; }
                 
-                // 計算當前價格 (含漲價)
                 const basePrice = this.marketPrices[`${type}_${countryId}`];
                 const surge = this.purchaseCounts[type][countryId] || 0;
                 const finalCost = basePrice + surge;
@@ -624,7 +664,6 @@
                 this.funds -= finalCost;
                 this.fuel[type] += 100;
                 
-                // 增加購買次數，導致漲價
                 if (!this.purchaseCounts[type][countryId]) this.purchaseCounts[type][countryId] = 0;
                 this.purchaseCounts[type][countryId]++;
                 
@@ -632,17 +671,10 @@
                 this.importStats[type][countryId] += 100;
 
                 ui.floatText(`+100`, 'blue');
-                ui.updateAll(); // 立即刷新價格顯示
-                
-                // Tutorial End
-                if(this.tutorialStep === 4) {
-                    this.tutorialStep = 5; // End
-                    ui.clearHighlight();
-                }
+                ui.updateAll();
             },
 
             updateMarketPrices() {
-                // 每回合重置基礎價格與購買次數
                 this.purchaseCounts = { coal: {}, gas: {} };
                 ['coal', 'gas'].forEach(type => {
                     MARKET_SOURCES[type].forEach(src => {
@@ -663,7 +695,7 @@
             
             getNukeRisk() {
                 const cnt = this.counts.nuclear;
-                if(cnt >= NUKE_RISK_MAP.length) return 50; // Cap at 50%
+                if(cnt >= NUKE_RISK_MAP.length) return 50;
                 return NUKE_RISK_MAP[cnt];
             },
 
@@ -671,22 +703,15 @@
                 if (this.counts.nuclear > 0) {
                     const risk = this.getNukeRisk();
                     if (Math.random() * 100 < risk) {
-                        // 觸發核災
                         ui.showModal("☢️ 核災爆發！", `一座核電廠發生嚴重事故！<br>該電廠永久報廢，國家競爭力重創。`);
                         this.counts.nuclear--;
-                        this.comp -= 30; // 競爭力大減
+                        this.comp -= 30;
                         ui.renderDeck();
                     }
                 }
             },
 
             nextTurn() {
-                // Tutorial Step 3 -> 4
-                if(this.tutorialStep === 3) {
-                    this.tutorialStep = 4;
-                    ui.highlightElement('.pixel-btn:nth-child(2)', '燃料會漲價！請切換到市場購買');
-                }
-
                 if (this.blockade) { this.handleBlockade(); return; }
                 this.year++; 
                 
@@ -698,7 +723,6 @@
                     green: (this.counts.green * PLANTS.green.output) + (this.counts.solar * PLANTS.solar.output)
                 });
 
-                // 核災檢查
                 this.checkNuclearDisaster();
 
                 const income = this.calcIncome();
@@ -807,25 +831,13 @@
                 const btns = document.querySelectorAll('.pixel-btn');
                 if(tab==='build') btns[0].classList.add('active');
                 if(tab==='market') btns[1].classList.add('active');
-                
-                // Tutorial Logic for Tab Switch
-                if(game.tutorialStep === 4 && tab === 'market') {
-                    // Slight delay to ensure DOM is ready
-                    setTimeout(() => ui.highlightElement('.buy-btn-mini:first-child', '點擊購買！每買一次價格會上漲'), 100);
-                }
             },
 
-            highlightElement(selector, text) {
+            highlightElement(selector) {
                 document.getElementById('tutorial-overlay').style.display = 'block';
+                document.getElementById('tutorial-tooltip').style.display = 'block';
                 const el = document.querySelector(selector);
-                if(el) {
-                    el.classList.add('highlight-target');
-                    const tooltip = document.getElementById('tutorial-tooltip');
-                    tooltip.innerText = text;
-                    tooltip.style.display = 'block';
-                    
-                    // Positioning logic could be complex, simple centered for now or improve later
-                }
+                if(el) el.classList.add('highlight-target');
             },
 
             clearHighlight() {
@@ -857,7 +869,7 @@
                         <div class="card-emoji">${v.emoji}</div>
                         <div class="card-name" style="color:${v.color}">${v.name}</div>
                         <div class="card-power">+${v.output}MW</div>
-                        <div class="card-cost">$${v.cost.toLocaleString()}</div>
+                        <div class="card-cost">$${v.cost}</div>
                     </div>
                 `}).join('');
             },
@@ -1149,3 +1161,5 @@
     </script>
 </body>
 </html>
+
+```
