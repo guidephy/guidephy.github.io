@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v35</title>
+    <title>⚡ 像素能源：決戰台灣 v47</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -104,33 +104,55 @@
         }
         .map-path { fill: var(--land-green); stroke: var(--land-border); stroke-width: 3px; }
 
+        /* Revised Pie Chart Style */
         #power-pie-chart {
             position: absolute;
-            top: 40%; left: 55%;
+            top: 42%; left: 50%; /* Adjusted center and top */
             transform: translate(-50%, -50%);
-            width: 90px; height: 90px;
+            width: 140px; height: 140px; /* Increased size */
             border-radius: 50%;
             background: #444;
-            border: 3px solid #fff;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            border: 4px solid #fff;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.5);
             z-index: 50; pointer-events: none;
             transition: background 0.5s ease;
         }
         #pie-label {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8); color: #fff; padding: 3px 6px;
-            font-size: 11px; border-radius: 3px; white-space: nowrap;
+            background: rgba(0,0,0,0.85); color: #fff; padding: 4px 8px;
+            font-size: 13px; border-radius: 4px; white-space: nowrap; font-weight: bold;
         }
-        /* 遊戲中圓餅圖的圖例 */
+
+        /* Revised Legend Box Style */
         #pie-legend-box {
-            position: absolute; top: 52%; left: 55%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.7); padding: 4px; border-radius: 4px;
-            display: flex; gap: 6px; pointer-events: none; z-index: 50;
+            position: absolute; 
+            top: 58%; /* Pushed down below the larger chart */
+            left: 50%; transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.9); 
+            padding: 8px 12px; 
+            border-radius: 6px;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns */
+            gap: 6px 16px; /* Spacing */
+            pointer-events: none; 
+            z-index: 50;
             white-space: nowrap;
+            border: 2px solid #555;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
         }
-        .ingame-legend-item { display: flex; align-items: center; gap: 2px; font-size: 10px; color: #fff; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;}
-        .leg-val { font-family: 'VT323'; color: var(--accent-gold); margin-left: 2px; }
+        .ingame-legend-item { 
+            display: flex; align-items: center; gap: 6px; 
+            font-size: 13px; /* Larger font */
+            color: #ddd; 
+            font-weight: bold;
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border:1px solid #fff;}
+        .leg-val { 
+            font-family: 'VT323'; 
+            color: var(--accent-gold); 
+            font-size: 18px; /* Larger numbers */
+            margin-left: auto; /* Push numbers to right */
+        }
 
         #map-data-overlay {
             position: absolute;
@@ -158,19 +180,50 @@
             display: flex; flex-direction: column; z-index: 100;
             position: relative;
         }
-        .arcade-tabs { display: flex; gap: 8px; margin-bottom: 8px; flex-shrink: 0; }
-        .pixel-btn {
-            flex: 1; background: #444; border: 2px solid #fff; color: #fff;
-            padding: 8px; font-weight: bold; font-size: 15px;
-            box-shadow: 3px 3px 0px #000; cursor: pointer; text-align: center;
-        }
-        .pixel-btn.active { background: var(--accent-blue); transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
+        .arcade-tabs { display: flex; gap: 8px; margin-bottom: 0px; flex-shrink: 0; align-items: flex-end; }
         
-        .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+        /* Revised Tab Styles for "Height" Effect */
+        .pixel-btn {
+            flex: 1; 
+            background: #1a1a1a; 
+            border: 2px solid #444; border-bottom: none;
+            color: #777;
+            padding: 8px; 
+            font-weight: bold; font-size: 15px;
+            cursor: pointer; text-align: center;
+            
+            /* Inactive State: "Lower/Behind" - Reduced to 2px */
+            transform: translateY(2px); 
+            box-shadow: none;
+            transition: all 0.2s;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            z-index: 1;
+        }
+        .pixel-btn.active { 
+            background: var(--accent-blue); 
+            border: 2px solid #fff; border-bottom: none;
+            color: #fff;
+            
+            /* Active State: "Higher/Front" */
+            transform: translateY(0); 
+            box-shadow: 0px -2px 0px rgba(0,0,0,0.5); 
+            z-index: 10;
+            padding-bottom: 12px; 
+        }
+        
+        .tab-content { 
+            display: none; flex: 1; overflow: hidden; flex-direction: column; 
+            border-top: 2px solid #fff; 
+            margin-top: -2px; 
+            z-index: 5;
+            background: var(--ui-bg); 
+            position: relative;
+        }
         .tab-content.active { display: flex; }
 
         /* Build Deck */
-        #build-deck { display: flex; gap: 4px; flex: 1; width: 100%; }
+        #build-deck { display: flex; gap: 4px; flex: 1; width: 100%; padding-top: 8px; }
         .pixel-card {
             flex: 1; position: relative;
             background: #333; border: 2px solid #888;
@@ -212,7 +265,7 @@
         }
 
         /* Market */
-        #market-container { display: flex; gap: 8px; height: 100%; width: 100%; position: relative; }
+        #market-container { display: flex; gap: 8px; height: 100%; width: 100%; position: relative; padding-top: 8px; }
         .market-col {
             flex: 1; display: flex; flex-direction: column;
             background: #111; border: 1px solid #444; padding: 0; border-radius: 4px;
@@ -276,6 +329,8 @@
             position: relative !important;
             box-shadow: 0 0 0 4px var(--accent-gold), 0 0 20px var(--accent-gold) !important;
             transition: all 0.3s;
+            /* CRITICAL FIX: Make clicks pass through highlighted element to the overlay */
+            pointer-events: none; 
         }
         
         /* Fix for Next Button position when highlighted */
@@ -306,23 +361,39 @@
         #toast-container {
             position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
             width: 280px; pointer-events: none; z-index: 1500;
-            display: flex; flex-direction: column; gap: 8px;
+            display: flex; flex-direction: column; /* Stack direction */
+            gap: 6px;
         }
         .toast-msg {
             background: rgba(0,0,0,0.9);
             color: #fff; border-left: 4px solid #fff;
             padding: 8px 12px; font-family: 'VT323', monospace; font-size: 18px;
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-            animation: slideInFade 3s forwards;
+            
+            /* Entry Animation */
+            opacity: 0; transform: translateY(-10px);
+            animation: toastEntry 0.3s forwards;
+            
+            /* Exit Transition */
+            transition: all 0.4s ease;
+            max-height: 50px; /* Assume no toast > 50px */
+            margin-bottom: 6px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .toast-msg.good { border-color: var(--accent-gold); color: #fff; }
         .toast-msg.bad { border-color: var(--accent-red); color: #ffcccc; }
-        @keyframes slideInFade {
-            0% { opacity: 0; transform: translateY(10px); }
-            10% { opacity: 1; transform: translateY(0); }
-            80% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
+        
+        @keyframes toastEntry {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .toast-msg.hiding {
+            opacity: 0;
+            transform: translateX(10px);
+            max-height: 0;
+            padding-top: 0; padding-bottom: 0;
+            margin-bottom: 0;
+            border: none;
         }
 
         /* Modal */
@@ -343,6 +414,13 @@
         .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; width: 100%;}
         .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
+
+        /* Report Modal Styles */
+        .report-section { text-align: left; margin-bottom: 12px; border-bottom: 1px solid #444; padding-bottom: 8px; }
+        .report-section:last-child { border-bottom: none; }
+        .report-title { font-weight: bold; color: #aaa; font-size: 12px; margin-bottom: 4px; }
+        .report-val { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; }
+        .report-detail { font-size: 12px; color: #888; margin-top: 2px; padding-left: 10px; }
 
         .crisis-mode { filter: sepia(100%) hue-rotate(-50deg) saturate(300%); }
         
@@ -421,7 +499,7 @@
                 <div class="ingame-legend-item"><span class="dot" style="background:var(--color-coal)"></span>煤 <span id="leg-val-coal" class="leg-val"></span></div>
                 <div class="ingame-legend-item"><span class="dot" style="background:var(--color-gas)"></span>氣 <span id="leg-val-gas" class="leg-val"></span></div>
                 <div class="ingame-legend-item"><span class="dot" style="background:var(--color-nuclear)"></span>核 <span id="leg-val-nuke" class="leg-val"></span></div>
-                <div class="ingame-legend-item"><span class="dot" style="background:var(--color-green)"></span>綠 <span id="leg-val-green" class="leg-val"></span></div>
+                <div class="ingame-legend-item"><span class="dot" style="background:var(--color-green)"></span>再生 <span id="leg-val-green" class="leg-val"></span></div>
             </div>
 
             <div id="buildings-layer"></div>
@@ -440,8 +518,8 @@
 
     <div id="bottom-panel">
         <div class="arcade-tabs">
-            <button class="pixel-btn active" onclick="ui.switchTab('build')">🔨 建設</button>
-            <button class="pixel-btn" onclick="ui.switchTab('market')">🚢 燃料市場</button>
+            <button class="pixel-btn active" id="tab-btn-build" onclick="ui.switchTab('build')">🔨 建設</button>
+            <button class="pixel-btn" id="tab-btn-market" onclick="ui.switchTab('market')">🚢 燃料市場</button>
         </div>
 
         <div id="tab-build" class="tab-content active">
@@ -459,7 +537,7 @@
                     <div class="market-header">🔥 氣 (存:<span id="val-gas-stock">0</span>)</div>
                     <div class="terminal-build-area">
                         <div class="terminal-info">上限: <span id="val-gas-cap">0</span> | 已有 <span id="val-term-cnt">0</span> 座</div>
-                        <button class="build-term-btn" onclick="game.buildTerminal()">新建接收站 ($1000)</button>
+                        <button class="build-term-btn" onclick="game.buildTerminal()">新建接收站 ($2000)</button>
                     </div>
                     <div class="market-list" id="market-gas-list"></div>
                 </div>
@@ -493,24 +571,27 @@
 
         const STAGES = [
             {
-                title: "階段一：基礎建設",
-                desc: "發展初期，十大建設啟動。請建設電廠，滿足工業發展的電力需求。",
+                title: "階段一：基礎建設 (1975-1990)",
+                short: "十大建設啟動，請擴充基載電力，確保工業動能。",
+                desc: "🇹🇼 國家發展簡報：<br>時值民國60年代，十大建設正如火如荼展開。重工業與製造業的興起，帶動了龐大的電力缺口。<br><br>您的首要任務是擴充基載電力，確保工業動能不熄火。",
                 goals: [
                     { txt: "發電量 > 12000MW", check: g => g.calcPower() >= 12000 },
                     { txt: "燃煤電廠 > 6 座", check: g => g.counts.coal >= 6 }
                 ]
             },
             {
-                title: "階段二：經濟起飛",
-                desc: "經濟成長期，竹科崛起。需要穩定的燃氣電力與接收站。",
+                title: "階段二：經濟起飛 (1990-2010)",
+                short: "竹科崛起，高科技需穩定電力。請發展燃氣與接收站。",
+                desc: "📈 產業轉型簡報：<br>邁入90年代，隨著新竹科學園區崛起，高科技產業成為國家命脈。晶圓代工與電子業對電力的穩定性要求極高。<br><br>同時環保意識抬頭，燃煤擴張受限，請致力於發展燃氣發電，並確保天然氣接收站的量能。",
                 goals: [
                     { txt: "接收站 > 3 座", check: g => g.counts.terminal >= 3 },
                     { txt: "燃氣電廠 > 10 座", check: g => g.counts.gas >= 10 }
                 ]
             },
             {
-                title: "階段三：能源轉型",
-                desc: "成熟期，面對封鎖風險，目標建立高韌性與綠色電網。",
+                title: "階段三：能源轉型 (2010-2025)",
+                short: "能源轉型，面對廢核減煤壓力，請提升綠能與戰備存量。",
+                desc: "♻️ 永續未來簡報：<br>進入21世紀，面對全球氣候變遷與地緣政治風險，單一能源依賴已成國安隱憂。<br><br>您必須在廢核與減煤的雙重壓力下，大幅提升再生能源佔比，並建立足夠的戰備存量，以應對可能的封鎖危機。",
                 goals: [
                     { txt: "安全存量 > 14天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 14 },
                     { txt: "再生能源 > 20%", check: g => g.getGreenPct() >= 20 },
@@ -561,22 +642,27 @@
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 
-                const s0 = STAGES[0];
-                const goals0 = s0.goals.map(g => '🔹 ' + g.txt).join('<br>');
-
-                ui.showModal("任務簡報", 
-                    `<div style="text-align:left; padding:0 10px;">
-                        歡迎來到《像素能源》。<br><br>
-                        您將扮演台灣能源決策者，在長達50年的歷史中，面對經濟發展、環保轉型與地緣政治的挑戰。<br><br>
-                        <span style="color:var(--accent-gold)">目標：建立穩定、安全且潔淨的電力系統。</span><br><br>
-                        <span style="color:var(--accent-blue)">🏆 階段目標：</span><br>${goals0}
+                // --- Chain Modals: Intro -> Stage 1 -> Tutorial ---
+                ui.showModal("任務簡報：能源任命",
+                    `<div style="text-align:left; padding:0 10px; line-height:1.6;">
+                        恭喜您！您已被任命為<span style="color:var(--accent-gold)">台灣能源決策長</span>。<br><br>
+                        從此刻起，國家的動力掌握在您手中。您將跨越50年的時空，面對<span style="color:var(--accent-blue)">經濟起飛的電力需求</span>、<span style="color:var(--accent-green)">環境保護的轉型壓力</span>，以及<span style="color:var(--accent-red)">地緣政治的嚴峻挑戰</span>。<br><br>
+                        <span style="color:var(--accent-gold)">核心目標：</span>在有限資金下，建立一個穩定、安全且潔淨的電力系統。
                     </div>`,
                     () => {
-                        try { document.documentElement.requestFullscreen().catch(()=>{}); } catch(e){}
-                        ui.closeModal();
-                        if(game.year === 1975 && game.tutorialStep === 0) {
-                            game.startTutorial();
-                        }
+                        // Use swapModal instead of close+show to prevent flashing
+                        const s = STAGES[0];
+                        const goals = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
+                        ui.swapModal(s.title,
+                            `<div style="text-align:left; padding:0 10px; line-height:1.6;">
+                                ${s.desc}<br><br>
+                                <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${goals}
+                            </div>`,
+                            () => {
+                                ui.closeModal();
+                                if(game.year === 1975) game.startTutorial();
+                            }
+                        );
                     }
                 );
             },
@@ -607,13 +693,13 @@
             },
 
             nextTutorialStep() {
-                if(this.tutorialStep > 0 && this.tutorialStep < 4) {
+                if(this.tutorialStep > 0 && this.tutorialStep < 3) {
                     this.tutorialStep++;
                     this.updateTutorial();
-                } else if(this.tutorialStep === 4) {
+                } else if(this.tutorialStep === 3) {
                     this.tutorialStep = 0;
                     ui.clearHighlight();
-                    ui.switchTab('build'); 
+                    ui.switchTab('build', true); 
                 }
             },
 
@@ -621,12 +707,14 @@
                 ui.clearHighlight();
                 
                 if(this.tutorialStep === 1) {
-                    ui.switchTab('build'); 
-                    ui.highlightElement('#build-deck', "【建設區】\n點擊下方卡片即可建設電廠。\n注意：初期資金有限，請謹慎規劃。");
+                    ui.switchTab('build', true); 
+                    // Changed instruction text: purely informational now.
+                    ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
                 } else if(this.tutorialStep === 2) {
-                    ui.switchTab('market'); 
+                    ui.switchTab('market', true); 
                     ui.highlightElement('#market-container', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n(往下滑動可購買不同進口國的燃料)");
                 } else if(this.tutorialStep === 3) {
+                    ui.switchTab('build', true); // Switch back to build for better UX
                     ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
                 } else {
                     ui.clearHighlight();
@@ -646,6 +734,9 @@
             },
 
             selectCard(key) {
+                // Modified: Block interaction if in tutorial
+                if (this.tutorialStep !== 0) return;
+
                 if(this.selected === key) { this.selected = null; }
                 else { this.selected = key; this.tryBuild(); }
                 ui.renderDeck();
@@ -653,6 +744,9 @@
             },
 
             tryBuild() {
+                // Modified: Only allow building if tutorial is finished (step 0)
+                if (this.tutorialStep !== 0) return;
+                
                 if (!this.selected) return;
                 const p = PLANTS[this.selected];
                 
@@ -678,7 +772,7 @@
                 if (this.selected === 'coal') this.cap.coal += 1500; 
                 if (this.selected === 'terminal') this.cap.gas += 1500;
                 
-                ui.floatText(`建設 -$${p.cost}`, 'good');
+                ui.floatText(`建設${p.name} -$${p.cost}`, 'good');
                 this.placeBuilding(this.selected);
                 this.selected = null;
                 ui.renderDeck(); ui.updateAll();
@@ -691,6 +785,9 @@
             },
 
             buildTerminal() {
+                // Modified: Disable during tutorial
+                if (this.tutorialStep !== 0) return;
+
                 const p = PLANTS.terminal;
                 if (this.funds < p.cost) {
                     ui.floatText('💸 資金不足', 'bad'); return;
@@ -698,7 +795,7 @@
                 this.funds -= p.cost;
                 this.counts.terminal++;
                 this.cap.gas += 1500;
-                ui.floatText(`擴充 -$${p.cost}`, 'good');
+                ui.floatText(`建設接收站 -$${p.cost}`, 'good');
                 this.placeBuilding('terminal');
                 ui.updateAll();
             },
@@ -720,6 +817,9 @@
             },
 
             buyFuel(type, countryId) {
+                // Modify: Disable during tutorial
+                if (this.tutorialStep !== 0) return;
+
                 if (this.blockade) { ui.floatText('🚫 封鎖中', 'bad'); return; }
                 const basePrice = this.marketPrices[`${type}_${countryId}`];
                 const surge = this.purchaseCounts[type][countryId] || 0;
@@ -737,8 +837,11 @@
                 this.purchaseCounts[type][countryId]++;
                 if (!this.importStats[type][countryId]) this.importStats[type][countryId] = 0;
                 this.importStats[type][countryId] += 100;
-                ui.floatText(`庫存 +100`, 'good');
+                
+                const fuelName = type === 'coal' ? '煤炭' : '天然氣';
+                ui.floatText(`${fuelName}庫存 +100`, 'good');
                 ui.updateAll();
+                if(this.tutorialStep === 4) { this.tutorialStep = 5; ui.clearHighlight(); }
             },
 
             updateMarketPrices() {
@@ -775,23 +878,25 @@
                         this.funds -= 2000;
                         if(this.funds < 0) { 
                             this.comp -= 15; 
-                            ui.floatText("競爭力因破產 -15", "bad");
                         }
                         this.counts.nuclear--;
                         this.nukeShutdownTimer = 2;
                         this.comp -= 30;
-                        ui.floatText("競爭力因核災 -30", "bad");
+                        
+                        let msg = "☢️ 核災爆發！競爭力-30";
+                        if(this.funds < 0) msg += "，國家破產 -15";
                         
                         if(this.nukeDisasterCount >= 3) {
                             this.isNukePermanentlyBanned = true;
                             this.counts.nuclear = 0; 
-                            ui.showModal("☢️ 核能永久廢止", "核災發生三次，社會共識崩盤。<br>所有核電廠強制除役！", () => ui.closeModal());
+                            return "☢️ 核災3次：核能永久廢止！";
                         } else {
-                            ui.showModal("☢️ 核災爆發！", `損失慘重！(-$${loss+2000})<br>其餘核電廠強制停機安檢 2 年。`, () => ui.closeModal());
+                            return msg;
                         }
                         ui.renderDeck();
                     }
                 }
+                return null;
             },
 
             nextTurn() {
@@ -813,47 +918,38 @@
                     green: pGreen
                 });
 
-                this.checkNuclearDisaster();
-                
-                // Goal Check
-                if (!this.isFreePlay) {
-                    const stage = STAGES[this.stageIdx];
-                    if (stage && stage.goals.every(g => g.check(this))) {
-                        if (this.stageIdx < STAGES.length - 1) {
-                            this.stageIdx++;
-                            const s = STAGES[this.stageIdx];
-                            const gHtml = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
-                            ui.showModal(s.title, `${s.desc}<br><br>🏆 階段目標：<br>${gHtml}`, () => ui.closeModal());
-                        } else {
-                            ui.showVictory();
-                            return; 
-                        }
-                    }
-                }
+                // --- 1. Check Events ---
+                let turnEvents = [];
+                const nukeMsg = this.checkNuclearDisaster();
+                if(nukeMsg) turnEvents.push(nukeMsg);
 
+                // --- 2. Income ---
                 const income = this.calcIncome();
                 this.funds += income; 
-                ui.floatText(`資金 +${income}`, 'good');
+                // Removed toast for income, will show in modal
                 
                 this.demand += 1200;
                 this.updateMarketPrices();
                 
+                // --- 3. Consumption ---
                 this.consumeFuel(); 
                 
-                // === Logic for Competitiveness ===
+                // --- 4. Competitiveness Logic ---
                 let compBonus = 0;
+                let compChanges = []; // Store strings: "Reason val"
 
                 const power = this.calcPower();
-                // 1. Check Power Shortage
+                // Check Power Shortage
                 if (power < this.demand) {
                     this.comp -= 15;
-                    ui.floatText('競爭力因缺電 -15', 'bad');
+                    compChanges.push("缺電 -15");
                 } else {
                     compBonus += 5;
                     this.comp = Math.min(100, this.comp + 5);
+                    compChanges.push("供電穩定 +5");
                 }
 
-                // 2. Check 0 Stock Instant Fail
+                // Check 0 Stock Instant Fail
                 const cDays = this.getCoalDays();
                 const gDays = this.getGasDays();
                 const hasCoalPlant = this.counts.coal > 0;
@@ -867,32 +963,69 @@
                     return;
                 }
 
-                // 3. Low Stock Penalty
+                // Low Stock Penalty
                 if (cDays !== null && cDays < 7) {
                     this.comp -= 10;
-                    ui.floatText('競爭力因缺煤 -10', 'bad');
+                    compChanges.push("缺煤 -10");
                 }
                 if (gDays !== null && gDays < 7) {
                     this.comp -= 10;
-                    ui.floatText('競爭力因缺氣 -10', 'bad');
+                    compChanges.push("缺氣 -10");
                 }
                 
-                // Apply Bonus Msg
-                if (compBonus > 0 && power >= this.demand) {
-                    ui.floatText(`競爭力 +${compBonus}`, 'good');
+                // Blockade Check
+                if (this.year > 2020 && Math.random() < 0.15 && !this.isFreePlay) {
+                    this.startBlockade();
+                    turnEvents.push("⚠️ 海峽封鎖開始！");
                 }
-                // ======================================================
 
-                if (this.year > 2020 && Math.random() < 0.15 && !this.isFreePlay) this.startBlockade();
+                // --- 5. Game Over / Victory Check ---
                 if (this.comp <= 0) { ui.showGameOver(); return; }
+                
                 ui.renderMarket(); ui.updateAll();
+                
+                // --- 6. Goal Check (Stage) ---
+                if (!this.isFreePlay) {
+                    const stage = STAGES[this.stageIdx];
+                    if (stage && stage.goals.every(g => g.check(this))) {
+                        if (this.stageIdx < STAGES.length - 1) {
+                            this.stageIdx++;
+                            // FIX: Update UI to show new stage goals immediately
+                            ui.updateAll(); 
+                            
+                            const s = STAGES[this.stageIdx];
+                            const gHtml = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
+                            ui.showModal(s.title, 
+                                `<div style="text-align:left; padding:0 10px; line-height:1.6;">
+                                    ${s.desc}<br><br>
+                                    <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${gHtml}
+                                </div>`, 
+                                () => ui.closeModal()
+                            );
+                            // Skip turn report on stage clear to avoid clutter
+                            return;
+                        } else {
+                            ui.showVictory();
+                            return; 
+                        }
+                    }
+                }
+
+                // --- 7. Show Turn Report (If no blockade blocking view or game over) ---
+                // Only show if not in blockade mode (blockade handles its own modal)
+                if (!this.blockade) {
+                    ui.showTurnReport(this.year, income, compChanges, this.funds, this.comp, turnEvents);
+                }
                 
                 // Tutorial Step Advancement
                 if(this.tutorialStep === 3) {
                     this.tutorialStep = 0;
                     ui.clearHighlight();
-                    ui.switchTab('build'); // Explicitly switch back to build tab when tutorial ends
+                    ui.switchTab('build', true); 
                 }
+                
+                // CRITICAL FIX: Always ensure tutorial lock is released on next turn if not in tutorial logic flow
+                this.tutorialStep = 0;
             },
 
             consumeFuel() {
@@ -965,14 +1098,23 @@
         };
 
         const ui = {
-            switchTab(tab) {
+            switchTab(tab, isSystem = false) {
+                // If tutorial active and not a system call, block tab switching
+                // BUT allow unlocking after 1975
+                if(game.tutorialStep !== 0 && !isSystem && game.year === 1975) return;
+
                 document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll('.pixel-btn').forEach(el => el.classList.remove('active'));
                 document.getElementById(`tab-${tab}`).classList.add('active');
                 
                 const btns = document.querySelectorAll('.pixel-btn');
-                if(tab==='build') btns[0].classList.add('active');
-                if(tab==='market') btns[1].classList.add('active');
+                // btn indices: build=0, market=1
+                const btnId = tab === 'build' ? 'tab-btn-build' : 'tab-btn-market';
+                document.getElementById(btnId).classList.add('active');
+                
+                if(game.tutorialStep === 4 && tab === 'market') {
+                    setTimeout(() => ui.highlightElement('.buy-btn-mini:first-child', '點擊購買！'), 100);
+                }
             },
 
             highlightElement(selector, text) {
@@ -1122,7 +1264,7 @@
 
                 if (!game.isFreePlay) {
                     const s = STAGES[game.stageIdx];
-                    document.getElementById('story-text').innerText = s.desc;
+                    document.getElementById('story-text').innerText = s.short;
                     document.getElementById('goal-list').innerHTML = s.goals.map(g => `
                         <div class="goal-item"><span class="goal-check ${g.check(game) ? 'done' : ''}">${g.check(game) ? '✅' : '⬜'}</span> <span>${g.txt}</span></div>
                     `).join('');
@@ -1148,14 +1290,85 @@
                 const container = document.getElementById('toast-container');
                 const el = document.createElement('div');
                 el.className = `toast-msg ${type || ''}`;
-                el.innerText = txt;
                 
-                // Add icon based on type
                 if(type === 'good') el.innerHTML = `<span>${txt}</span> <span>💰</span>`;
                 if(type === 'bad') el.innerHTML = `<span>${txt}</span> <span>⚠️</span>`;
+                if(!type) el.innerText = txt; 
+
+                container.prepend(el);
+
+                if (container.children.length > 6) {
+                     const oldest = container.lastElementChild;
+                     if(oldest) oldest.remove(); 
+                }
+
+                // Faster remove
+                setTimeout(() => {
+                    el.classList.add('hiding'); 
+                    el.addEventListener('transitionend', () => el.remove()); 
+                }, 1200); 
+            },
+
+            swapModal(title, desc, callback) {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-content-area').innerHTML = `<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">${desc}</p>`;
                 
-                container.appendChild(el);
-                setTimeout(() => el.remove(), 2900);
+                const btn = document.getElementById('modal-btn');
+                btn.innerText = "確 定";
+                // Update click handler directly
+                btn.onclick = callback ? callback : ui.closeModal;
+                
+                // Ensure it's visible (if swapping from closed state, though typical usage is open->open)
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+
+            showTurnReport(year, income, compDetails, totalFunds, totalComp, events) {
+                document.getElementById('modal-title').innerText = `📅 年度報告 (${year})`;
+                
+                let compHtml = compDetails.map(d => {
+                    const isNeg = d.includes('-');
+                    return `<div style="color:${isNeg ? '#e74c3c' : '#2ecc71'}">${d}</div>`;
+                }).join('');
+                
+                let eventHtml = '';
+                if(events && events.length > 0) {
+                    eventHtml = `
+                    <div class="report-section">
+                        <div class="report-title" style="color:var(--accent-red)">⚠️ 重大事件</div>
+                        ${events.map(e => `<div style="color:#fff; font-size:14px; margin-bottom:4px;">${e}</div>`).join('')}
+                    </div>`;
+                }
+
+                const html = `
+                    <div class="report-section">
+                        <div class="report-title">💰 財政收支</div>
+                        <div class="report-val">
+                            <span>本期收入</span>
+                            <span style="color:var(--accent-gold)">+$${income.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <div class="report-title">📊 競爭力評估</div>
+                        <div class="report-val">
+                            <span>當前指數</span>
+                            <span style="color:var(--accent-blue)">${totalComp}%</span>
+                        </div>
+                        <div class="report-detail">
+                            ${compHtml || '<div style="color:#888">無顯著變化</div>'}
+                        </div>
+                    </div>
+                    
+                    ${eventHtml}
+                `;
+
+                document.getElementById('modal-content-area').innerHTML = html;
+                
+                const btn = document.getElementById('modal-btn');
+                btn.innerText = "確 定";
+                btn.onclick = ui.closeModal;
+                btn.className = 'retro-btn';
+                document.getElementById('modal-overlay').style.display = 'flex';
             },
 
             showModal(title, desc, callback) {
@@ -1209,7 +1422,7 @@
                             燃煤消耗 = 電廠數 x ${PLANTS.coal.fuel}<br>
                             燃氣消耗 = 電廠數 x ${PLANTS.gas.fuel}<br>
                             天數 = 庫存 / 年消耗<br>
-                            <span style="color:#e74c3c">*庫存小於7天將扣競爭力。</span>
+                            <span style="color:#e74c3c">*封鎖期間無法進口，需靠存量撐過11天。</span>
                         </div>
                     </div>
                 `);
