@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v47</title>
+    <title>⚡ 像素能源：決戰台灣 v48</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -104,12 +104,13 @@
         }
         .map-path { fill: var(--land-green); stroke: var(--land-border); stroke-width: 3px; }
 
-        /* Revised Pie Chart Style */
+        /* Revised Pie Chart Style - Moved LEFT */
         #power-pie-chart {
             position: absolute;
-            top: 42%; left: 50%; /* Adjusted center and top */
+            top: 45%; 
+            left: 36%; /* Shifted left to balance with legend on right */
             transform: translate(-50%, -50%);
-            width: 140px; height: 140px; /* Increased size */
+            width: 140px; height: 140px; 
             border-radius: 50%;
             background: #444;
             border: 4px solid #fff;
@@ -123,35 +124,40 @@
             font-size: 13px; border-radius: 4px; white-space: nowrap; font-weight: bold;
         }
 
-        /* Revised Legend Box Style */
+        /* Revised Legend Box Style - Moved RIGHT & Vertical Stack */
         #pie-legend-box {
             position: absolute; 
-            top: 58%; /* Pushed down below the larger chart */
-            left: 50%; transform: translateX(-50%);
-            background: rgba(30, 30, 30, 0.9); 
-            padding: 8px 12px; 
+            top: 45%; /* Aligned with chart center */
+            right: 12px; /* Fixed to right side */
+            left: auto;
+            transform: translateY(-50%);
+            
+            background: rgba(20, 20, 20, 0.9); 
+            padding: 10px; 
             border-radius: 6px;
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Two columns */
-            gap: 6px 16px; /* Spacing */
+            display: flex;
+            flex-direction: column; /* Vertical stack list */
+            gap: 8px; /* Spacing between items */
+            
             pointer-events: none; 
             z-index: 50;
             white-space: nowrap;
-            border: 2px solid #555;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            border: 2px solid #666;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.6);
+            min-width: 110px;
         }
         .ingame-legend-item { 
-            display: flex; align-items: center; gap: 6px; 
-            font-size: 13px; /* Larger font */
-            color: #ddd; 
-            font-weight: bold;
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 14px; color: #eee; font-weight: bold;
         }
+        .item-left { display: flex; align-items: center; gap: 6px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border:1px solid #fff;}
         .leg-val { 
             font-family: 'VT323'; 
             color: var(--accent-gold); 
-            font-size: 18px; /* Larger numbers */
-            margin-left: auto; /* Push numbers to right */
+            font-size: 20px; /* Big numbers */
+            margin-left: 8px;
+            text-align: right;
         }
 
         #map-data-overlay {
@@ -182,7 +188,7 @@
         }
         .arcade-tabs { display: flex; gap: 8px; margin-bottom: 0px; flex-shrink: 0; align-items: flex-end; }
         
-        /* Revised Tab Styles for "Height" Effect */
+        /* Revised Tab Styles */
         .pixel-btn {
             flex: 1; 
             background: #1a1a1a; 
@@ -191,8 +197,6 @@
             padding: 8px; 
             font-weight: bold; font-size: 15px;
             cursor: pointer; text-align: center;
-            
-            /* Inactive State: "Lower/Behind" - Reduced to 2px */
             transform: translateY(2px); 
             box-shadow: none;
             transition: all 0.2s;
@@ -204,8 +208,6 @@
             background: var(--accent-blue); 
             border: 2px solid #fff; border-bottom: none;
             color: #fff;
-            
-            /* Active State: "Higher/Front" */
             transform: translateY(0); 
             box-shadow: 0px -2px 0px rgba(0,0,0,0.5); 
             z-index: 10;
@@ -329,8 +331,7 @@
             position: relative !important;
             box-shadow: 0 0 0 4px var(--accent-gold), 0 0 20px var(--accent-gold) !important;
             transition: all 0.3s;
-            /* CRITICAL FIX: Make clicks pass through highlighted element to the overlay */
-            pointer-events: none; 
+            pointer-events: none; /* Make clicks pass through highlighted element to the overlay */
         }
         
         /* Fix for Next Button position when highlighted */
@@ -496,10 +497,22 @@
             </div>
             
             <div id="pie-legend-box">
-                <div class="ingame-legend-item"><span class="dot" style="background:var(--color-coal)"></span>煤 <span id="leg-val-coal" class="leg-val"></span></div>
-                <div class="ingame-legend-item"><span class="dot" style="background:var(--color-gas)"></span>氣 <span id="leg-val-gas" class="leg-val"></span></div>
-                <div class="ingame-legend-item"><span class="dot" style="background:var(--color-nuclear)"></span>核 <span id="leg-val-nuke" class="leg-val"></span></div>
-                <div class="ingame-legend-item"><span class="dot" style="background:var(--color-green)"></span>再生 <span id="leg-val-green" class="leg-val"></span></div>
+                <div class="ingame-legend-item">
+                    <div class="item-left"><span class="dot" style="background:var(--color-coal)"></span>煤</div>
+                    <span id="leg-val-coal" class="leg-val"></span>
+                </div>
+                <div class="ingame-legend-item">
+                    <div class="item-left"><span class="dot" style="background:var(--color-gas)"></span>氣</div>
+                    <span id="leg-val-gas" class="leg-val"></span>
+                </div>
+                <div class="ingame-legend-item">
+                    <div class="item-left"><span class="dot" style="background:var(--color-nuclear)"></span>核</div>
+                    <span id="leg-val-nuke" class="leg-val"></span>
+                </div>
+                <div class="ingame-legend-item">
+                    <div class="item-left"><span class="dot" style="background:var(--color-green)"></span>再生</div>
+                    <span id="leg-val-green" class="leg-val"></span>
+                </div>
             </div>
 
             <div id="buildings-layer"></div>
