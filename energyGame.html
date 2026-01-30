@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v48</title>
+    <title>⚡ 像素能源：決戰台灣 v50</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -104,13 +104,13 @@
         }
         .map-path { fill: var(--land-green); stroke: var(--land-border); stroke-width: 3px; }
 
-        /* Revised Pie Chart Style - Moved LEFT */
+        /* Revised Pie Chart Style - Centered & Larger */
         #power-pie-chart {
             position: absolute;
             top: 45%; 
-            left: 36%; /* Shifted left to balance with legend on right */
+            left: 50%; 
             transform: translate(-50%, -50%);
-            width: 140px; height: 140px; 
+            width: 150px; height: 150px; /* Bigger chart */
             border-radius: 50%;
             background: #444;
             border: 4px solid #fff;
@@ -118,46 +118,41 @@
             z-index: 50; pointer-events: none;
             transition: background 0.5s ease;
         }
-        #pie-label {
+        /* Center hole for Donut effect (optional, keeping it for style) */
+        #pie-center-hole {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.85); color: #fff; padding: 4px 8px;
-            font-size: 13px; border-radius: 4px; white-space: nowrap; font-weight: bold;
+            width: 50px; height: 50px; background: rgba(0,0,0,0.6); border-radius: 50%;
+            border: 2px solid #fff;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #pie-center-text {
+            font-size: 11px; color: #fff; font-weight: bold;
         }
 
-        /* Revised Legend Box Style - Moved RIGHT & Vertical Stack */
-        #pie-legend-box {
-            position: absolute; 
-            top: 45%; /* Aligned with chart center */
-            right: 12px; /* Fixed to right side */
-            left: auto;
-            transform: translateY(-50%);
-            
-            background: rgba(20, 20, 20, 0.9); 
-            padding: 10px; 
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column; /* Vertical stack list */
-            gap: 8px; /* Spacing between items */
-            
-            pointer-events: none; 
-            z-index: 50;
+        /* On-Chart Labels */
+        .chart-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 
+                -1px -1px 0 #000,  
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000,
+                 2px 2px 0px rgba(0,0,0,0.5);
+            pointer-events: none;
             white-space: nowrap;
-            border: 2px solid #666;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.6);
-            min-width: 110px;
+            line-height: 0.9;
         }
-        .ingame-legend-item { 
-            display: flex; align-items: center; justify-content: space-between;
-            font-size: 14px; color: #eee; font-weight: bold;
-        }
-        .item-left { display: flex; align-items: center; gap: 6px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border:1px solid #fff;}
-        .leg-val { 
-            font-family: 'VT323'; 
-            color: var(--accent-gold); 
-            font-size: 20px; /* Big numbers */
-            margin-left: 8px;
-            text-align: right;
+        .chart-label span {
+            display: block;
+            font-size: 12px; /* Smaller font for category name */
+            font-family: 'Noto Sans TC', sans-serif;
+            margin-bottom: 2px;
         }
 
         #map-data-overlay {
@@ -197,6 +192,8 @@
             padding: 8px; 
             font-weight: bold; font-size: 15px;
             cursor: pointer; text-align: center;
+            
+            /* Inactive State: "Lower/Behind" - Reduced to 2px */
             transform: translateY(2px); 
             box-shadow: none;
             transition: all 0.2s;
@@ -208,6 +205,8 @@
             background: var(--accent-blue); 
             border: 2px solid #fff; border-bottom: none;
             color: #fff;
+            
+            /* Active State: "Higher/Front" */
             transform: translateY(0); 
             box-shadow: 0px -2px 0px rgba(0,0,0,0.5); 
             z-index: 10;
@@ -493,27 +492,13 @@
             </svg>
             
             <div id="power-pie-chart">
-                <div id="pie-label">發電占比</div>
+                <!-- No label inside, using dynamic labels -->
+                <div id="pie-center-hole">
+                   <div id="pie-center-text">占比</div>
+                </div>
             </div>
             
-            <div id="pie-legend-box">
-                <div class="ingame-legend-item">
-                    <div class="item-left"><span class="dot" style="background:var(--color-coal)"></span>煤</div>
-                    <span id="leg-val-coal" class="leg-val"></span>
-                </div>
-                <div class="ingame-legend-item">
-                    <div class="item-left"><span class="dot" style="background:var(--color-gas)"></span>氣</div>
-                    <span id="leg-val-gas" class="leg-val"></span>
-                </div>
-                <div class="ingame-legend-item">
-                    <div class="item-left"><span class="dot" style="background:var(--color-nuclear)"></span>核</div>
-                    <span id="leg-val-nuke" class="leg-val"></span>
-                </div>
-                <div class="ingame-legend-item">
-                    <div class="item-left"><span class="dot" style="background:var(--color-green)"></span>再生</div>
-                    <span id="leg-val-green" class="leg-val"></span>
-                </div>
-            </div>
+            <!-- Removed Legend Box -->
 
             <div id="buildings-layer"></div>
 
@@ -747,8 +732,8 @@
             },
 
             selectCard(key) {
-                // Modified: Block interaction if in tutorial
-                if (this.tutorialStep !== 0) return;
+                // Allow interaction if in Step 1 (Build Tutorial) OR Step 3 (Preparation) OR Step 0 (Game)
+                if (this.tutorialStep !== 0 && this.tutorialStep !== 1 && this.tutorialStep !== 3) return;
 
                 if(this.selected === key) { this.selected = null; }
                 else { this.selected = key; this.tryBuild(); }
@@ -757,8 +742,8 @@
             },
 
             tryBuild() {
-                // Modified: Only allow building if tutorial is finished (step 0)
-                if (this.tutorialStep !== 0) return;
+                // Allow if Step 0, 1, or 3
+                if (this.tutorialStep !== 0 && this.tutorialStep !== 1 && this.tutorialStep !== 3) return;
                 
                 if (!this.selected) return;
                 const p = PLANTS[this.selected];
@@ -798,8 +783,8 @@
             },
 
             buildTerminal() {
-                // Modified: Disable during tutorial
-                if (this.tutorialStep !== 0) return;
+                // Allow if Step 0 or 3
+                if (this.tutorialStep !== 0 && this.tutorialStep !== 3) return;
 
                 const p = PLANTS.terminal;
                 if (this.funds < p.cost) {
@@ -830,8 +815,8 @@
             },
 
             buyFuel(type, countryId) {
-                // Modify: Disable during tutorial
-                if (this.tutorialStep !== 0) return;
+                // Allow if Step 0 or 3
+                if (this.tutorialStep !== 0 && this.tutorialStep !== 3) return;
 
                 if (this.blockade) { ui.floatText('🚫 封鎖中', 'bad'); return; }
                 const basePrice = this.marketPrices[`${type}_${countryId}`];
@@ -1113,8 +1098,8 @@
         const ui = {
             switchTab(tab, isSystem = false) {
                 // If tutorial active and not a system call, block tab switching
-                // BUT allow unlocking after 1975
-                if(game.tutorialStep !== 0 && !isSystem && game.year === 1975) return;
+                // BUT allow unlocking after 1975 OR if step is 3 (final tutorial step before unlocking)
+                if(game.tutorialStep !== 0 && !isSystem && game.year === 1975 && game.tutorialStep !== 3) return;
 
                 document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
                 document.querySelectorAll('.pixel-btn').forEach(el => el.classList.remove('active'));
@@ -1224,32 +1209,89 @@
                 const pGreen = (game.counts.green * PLANTS.green.output) + (game.counts.solar * PLANTS.solar.output);
                 const pNuke = game.calcNukeOutput(); 
                 const total = pCoal + pGas + pGreen + pNuke;
-                
+
+                // Clear previous labels inside the chart container
+                const chartContainer = document.getElementById('power-pie-chart');
+                // Remove all children EXCEPT the pie-center-hole (if you want to keep it, but user said remove it, wait. 
+                // User said "remove data panel, text on chart".
+                // I will clear everything and re-add labels.
+                chartContainer.innerHTML = ''; 
+
                 if (total === 0) {
-                    document.getElementById('leg-val-coal').innerText = "";
-                    document.getElementById('leg-val-gas').innerText = "";
-                    document.getElementById('leg-val-nuke').innerText = "";
-                    document.getElementById('leg-val-green').innerText = "";
+                    chartContainer.style.background = '#444';
                     return;
                 }
 
+                // Update Gradient
                 const degCoal = (pCoal / total) * 360;
                 const degGas = (pGas / total) * 360;
                 const degGreen = (pGreen / total) * 360;
                 const degNuke = (pNuke / total) * 360;
 
-                const chart = document.getElementById('power-pie-chart');
-                chart.style.background = `conic-gradient(
+                chartContainer.style.background = `conic-gradient(
                     var(--color-coal) 0deg ${degCoal}deg,
                     var(--color-gas) ${degCoal}deg ${degCoal + degGas}deg,
                     var(--color-nuclear) ${degCoal + degGas}deg ${degCoal + degGas + degNuke}deg,
                     var(--color-green) ${degCoal + degGas + degNuke}deg 360deg
                 )`;
+
+                // Add Labels directly on chart
+                const addLabel = (name, val, startAngle, sliceAngle) => {
+                    if (sliceAngle < 15) return; // Hide label if slice is too small (< ~4%)
+
+                    const midAngle = startAngle + sliceAngle / 2;
+                    // Convert to radians. Note: CSS conic gradient starts at 12 o'clock (0deg).
+                    // Standard trig 0 is 3 o'clock.
+                    // So 0deg CSS = -90deg Trig.
+                    // angle_rad = (midAngle - 90) * (PI / 180)
+                    const rad = (midAngle - 90) * (Math.PI / 180);
+                    
+                    // Radius is 75px (150px width / 2). Let's place label at r=45px (60%)
+                    const r = 45;
+                    const x = 75 + r * Math.cos(rad);
+                    const y = 75 + r * Math.sin(rad);
+
+                    const label = document.createElement('div');
+                    label.className = 'chart-label';
+                    // Use CSS to position center of label at x,y
+                    label.style.left = `${x}px`;
+                    label.style.top = `${y}px`;
+                    
+                    // NEW: One decimal place for pie chart labels
+                    const pct = (val / total * 100).toFixed(1);
+                    label.innerHTML = `<span>${name}</span>${pct}%`;
+                    chartContainer.appendChild(label);
+                };
+
+                let currentAngle = 0;
                 
-                document.getElementById('leg-val-coal').innerText = Math.round(pCoal/total*100) + "%";
-                document.getElementById('leg-val-gas').innerText = Math.round(pGas/total*100) + "%";
-                document.getElementById('leg-val-nuke').innerText = Math.round(pNuke/total*100) + "%";
-                document.getElementById('leg-val-green').innerText = Math.round(pGreen/total*100) + "%";
+                // Coal
+                if (pCoal > 0) {
+                    const slice = (pCoal / total) * 360;
+                    addLabel('煤', pCoal, currentAngle, slice);
+                    currentAngle += slice;
+                }
+                
+                // Gas
+                if (pGas > 0) {
+                    const slice = (pGas / total) * 360;
+                    addLabel('氣', pGas, currentAngle, slice);
+                    currentAngle += slice;
+                }
+
+                // Nuclear
+                if (pNuke > 0) {
+                    const slice = (pNuke / total) * 360;
+                    addLabel('核', pNuke, currentAngle, slice);
+                    currentAngle += slice;
+                }
+
+                // Green
+                if (pGreen > 0) {
+                    const slice = (pGreen / total) * 360;
+                    addLabel('再生', pGreen, currentAngle, slice);
+                    currentAngle += slice;
+                }
             },
 
             updateAll() {
