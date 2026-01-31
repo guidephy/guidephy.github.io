@@ -6,13 +6,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>⚡ 島嶼能源生存戰</title>
+    <!-- 引入 html2canvas 用於截圖功能 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
         :root {
             --bg-ocean: #2c3e50;
             --land-green: #27ae60;
-            --land-border: #555; /* 修改：改為深灰色，避免100%燃油時出現綠線 */
+            --land-border: #555; 
             --ui-bg: #212529;
             --ui-border: #95a5a6;
             --accent-blue: #3498db;
@@ -184,7 +186,7 @@
         .map-label-name { 
             font-family: 'Noto Sans TC', sans-serif;
             font-weight: 900; 
-            font-size: 15px; /* 修改：放大字體 */
+            font-size: 16px; /* 修改：放大字體 */
             color: #fff;
             background: rgba(0,0,0,0.4);
             padding: 2px 6px;
@@ -193,7 +195,7 @@
         }
         .map-label-val { 
             font-family: 'VT323', monospace; 
-            font-size: 24px; /* 修改：放大數值 */
+            font-size: 28px; /* 修改：放大數值 */
             font-weight: bold; 
             color: #fff; 
             letter-spacing: 0.5px;
@@ -435,6 +437,11 @@
         .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
         .retro-btn.stage-clear { background: var(--accent-gold); color: #000; border-color: #fff; font-weight: bold; }
+        
+        /* New Button Styles for End Game - Vertical Stack */
+        .btn-group-vertical { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .retro-btn.screenshot { background: #2980b9; color: #fff; border-color: #fff; }
+        .retro-btn.restart-end { background: #e74c3c; color: #fff; border-color: #fff; }
 
         /* Stage Clear Celebration */
         .retro-dialog.stage-clear-dialog {
@@ -491,6 +498,17 @@
         .color-box { width: 8px; height: 8px; border: 1px solid #fff; }
         .rank-list { text-align: left; font-size: 11px; color:#ddd; margin-top: 5px; }
         .rank-item { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 2px 0;}
+        
+        /* New Ranking Columns */
+        .rank-section { display: flex; gap: 8px; margin-top: 10px; text-align: left; align-items: flex-start; }
+        .rank-col { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #555; padding: 6px; border-radius: 4px; }
+        .rank-header { 
+            font-size: 12px; font-weight: bold; color: var(--accent-gold); 
+            border-bottom: 1px dashed #555; padding-bottom: 4px; margin-bottom: 4px;
+            text-align: center; letter-spacing: 1px;
+        }
+        .rank-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #ddd; margin-bottom: 3px; }
+        .rank-val { font-family: 'VT323'; color: #fff; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -558,8 +576,9 @@
                 </defs>
 
                 <!-- 漸層背景層 (被台灣形狀裁切) -->
+                <!-- 修改：將預設背景改為 #444，避免漸層接縫處出現綠線 -->
                 <foreignObject x="0" y="0" width="320" height="480" clip-path="url(#taiwan-clip)">
-                    <div id="taiwan-chart-div" xmlns="http://www.w3.org/1999/xhtml" style="width:100%; height:100%; background: var(--land-green); transition: background 0.5s ease;"></div>
+                    <div id="taiwan-chart-div" xmlns="http://www.w3.org/1999/xhtml" style="width:100%; height:100%; background: #444; transition: background 0.5s ease;"></div>
                 </foreignObject>
 
                 <!-- 邊框層 -->
@@ -1072,6 +1091,8 @@
                 this.fuel[type] += 100;
                 if (!this.purchaseCounts[type][countryId]) this.purchaseCounts[type][countryId] = 0;
                 this.purchaseCounts[type][countryId]++;
+                
+                // === 關鍵修正：確保正確記錄進口數據 ===
                 if (!this.importStats[type][countryId]) this.importStats[type][countryId] = 0;
                 this.importStats[type][countryId] += 100;
                 
@@ -1357,6 +1378,28 @@
                     ui.showModal("🏳️ 危機解除", "封鎖結束，台灣存活！", () => ui.closeModal());
                 }
                 ui.updateAll();
+            },
+
+            captureScreenshot() {
+                const element = document.querySelector('.retro-dialog');
+                if (!element) return;
+                
+                // Get today's date in YYYYMMDD format
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const fileName = `${yyyy}${mm}${dd}能源發展圖.png`;
+
+                html2canvas(element, { 
+                    backgroundColor: null,
+                    scale: 2 
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = canvas.toDataURL("image/png");
+                    link.click();
+                });
             }
         };
 
@@ -1526,7 +1569,7 @@
                 labelsLayer.innerHTML = ''; // Clear previous labels
 
                 if (total === 0) {
-                    chartContainer.style.background = 'var(--land-green)';
+                    chartContainer.style.background = '#444';
                     return;
                 }
 
@@ -1545,9 +1588,9 @@
                 )`;
 
                 // --- Generate Labels ---
-                const centerX = 160; // Approximate visual center x of Taiwan in 320px width
-                const centerY = 240; // Approximate visual center y of Taiwan in 480px height
-                const radius = 65;   // Distance from center to place labels
+                const centerX = 160; 
+                const centerY = 240; 
+                const radius = 65;   
 
                 const data = [
                     { name: '燃油', val: pOil, deg: degOil },
@@ -1557,31 +1600,18 @@
                     { name: '再生', val: pGreen, deg: degGreen }
                 ];
 
-                let currentAngle = 0; // Starts from top (0deg in CSS conic-gradient is 12 o'clock)
-                
-                // CSS conic-gradient 0deg is at 12 o'clock. 
-                // Math standard 0 radian is at 3 o'clock.
-                // We need to convert angles.
-                // 0deg (CSS) = -90deg (Math)
+                let currentAngle = 0; 
                 
                 data.forEach(item => {
                     const sliceAngle = item.deg;
                     const pct = (item.val / total * 100);
                     
-                    // Only show labels for significant portions (> 3%)
                     if (pct > 3) {
-                        // Calculate mid-angle of the slice
                         const midAngleDeg = currentAngle + sliceAngle / 2;
-                        
-                        // Convert to Radians for Math.cos/sin
-                        // Subtract 90 degrees because 0deg is top, not right
                         const rad = (midAngleDeg - 90) * (Math.PI / 180);
-                        
-                        // Calculate position
                         const x = centerX + radius * Math.cos(rad);
                         const y = centerY + radius * Math.sin(rad);
                         
-                        // Create Label Element
                         const label = document.createElement('div');
                         label.className = 'map-label';
                         label.style.left = (x / 320 * 100) + '%';
@@ -1839,15 +1869,23 @@
                         xAxisLabels += `<text x="${x}" y="215" fill="#aaa" font-size="12" text-anchor="${textAnchor}">${currentY}</text>`;
                     }
                 }
-                const getRank = (obj) => Object.entries(obj)
-                    .sort((a,b) => b[1] - a[1])
-                    .map(e => {
-                        const name = MARKET_SOURCES.coal.find(x=>x.id==e[0])?.name || MARKET_SOURCES.gas.find(x=>x.id==e[0])?.name || e[0];
-                        const flag = MARKET_SOURCES.coal.find(x=>x.id==e[0])?.flag || MARKET_SOURCES.gas.find(x=>x.id==e[0])?.flag || '';
-                        return `<div class="rank-item"><span>${flag} ${name}</span><span>${e[1]}00噸</span></div>`;
-                    }).join('');
+                const getRank = (obj, type) => {
+                    const sorted = Object.entries(obj).sort((a,b) => b[1] - a[1]);
+                    return sorted.map(([id, val]) => {
+                        const src = MARKET_SOURCES[type].find(s => s.id === id);
+                        return `
+                        <div class="rank-row">
+                            <span>${src ? src.flag + ' ' + src.name : id}</span>
+                            <span class="rank-val">${val.toLocaleString()}00</span>
+                        </div>`;
+                    }).join('') || '<div class="rank-row" style="color:#666">無進口紀錄</div>';
+                };
+
+                const coalRankHTML = getRank(game.importStats.coal, 'coal');
+                const gasRankHTML = getRank(game.importStats.gas, 'gas');
+
                 const finalHTML = `
-                    <p style="color:#2ecc71; margin-bottom:10px;">您建立了高韌性的電力系統！</p>
+                    <p style="color:#2ecc71; margin-bottom:10px; font-weight:bold;">您建立了高韌性的電力系統！</p>
                     <div class="chart-container">
                         <div class="chart-title">📈 發電結構堆疊圖 (總: ${game.calcPower().toLocaleString()} MW)</div>
                         <svg viewBox="0 0 400 220" style="background:#222; width:100%; height:auto;">
@@ -1866,15 +1904,26 @@
                             <div class="legend-item"><span class="color-box" style="background:#2ecc71"></span>綠 ${pcts.green}%</div>
                         </div>
                     </div>
+                    
+                    <div class="rank-section">
+                        <div class="rank-col">
+                            <div class="rank-header">🪨 燃煤進口總量</div>
+                            ${coalRankHTML}
+                        </div>
+                        <div class="rank-col">
+                            <div class="rank-header">🔥 燃氣進口總量</div>
+                            ${gasRankHTML}
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group-vertical">
+                        <button class="retro-btn screenshot" onclick="game.captureScreenshot()">📷 截取圖片</button>
+                        <button class="retro-btn restart-end" onclick="game.restart()">🔄 重新遊戲</button>
+                    </div>
                 `;
                 document.getElementById('modal-content-area').innerHTML = finalHTML;
-                const btn = document.getElementById('modal-btn');
-                btn.innerText = "繼續執政";
-                btn.className = 'retro-btn victory';
-                btn.onclick = () => {
-                    game.isFreePlay = true;
-                    ui.closeModal();
-                };
+                document.getElementById('modal-btn').style.display = 'none'; // Hide default button
+                
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
 
@@ -1908,6 +1957,7 @@
                 dialog.classList.add('stage-clear-dialog');
 
                 const btn = document.getElementById('modal-btn');
+                btn.style.display = 'block';
                 btn.innerText = "🚀 開始挑戰";
                 btn.className = 'retro-btn stage-clear';
                 btn.onclick = callback ? callback : ui.closeModal;
@@ -1920,6 +1970,7 @@
                 const dialog = document.querySelector('.retro-dialog');
                 dialog.classList.remove('stage-clear-dialog');
                 const btn = document.getElementById('modal-btn');
+                btn.style.display = 'block'; // Reset button visibility
                 btn.className = 'retro-btn';
                 const restartBtn = document.querySelector('.retro-btn.restart');
                 if(restartBtn) restartBtn.remove();
