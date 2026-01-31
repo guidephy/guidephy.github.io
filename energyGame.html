@@ -785,7 +785,7 @@
               goals: [ { txt: "接收站 > 2 座", check: g => g.counts.terminal >= 2 }, { txt: "安全存量 > 7天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 7 } ] },
             { title: "階段四：再生轉型", short: "國際戰爭致成本飆升，且有封鎖風險，利用再生能源實現自有能源目標。",
               desc: "🌬️ **自有能源戰略**：<br>天然氣昂貴且易受封鎖影響。幸運的是台灣海峽有頂級風場！<br>執行『風氣互補』：以燃氣快速升降支援綠能。<br>建設再生能源，獲取『自有能源』以抗衡地緣風險。",
-              goals: [ { txt: "接收站 > 3 座", check: g => g.counts.terminal >= 3 }, { txt: "再生能源 > 15%", check: g => g.getGreenPct() >= 15 }, { txt: "安全存量 > 11天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 11 } ] },
+              goals: [ { txt: "接收站 > 3 座", check: g => g.counts.terminal >= 3 }, { txt: "再生能源 > 10%", check: g => g.getGreenPct() >= 10 }, { txt: "安全存量 > 11天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 11 } ] },
             { title: "階段五：AI新局", short: "面對AI爆發、RE100、永續目標及地緣封鎖風險，請大幅提升再生能源與總發電量。",
               desc: "🤖 **AI 與永續競爭**：<br>AI 算力推升用電，RE100 限制出口。<br>為保產業優勢，需大幅提升綠能供應。<br>面對地緣軍演，更需將安全存量拉至 14 天，確保供電無虞。",
               goals: [ { txt: "再生能源 > 20%", check: g => g.getGreenPct() >= 20 }, { txt: "安全存量 > 14天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 14 }, { txt: "總發電 > 70000MW", check: g => g.calcPower() >= 70000 } ] }
