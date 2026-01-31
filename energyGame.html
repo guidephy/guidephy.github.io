@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v65</title>
+    <title>⚡ 像素能源：決戰台灣 v76</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -57,7 +57,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 4px;
             z-index: 100;
-            position: relative; /* For z-index to work */
+            position: relative; 
         }
         .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; cursor: pointer; }
         .stat-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
@@ -77,22 +77,52 @@
         
         .hud-help-icon { font-size: 24px; color: #fff; line-height: 32px; }
 
-        /* === Info Panels === */
+        /* === Info Panels (Consolidated) === */
         .info-panel {
-            position: absolute; top: 80px; width: 140px;
+            position: absolute; top: 80px; left: 10px; width: 165px; 
             background: rgba(33, 37, 41, 0.95); padding: 8px; z-index: 90;
-            box-shadow: 4px 4px 0px #000; pointer-events: none; border-radius: 2px;
+            box-shadow: 4px 4px 0px #000; border-radius: 4px;
+            border: 2px solid var(--ui-border);
+            transition: all 0.3s ease;
+            display: flex; flex-direction: column; gap: 8px;
         }
-        #story-panel { left: 10px; border: 3px solid var(--ui-border); }
-        #goal-panel { right: 10px; border: 3px solid var(--accent-blue); }
         
-        .pixel-title { 
-            font-size: 13px; color: var(--accent-gold); border-bottom: 2px dashed #555;
-            padding-bottom: 4px; margin-bottom: 4px; font-weight: 900;
+        /* Collapsible Sections */
+        .panel-section {
+            display: flex; flex-direction: column;
         }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; font-weight: 900; color: var(--accent-gold);
+            cursor: pointer; padding: 6px 4px; 
+            border-bottom: 2px dashed #555;
+            user-select: none;
+            transition: all 0.1s;
+        }
+        .section-header:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .section-header:active { transform: scale(0.98); opacity: 0.8; }
+        
+        .section-header .toggle-icon { font-size: 12px; color: #888; transition: transform 0.3s; }
+        
+        .section-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease, padding 0.3s;
+            max-height: 500px; /* Max height when open */
+            opacity: 1;
+            padding-top: 4px;
+        }
+        .section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+        }
+
         .pixel-text { font-size: 12px; line-height: 1.4; color: #ddd; }
-        .goal-item { font-size: 11px; margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 2px; }
+        .goal-item { font-size: 11px; margin-bottom: 4px; border-bottom: 1px dashed #444; padding-bottom: 2px; }
         .goal-check.done { color: var(--land-green); font-weight:bold; }
+
+        /* Divider between sections if needed */
+        .panel-divider { border-top: 1px solid #444; margin: 0 2px; }
 
         /* === Map Stage === */
         #game-stage {
@@ -102,8 +132,8 @@
 
         /* Year Display on Map */
         #map-year-display {
-            position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
-            padding: 0;
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 4px 15px;
             color: #fff; 
             font-family: 'VT323', monospace;
             font-size: 24px; 
@@ -227,22 +257,30 @@
         }
         .tab-content.active { display: flex; }
 
-        /* Build Deck */
-        #build-deck { display: flex; gap: 4px; flex: 1; width: 100%; padding-top: 8px; }
+        /* Build Deck & Market Deck (Distributed Width) */
+        #build-deck, #market-deck { 
+            display: flex; gap: 4px; flex: 1; width: 100%; padding-top: 8px; 
+        }
+
         .pixel-card {
-            flex: 1; position: relative;
+            flex: 1; 
+            min-width: 0;
+            position: relative;
             background: #333; border: 2px solid #888;
             box-shadow: 2px 2px 0px #000; padding: 2px; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: space-around;
-            min-width: 0;
+            min-height: 110px;
         }
         .pixel-card.selected { background: #555; border-color: var(--accent-gold); transform: translateY(-3px); }
         .pixel-card.disabled { opacity: 0.5; filter: grayscale(1); background: #222; }
         
         .card-emoji { font-size: 26px; }
         .card-name { font-size: 12px; text-align: center; white-space: nowrap; color: #fff; font-weight: bold; }
-        .card-power { font-family:'VT323'; color:var(--accent-blue); font-size:15px; font-weight: bold; }
-        .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; }
+        
+        /* Universal value style for Build and Market */
+        .card-val { font-family:'VT323'; color:#fff; font-size:15px; font-weight: bold; }
+        .card-risk { font-size: 10px; color: var(--accent-red); font-weight: bold; margin: 2px 0; }
+        .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; margin-top:auto;}
         
         .card-badge {
             position: absolute; top: -4px; right: -4px;
@@ -254,8 +292,7 @@
         }
 
         .nuke-risk {
-            position: absolute; bottom: 2px; width: 100%; text-align: center;
-            font-size: 10px; color: var(--accent-red); font-weight: bold; background: rgba(0,0,0,0.6);
+            font-size: 10px; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;
         }
 
         .lock-overlay {
@@ -269,41 +306,26 @@
             padding-top: 6px; border-top: 1px solid #444; margin-top: 6px; flex-shrink: 0;
         }
 
-        /* Market */
-        #market-container { display: flex; gap: 8px; height: 100%; width: 100%; position: relative; padding-top: 8px; }
-        .market-col {
-            flex: 1; display: flex; flex-direction: column;
-            background: #111; border: 1px solid #444; padding: 0; border-radius: 4px;
-            height: 100%; 
-            overflow-y: auto; position: relative;
-            -webkit-overflow-scrolling: touch;
+        /* Market Tabs (Full Width) - UNIFIED STYLE */
+        .market-sub-tabs { display: flex; width: 100%; border-bottom: 2px solid #555; margin-bottom: 5px; }
+        .market-sub-tab {
+            flex: 1; padding: 6px; text-align: center;
+            font-size: 14px; cursor: pointer; font-weight: bold;
+            border-bottom: 4px solid transparent;
+            transition: all 0.2s;
+            opacity: 0.6;
         }
-        .market-header { 
-            font-size: 13px; color: var(--accent-gold); text-align: center; 
-            background: #222; border-bottom: 1px solid #555; padding: 6px; 
-            position: sticky; top: 0; z-index: 10;
+        /* Specific Styles for Coal and Gas Tabs */
+        .market-sub-tab.tab-coal { background: #2c3e50; color: #ddd; }
+        .market-sub-tab.tab-coal.active { 
+            opacity: 1; background: #34495e; color: #fff; 
+            border-bottom-color: var(--accent-gold); /* Yellow highlight for selection */
         }
-        .market-country-row {
-            display: flex; flex-direction: column; background: #222; border: 1px solid #555; 
-            padding: 6px; margin: 4px;
-        }
-        .m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .flag { font-size: 14px; color:#fff; }
-        .price { color: #fff; font-family: 'VT323'; font-size: 18px; font-weight: bold; color: var(--accent-gold); }
-        .buy-btn-mini {
-            width: 100%; background: var(--land-green); border: 1px solid #fff; color: white;
-            padding: 4px; font-size: 12px; cursor: pointer; text-align: center; font-weight: bold;
-        }
-        .buy-btn-mini:active { background: #fff; color: #000; }
-
-        .terminal-build-area {
-            background: #2c3e50; border: 1px solid var(--accent-blue);
-            padding: 8px; margin: 4px; text-align: center;
-        }
-        .terminal-info { font-size: 11px; color: #aec6cf; margin-bottom: 4px; }
-        .build-term-btn {
-            background: var(--accent-blue); color: #fff; border: 1px solid #fff;
-            width: 100%; padding: 6px; font-size: 13px; cursor: pointer; font-weight: bold;
+        
+        .market-sub-tab.tab-gas { background: #641e16; color: #ddd; }
+        .market-sub-tab.tab-gas.active { 
+            opacity: 1; background: #922b21; color: #fff; 
+            border-bottom-color: var(--accent-gold);
         }
 
         /* Next Button */
@@ -334,7 +356,8 @@
             position: relative !important;
             box-shadow: 0 0 0 4px var(--accent-gold), 0 0 20px var(--accent-gold) !important;
             transition: all 0.3s;
-            pointer-events: none; /* Make clicks pass through highlighted element to the overlay */
+            pointer-events: auto; /* Allow scrolling/interaction */
+            cursor: pointer;
         }
         
         /* Fix for Next Button position when highlighted */
@@ -349,6 +372,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             text-align: center; width: 80%;
             animation: floatTooltip 1s infinite alternate;
+            cursor: pointer; /* FIX: Indicate clickable */
         }
         .tut-title {
             color: var(--accent-blue);
@@ -420,20 +444,11 @@
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
 
         /* Report Modal Styles */
-        .report-grid { display: flex; flex-direction: column; gap: 8px; }
-        .report-card { 
-            background: #1a1a1a; 
-            border: 1px solid #444; 
-            padding: 12px; 
-            border-radius: 4px;
-            text-align: left;
-        }
-        /* Swap visual: Label small at top, Big Val below */
-        .report-header { font-size: 11px; color: #888; letter-spacing: 1px; margin-bottom: 2px; }
-        .report-main-val { font-family: 'VT323', monospace; font-size: 32px; font-weight: bold; line-height: 1; display: block; text-align: right;}
-        
-        .report-change-list { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #444; }
-        .report-change-item { font-size: 13px; display: flex; justify-content: space-between; margin-bottom: 2px; font-weight: bold;}
+        .report-section { text-align: left; margin-bottom: 12px; border-bottom: 1px solid #444; padding-bottom: 8px; }
+        .report-section:last-child { border-bottom: none; }
+        .report-title { font-weight: bold; color: #aaa; font-size: 12px; margin-bottom: 4px; }
+        .report-val { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; }
+        .report-detail { font-size: 12px; color: #888; margin-top: 2px; padding-left: 10px; }
 
         .crisis-mode { filter: sepia(100%) hue-rotate(-50deg) saturate(300%); }
         
@@ -454,41 +469,58 @@
 
     <div id="toast-container"></div>
 
-    <div id="tutorial-overlay" onclick="game.nextTutorialStep()"></div>
-    <div id="tutorial-tooltip">
+    <div id="tutorial-overlay" onclick="window.game.nextTutorialStep()"></div>
+    <div id="tutorial-tooltip" onclick="window.game.nextTutorialStep()">
         <div id="tut-text"></div>
-        <div class="tut-next">▼ 點擊畫面繼續</div>
+        <div class="tut-next">▼ 點擊此處繼續</div>
     </div>
 
     <div id="hud">
-        <div class="stat-box" onclick="ui.showFundsHelp()">
+        <div class="stat-box" onclick="window.ui.showFundsHelp()">
             <span class="stat-label">資金</span>
             <span class="stat-val gold" id="hud-funds">2,000</span>
             <div class="help-btn">?</div>
         </div>
-        <div class="stat-box" onclick="ui.showCompHelp()">
+        <div class="stat-box" onclick="window.ui.showCompHelp()">
             <span class="stat-label">競爭力</span>
             <span class="stat-val blue" id="hud-comp">100%</span>
             <div class="help-btn">?</div>
         </div>
-        <div class="stat-box" onclick="ui.showStockHelp()">
+        <div class="stat-box" onclick="window.ui.showStockHelp()">
             <span class="stat-label">燃料存量</span>
             <span class="stat-val" id="hud-days">--</span>
             <div class="help-btn">?</div>
         </div>
-        <div class="stat-box" style="background:#4a5568; border-color:#fff;" onclick="game.replayTutorial()">
+        <div class="stat-box" style="background:#4a5568; border-color:#fff;" onclick="window.game.replayTutorial()">
             <span class="stat-label" style="color:#fff;">遊戲說明</span>
             <span class="stat-val hud-help-icon">?</span>
         </div>
     </div>
 
     <div id="story-panel" class="info-panel">
-        <div class="pixel-title">任務簡報</div>
-        <div class="pixel-text" id="story-text">...</div>
-    </div>
-    <div id="goal-panel" class="info-panel">
-        <div class="pixel-title" style="color:var(--accent-blue)">階段目標</div>
-        <div id="goal-list"></div>
+        <!-- Section 1: Briefing -->
+        <div class="panel-section">
+            <div class="section-header" onclick="window.ui.toggleSection('briefing')">
+                <span>📜 任務簡報</span>
+                <span id="icon-briefing" class="toggle-icon">▲</span>
+            </div>
+            <div id="content-briefing" class="section-content">
+                <div class="pixel-text" id="story-text">...</div>
+            </div>
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <!-- Section 2: Goals -->
+        <div class="panel-section">
+            <div class="section-header" onclick="window.ui.toggleSection('goals')">
+                <span>🏆 階段目標</span>
+                <span id="icon-goals" class="toggle-icon">▲</span>
+            </div>
+            <div id="content-goals" class="section-content">
+                <div id="goal-list"></div>
+            </div>
+        </div>
     </div>
 
     <div id="game-stage">
@@ -529,35 +561,30 @@
         </div>
     </div>
 
-    <div id="next-btn" onclick="game.nextTurn()">
+    <div id="next-btn" onclick="window.game.nextTurn()">
         下一<br>年度
     </div>
 
     <div id="bottom-panel">
         <div class="arcade-tabs">
-            <button class="pixel-btn active" id="tab-btn-build" onclick="ui.switchTab('build')">🔨 建設</button>
-            <button class="pixel-btn" id="tab-btn-market" onclick="ui.switchTab('market')">🚢 燃料市場</button>
+            <button class="pixel-btn active" id="tab-btn-build" onclick="window.ui.switchTab('build')">🔨 建設</button>
+            <button class="pixel-btn" id="tab-btn-market" onclick="window.ui.switchTab('market')">🚢 燃料市場</button>
         </div>
 
+        <!-- Build Tab -->
         <div id="tab-build" class="tab-content active">
             <div id="build-deck"></div>
             <div class="build-hint">點擊卡片系統將自動選址建設</div>
         </div>
 
+        <!-- Market Tab -->
         <div id="tab-market" class="tab-content">
-            <div id="market-container">
-                <div class="market-col">
-                    <div class="market-header">🪨 煤 (存:<span id="val-coal-stock">0</span>)</div>
-                    <div class="market-list" id="market-coal-list"></div>
-                </div>
-                <div class="market-col">
-                    <div class="market-header">🔥 氣 (存:<span id="val-gas-stock">0</span>)</div>
-                    <div class="terminal-build-area">
-                        <div class="terminal-info">上限: <span id="val-gas-cap">0</span> | 已有 <span id="val-term-cnt">0</span> 座</div>
-                        <button class="build-term-btn" onclick="game.buildTerminal()">新建接收站 ($2000)</button>
-                    </div>
-                    <div class="market-list" id="market-gas-list"></div>
-                </div>
+            <div class="market-sub-tabs">
+                <div id="mt-coal" class="market-sub-tab tab-coal active" onclick="window.ui.setMarketTab('coal')">🪨 燃煤</div>
+                <div id="mt-gas" class="market-sub-tab tab-gas" onclick="window.ui.setMarketTab('gas')" style="display:none;">🔥 燃氣</div>
+            </div>
+            <div id="market-deck">
+                <!-- Horizontal list populated by JS -->
             </div>
         </div>
     </div>
@@ -570,7 +597,7 @@
                     <p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">CONTENT</p>
                 </div>
                 <div id="modal-footer">
-                    <button class="retro-btn" id="modal-btn" onclick="ui.closeModal()">確 定</button>
+                    <button class="retro-btn" id="modal-btn" onclick="window.ui.closeModal()">確 定</button>
                 </div>
             </div>
         </div>
@@ -666,6 +693,7 @@
             history: [],
             importStats: { coal: {}, gas: {} },
             tutorialStep: 0,
+            marketTab: 'coal',
             isReplayTutorial: false,
             
             nukeDisasterCount: 0,
@@ -677,19 +705,17 @@
                 this.counts.coal = 0; 
                 this.cap.coal = 3000; 
                 this.updateMarketPrices();
-                ui.renderDeck(); ui.renderMarket(); ui.updateAll();
+                window.ui.renderDeck(); window.ui.renderMarket(); window.ui.updateAll();
                 
                 // --- Chain Modals: Intro -> Stage 0 (Base) -> Tutorial ---
-                ui.showModal("任務簡報：能源任命",
+                window.ui.showModal("任務簡報：能源任命",
                     `<div style="text-align:left; padding:0 10px; line-height:1.6;">
                         恭喜您！您已被任命為<span style="color:var(--accent-gold)">台灣能源決策長</span>。<br><br>
                         從此刻起，國家的動力掌握在您手中。您將跨越50年的時空，面對<span style="color:var(--accent-blue)">經濟起飛的電力需求</span>、<span style="color:var(--accent-green)">環境保護的轉型壓力</span>，以及<span style="color:var(--accent-red)">地緣政治的嚴峻挑戰</span>。<br><br>
                         <span style="color:var(--accent-gold)">核心目標：</span>在有限資金下，建立一個穩定、安全且潔淨的電力系統。
                     </div>`,
                     () => {
-                        // Use swapModal instead of close+show to prevent flashing
-                        // Start Tutorial immediately
-                        ui.closeModal();
+                        window.ui.closeModal();
                         if(game.year === 1) game.startTutorial();
                     }
                 );
@@ -705,6 +731,7 @@
                 this.stageIdx = 0; this.selected = null; this.blockade = false; this.isFreePlay = false;
                 this.history = []; this.importStats = { coal: {}, gas: {} };
                 this.purchaseCounts = { coal: {}, gas: {} };
+                this.marketTab = 'coal';
                 
                 this.nukeDisasterCount = 0;
                 this.nukeShutdownTimer = 0;
@@ -731,20 +758,20 @@
                     this.updateTutorial();
                 } else if(this.tutorialStep === 7) { 
                     this.tutorialStep = 0;
-                    ui.clearHighlight();
-                    ui.switchTab('build', true);
+                    window.ui.clearHighlight();
+                    window.ui.switchTab('build', true);
                     
                     // Show Current Stage Goals AFTER Tutorial
                     const s = STAGES[this.stageIdx];
                     const goals = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
                     
                     // Show modal immediately
-                    ui.showModal(s.title,
+                    window.ui.showModal(s.title,
                         `<div style="text-align:left; padding:0 10px; line-height:1.6;">
                             ${s.desc}<br><br>
                             <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${goals}
                         </div>`,
-                        () => ui.closeModal()
+                        () => window.ui.closeModal()
                     );
                     
                     this.isReplayTutorial = false;
@@ -752,38 +779,52 @@
             },
 
             updateTutorial() {
-                ui.clearHighlight();
+                window.ui.clearHighlight();
                 
                 if(this.tutorialStep === 1) {
-                    ui.switchTab('build', true); 
-                    ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
+                     window.ui.highlightElement('#hud .stat-box:nth-child(1)', "【建設資金】\n建設電廠與購買燃料的經費。\n每年會依發電量獲得稅收。");
                 } else if(this.tutorialStep === 2) {
-                    ui.switchTab('market', true); 
-                    ui.highlightElement('#market-container', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n(往下滑動可購買不同進口國的燃料)");
+                     window.ui.highlightElement('#hud .stat-box:nth-child(2)', "【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
                 } else if(this.tutorialStep === 3) {
-                     ui.highlightElement('#hud .stat-box:nth-child(1)', "【建設資金】\n建設電廠與購買燃料的經費。\n每年會依發電量獲得稅收。");
+                     window.ui.highlightElement('#hud .stat-box:nth-child(3)', "【燃料存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
                 } else if(this.tutorialStep === 4) {
-                     ui.highlightElement('#hud .stat-box:nth-child(2)', "【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
+                     window.ui.highlightElement('#hud .stat-box:nth-child(4)', "【遊戲說明】\n隨時點擊此處可再次查看本教學。\n記得關注階段目標！");
                 } else if(this.tutorialStep === 5) {
-                     ui.highlightElement('#hud .stat-box:nth-child(3)', "【燃料存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
+                    window.ui.switchTab('build', true); 
+                    window.ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
                 } else if(this.tutorialStep === 6) {
-                     ui.highlightElement('#hud .stat-box:nth-child(4)', "【遊戲說明】\n隨時點擊此處可再次查看本教學。\n記得關注階段目標！");
+                    window.ui.switchTab('market', true); 
+                    window.ui.highlightElement('#tab-market', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n(往下滑動可購買不同進口國的燃料)");
                 } else if(this.tutorialStep === 7) {
-                    ui.switchTab('build', true);
-                    ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
+                    window.ui.switchTab('build', true);
+                    window.ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
                 } else {
-                    ui.clearHighlight();
+                    window.ui.clearHighlight();
                 }
             },
             
+            toggleGoals() {
+                const content = document.getElementById('content-goals');
+                const icon = document.getElementById('icon-goals');
+                content.classList.toggle('collapsed');
+                icon.innerText = content.classList.contains('collapsed') ? '▼' : '▲';
+            },
+            
+            toggleSection(type) {
+                const content = document.getElementById(`content-${type}`);
+                const icon = document.getElementById(`icon-${type}`);
+                content.classList.toggle('collapsed');
+                icon.innerText = content.classList.contains('collapsed') ? '▼' : '▲';
+            },
+
             restart() {
                 this.resetVariables();
                 this.counts.coal = 0; this.cap.coal = 3000;
                 this.updateMarketPrices();
-                ui.renderDeck(); ui.renderMarket(); ui.updateAll();
-                ui.closeModal();
-                setTimeout(() => ui.showModal("遊戲重啟", "一切回到原點，請重新規劃能源政策！", () => {
-                     ui.closeModal();
+                window.ui.renderDeck(); window.ui.renderMarket(); window.ui.updateAll();
+                window.ui.closeModal();
+                setTimeout(() => window.ui.showModal("遊戲重啟", "一切回到原點，請重新規劃能源政策！", () => {
+                     window.ui.closeModal();
                      game.startTutorial();
                 }), 300);
             },
@@ -794,7 +835,7 @@
 
                 if(this.selected === key) { this.selected = null; }
                 else { this.selected = key; this.tryBuild(); }
-                ui.renderDeck();
+                window.ui.renderDeck();
                 // Removed direct jump logic, handled inside tryBuild success
             },
 
@@ -807,24 +848,20 @@
                 
                 if (this.selected === 'nuclear') {
                     if (this.year >= 46) { // Approx 2021 if start at 1? No, 1975+46=2021
-                         // Actually logic was year >= 2021. Since year is now 1, 2, 3...
-                         // 1975 is base. 2021 - 1975 = 46. So year > 46 is ban
-                         // Let's keep year as relative for logic? No user wanted "Year 1".
-                         // Logic needs update: 1975 + this.year > 2021
                         if (1975 + this.year >= 2021) {
-                            ui.floatText('🚫 2021後禁止新建核電', 'bad'); this.selected = null; return;
+                            window.ui.floatText('🚫 2021後禁止新建核電', 'bad'); this.selected = null; return;
                         }
                     }
                     if (this.isNukePermanentlyBanned) {
-                        ui.floatText('⛔ 核能已永久廢止', 'bad'); this.selected = null; return;
+                        window.ui.floatText('⛔ 核能已永久廢止', 'bad'); this.selected = null; return;
                     }
                 }
 
                 if (this.funds < p.cost) {
-                    ui.floatText('💸 資金不足', 'bad'); this.selected = null; return;
+                    window.ui.floatText('💸 資金不足', 'bad'); this.selected = null; return;
                 }
                 if (this.selected === 'gas' && this.counts.terminal === 0) {
-                    ui.floatText('⚠️ 需建接收站', 'bad'); this.selected = null; return;
+                    window.ui.floatText('⚠️ 需建接收站', 'bad'); this.selected = null; return;
                 }
 
                 this.funds -= p.cost;
@@ -833,16 +870,10 @@
                 if (this.selected === 'coal') this.cap.coal += 1500; 
                 if (this.selected === 'terminal') this.cap.gas += 1500;
                 
-                ui.floatText(`建設${p.name} -$${p.cost}`, 'good');
+                window.ui.floatText(`建設${p.name} -$${p.cost}`, 'good');
                 this.placeBuilding(this.selected);
                 this.selected = null;
-                ui.renderDeck(); ui.updateAll();
-                
-                // Advance Tutorial if constructing the first plant (coal usually)
-                if(this.tutorialStep === 1) {
-                    this.tutorialStep = 2;
-                    this.updateTutorial();
-                }
+                window.ui.renderDeck(); window.ui.updateAll();
             },
 
             buildTerminal() {
@@ -851,14 +882,14 @@
 
                 const p = PLANTS.terminal;
                 if (this.funds < p.cost) {
-                    ui.floatText('💸 資金不足', 'bad'); return;
+                    window.ui.floatText('💸 資金不足', 'bad'); return;
                 }
                 this.funds -= p.cost;
                 this.counts.terminal++;
                 this.cap.gas += 1500;
-                ui.floatText(`建設接收站 -$${p.cost}`, 'good');
+                window.ui.floatText(`建設接收站 -$${p.cost}`, 'good');
                 this.placeBuilding('terminal');
-                ui.updateAll();
+                window.ui.updateAll();
             },
 
             placeBuilding(type) {
@@ -881,15 +912,15 @@
                 // Modify: Disable during tutorial
                 if (this.tutorialStep !== 0) return;
 
-                if (this.blockade) { ui.floatText('🚫 封鎖中', 'bad'); return; }
+                if (this.blockade) { window.ui.floatText('🚫 封鎖中', 'bad'); return; }
                 const basePrice = this.marketPrices[`${type}_${countryId}`];
                 const surge = this.purchaseCounts[type][countryId] || 0;
                 const finalCost = basePrice + surge;
 
-                if (this.funds < finalCost) { ui.floatText('💸 資金不足', 'bad'); return; }
+                if (this.funds < finalCost) { window.ui.floatText('💸 資金不足', 'bad'); return; }
                 if (this.fuel[type] + 100 > this.cap[type]) {
-                    ui.floatText('📦 倉庫已滿', 'bad');
-                    if(type==='gas' && this.counts.terminal===0) ui.floatText('⚠️ 需接收站', 'bad');
+                    window.ui.floatText('📦 倉庫已滿', 'bad');
+                    if(type==='gas' && this.counts.terminal===0) window.ui.floatText('⚠️ 需接收站', 'bad');
                     return;
                 }
                 this.funds -= finalCost;
@@ -900,9 +931,8 @@
                 this.importStats[type][countryId] += 100;
                 
                 const fuelName = type === 'coal' ? '煤炭' : '天然氣';
-                ui.floatText(`${fuelName}庫存 +100`, 'good');
-                ui.updateAll();
-                if(this.tutorialStep === 4) { this.tutorialStep = 5; ui.clearHighlight(); }
+                window.ui.floatText(`${fuelName}庫存 +100`, 'good');
+                window.ui.updateAll();
             },
 
             updateMarketPrices() {
@@ -961,7 +991,7 @@
                         } else {
                             return msg;
                         }
-                        ui.renderDeck();
+                        window.ui.renderDeck();
                     }
                 }
                 return null;
@@ -1027,7 +1057,7 @@
 
                 if (coalFail && gasFail) {
                     this.comp = -100;
-                    ui.showGameOver("能源枯竭：煤氣存量歸零！<br>全國大停電導致政府垮台。");
+                    window.ui.showGameOver("能源枯竭：煤氣存量歸零！<br>全國大停電導致政府垮台。");
                     return;
                 }
 
@@ -1050,9 +1080,9 @@
                 }
 
                 // --- 5. Game Over / Victory Check ---
-                if (this.comp <= 0) { ui.showGameOver(); return; }
+                if (this.comp <= 0) { window.ui.showGameOver(); return; }
                 
-                ui.renderMarket(); ui.updateAll();
+                window.ui.renderMarket(); window.ui.updateAll();
                 
                 // --- 6. Goal Check (Stage) ---
                 if (!this.isFreePlay) {
@@ -1061,21 +1091,21 @@
                         if (this.stageIdx < STAGES.length - 1) {
                             this.stageIdx++;
                             // FIX: Update UI to show new stage goals immediately
-                            ui.updateAll(); 
+                            window.ui.updateAll(); 
                             
                             const s = STAGES[this.stageIdx];
                             const gHtml = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
-                            ui.showModal(s.title, 
+                            window.ui.showModal(s.title, 
                                 `<div style="text-align:left; padding:0 10px; line-height:1.6;">
                                     ${s.desc}<br><br>
                                     <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${gHtml}
                                 </div>`, 
-                                () => ui.closeModal()
+                                () => window.ui.closeModal()
                             );
                             // Skip turn report on stage clear to avoid clutter
                             return;
                         } else {
-                            ui.showVictory();
+                            window.ui.showVictory();
                             return; 
                         }
                     }
@@ -1084,14 +1114,7 @@
                 // --- 7. Show Turn Report (If no blockade blocking view or game over) ---
                 // Only show if not in blockade mode (blockade handles its own modal)
                 if (!this.blockade) {
-                    ui.showTurnReport(this.year, income, compChanges, this.funds, this.comp, turnEvents);
-                }
-                
-                // Tutorial Step Advancement
-                if(this.tutorialStep === 3) {
-                    this.tutorialStep = 0;
-                    ui.clearHighlight();
-                    ui.switchTab('build', true); 
+                    window.ui.showTurnReport(this.year, income, compChanges, this.funds, this.comp, turnEvents);
                 }
                 
                 // CRITICAL FIX: Always ensure tutorial lock is released on next turn if not in tutorial logic flow
@@ -1160,17 +1183,17 @@
             startBlockade() {
                 this.blockade = true; this.bDays = 11;
                 document.body.classList.add('crisis-mode');
-                ui.showModal("⚠️ 紅色警報", "海峽封鎖開始！進口中斷，請撐過 11 天。", () => ui.closeModal());
+                window.ui.showModal("⚠️ 紅色警報", "海峽封鎖開始！進口中斷，請撐過 11 天。", () => window.ui.closeModal());
             },
 
             handleBlockade() {
                 this.bDays--; this.consumeFuel();
-                ui.floatText(`剩 ${this.bDays} 天`, 'bad');
+                window.ui.floatText(`剩 ${this.bDays} 天`, 'bad');
                 if (this.bDays <= 0) {
                     this.blockade = false; document.body.classList.remove('crisis-mode');
-                    ui.showModal("🏳️ 危機解除", "封鎖結束，台灣存活！", () => ui.closeModal());
+                    window.ui.showModal("🏳️ 危機解除", "封鎖結束，台灣存活！", () => window.ui.closeModal());
                 }
-                ui.updateAll();
+                window.ui.updateAll();
             }
         };
 
@@ -1190,7 +1213,7 @@
                 document.getElementById(btnId).classList.add('active');
                 
                 if(game.tutorialStep === 4 && tab === 'market') {
-                    setTimeout(() => ui.highlightElement('.buy-btn-mini:first-child', '點擊購買！'), 100);
+                    setTimeout(() => window.ui.highlightElement('.buy-btn-mini:first-child', '點擊購買！'), 100);
                 }
             },
 
@@ -1235,6 +1258,16 @@
                 if(hud) hud.style.zIndex = '100'; // Or just empty if default is fine, but HUD has specific style
             },
 
+            setMarketTab(tab) {
+                // Check if unlocked
+                if (tab === 'gas' && game.stageIdx < 1) return; // StageIdx 1 is Stage 2
+
+                game.marketTab = tab;
+                document.querySelectorAll('.market-sub-tab').forEach(el => el.classList.remove('active'));
+                document.getElementById('mt-' + tab).classList.add('active');
+                window.ui.renderMarket();
+            },
+
             renderDeck() {
                 const buildable = Object.entries(PLANTS).filter(([k,v]) => k !== 'terminal');
                 document.getElementById('build-deck').innerHTML = buildable.map(([k, v]) => {
@@ -1246,7 +1279,7 @@
                         else if (game.isNukePermanentlyBanned) { locked = true; lockReason = '⛔ 永久廢止'; }
                         else {
                             const risk = game.getNukeRisk();
-                            riskText = `<div class="nuke-risk">⚠️ 災率:${risk}%</div>`;
+                            riskText = `<div class="nuke-risk">☢️核災機率+${risk}%</div>`;
                         }
                     }
                     const count = game.counts[k];
@@ -1255,41 +1288,59 @@
                     <div class="pixel-card ${game.selected === k ? 'selected' : ''} ${locked ? 'disabled' : ''}" onclick="game.selectCard('${k}')">
                         <div class="card-badge">${count}</div>
                         ${locked ? `<div class="lock-overlay">${lockReason}</div>` : ''}
-                        ${riskText}
+                        
                         <div class="card-emoji">${v.emoji}</div>
                         <div class="card-name" style="color:${v.color}">${v.name}</div>
-                        <div class="card-power">+${v.output}MW</div>
+                        
+                        <!-- Middle Section -->
+                        ${riskText ? riskText : ''}
+                        
+                        <div class="card-val">+${v.output}MW</div>
                         <div class="card-cost">$${v.cost.toLocaleString()}</div>
                     </div>
                 `}).join('');
             },
 
             renderMarket() {
-                document.getElementById('val-coal-stock').innerText = game.fuel.coal.toLocaleString();
-                document.getElementById('val-gas-stock').innerText = game.fuel.gas.toLocaleString();
+                const tab = game.marketTab; // 'coal' or 'gas'
+                const sources = MARKET_SOURCES[tab];
+                const headerColor = tab === 'coal' ? '#7f8c8d' : '#d35400';
                 
-                document.getElementById('val-gas-cap').innerText = game.cap.gas.toLocaleString();
-                document.getElementById('val-term-cnt').innerText = game.counts.terminal;
+                // Update Tab Visibility
+                if(game.stageIdx >= 1) {
+                    document.getElementById('mt-gas').style.display = 'block';
+                }
 
-                document.getElementById('market-coal-list').innerHTML = MARKET_SOURCES.coal.map(src => {
-                    const base = game.marketPrices['coal_'+src.id]||src.base;
-                    const surge = game.purchaseCounts['coal'][src.id] || 0;
-                    return `
-                    <div class="market-country-row">
-                        <div class="m-top"><span class="flag">${src.flag} ${src.name}</span><span class="price">$${base+surge}</span></div>
-                        <button class="buy-btn-mini" onclick="game.buyFuel('coal', '${src.id}')">100噸 $${base+surge}</button>
-                    </div>`
-                }).join('');
+                let content = '';
 
-                document.getElementById('market-gas-list').innerHTML = MARKET_SOURCES.gas.map(src => {
-                    const base = game.marketPrices['gas_'+src.id]||src.base;
-                    const surge = game.purchaseCounts['gas'][src.id] || 0;
+                // Prepend Terminal card only if in Gas tab
+                if (tab === 'gas') {
+                     const term = PLANTS.terminal;
+                     content += `
+                    <div class="pixel-card market-card" onclick="game.buildTerminal()">
+                        <div class="card-badge" style="background:var(--accent-blue)">${game.counts.terminal}</div>
+                        <div class="card-emoji">${term.emoji}</div>
+                        <div class="card-name" style="color:${term.color}">${term.name}</div>
+                        <div class="card-val" style="font-size:12px">容量+1500</div>
+                        <div class="card-cost" style="margin-top:auto;">$${term.cost.toLocaleString()}</div>
+                    </div>`;
+                }
+
+                content += sources.map(src => {
+                    const base = game.marketPrices[tab + '_' + src.id] || src.base;
+                    const surge = game.purchaseCounts[tab][src.id] || 0;
+                    const price = base + surge;
+                    // Use pixel-card style
                     return `
-                    <div class="market-country-row">
-                        <div class="m-top"><span class="flag">${src.flag} ${src.name}</span><span class="price">$${base+surge}</span></div>
-                        <button class="buy-btn-mini" onclick="game.buyFuel('gas', '${src.id}')">100噸 $${base+surge}</button>
-                    </div>`
+                    <div class="pixel-card market-card" onclick="game.buyFuel('${tab}', '${src.id}')">
+                        <div class="card-emoji">${src.flag}</div>
+                        <div class="card-name" style="font-size:12px; margin-top:4px;">${src.name}</div>
+                        <div class="card-val">+100</div> <!-- White value at top/middle -->
+                        <div class="card-cost" style="margin-top:auto;">$${price}</div>
+                    </div>`;
                 }).join('');
+                
+                document.getElementById('market-deck').innerHTML = content;
             },
 
             updatePieChart() {
@@ -1409,7 +1460,9 @@
                 if (!game.isFreePlay) {
                     const s = STAGES[game.stageIdx];
                     document.getElementById('story-text').innerText = s.short;
-                    document.getElementById('goal-list').innerHTML = s.goals.map(g => `
+                    
+                    const el = document.getElementById('goal-list');
+                    el.innerHTML = s.goals.map(g => `
                         <div class="goal-item"><span class="goal-check ${g.check(game) ? 'done' : ''}">${g.check(game) ? '✅' : '⬜'}</span> <span>${g.txt}</span></div>
                     `).join('');
                 } else {
@@ -1426,9 +1479,9 @@
                     document.getElementById('next-btn').style.background = 'var(--accent-red)';
                 }
                 
-                this.updatePieChart();
-                this.renderMarket();
-                this.renderDeck();
+                window.ui.updatePieChart();
+                window.ui.renderMarket();
+                window.ui.renderDeck();
             },
 
             floatText(txt, type) {
@@ -1461,7 +1514,7 @@
                 const btn = document.getElementById('modal-btn');
                 btn.innerText = "確 定";
                 // Update click handler directly
-                btn.onclick = callback ? callback : ui.closeModal;
+                btn.onclick = callback ? callback : window.ui.closeModal;
                 
                 // Ensure it's visible (if swapping from closed state, though typical usage is open->open)
                 document.getElementById('modal-overlay').style.display = 'flex';
@@ -1514,7 +1567,7 @@
                 
                 const btn = document.getElementById('modal-btn');
                 btn.innerText = "確 定";
-                btn.onclick = ui.closeModal;
+                btn.onclick = window.ui.closeModal;
                 btn.className = 'retro-btn';
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
@@ -1525,7 +1578,7 @@
                 
                 const btn = document.getElementById('modal-btn');
                 btn.innerText = "確 定";
-                btn.onclick = callback ? callback : ui.closeModal;
+                btn.onclick = callback ? callback : window.ui.closeModal;
                 btn.className = 'retro-btn';
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
@@ -1536,7 +1589,7 @@
                     stockRule = `<div class="rule-item"><span>📉 低庫存(&lt;7天)</span><span style="color:#e74c3c">每項-10%</span></div>`;
                 }
 
-                ui.showModal("競爭力說明", `
+                window.ui.showModal("競爭力說明", `
                     <div class="rule-list">
                         <div class="rule-title">評分規則</div>
                         <div class="rule-item"><span>⚡ 供電充足</span><span style="color:#2ecc71">+5%</span></div>
@@ -1548,7 +1601,7 @@
             },
 
             showFundsHelp() {
-                ui.showModal("工業稅收說明", `
+                window.ui.showModal("工業稅收說明", `
                     <div class="rule-list">
                         <div class="rule-title">計算公式</div>
                         <div class="rule-item"><span>💰 基礎稅收</span><span>$${game.stageIdx===0?500:(game.stageIdx===1?1000:2000)}</span></div>
@@ -1565,7 +1618,7 @@
                 const cDays = game.getCoalDays();
                 const gDays = game.getGasDays();
                 
-                ui.showModal("存量說明", `
+                window.ui.showModal("存量說明", `
                     <div class="rule-list">
                         <div class="rule-title">目前可支撐天數</div>
                         <div class="rule-item"><span>🪨 煤炭</span><span>${cDays===null?'--':(cDays>99?'∞':cDays+' 天')}</span></div>
@@ -1691,7 +1744,7 @@
                 btn.className = 'retro-btn victory';
                 btn.onclick = () => {
                     game.isFreePlay = true;
-                    ui.closeModal();
+                    window.ui.closeModal();
                 };
                 
                 const contentArea = document.querySelector('.retro-inner');
@@ -1715,8 +1768,26 @@
                 
                 const restartBtn = document.querySelector('.retro-btn.restart');
                 if(restartBtn) restartBtn.remove();
+            },
+            
+            toggleSection(type) {
+                const content = document.getElementById(`content-${type}`);
+                const icon = document.getElementById(`icon-${type}`);
+                content.classList.toggle('collapsed');
+                icon.innerText = content.classList.contains('collapsed') ? '▼' : '▲';
+            },
+            
+            toggleGoals() {
+                const content = document.getElementById('content-goals');
+                const icon = document.getElementById('icon-goals');
+                content.classList.toggle('collapsed');
+                icon.innerText = content.classList.contains('collapsed') ? '▼' : '▲';
             }
         };
+
+        // Attach to window to ensure global scope access for inline handlers
+        window.game = game;
+        window.ui = ui;
 
         game.init();
     </script>
