@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v62</title>
+    <title>⚡ 像素能源：決戰台灣 v63</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -234,7 +234,10 @@
         }
         
         .tab-content { 
-            display: none; flex: 1; overflow: hidden; flex-direction: column; 
+            display: none; flex: 1; 
+            /* Changed overflow to visible to show box-shadow */
+            overflow: visible; 
+            flex-direction: column; 
             border-top: 2px solid #fff; 
             margin-top: -2px; 
             z-index: 5;
@@ -479,7 +482,7 @@
             <div class="help-btn">?</div>
         </div>
         <div class="stat-box" onclick="ui.showStockHelp()">
-            <span class="stat-label">安全存量</span>
+            <span class="stat-label">燃料存量</span>
             <span class="stat-val" id="hud-days">--</span>
             <div class="help-btn">?</div>
         </div>
@@ -763,20 +766,19 @@
                 
                 if(this.tutorialStep === 1) {
                     ui.switchTab('build', true); 
-                    ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
+                    ui.highlightElement('#hud .stat-box:nth-child(1)', "【建設資金】\n建設電廠與購買燃料的經費。\n每年會依發電量獲得稅收。");
                 } else if(this.tutorialStep === 2) {
+                     ui.highlightElement('#hud .stat-box:nth-child(2)', "【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
+                } else if(this.tutorialStep === 3) {
+                     ui.highlightElement('#hud .stat-box:nth-child(3)', "【燃料存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
+                } else if(this.tutorialStep === 4) {
+                    ui.switchTab('build', true); 
+                    ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
+                } else if(this.tutorialStep === 5) {
                     ui.switchTab('market', true); 
                     ui.highlightElement('#market-container', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n(往下滑動可購買不同進口國的燃料)");
-                } else if(this.tutorialStep === 3) {
-                     ui.highlightElement('#hud .stat-box:nth-child(1)', "【建設資金】\n建設電廠與購買燃料的經費。\n每年會依發電量獲得稅收。");
-                } else if(this.tutorialStep === 4) {
-                     ui.highlightElement('#hud .stat-box:nth-child(2)', "【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
-                } else if(this.tutorialStep === 5) {
-                     ui.highlightElement('#hud .stat-box:nth-child(3)', "【安全存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
                 } else if(this.tutorialStep === 6) {
-                     ui.highlightElement('#hud .stat-box:nth-child(4)', "【遊戲說明】\n隨時點擊此處可再次查看本教學。\n記得關注階段目標！");
-                } else if(this.tutorialStep === 7) {
-                    ui.switchTab('build', true);
+                    ui.switchTab('build', true); 
                     ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
                 } else {
                     ui.clearHighlight();
