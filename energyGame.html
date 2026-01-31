@@ -561,8 +561,8 @@
                 <div class="data-row"><span>總發電</span><span class="data-val" id="stat-supply">0 MW</span></div>
                 <div class="data-row"><span>總需求</span><span class="data-val" id="stat-demand">0 MW</span></div>
                 <div class="data-sep"></div>
-                <div class="data-row"><span>煤存量</span><span class="data-val" id="stat-coal-days" style="color:#aaa">--</span></div>
-                <div class="data-row"><span>氣存量</span><span class="data-val blue" id="stat-gas-days">--</span></div>
+                <div class="data-row" id="data-row-coal"><span>煤存量</span><span class="data-val" id="stat-coal-days" style="color:#aaa">--</span></div>
+                <div class="data-row" id="data-row-gas"><span>氣存量</span><span class="data-val blue" id="stat-gas-days">--</span></div>
             </div>
         </div>
     </div>
@@ -705,6 +705,7 @@
             nukeDisasterCount: 0,
             nukeShutdownTimer: 0,
             isNukePermanentlyBanned: false,
+            fuelZeroWarned: { coal: false, gas: false },
 
             init() {
                 this.resetVariables();
@@ -743,6 +744,7 @@
                 this.nukeDisasterCount = 0;
                 this.nukeShutdownTimer = 0;
                 this.isNukePermanentlyBanned = false;
+                this.fuelZeroWarned = { coal: false, gas: false };
 
                 document.getElementById('buildings-layer').innerHTML = '';
                 document.body.classList.remove('crisis-mode');
@@ -751,8 +753,63 @@
                 this.stageTutorialType = null;
             },
             
+            // === 燃料歸零警告（僅首次） ===
+            pendingFuelWarning: null,
+
+            checkFuelZeroWarning() {
+                const cDays = this.getCoalDays();
+                const gDays = this.getGasDays();
+                
+                // 煤存量首次歸零
+                if (!this.fuelZeroWarned.coal && this.counts.coal > 0 && cDays === 0) {
+                    this.fuelZeroWarned.coal = true;
+                    this.pendingFuelWarning = 'coal';
+                    return;
+                }
+                // 氣存量首次歸零
+                if (!this.fuelZeroWarned.gas && this.counts.gas > 0 && gDays === 0) {
+                    this.fuelZeroWarned.gas = true;
+                    this.pendingFuelWarning = 'gas';
+                    return;
+                }
+                this.pendingFuelWarning = null;
+            },
+
+            showFuelZeroWarning() {
+                const type = this.pendingFuelWarning;
+                if (!type) return;
+                this.pendingFuelWarning = null;
+
+                const selector = type === 'coal' ? '#data-row-coal' : '#data-row-gas';
+                const name = type === 'coal' ? '燃煤' : '天然氣';
+                
+                // 暫時讓 map-data-overlay 可被 highlight
+                const overlay = document.getElementById('map-data-overlay');
+                overlay.style.pointerEvents = 'auto';
+                overlay.style.zIndex = '2500';
+
+                this.stageTutorialType = 'fuelwarn';
+                this.stageTutorialStep = 1;
+
+                setTimeout(() => {
+                    ui.highlightElement(selector,
+                        `【⚠️ ${name}庫存耗盡】\n${name}存量歸零，所有${name}電廠\n將無法運轉，發電量降為 0！\n請盡速補充燃料。`);
+                }, 200);
+            },
+
+            endFuelZeroWarning() {
+                this.stageTutorialStep = 0;
+                this.stageTutorialType = null;
+                ui.clearHighlight();
+                const overlay = document.getElementById('map-data-overlay');
+                overlay.style.pointerEvents = 'none';
+                overlay.style.zIndex = '95';
+            },
+
             handleTutorialClick() {
-                if (this.stageTutorialStep > 0) {
+                if (this.stageTutorialType === 'fuelwarn') {
+                    this.endFuelZeroWarning();
+                } else if (this.stageTutorialStep > 0) {
                     this.nextStageTutorialStep();
                 } else {
                     this.nextTutorialStep();
@@ -1168,7 +1225,17 @@
                 }
 
                 if (!this.blockade) {
+                    this.checkFuelZeroWarning();
                     ui.showTurnReport(this.year, income, compChanges, this.funds, this.comp, turnEvents);
+                    
+                    // 若有燃料歸零警告，覆寫關閉按鈕行為
+                    if (this.pendingFuelWarning) {
+                        const btn = document.getElementById('modal-btn');
+                        btn.onclick = () => {
+                            ui.closeModal();
+                            game.showFuelZeroWarning();
+                        };
+                    }
                 }
                 
                 if(this.tutorialStep === 3) {
