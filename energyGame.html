@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v63</title>
+    <title>⚡ 像素能源：決戰台灣 v64</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -75,10 +75,7 @@
             text-align: center; border-bottom-left-radius: 4px;
         }
         
-        /* New HUD Help Button Style */
-        .hud-help-icon {
-            font-size: 24px; color: #fff; line-height: 32px;
-        }
+        .hud-help-icon { font-size: 24px; color: #fff; line-height: 32px; }
 
         /* === Info Panels === */
         .info-panel {
@@ -105,16 +102,15 @@
 
         /* Year Display on Map */
         #map-year-display {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            /* background removed */
-            /* border removed */
-            padding: 4px 15px;
-            color: #fff; /* White color */
+            position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+            padding: 0;
+            color: #fff; 
             font-family: 'VT323', monospace;
-            font-size: 24px; /* Smaller font */
+            font-size: 24px; 
             font-weight: bold;
             z-index: 92;
-            text-shadow: 2px 2px 0 #000; /* Shadow for readability */
+            text-shadow: 2px 2px 0 #000;
+            pointer-events: none;
         }
 
         #taiwan-svg {
@@ -130,7 +126,7 @@
             top: 45%; 
             left: 50%; 
             transform: translate(-50%, -50%);
-            width: 150px; height: 150px; /* Bigger chart */
+            width: 150px; height: 150px; 
             border-radius: 50%;
             background: #444;
             border: 4px solid #fff;
@@ -138,7 +134,7 @@
             z-index: 50; pointer-events: none;
             transition: background 0.5s ease;
         }
-        /* Center hole for Donut effect (optional, keeping it for style) */
+        /* Center hole for Donut effect */
         #pie-center-hole {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 50px; height: 50px; background: rgba(0,0,0,0.6); border-radius: 50%;
@@ -159,10 +155,8 @@
             font-weight: bold;
             text-align: center;
             text-shadow: 
-                -1px -1px 0 #000,  
-                 1px -1px 0 #000,
-                -1px  1px 0 #000,
-                 1px  1px 0 #000,
+                -1px -1px 0 #000,  1px -1px 0 #000,
+                -1px  1px 0 #000,  1px  1px 0 #000,
                  2px 2px 0px rgba(0,0,0,0.5);
             pointer-events: none;
             white-space: nowrap;
@@ -170,8 +164,7 @@
         }
         .chart-label span {
             display: block;
-            font-size: 12px; /* Smaller font for category name */
-            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 12px; font-family: 'Noto Sans TC', sans-serif;
             margin-bottom: 2px;
         }
 
@@ -203,7 +196,6 @@
         }
         .arcade-tabs { display: flex; gap: 8px; margin-bottom: 0px; flex-shrink: 0; align-items: flex-end; }
         
-        /* Revised Tab Styles */
         .pixel-btn {
             flex: 1; 
             background: #1a1a1a; 
@@ -212,21 +204,16 @@
             padding: 8px; 
             font-weight: bold; font-size: 15px;
             cursor: pointer; text-align: center;
-            
-            /* Inactive State: "Lower/Behind" - Reduced to 2px */
             transform: translateY(2px); 
             box-shadow: none;
             transition: all 0.2s;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
+            border-top-left-radius: 4px; border-top-right-radius: 4px;
             z-index: 1;
         }
         .pixel-btn.active { 
             background: var(--accent-blue); 
             border: 2px solid #fff; border-bottom: none;
             color: #fff;
-            
-            /* Active State: "Higher/Front" */
             transform: translateY(0); 
             box-shadow: 0px -2px 0px rgba(0,0,0,0.5); 
             z-index: 10;
@@ -234,15 +221,9 @@
         }
         
         .tab-content { 
-            display: none; flex: 1; 
-            /* Changed overflow to visible to show box-shadow */
-            overflow: visible; 
-            flex-direction: column; 
-            border-top: 2px solid #fff; 
-            margin-top: -2px; 
-            z-index: 5;
-            background: var(--ui-bg); 
-            position: relative;
+            display: none; flex: 1; overflow: visible; flex-direction: column; 
+            border-top: 2px solid #fff; margin-top: -2px; z-index: 5;
+            background: var(--ui-bg); position: relative;
         }
         .tab-content.active { display: flex; }
 
@@ -780,6 +761,8 @@
                 } else if(this.tutorialStep === 6) {
                     ui.switchTab('build', true); 
                     ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
+                } else if(this.tutorialStep === 7) {
+                     ui.highlightElement('#hud .stat-box:nth-child(4)', "【遊戲說明】\n隨時點擊此處可再次查看本教學。\n記得關注階段目標！");
                 } else {
                     ui.clearHighlight();
                 }
@@ -846,12 +829,6 @@
                 this.placeBuilding(this.selected);
                 this.selected = null;
                 ui.renderDeck(); ui.updateAll();
-                
-                // Advance Tutorial if constructing the first plant (coal usually)
-                if(this.tutorialStep === 1) {
-                    this.tutorialStep = 2;
-                    this.updateTutorial();
-                }
             },
 
             buildTerminal() {
@@ -911,7 +888,6 @@
                 const fuelName = type === 'coal' ? '煤炭' : '天然氣';
                 ui.floatText(`${fuelName}庫存 +100`, 'good');
                 ui.updateAll();
-                if(this.tutorialStep === 4) { this.tutorialStep = 5; ui.clearHighlight(); }
             },
 
             updateMarketPrices() {
