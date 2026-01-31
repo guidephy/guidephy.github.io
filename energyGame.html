@@ -422,6 +422,42 @@
         .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; width: 100%;}
         .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
+        .retro-btn.stage-clear { background: var(--accent-gold); color: #000; border-color: #fff; font-weight: bold; }
+
+        /* Stage Clear Celebration */
+        .retro-dialog.stage-clear-dialog {
+            background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+            border: 4px solid #fff;
+            animation: stageClearPop 0.4s ease-out;
+        }
+        @keyframes stageClearPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .stage-clear-banner {
+            text-align: center; padding: 12px 0 8px;
+            font-size: 20px; font-weight: 900;
+            color: var(--accent-gold);
+            text-shadow: 2px 2px 0 #000;
+            letter-spacing: 2px;
+        }
+        .stage-clear-sub {
+            text-align: center; font-size: 13px; color: #aaa;
+            margin-bottom: 10px;
+        }
+        .stage-clear-goals {
+            background: rgba(0,0,0,0.3); border: 1px solid #555;
+            padding: 8px; margin: 8px 0; text-align: left;
+        }
+        .stage-clear-goal-item {
+            font-size: 13px; color: #2ecc71; padding: 3px 0;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .stage-clear-divider {
+            border: none; border-top: 2px dashed var(--accent-gold);
+            margin: 12px 0;
+        }
 
         /* Report Modal Styles */
         .report-section { text-align: left; margin-bottom: 12px; border-bottom: 1px solid #444; padding-bottom: 8px; }
@@ -449,8 +485,8 @@
 
     <div id="toast-container"></div>
 
-    <div id="tutorial-overlay" onclick="game.nextTutorialStep()"></div>
-    <div id="tutorial-tooltip" onclick="game.nextTutorialStep()">
+    <div id="tutorial-overlay" onclick="game.handleTutorialClick()"></div>
+    <div id="tutorial-tooltip" onclick="game.handleTutorialClick()">
         <div id="tut-text"></div>
         <div class="tut-next">▼ 點擊此處繼續</div>
     </div>
@@ -652,6 +688,8 @@
             history: [],
             importStats: { coal: {}, gas: {} },
             tutorialStep: 0,
+            stageTutorialStep: 0,
+            stageTutorialType: null,
             marketTab: 'coal',
             isReplayTutorial: false,
             
@@ -699,8 +737,18 @@
                 document.getElementById('buildings-layer').innerHTML = '';
                 document.body.classList.remove('crisis-mode');
                 this.tutorialStep = 0;
+                this.stageTutorialStep = 0;
+                this.stageTutorialType = null;
             },
             
+            handleTutorialClick() {
+                if (this.stageTutorialStep > 0) {
+                    this.nextStageTutorialStep();
+                } else {
+                    this.nextTutorialStep();
+                }
+            },
+
             startTutorial() {
                 this.tutorialStep = 1;
                 this.updateTutorial();
@@ -751,11 +799,81 @@
                     ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
                 } else if(this.tutorialStep === 6) {
                     ui.switchTab('market', true); 
-                    ui.highlightElement('#tab-market', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n(往下滑動可購買不同進口國的燃料)");
+                    ui.highlightElement('#tab-market', "【燃料市場】\n點擊切換分頁，\n可根據價格購買不同進口國的燃料。");
                 } else if(this.tutorialStep === 7) {
                     ui.switchTab('build', true);
                     ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
                 } else {
+                    ui.clearHighlight();
+                }
+            },
+
+            // === 階段解鎖教學 ===
+            startStageTutorial(type) {
+                this.stageTutorialType = type; // 'gas' or 'green'
+                this.stageTutorialStep = 1;
+                this.updateStageTutorial();
+            },
+
+            nextStageTutorialStep() {
+                if (this.stageTutorialStep > 0) {
+                    this.stageTutorialStep++;
+                    this.updateStageTutorial();
+                }
+            },
+
+            updateStageTutorial() {
+                ui.clearHighlight();
+
+                if (this.stageTutorialType === 'gas') {
+                    if (this.stageTutorialStep === 1) {
+                        ui.renderDeck();
+                        ui.switchTab('build', true);
+                        setTimeout(() => {
+                            const gasCard = document.querySelector('#build-deck .pixel-card:nth-child(2)');
+                            if (gasCard) gasCard.id = 'highlight-gas-card';
+                            ui.highlightElement('#highlight-gas-card', "【🔥 燃氣發電】\n新解鎖！燃氣發電效率高且較環保。\n但需先建造接收站才能興建。");
+                        }, 100);
+                    } else if (this.stageTutorialStep === 2) {
+                        ui.switchTab('market', true);
+                        ui.setMarketTab('gas');
+                        setTimeout(() => {
+                            ui.highlightElement('#mt-gas', "【🔥 燃氣市場】\n點擊此分頁可購買天然氣燃料，\n也可在此建造接收站來儲存天然氣。");
+                        }, 100);
+                    } else {
+                        this.stageTutorialStep = 0;
+                        this.stageTutorialType = null;
+                        ui.clearHighlight();
+                        ui.switchTab('build', true);
+                    }
+                } else if (this.stageTutorialType === 'green') {
+                    if (this.stageTutorialStep === 1) {
+                        ui.renderDeck();
+                        ui.switchTab('build', true);
+                        setTimeout(() => {
+                            const cards = document.querySelectorAll('#build-deck .pixel-card');
+                            // 風電和太陽能是新增的最後兩張卡
+                            cards.forEach(card => {
+                                const name = card.querySelector('.card-name');
+                                if (name && name.textContent === '風電') card.id = 'highlight-wind-card';
+                                if (name && name.textContent === '太陽能') card.id = 'highlight-solar-card';
+                            });
+                            ui.highlightElement('#highlight-wind-card', "【🌀 風力發電】\n新解鎖！利用台灣海峽的頂級風場，\n不需燃料，是自有能源的關鍵！");
+                        }, 100);
+                    } else if (this.stageTutorialStep === 2) {
+                        ui.switchTab('build', true);
+                        setTimeout(() => {
+                            ui.highlightElement('#highlight-solar-card', "【☀️ 太陽能發電】\n新解鎖！成本低廉的再生能源，\n不需燃料，可快速佈建提升綠能占比。");
+                        }, 100);
+                    } else {
+                        this.stageTutorialStep = 0;
+                        this.stageTutorialType = null;
+                        ui.clearHighlight();
+                        ui.switchTab('build', true);
+                    }
+                } else {
+                    this.stageTutorialStep = 0;
+                    this.stageTutorialType = null;
                     ui.clearHighlight();
                 }
             },
@@ -773,7 +891,7 @@
             },
 
             selectCard(key) {
-                if (this.tutorialStep !== 0) return;
+                if (this.tutorialStep !== 0 || this.stageTutorialStep !== 0) return;
 
                 if(this.selected === key) { this.selected = null; }
                 else { this.selected = key; this.tryBuild(); }
@@ -781,7 +899,7 @@
             },
 
             tryBuild() {
-                if (this.tutorialStep !== 0) return;
+                if (this.tutorialStep !== 0 || this.stageTutorialStep !== 0) return;
                 
                 if (!this.selected) return;
                 const p = PLANTS[this.selected];
@@ -817,7 +935,7 @@
             },
 
             buildTerminal() {
-                if (this.tutorialStep !== 0) return;
+                if (this.tutorialStep !== 0 || this.stageTutorialStep !== 0) return;
 
                 const p = PLANTS.terminal;
                 if (this.funds < p.cost) {
@@ -848,7 +966,7 @@
             },
 
             buyFuel(type, countryId) {
-                if (this.tutorialStep !== 0) return;
+                if (this.tutorialStep !== 0 || this.stageTutorialStep !== 0) return;
 
                 if (this.blockade) { ui.floatText('🚫 封鎖中', 'bad'); return; }
                 const basePrice = this.marketPrices[`${type}_${countryId}`];
@@ -935,6 +1053,7 @@
             },
 
             nextTurn() {
+                if (this.stageTutorialStep !== 0) return;
                 if (this.blockade) { this.handleBlockade(); return; }
                 this.year++; 
                 if (this.nukeShutdownTimer > 0) this.nukeShutdownTimer--;
@@ -953,11 +1072,6 @@
                     nuclear: pNuke,
                     green: pGreen
                 });
-
-                // 燃油逐年遞減（石油危機後逐步淘汰）
-                if (this.oilOutput > 0) {
-                    this.oilOutput = Math.max(0, this.oilOutput - 200);
-                }
 
                 let turnEvents = [];
                 const nukeMsg = this.checkNuclearDisaster();
@@ -1018,17 +1132,22 @@
                     const stage = STAGES[this.stageIdx];
                     if (stage && stage.goals.every(g => g.check(this))) {
                         if (this.stageIdx < STAGES.length - 1) {
+                            const clearedIdx = this.stageIdx;
                             this.stageIdx++;
                             ui.updateAll(); 
                             
                             const s = STAGES[this.stageIdx];
-                            const gHtml = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
-                            ui.showModal(s.title, 
-                                `<div style="text-align:left; padding:0 10px; line-height:1.6;">
-                                    ${s.desc}<br><br>
-                                    <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${gHtml}
-                                </div>`, 
-                                () => ui.closeModal()
+                            const newStageIdx = this.stageIdx;
+                            ui.showStageComplete(clearedIdx, s,
+                                () => {
+                                    ui.closeModal();
+                                    if (newStageIdx === 1) {
+                                        game.startStageTutorial('gas');
+                                    }
+                                    else if (newStageIdx === 3) {
+                                        game.startStageTutorial('green');
+                                    }
+                                }
                             );
                             return;
                         } else {
@@ -1652,9 +1771,47 @@
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
 
+            showStageComplete(clearedStageIdx, nextStage, callback) {
+                const clearedStage = STAGES[clearedStageIdx];
+                const stageNum = clearedStageIdx + 1;
+                const nextNum = clearedStageIdx + 2;
+
+                const goalsHtml = clearedStage.goals.map(g => 
+                    `<div class="stage-clear-goal-item">✅ ${g.txt}</div>`
+                ).join('');
+
+                const nextGoalsHtml = nextStage.goals.map(g => '🔹 ' + g.txt).join('<br>');
+
+                document.getElementById('modal-title').innerText = '';
+                document.getElementById('modal-content-area').innerHTML = `
+                    <div class="stage-clear-banner">🎉 階段 ${stageNum} 通關！</div>
+                    <div class="stage-clear-sub">${clearedStage.title} — 任務完成</div>
+                    <div class="stage-clear-goals">${goalsHtml}</div>
+                    <hr class="stage-clear-divider">
+                    <div style="text-align:left; padding:0 5px; line-height:1.6;">
+                        <div style="font-size:15px; font-weight:900; color:var(--accent-gold); margin-bottom:6px;">
+                            ▶ 下一階段：${nextStage.title}
+                        </div>
+                        ${nextStage.desc}<br><br>
+                        <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${nextGoalsHtml}
+                    </div>
+                `;
+
+                const dialog = document.querySelector('.retro-dialog');
+                dialog.classList.add('stage-clear-dialog');
+
+                const btn = document.getElementById('modal-btn');
+                btn.innerText = "🚀 開始挑戰";
+                btn.className = 'retro-btn stage-clear';
+                btn.onclick = callback ? callback : ui.closeModal;
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+
             closeModal() { 
                 document.getElementById('modal-overlay').style.display = 'none'; 
                 document.getElementById('modal-content-area').innerHTML = '<p id="modal-desc" style="font-size:14px; line-height:1.6; color:#ddd; margin:15px 0;">CONTENT</p>';
+                const dialog = document.querySelector('.retro-dialog');
+                dialog.classList.remove('stage-clear-dialog');
                 const btn = document.getElementById('modal-btn');
                 btn.className = 'retro-btn';
                 const restartBtn = document.querySelector('.retro-btn.restart');
