@@ -47,22 +47,22 @@
             image-rendering: pixelated;
         }
 
-        /* === HUD === */
+        /* === HUD (COMPACT VERSION) === */
         #hud {
             flex: 0 0 auto;
             background: var(--ui-bg);
-            border-bottom: 4px solid var(--ui-border);
-            padding: 8px 4px;
-            padding-top: max(8px, env(safe-area-inset-top)); 
+            border-bottom: 3px solid var(--ui-border);
+            padding: 4px 4px; /* Reduced padding */
+            padding-top: max(4px, env(safe-area-inset-top)); 
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 4px;
             z-index: 100;
             position: relative; 
         }
-        .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; cursor: pointer; }
-        .stat-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
-        .stat-val { font-family: 'VT323', monospace; font-size: 22px; color: #fff; font-weight: bold; line-height: 1; }
+        .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 2px 2px; cursor: pointer; }
+        .stat-label { font-size: 10px; color: #aaa; display: block; margin-bottom: 0px; } /* Smaller font */
+        .stat-val { font-family: 'VT323', monospace; font-size: 18px; color: #fff; font-weight: bold; line-height: 1; } /* Smaller font (was 22px) */
         .stat-val.gold { color: var(--accent-gold); }
         .stat-val.blue { color: var(--accent-blue); }
         .stat-val.red { color: var(--accent-red); animation: blink 1s infinite; }
@@ -71,14 +71,14 @@
         .help-btn {
             position: absolute; top: 0; right: 0;
             color: #000; background: var(--accent-gold); 
-            font-size: 12px; font-weight: bold; cursor: pointer;
-            width: 14px; height: 14px; line-height: 14px;
+            font-size: 10px; font-weight: bold; cursor: pointer;
+            width: 12px; height: 12px; line-height: 12px;
             text-align: center; border-bottom-left-radius: 4px;
         }
         
-        .hud-help-icon { font-size: 24px; color: #fff; line-height: 32px; }
+        .hud-help-icon { font-size: 18px; color: #fff; line-height: 24px; }
 
-        /* === Info Bar (replaces floating panels) === */
+        /* === Info Bar === */
         #info-bar {
             display: flex; width: 100%; 
             background: rgba(33, 37, 41, 0.95);
@@ -87,18 +87,18 @@
             z-index: 90; flex-shrink: 0;
         }
         #info-bar-story {
-            flex: 1; padding: 5px 8px;
+            flex: 1; padding: 4px 8px; /* Slightly tighter */
             border-right: 1px solid #555;
             color: #ddd;
         }
         #info-bar-goals {
-            flex: 1; padding: 5px 8px;
+            flex: 1; padding: 4px 8px;
         }
         #info-bar-story .bar-title {
-            font-size: 11px; color: var(--accent-gold); font-weight: 900; margin-bottom: 2px;
+            font-size: 11px; color: var(--accent-gold); font-weight: 900; margin-bottom: 1px;
         }
         #info-bar-goals .bar-title {
-            font-size: 11px; color: var(--accent-blue); font-weight: 900; margin-bottom: 2px;
+            font-size: 11px; color: var(--accent-blue); font-weight: 900; margin-bottom: 1px;
         }
         .bar-goal-item {
             display: flex; align-items: center; gap: 3px; font-size: 10px; color: #ccc;
@@ -106,7 +106,7 @@
         .bar-goal-item .goal-check { font-size: 11px; }
         .bar-goal-item .goal-check.done { color: var(--land-green); font-weight: bold; }
 
-        /* === Map Stage === */
+        /* === Map Stage (Will naturally expand due to flex:1) === */
         #game-stage {
             flex: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; width: 100%;
         }
@@ -114,7 +114,7 @@
 
         /* Year Display on Map */
         #map-year-display {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
             padding: 4px 15px;
             color: #fff; 
             font-family: 'VT323', monospace;
@@ -135,10 +135,10 @@
         /* Revised Pie Chart Style - Centered & Larger */
         #power-pie-chart {
             position: absolute;
-            top: 45%; 
+            top: 48%; /* Slight adjustment */
             left: 50%; 
             transform: translate(-50%, -50%);
-            width: 150px; height: 150px; 
+            width: 140px; height: 140px; /* Slightly smaller to fit better */
             border-radius: 50%;
             background: #444;
             border: 4px solid #fff;
@@ -149,12 +149,12 @@
         /* Center hole for Donut effect */
         #pie-center-hole {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 50px; height: 50px; background: rgba(0,0,0,0.6); border-radius: 50%;
+            width: 46px; height: 46px; background: rgba(0,0,0,0.6); border-radius: 50%;
             border: 2px solid #fff;
             display: flex; align-items: center; justify-content: center;
         }
         #pie-center-text {
-            font-size: 11px; color: #fff; font-weight: bold;
+            font-size: 10px; color: #fff; font-weight: bold;
         }
 
         /* On-Chart Labels */
@@ -182,28 +182,28 @@
 
         #map-data-overlay {
             position: absolute;
-            bottom: 8px; left: 8px;   
+            bottom: 4px; left: 4px;   
             background: rgba(10, 10, 10, 0.85);
             border: 1px solid rgba(255,255,255,0.5);
-            padding: 5px 7px;
-            width: 125px;
+            padding: 4px 6px;
+            width: 120px;
             z-index: 95;
             pointer-events: none;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
             border-radius: 2px;
         }
-        .data-row { font-size: 11px; color: #bbb; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center;}
-        .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 14px; }
-        .data-sep { border-top: 1px dashed #444; margin: 3px 0; }
+        .data-row { font-size: 10px; color: #bbb; margin-bottom: 1px; display: flex; justify-content: space-between; align-items: center;}
+        .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 13px; }
+        .data-sep { border-top: 1px dashed #444; margin: 2px 0; }
 
-        /* === Bottom Panel === */
+        /* === Bottom Panel (COMPACT VERSION) === */
         #bottom-panel {
             flex: 0 0 auto; 
             background: var(--ui-bg); 
             border-top: 4px solid var(--ui-border);
-            height: 260px; 
-            padding: 10px;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            height: 190px; /* Reduced from 260px */
+            padding: 6px;
+            padding-bottom: calc(6px + env(safe-area-inset-bottom));
             display: flex; flex-direction: column; z-index: 100;
             position: relative;
         }
@@ -214,8 +214,8 @@
             background: #1a1a1a; 
             border: 2px solid #444; border-bottom: none;
             color: #777;
-            padding: 8px; 
-            font-weight: bold; font-size: 15px;
+            padding: 6px; /* Reduced padding */
+            font-weight: bold; font-size: 14px;
             cursor: pointer; text-align: center;
             transform: translateY(2px); 
             box-shadow: none;
@@ -230,7 +230,7 @@
             transform: translateY(0); 
             box-shadow: 0px -2px 0px rgba(0,0,0,0.5); 
             z-index: 10;
-            padding-bottom: 12px; 
+            padding-bottom: 10px; 
         }
         
         .tab-content { 
@@ -240,9 +240,9 @@
         }
         .tab-content.active { display: flex; }
 
-        /* Build Deck & Market Deck (Distributed Width) */
+        /* Build Deck & Market Deck */
         #build-deck, #market-deck { 
-            display: flex; gap: 4px; flex: 1; width: 100%; padding-top: 8px; 
+            display: flex; gap: 3px; flex: 1; width: 100%; padding-top: 6px; 
         }
 
         .pixel-card {
@@ -251,50 +251,50 @@
             position: relative;
             background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%); 
             border: 2px solid #888;
-            box-shadow: 2px 2px 0px #000; padding: 4px 2px; cursor: pointer;
+            box-shadow: 2px 2px 0px #000; padding: 2px 2px; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            min-height: 120px;
-            gap: 1px;
+            min-height: 85px; /* Reduced from 120px */
+            gap: 0px;
         }
         .pixel-card.selected { background: linear-gradient(180deg, #555 0%, #444 100%); border-color: var(--accent-gold); transform: translateY(-3px); }
         .pixel-card.disabled { opacity: 0.5; filter: grayscale(1); background: #222; }
         
-        .card-emoji { font-size: 24px; margin-top: 2px; }
-        .card-name { font-size: 12px; text-align: center; white-space: nowrap; color: #fff; font-weight: bold; }
-        .card-divider { width: 70%; height: 1px; background: #555; margin: 2px 0; }
-        .card-label { font-size: 9px; color: #999; letter-spacing: 1px; }
+        .card-emoji { font-size: 18px; margin-top: 1px; } /* Smaller emoji */
+        .card-name { font-size: 11px; text-align: center; white-space: nowrap; color: #fff; font-weight: bold; }
+        .card-divider { width: 70%; height: 1px; background: #555; margin: 1px 0; }
+        .card-label { font-size: 9px; color: #999; letter-spacing: 0px; transform: scale(0.9); }
         
         /* Universal value style for Build and Market */
-        .card-val { font-family:'VT323'; color:#fff; font-size:16px; font-weight: bold; }
-        .card-risk { font-size: 10px; color: var(--accent-red); font-weight: bold; margin: 2px 0; }
-        .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:18px; font-weight: bold; margin-top: auto; }
-        .card-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 1px; padding-bottom: 2px; }
+        .card-val { font-family:'VT323'; color:#fff; font-size:14px; font-weight: bold; } /* Smaller font */
+        .card-risk { font-size: 9px; color: var(--accent-red); font-weight: bold; margin: 1px 0; line-height:1; }
+        .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:15px; font-weight: bold; margin-top: auto; } /* Smaller font */
+        .card-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 0px; padding-bottom: 2px; }
         
         .card-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--accent-gold); color: #000;
             border: 2px solid #fff; border-radius: 4px;
-            font-family: 'VT323', monospace; font-size: 16px; font-weight: bold;
-            padding: 0 5px; box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            font-family: 'VT323', monospace; font-size: 13px; font-weight: bold; /* Smaller */
+            padding: 0 4px; box-shadow: 1px 1px 0px rgba(0,0,0,0.5);
             z-index: 10;
         }
 
         .nuke-risk {
-            font-size: 9px; color: var(--accent-red); font-weight: bold;
+            font-size: 8px; color: var(--accent-red); font-weight: bold;
         }
 
         .lock-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.7);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: #fff; font-size: 12px; font-weight: bold; z-index: 5; text-align: center;
+            color: #fff; font-size: 11px; font-weight: bold; z-index: 5; text-align: center;
         }
 
 
         /* Market Tabs (Full Width) */
-        .market-sub-tabs { display: flex; width: 100%; border-bottom: 2px solid #555; margin-bottom: 5px; }
+        .market-sub-tabs { display: flex; width: 100%; border-bottom: 2px solid #555; margin-bottom: 3px; }
         .market-sub-tab {
-            flex: 1; padding: 8px 6px; text-align: center;
-            font-size: 14px; cursor: pointer; font-weight: bold;
+            flex: 1; padding: 4px 6px; text-align: center;
+            font-size: 12px; cursor: pointer; font-weight: bold;
             border-bottom: 3px solid transparent;
             transition: all 0.2s;
             opacity: 0.5;
@@ -316,18 +316,19 @@
             border-bottom-color: var(--color-gas);
         }
 
-        /* Next Button */
+        /* Next Button (Compact) */
         #next-btn {
             position: fixed;
-            bottom: calc(270px + env(safe-area-inset-bottom)); 
+            /* Adjusted bottom position based on new panel height (190 + extra) */
+            bottom: calc(200px + env(safe-area-inset-bottom)); 
             right: 15px;
-            width: 80px; height: 80px;
+            width: 65px; height: 65px; /* Reduced from 80px */
             background: var(--accent-red);
-            border: 4px solid #fff; border-radius: 50%;
-            box-shadow: 5px 5px 0px #000;
+            border: 3px solid #fff; border-radius: 50%;
+            box-shadow: 4px 4px 0px #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 150; cursor: pointer;
-            font-size: 14px; font-weight: bold; text-align: center; line-height: 1.2;
+            font-size: 12px; font-weight: bold; text-align: center; line-height: 1.1;
             animation: pulse-btn 1.5s infinite;
         }
         #next-btn:active { transform: scale(0.95); box-shadow: 2px 2px 0px #000; }
@@ -375,7 +376,7 @@
 
         /* Toast Notification System */
         #toast-container {
-            position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
             width: 280px; pointer-events: none; z-index: 1500;
             display: flex; flex-direction: column; /* Stack direction */
             gap: 6px;
@@ -383,7 +384,7 @@
         .toast-msg {
             background: rgba(0,0,0,0.9);
             color: #fff; border-left: 4px solid #fff;
-            padding: 8px 12px; font-family: 'VT323', monospace; font-size: 18px;
+            padding: 6px 10px; font-family: 'VT323', monospace; font-size: 16px;
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
             
             /* Entry Animation */
@@ -424,10 +425,10 @@
             display: flex; flex-direction: column;
         }
         .retro-inner { 
-            background: var(--ui-bg); border: 2px solid #000; padding: 20px; text-align: center;
+            background: var(--ui-bg); border: 2px solid #000; padding: 15px; text-align: center;
             overflow-y: auto;
         }
-        .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 10px 30px; cursor: pointer; font-size: 16px; width: 100%;}
+        .retro-btn { margin-top: 15px; background: #000; color: #fff; border: 2px solid #fff; padding: 8px 20px; cursor: pointer; font-size: 16px; width: 100%;}
         .retro-btn.restart { background: var(--accent-red); color: #fff; border-color: #fff; }
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
         .retro-btn.stage-clear { background: var(--accent-gold); color: #000; border-color: #fff; font-weight: bold; }
