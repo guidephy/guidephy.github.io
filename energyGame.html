@@ -12,7 +12,7 @@
         :root {
             --bg-ocean: #2c3e50;
             --land-green: #27ae60;
-            --land-border: #145a32;
+            --land-border: #555; /* 修改：改為深灰色，避免100%燃油時出現綠線 */
             --ui-bg: #212529;
             --ui-border: #95a5a6;
             --accent-blue: #3498db;
@@ -126,58 +126,19 @@
         }
 
         #taiwan-svg {
+            position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
             filter: drop-shadow(6px 6px 0px rgba(0,0,0,0.5));
             overflow: visible;
+            /* z-index removed to let foreignObject be part of SVG */
         }
-        .map-path { fill: var(--land-green); stroke: var(--land-border); stroke-width: 3px; }
-
-        /* Revised Pie Chart Style - Centered & Larger */
-        #power-pie-chart {
-            position: absolute;
-            top: 48%; /* Slight adjustment */
-            left: 50%; 
-            transform: translate(-50%, -50%);
-            width: 140px; height: 140px; /* Slightly smaller to fit better */
-            border-radius: 50%;
-            background: #444;
-            border: 4px solid #fff;
-            box-shadow: 6px 6px 0px rgba(0,0,0,0.5);
-            z-index: 50; pointer-events: none;
-            transition: background 0.5s ease;
-        }
-        /* Center hole for Donut effect */
-        #pie-center-hole {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 46px; height: 46px; background: rgba(0,0,0,0.6); border-radius: 50%;
-            border: 2px solid #fff;
-            display: flex; align-items: center; justify-content: center;
-        }
-        #pie-center-text {
-            font-size: 10px; color: #fff; font-weight: bold;
-        }
-
-        /* On-Chart Labels */
-        .chart-label {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-family: 'VT323', monospace;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            text-shadow: 
-                -1px -1px 0 #000,  1px -1px 0 #000,
-                -1px  1px 0 #000,  1px  1px 0 #000,
-                 2px 2px 0px rgba(0,0,0,0.5);
-            pointer-events: none;
-            white-space: nowrap;
-            line-height: 0.9;
-        }
-        .chart-label span {
-            display: block;
-            font-size: 12px; font-family: 'Noto Sans TC', sans-serif;
-            margin-bottom: 2px;
+        
+        /* The transparent stroke layer */
+        .map-path { 
+            fill: none; /* Make sure it is transparent so gradient shows */
+            stroke: var(--land-border); 
+            stroke-width: 3px; 
+            pointer-events: all; /* Allow interactions if needed */
         }
 
         #map-data-overlay {
@@ -195,6 +156,48 @@
         .data-row { font-size: 10px; color: #bbb; margin-bottom: 1px; display: flex; justify-content: space-between; align-items: center;}
         .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 13px; }
         .data-sep { border-top: 1px dashed #444; margin: 2px 0; }
+
+        /* Map Labels Layer */
+        #map-labels-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 20;
+        }
+        .map-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            text-shadow: 
+                -1px -1px 0 #000,  1px -1px 0 #000,
+                -1px  1px 0 #000,  1px  1px 0 #000,
+                 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        
+        .map-label-name { 
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 900; 
+            font-size: 15px; /* 修改：放大字體 */
+            color: #fff;
+            background: rgba(0,0,0,0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: -2px;
+        }
+        .map-label-val { 
+            font-family: 'VT323', monospace; 
+            font-size: 24px; /* 修改：放大數值 */
+            font-weight: bold; 
+            color: #fff; 
+            letter-spacing: 0.5px;
+        }
 
         /* === Bottom Panel (COMPACT VERSION) === */
         #bottom-panel {
@@ -536,7 +539,30 @@
     <div id="game-stage">
         <div id="map-container">
             <div id="map-year-display">第 1 年</div>
+            
             <svg id="taiwan-svg" viewBox="0 0 320 480">
+                <defs>
+                    <clipPath id="taiwan-clip">
+                        <path d="
+                            M 210 30 
+                            C 230 35, 250 50, 260 80
+                            C 275 120, 270 180, 265 220
+                            C 260 270, 240 320, 220 370
+                            C 200 420, 185 450, 175 460
+                            L 165 455
+                            C 110 420, 60 350, 50 250  
+                            C 45 180, 75 120, 100 80
+                            C 140 50, 170 30, 210 30 Z
+                        "/>
+                    </clipPath>
+                </defs>
+
+                <!-- 漸層背景層 (被台灣形狀裁切) -->
+                <foreignObject x="0" y="0" width="320" height="480" clip-path="url(#taiwan-clip)">
+                    <div id="taiwan-chart-div" xmlns="http://www.w3.org/1999/xhtml" style="width:100%; height:100%; background: var(--land-green); transition: background 0.5s ease;"></div>
+                </foreignObject>
+
+                <!-- 邊框層 -->
                 <path class="map-path" d="
                     M 210 30 
                     C 230 35, 250 50, 260 80
@@ -550,12 +576,7 @@
                 "/>
             </svg>
             
-            <div id="power-pie-chart">
-                <div id="pie-center-hole">
-                   <div id="pie-center-text">占比</div>
-                </div>
-            </div>
-            
+            <div id="map-labels-layer"></div>
             <div id="buildings-layer"></div>
 
             <div id="map-data-overlay">
@@ -1431,7 +1452,7 @@
                         ${locked ? `<div class="lock-overlay">${lockReason}</div>` : ''}
                         
                         <div class="card-emoji">${v.emoji}</div>
-                        <div class="card-name" style="color:${v.color}">${v.name}</div>
+                        <div class="card-name">${v.name}</div>
                         <div class="card-divider"></div>
                         <div class="card-label">發電量</div>
                         <div class="card-val">+${v.output.toLocaleString()}MW</div>
@@ -1460,7 +1481,7 @@
                     <div class="pixel-card market-card" onclick="game.buildTerminal()">
                         <div class="card-badge" style="background:var(--accent-blue)">${game.counts.terminal}</div>
                         <div class="card-emoji">${term.emoji}</div>
-                        <div class="card-name" style="color:${term.color}">${term.name}</div>
+                        <div class="card-name">${term.name}</div>
                         <div class="card-divider"></div>
                         <div class="card-label">儲氣容量</div>
                         <div class="card-val">+1,500</div>
@@ -1499,11 +1520,13 @@
                 const pNuke = game.calcNukeOutput(); 
                 const total = pOil + pCoal + pGas + pGreen + pNuke;
 
-                const chartContainer = document.getElementById('power-pie-chart');
-                chartContainer.innerHTML = ''; 
+                // Update Gradient Background
+                const chartContainer = document.getElementById('taiwan-chart-div');
+                const labelsLayer = document.getElementById('map-labels-layer');
+                labelsLayer.innerHTML = ''; // Clear previous labels
 
                 if (total === 0) {
-                    chartContainer.style.background = '#444';
+                    chartContainer.style.background = 'var(--land-green)';
                     return;
                 }
 
@@ -1513,7 +1536,7 @@
                 const degGreen = (pGreen / total) * 360;
                 const degNuke = (pNuke / total) * 360;
 
-                chartContainer.style.background = `conic-gradient(
+                chartContainer.style.background = `conic-gradient(from 0deg at 50% 50%,
                     var(--color-oil) 0deg ${degOil}deg,
                     var(--color-coal) ${degOil}deg ${degOil + degCoal}deg,
                     var(--color-gas) ${degOil + degCoal}deg ${degOil + degCoal + degGas}deg,
@@ -1521,51 +1544,57 @@
                     var(--color-green) ${degOil + degCoal + degGas + degNuke}deg 360deg
                 )`;
 
-                const addLabel = (name, val, startAngle, sliceAngle) => {
-                    if (sliceAngle < 15) return; 
+                // --- Generate Labels ---
+                const centerX = 160; // Approximate visual center x of Taiwan in 320px width
+                const centerY = 240; // Approximate visual center y of Taiwan in 480px height
+                const radius = 65;   // Distance from center to place labels
 
-                    const midAngle = startAngle + sliceAngle / 2;
-                    const rad = (midAngle - 90) * (Math.PI / 180);
-                    const r = 45;
-                    const x = 75 + r * Math.cos(rad);
-                    const y = 75 + r * Math.sin(rad);
+                const data = [
+                    { name: '燃油', val: pOil, deg: degOil },
+                    { name: '燃煤', val: pCoal, deg: degCoal },
+                    { name: '燃氣', val: pGas, deg: degGas },
+                    { name: '核能', val: pNuke, deg: degNuke },
+                    { name: '再生', val: pGreen, deg: degGreen }
+                ];
 
-                    const label = document.createElement('div');
-                    label.className = 'chart-label';
-                    label.style.left = `${x}px`;
-                    label.style.top = `${y}px`;
+                let currentAngle = 0; // Starts from top (0deg in CSS conic-gradient is 12 o'clock)
+                
+                // CSS conic-gradient 0deg is at 12 o'clock. 
+                // Math standard 0 radian is at 3 o'clock.
+                // We need to convert angles.
+                // 0deg (CSS) = -90deg (Math)
+                
+                data.forEach(item => {
+                    const sliceAngle = item.deg;
+                    const pct = (item.val / total * 100);
                     
-                    const pct = (val / total * 100).toFixed(1);
-                    label.innerHTML = `<span>${name}</span>${pct}%`;
-                    chartContainer.appendChild(label);
-                };
-
-                let currentAngle = 0;
-                if (pOil > 0) {
-                    const slice = (pOil / total) * 360;
-                    addLabel('油', pOil, currentAngle, slice);
-                    currentAngle += slice;
-                }
-                if (pCoal > 0) {
-                    const slice = (pCoal / total) * 360;
-                    addLabel('煤', pCoal, currentAngle, slice);
-                    currentAngle += slice;
-                }
-                if (pGas > 0) {
-                    const slice = (pGas / total) * 360;
-                    addLabel('氣', pGas, currentAngle, slice);
-                    currentAngle += slice;
-                }
-                if (pNuke > 0) {
-                    const slice = (pNuke / total) * 360;
-                    addLabel('核', pNuke, currentAngle, slice);
-                    currentAngle += slice;
-                }
-                if (pGreen > 0) {
-                    const slice = (pGreen / total) * 360;
-                    addLabel('再生', pGreen, currentAngle, slice);
-                    currentAngle += slice;
-                }
+                    // Only show labels for significant portions (> 3%)
+                    if (pct > 3) {
+                        // Calculate mid-angle of the slice
+                        const midAngleDeg = currentAngle + sliceAngle / 2;
+                        
+                        // Convert to Radians for Math.cos/sin
+                        // Subtract 90 degrees because 0deg is top, not right
+                        const rad = (midAngleDeg - 90) * (Math.PI / 180);
+                        
+                        // Calculate position
+                        const x = centerX + radius * Math.cos(rad);
+                        const y = centerY + radius * Math.sin(rad);
+                        
+                        // Create Label Element
+                        const label = document.createElement('div');
+                        label.className = 'map-label';
+                        label.style.left = (x / 320 * 100) + '%';
+                        label.style.top = (y / 480 * 100) + '%';
+                        
+                        label.innerHTML = `
+                            <div class="map-label-name">${item.name}</div>
+                            <div class="map-label-val">${pct.toFixed(1)}%</div>
+                        `;
+                        labelsLayer.appendChild(label);
+                    }
+                    currentAngle += sliceAngle;
+                });
             },
 
             updateAll() {
