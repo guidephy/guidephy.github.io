@@ -41,7 +41,7 @@
             color: var(--text-main);
             display: flex;
             flex-direction: column;
-            background: #87CEEB;
+            background: #7ec8e8;
         }
 
         /* ============================================
@@ -53,14 +53,14 @@
             z-index: 0;
             overflow: hidden;
             background: linear-gradient(180deg, 
-                #b8d8e8 0%,
-                #90c4d8 12%,
-                #70b4cc 25%,
-                #58a4c0 40%,
-                #4898b8 55%,
-                #3888a8 70%,
-                #2e7898 85%,
-                #256888 100%
+                #c8e6f8 0%,
+                #a0d4f0 12%,
+                #78c2e8 25%,
+                #5cb8e4 40%,
+                #45aede 55%,
+                #38a0d5 70%,
+                #2e94cc 85%,
+                #2688c0 100%
             );
         }
 
@@ -91,45 +91,26 @@
             pointer-events: none;
         }
 
-        /* Cargo ships */
+        /* Cargo ships — JS controlled, own layer above game-stage */
+        #ship-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
         .ship {
             position: absolute;
-            font-size: 24px;
             pointer-events: none;
-            filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.15));
+            filter: drop-shadow(2px 3px 3px rgba(0,0,0,0.2));
+            transition: none;
+            will-change: left, transform;
         }
-        .ship-1 { top: 30%; animation: sail-r 38s linear infinite; font-size: 28px; }
-        .ship-2 { top: 50%; animation: sail-l 45s linear infinite; font-size: 22px; opacity: 0.7; }
-        .ship-3 { top: 68%; animation: sail-r 52s linear infinite; animation-delay: -20s; font-size: 18px; opacity: 0.5; }
-        .ship-4 { top: 42%; animation: sail-l 60s linear infinite; animation-delay: -30s; font-size: 16px; opacity: 0.4; }
-        .ship-5 { top: 58%; animation: sail-r 48s linear infinite; animation-delay: -12s; font-size: 20px; opacity: 0.55; }
-
-        @keyframes sail-r { from { left: -8%; } to { left: 108%; } }
-        @keyframes sail-l { from { left: 108%; transform: scaleX(-1); } to { left: -8%; transform: scaleX(-1); } }
 
         /* Ocean waves — full screen subtle */
         .wave-layer {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
             overflow: hidden; pointer-events: none;
-        }
-        .wave-band {
-            position: absolute;
-            width: 300%;
-            left: -100%;
-            height: 3px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 50%;
-        }
-        .wb-1 { top: 25%; animation: wdrift 10s ease-in-out infinite alternate; }
-        .wb-2 { top: 35%; animation: wdrift 13s ease-in-out infinite alternate-reverse; width: 280%; }
-        .wb-3 { top: 45%; animation: wdrift 11s ease-in-out infinite alternate; width: 260%; }
-        .wb-4 { top: 55%; animation: wdrift 14s ease-in-out infinite alternate-reverse; opacity: 0.7; }
-        .wb-5 { top: 65%; animation: wdrift 9s ease-in-out infinite alternate; opacity: 0.6; }
-        .wb-6 { top: 75%; animation: wdrift 12s ease-in-out infinite alternate-reverse; opacity: 0.5; }
-        .wb-7 { top: 85%; animation: wdrift 15s ease-in-out infinite alternate; opacity: 0.4; }
-        @keyframes wdrift {
-            from { transform: translateX(-2%); }
-            to { transform: translateX(2%); }
         }
 
         /* Bottom shore waves */
@@ -253,8 +234,8 @@
         #map-container { position: relative; width: 100%; height: 100%; }
 
         #map-year-display {
-            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-            padding: 5px 20px;
+            position: absolute; top: 12px; left: 12px;
+            padding: 5px 16px;
             color: var(--text-main);
             font-family: 'Noto Serif TC', serif;
             font-size: 20px;
@@ -288,16 +269,24 @@
             background: rgba(250,245,235,0.9);
             border: 1.5px solid var(--ui-border);
             padding: 5px 7px;
-            width: 120px;
+            width: 140px;
             z-index: 95;
             pointer-events: none;
             border-radius: 8px;
             backdrop-filter: blur(8px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        .data-row { font-size: 11px; color: var(--text-muted); margin-bottom: 1px; display: flex; justify-content: space-between; align-items: center; }
-        .data-val { color: var(--text-main); font-weight: bold; font-family: 'Playfair Display', serif; font-size: 14px; }
+        .data-row { font-size: 11px; color: var(--text-muted); margin-bottom: 1px; display: flex; justify-content: space-between; align-items: center; white-space: nowrap; }
+        .data-val { color: var(--text-main); font-weight: bold; font-family: 'Playfair Display', serif; font-size: 13px; white-space: nowrap; }
         .data-sep { border-top: 1px dashed var(--ui-border); margin: 2px 0; }
+        #fuel-stock-area {
+            position: relative;
+            padding: 2px 3px;
+            margin: 0 -3px;
+            border-radius: 5px;
+            background: transparent;
+            transition: all 0.3s;
+        }
 
         #map-labels-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -405,8 +394,8 @@
         .card-emoji { font-size: 18px; margin-top: 1px; }
         .card-name { font-size: 11px; text-align: center; white-space: nowrap; color: var(--text-main); font-weight: 700; font-family: 'Noto Serif TC', serif; }
         .card-divider { width: 60%; height: 1px; background: var(--ui-border); margin: 1px 0; }
-        .card-label { font-size: 9px; color: var(--text-muted); transform: scale(0.9); }
-        .card-val { font-family: 'Playfair Display', serif; color: var(--text-main); font-size: 14px; font-weight: bold; }
+        .card-label { font-size: 10px; color: var(--text-muted); }
+        .card-val { font-family: 'Playfair Display', serif; color: var(--text-main); font-size: 15px; font-weight: bold; }
         .card-risk { font-size: 9px; color: var(--accent-red); font-weight: bold; margin: 1px 0; line-height: 1; }
         .card-cost { font-family: 'Playfair Display', serif; color: var(--accent-gold); font-size: 15px; font-weight: bold; margin-top: auto; }
         .card-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 0; padding-bottom: 1px; }
@@ -419,7 +408,7 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.15);
             z-index: 10;
         }
-        .nuke-risk { font-size: 8px; color: var(--accent-red); font-weight: bold; }
+        .nuke-risk { font-size: 11px; color: var(--accent-red); font-weight: bold; }
         .lock-overlay {
             position: absolute; inset: 0; background: rgba(250,245,235,0.8);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -478,27 +467,29 @@
         }
         .highlight-target {
             z-index: 2001 !important; position: relative !important;
-            box-shadow: 0 0 0 4px #e8a020, 0 0 0 7px rgba(232,160,32,0.5), 0 0 25px rgba(232,160,32,0.6), 0 0 50px rgba(232,160,32,0.25) !important;
+            box-shadow: 0 0 0 4px #ff1744, 0 0 0 8px rgba(255,23,68,0.45), 0 0 30px rgba(255,23,68,0.6), 0 0 60px rgba(255,23,68,0.2) !important;
             transition: all 0.3s; pointer-events: auto; cursor: pointer;
-            animation: highlight-pulse 1.2s ease-in-out infinite alternate !important;
+            animation: hl-scan 1s ease-in-out infinite alternate !important;
+            outline: 3px solid #ff1744 !important;
+            outline-offset: 3px !important;
         }
-        @keyframes highlight-pulse {
-            from { box-shadow: 0 0 0 4px #e8a020, 0 0 0 7px rgba(232,160,32,0.5), 0 0 25px rgba(232,160,32,0.6), 0 0 50px rgba(232,160,32,0.25) !important; }
-            to   { box-shadow: 0 0 0 4px #f0b840, 0 0 0 9px rgba(240,184,64,0.6), 0 0 35px rgba(240,184,64,0.7), 0 0 60px rgba(240,184,64,0.35) !important; }
+        @keyframes hl-scan {
+            0%   { box-shadow: 0 0 0 4px #ff1744, 0 0 0 8px rgba(255,23,68,0.45), 0 0 30px rgba(255,23,68,0.6), 0 0 60px rgba(255,23,68,0.2) !important; }
+            100% { box-shadow: 0 0 0 5px #ff5252, 0 0 0 10px rgba(255,82,82,0.5), 0 0 45px rgba(255,82,82,0.7), 0 0 80px rgba(255,82,82,0.3) !important; }
         }
         #next-btn.highlight-target { position: fixed !important; }
 
         #tutorial-tooltip {
             position: fixed; top: 30%; left: 50%; transform: translateX(-50%);
-            background: #fffdf7; color: var(--text-main); padding: 18px 20px;
+            background: rgba(255,253,245,0.97); color: var(--text-main); padding: 18px 20px;
             border-radius: 14px;
             font-weight: 600; z-index: 2002; display: none;
-            box-shadow: 0 0 0 3px #e8a020, 0 8px 30px rgba(0,0,0,0.25);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
             text-align: center; width: 80%;
             animation: floatTip 2s ease-in-out infinite alternate;
             cursor: pointer;
             font-family: 'LXGW WenKai TC', serif;
-            border: 2px solid #e8a020;
+            border: none;
             line-height: 1.6;
         }
         .tut-title {
@@ -649,23 +640,8 @@
         <div class="sun"></div>
         <div class="sun-reflect"></div>
 
-        <!-- Cargo ships sailing -->
-        <div class="ship ship-1">🚢</div>
-        <div class="ship ship-2">🛳️</div>
-        <div class="ship ship-3">🚢</div>
-        <div class="ship ship-4">⛴️</div>
-        <div class="ship ship-5">🛳️</div>
-
         <!-- Wave bands across entire ocean -->
         <div class="wave-layer">
-            <div class="wave-band wb-1"></div>
-            <div class="wave-band wb-2"></div>
-            <div class="wave-band wb-3"></div>
-            <div class="wave-band wb-4"></div>
-            <div class="wave-band wb-5"></div>
-            <div class="wave-band wb-6"></div>
-            <div class="wave-band wb-7"></div>
-
             <div class="wave-shore ws-2">
                 <svg viewBox="0 0 1200 60" preserveAspectRatio="none"><path d="M0,35 Q100,15 250,38 T500,32 T750,40 T1000,28 T1200,35 L1200,60 L0,60 Z" fill="rgba(255,255,255,0.4)"/></svg>
             </div>
@@ -683,6 +659,9 @@
         <div class="sparkle" style="bottom:62%; left:25%; animation-delay:1.8s;"></div>
         <div class="sparkle" style="bottom:45%; left:8%; animation-delay:0.5s;"></div>
     </div>
+
+    <!-- Ships layer — OUTSIDE ocean-bg so it's not clipped, above game-stage transparent area -->
+    <div id="ship-layer"></div>
 
     <div id="toast-container"></div>
 
@@ -745,8 +724,10 @@
                 <div class="data-row"><span>總發電</span><span class="data-val" id="stat-supply">0 MW</span></div>
                 <div class="data-row"><span>總需求</span><span class="data-val" id="stat-demand">0 MW</span></div>
                 <div class="data-sep"></div>
-                <div class="data-row" id="data-row-coal"><span>煤存量</span><span class="data-val" id="stat-coal-days" style="color:var(--text-muted)">--</span></div>
-                <div class="data-row" id="data-row-gas"><span>氣存量</span><span class="data-val blue" id="stat-gas-days">--</span></div>
+                <div id="fuel-stock-area">
+                    <div class="data-row" id="data-row-coal"><span>煤存量</span><span class="data-val" id="stat-coal-days" style="color:var(--text-muted)">--</span></div>
+                    <div class="data-row" id="data-row-gas"><span>氣存量</span><span class="data-val blue" id="stat-gas-days">--</span></div>
+                </div>
             </div>
         </div>
     </div>
@@ -860,17 +841,27 @@
             },
             showFuelZeroWarning() {
                 const type=this.pendingFuelWarning; if(!type) return; this.pendingFuelWarning=null;
-                const selector=type==='coal'?'#data-row-coal':'#data-row-gas';
                 const name=type==='coal'?'燃煤':'天然氣';
-                const overlay=document.getElementById('map-data-overlay');
-                overlay.style.pointerEvents='auto'; overlay.style.zIndex='2500';
+                const gameStage=document.getElementById('game-stage');
+                if(gameStage) gameStage.style.zIndex='2001';
                 this.stageTutorialType='fuelwarn'; this.stageTutorialStep=1;
-                setTimeout(()=>{ui.highlightElement(selector,`【⚠️ ${name}庫存耗盡】\n${name}存量歸零，所有${name}電廠\n將無法運轉，發電量降為 0！\n請盡速補充燃料。`);},200);
+                setTimeout(()=>{
+                    document.getElementById('tutorial-overlay').style.display='block';
+                    const area=document.getElementById('fuel-stock-area');
+                    if(area) area.classList.add('highlight-target');
+                    document.getElementById('tut-text').innerHTML=`<div class='tut-title'>⚠️ 緊急警報</div>【⚠️ ${name}庫存耗盡】<br>${name}存量歸零，所有${name}電廠<br>將無法運轉，發電量降為 0！<br>請盡速補充燃料。`;
+                    document.getElementById('tutorial-tooltip').style.display='block';
+                },200);
             },
             endFuelZeroWarning() {
-                this.stageTutorialStep=0; this.stageTutorialType=null; ui.clearHighlight();
-                const overlay=document.getElementById('map-data-overlay');
-                overlay.style.pointerEvents='none'; overlay.style.zIndex='95';
+                this.stageTutorialStep=0; this.stageTutorialType=null;
+                document.getElementById('tutorial-overlay').style.display='none';
+                document.getElementById('tutorial-tooltip').style.display='none';
+                const area=document.getElementById('fuel-stock-area');
+                if(area) area.classList.remove('highlight-target');
+                const gameStage=document.getElementById('game-stage');
+                if(gameStage) gameStage.style.zIndex='1';
+                document.querySelectorAll('.highlight-target').forEach(el=>el.classList.remove('highlight-target'));
             },
             handleTutorialClick() { if(this.stageTutorialType==='fuelwarn'){this.endFuelZeroWarning();}else if(this.stageTutorialStep>0){this.nextStageTutorialStep();}else{this.nextTutorialStep();} },
             startTutorial() { this.tutorialStep=1; this.updateTutorial(); },
@@ -890,7 +881,7 @@
                 else if(this.tutorialStep===2) ui.highlightElement('#hud .stat-box:nth-child(2)',"【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
                 else if(this.tutorialStep===3) ui.highlightElement('#hud .stat-box:nth-child(3)',"【燃料存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
                 else if(this.tutorialStep===4) ui.highlightElement('#hud .stat-box:nth-child(4)',"【遊戲說明】\n隨時點擊此處可再次查看本教學。\n記得關注階段目標！");
-                else if(this.tutorialStep===5){ui.switchTab('build',true);ui.highlightElement('#build-deck',"【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");}
+                else if(this.tutorialStep===5){ui.switchTab('build',true);ui.highlightElement('#tab-build',"【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");}
                 else if(this.tutorialStep===6){ui.switchTab('market',true);ui.highlightElement('#tab-market',"【燃料市場】\n點擊切換分頁，\n可根據價格購買不同進口國的燃料。");}
                 else if(this.tutorialStep===7){ui.switchTab('build',true);ui.highlightElement('#next-btn',"【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");}
                 else ui.clearHighlight();
@@ -901,7 +892,14 @@
                 ui.clearHighlight();
                 if(this.stageTutorialType==='gas'){
                     if(this.stageTutorialStep===1){ui.renderDeck();ui.switchTab('build',true);setTimeout(()=>{const c=document.querySelector('#build-deck .pixel-card:nth-child(2)');if(c)c.id='highlight-gas-card';ui.highlightElement('#highlight-gas-card',"【🔥 燃氣發電】\n新解鎖！燃氣發電效率高且較環保。\n但需先建造接收站才能興建。");},100);}
-                    else if(this.stageTutorialStep===2){ui.switchTab('market',true);ui.setMarketTab('gas');setTimeout(()=>{ui.highlightElement('#mt-gas',"【🔥 燃氣市場】\n點擊此分頁可購買天然氣燃料，\n也可在此建造接收站來儲存天然氣。");},100);}
+                    else if(this.stageTutorialStep===2){ui.switchTab('market',true);ui.setMarketTab('gas');setTimeout(()=>{
+                        document.getElementById('tutorial-overlay').style.display='block';
+                        const bp=document.getElementById('bottom-panel');if(bp)bp.style.zIndex='2001';
+                        const mtGas=document.getElementById('mt-gas');if(mtGas)mtGas.classList.add('highlight-target');
+                        const tabMarket=document.getElementById('tab-market');if(tabMarket)tabMarket.classList.add('highlight-target');
+                        document.getElementById('tut-text').innerHTML=`<div class='tut-title'>遊戲說明</div>【🔥 燃氣市場】<br>點擊此分頁可購買天然氣燃料，<br>也可在此建造接收站來儲存天然氣。`;
+                        document.getElementById('tutorial-tooltip').style.display='block';
+                    },100);}
                     else{this.stageTutorialStep=0;this.stageTutorialType=null;ui.clearHighlight();ui.switchTab('build',true);}
                 }else if(this.stageTutorialType==='green'){
                     if(this.stageTutorialStep===1){ui.renderDeck();ui.switchTab('build',true);setTimeout(()=>{const cards=document.querySelectorAll('#build-deck .pixel-card');cards.forEach(c=>{const n=c.querySelector('.card-name');if(n&&n.textContent==='風電')c.id='highlight-wind-card';if(n&&n.textContent==='太陽能')c.id='highlight-solar-card';});ui.highlightElement('#highlight-wind-card',"【🌀 風力發電】\n新解鎖！利用台灣海峽的頂級風場，\n不需燃料，是自有能源的關鍵！");},100);}
@@ -1015,6 +1013,7 @@
                 if(el){el.classList.add('highlight-target');
                     const bp=el.closest('#bottom-panel');if(bp)bp.style.zIndex='2001';
                     const hud=el.closest('#hud');if(hud)hud.style.zIndex='2001';
+                    const gs=el.closest('#game-stage');if(gs)gs.style.zIndex='2001';
                     document.getElementById('tut-text').innerHTML=`<div class='tut-title'>遊戲說明</div>${text.replace(/\n/g,'<br>')}`;
                     document.getElementById('tutorial-tooltip').style.display='block';
                 }
@@ -1025,6 +1024,7 @@
                 document.querySelectorAll('.highlight-target').forEach(el=>el.classList.remove('highlight-target'));
                 const bp=document.getElementById('bottom-panel');if(bp)bp.style.zIndex='';
                 const hud=document.getElementById('hud');if(hud)hud.style.zIndex='100';
+                const gs=document.getElementById('game-stage');if(gs)gs.style.zIndex='1';
             },
             setMarketTab(tab){if(tab==='gas'&&game.stageIdx<1)return;game.marketTab=tab;document.querySelectorAll('.market-sub-tab').forEach(el=>el.classList.remove('active'));document.getElementById('mt-'+tab).classList.add('active');ui.renderMarket();},
             renderDeck(){
@@ -1045,7 +1045,7 @@
                 let content='';
                 if(tab==='gas'){const t=PLANTS.terminal;content+=`<div class="pixel-card market-card" onclick="game.buildTerminal()"><div class="card-badge" style="background:var(--accent-blue);color:#fff">${game.counts.terminal}</div><div class="card-emoji">${t.emoji}</div><div class="card-name">${t.name}</div><div class="card-divider"></div><div class="card-label">儲氣容量</div><div class="card-val">+1,500</div><div class="card-bottom"><div class="card-cost">$${t.cost.toLocaleString()}</div></div></div>`;}
                 content+=sources.map(src=>{const base=game.marketPrices[tab+'_'+src.id]||src.base;const price=base+(game.purchaseCounts[tab][src.id]||0);
-                    return `<div class="pixel-card market-card" onclick="game.buyFuel('${tab}','${src.id}')"><div class="card-emoji">${src.flag}</div><div class="card-name">${src.name}</div><div class="card-divider"></div><div class="card-label">${tab==='coal'?'燃煤':'天然氣'}</div><div class="card-val">+100</div><div class="card-bottom"><div class="card-cost">$${price}</div></div></div>`;
+                    return `<div class="pixel-card market-card" onclick="game.buyFuel('${tab}','${src.id}')"><div class="card-emoji">${src.flag}</div><div class="card-name">${src.name}</div><div class="card-divider"></div><div class="card-label">${tab==='coal'?'煤礦':'天然氣'}</div><div class="card-val">+100</div><div class="card-bottom"><div class="card-cost">$${price}</div></div></div>`;
                 }).join('');
                 document.getElementById('market-deck').innerHTML=content;
             },
@@ -1131,6 +1131,70 @@
             },
             closeModal(){document.getElementById('modal-overlay').style.display='none';document.getElementById('modal-content-area').innerHTML='<p id="modal-desc" style="font-size:14px;line-height:1.6;color:var(--text-main);margin:15px 0;">CONTENT</p>';document.querySelector('.retro-dialog').classList.remove('stage-clear-dialog');const btn=document.getElementById('modal-btn');btn.style.display='block';btn.className='retro-btn';const rb=document.querySelector('.retro-btn.restart');if(rb)rb.remove();}
         };
+        // === SHIP ANIMATION ENGINE ===
+        (function(){
+            const SHIP_EMOJI = ['🚢','🛳️','⛴️','🚢','🛳️','⛴️','🚢','🛳️'];
+            const layer = document.getElementById('ship-layer');
+            const ships = [];
+            const BOUNCE_X = 42; // Taiwan center X (%)
+            const PAUSE_MS = 1800; // pause at Taiwan
+            function randomEmoji(){ return SHIP_EMOJI[Math.floor(Math.random()*SHIP_EMOJI.length)]; }
+            function createShip(top, size, opacity, speed){
+                const el = document.createElement('div');
+                el.className = 'ship';
+                el.textContent = randomEmoji();
+                el.style.top = top + '%';
+                el.style.fontSize = size + 'px';
+                el.style.opacity = opacity;
+                layer.appendChild(el);
+                const fromLeft = Math.random() > 0.5;
+                return { el, top, size, opacity, speed,
+                    x: fromLeft ? -8 : 108,
+                    dir: fromLeft ? 1 : -1,
+                    state: 'sailing', pauseTimer: 0 };
+            }
+            ships.push(createShip(22, 32, 0.9, 0.04));
+            ships.push(createShip(40, 26, 0.75, 0.032));
+            ships.push(createShip(60, 24, 0.6, 0.025));
+            ships.push(createShip(35, 22, 0.5, 0.028));
+            ships.push(createShip(52, 28, 0.65, 0.035));
+
+            let lastT = 0;
+            function tick(t){
+                const dt = lastT ? (t - lastT) : 16;
+                lastT = t;
+                ships.forEach(s => {
+                    if(s.state === 'sailing'){
+                        s.x += s.dir * s.speed * dt;
+                        // Check if reached Taiwan center
+                        if((s.dir > 0 && s.x >= BOUNCE_X) || (s.dir < 0 && s.x <= BOUNCE_X)){
+                            s.state = 'paused';
+                            s.pauseTimer = PAUSE_MS;
+                            s.x = BOUNCE_X + (s.dir > 0 ? -1 : 1);
+                        }
+                        // Check if sailed off screen
+                        if(s.x < -10 || s.x > 112){
+                            // Reset: new emoji, come from opposite side
+                            s.el.textContent = randomEmoji();
+                            s.dir = s.x < -10 ? 1 : -1;
+                            s.x = s.dir > 0 ? -8 : 108;
+                        }
+                    } else if(s.state === 'paused'){
+                        s.pauseTimer -= dt;
+                        if(s.pauseTimer <= 0){
+                            s.state = 'sailing';
+                            s.dir *= -1; // reverse direction
+                            s.el.textContent = randomEmoji();
+                        }
+                    }
+                    s.el.style.left = s.x + '%';
+                    s.el.style.transform = s.dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
+                });
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        })();
+
         game.init();
     </script>
 </body>
