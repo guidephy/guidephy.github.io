@@ -78,22 +78,33 @@
         
         .hud-help-icon { font-size: 24px; color: #fff; line-height: 32px; }
 
-        /* === Info Panels === */
-        .info-panel {
-            position: absolute; top: 80px; width: 140px;
-            background: rgba(33, 37, 41, 0.95); padding: 8px; z-index: 90;
-            box-shadow: 4px 4px 0px #000; pointer-events: none; border-radius: 2px;
+        /* === Info Bar (replaces floating panels) === */
+        #info-bar {
+            display: flex; width: 100%; 
+            background: rgba(33, 37, 41, 0.95);
+            border-bottom: 2px solid #555;
+            font-size: 11px; line-height: 1.3;
+            z-index: 90; flex-shrink: 0;
         }
-        #story-panel { left: 10px; border: 3px solid var(--ui-border); }
-        #goal-panel { right: 10px; border: 3px solid var(--accent-blue); }
-        
-        .pixel-title { 
-            font-size: 13px; color: var(--accent-gold); border-bottom: 2px dashed #555;
-            padding-bottom: 4px; margin-bottom: 4px; font-weight: 900;
+        #info-bar-story {
+            flex: 1; padding: 5px 8px;
+            border-right: 1px solid #555;
+            color: #ddd;
         }
-        .pixel-text { font-size: 12px; line-height: 1.4; color: #ddd; }
-        .goal-item { font-size: 11px; margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 2px; }
-        .goal-check.done { color: var(--land-green); font-weight:bold; }
+        #info-bar-goals {
+            flex: 1; padding: 5px 8px;
+        }
+        #info-bar-story .bar-title {
+            font-size: 11px; color: var(--accent-gold); font-weight: 900; margin-bottom: 2px;
+        }
+        #info-bar-goals .bar-title {
+            font-size: 11px; color: var(--accent-blue); font-weight: 900; margin-bottom: 2px;
+        }
+        .bar-goal-item {
+            display: flex; align-items: center; gap: 3px; font-size: 10px; color: #ccc;
+        }
+        .bar-goal-item .goal-check { font-size: 11px; }
+        .bar-goal-item .goal-check.done { color: var(--land-green); font-weight: bold; }
 
         /* === Map Stage === */
         #game-stage {
@@ -171,18 +182,19 @@
 
         #map-data-overlay {
             position: absolute;
-            bottom: 10px; left: 10px;   
-            background: rgba(10, 10, 10, 0.95);
-            border: 2px solid #fff;
-            padding: 8px;
-            width: 140px;
+            bottom: 8px; left: 8px;   
+            background: rgba(10, 10, 10, 0.85);
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 5px 7px;
+            width: 125px;
             z-index: 95;
             pointer-events: none;
-            box-shadow: 4px 4px 0px #000;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            border-radius: 2px;
         }
-        .data-row { font-size: 12px; color: #ccc; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;}
-        .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 16px; }
-        .data-sep { border-top: 1px dashed #555; margin: 5px 0; }
+        .data-row { font-size: 11px; color: #bbb; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center;}
+        .data-val { color: #fff; font-weight: bold; font-family: 'VT323', monospace; font-size: 14px; }
+        .data-sep { border-top: 1px dashed #444; margin: 3px 0; }
 
         /* === Bottom Panel === */
         #bottom-panel {
@@ -277,10 +289,6 @@
             color: #fff; font-size: 12px; font-weight: bold; z-index: 5; text-align: center;
         }
 
-        .build-hint {
-            font-size: 11px; color: #888; text-align: center; 
-            padding-top: 6px; border-top: 1px solid #444; margin-top: 6px; flex-shrink: 0;
-        }
 
         /* Market Tabs (Full Width) */
         .market-sub-tabs { display: flex; width: 100%; border-bottom: 2px solid #555; margin-bottom: 5px; }
@@ -513,13 +521,15 @@
         </div>
     </div>
 
-    <div id="story-panel" class="info-panel">
-        <div class="pixel-title">任務簡報</div>
-        <div class="pixel-text" id="story-text">...</div>
-    </div>
-    <div id="goal-panel" class="info-panel">
-        <div class="pixel-title" style="color:var(--accent-blue)">階段目標</div>
-        <div id="goal-list"></div>
+    <div id="info-bar">
+        <div id="info-bar-story">
+            <div class="bar-title">📋 任務簡報</div>
+            <div id="story-text">...</div>
+        </div>
+        <div id="info-bar-goals">
+            <div class="bar-title">🏆 階段目標</div>
+            <div id="goal-list"></div>
+        </div>
     </div>
 
     <div id="game-stage">
@@ -569,7 +579,6 @@
 
         <div id="tab-build" class="tab-content active">
             <div id="build-deck"></div>
-            <div class="build-hint">點擊卡片系統將自動選址建設</div>
         </div>
 
         <div id="tab-market" class="tab-content">
@@ -704,11 +713,12 @@
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 
-                ui.showModal("任務簡報：能源任命",
-                    `<div style="text-align:left; padding:0 10px; line-height:1.6;">
-                        恭喜您！您已被任命為<span style="color:var(--accent-gold)">台灣能源決策長</span>。<br><br>
-                        從此刻起，國家的動力掌握在您手中。您將跨越50年的時空，面對<span style="color:var(--accent-blue)">經濟起飛的電力需求</span>、<span style="color:var(--accent-green)">環境保護的轉型壓力</span>，以及<span style="color:var(--accent-red)">地緣政治的嚴峻挑戰</span>。<br><br>
-                        <span style="color:var(--accent-gold)">核心目標：</span>在有限資金下，建立一個穩定、安全且潔淨的電力系統。
+                ui.showModal("⚡ 島嶼能源生存戰",
+                    `<div style="text-align:left; padding:0 10px; line-height:1.8; font-size:14px; color:#ddd;">
+                        西元1973年，中東戰火點燃石油危機，油價一夕暴漲。<br><br>
+                        台灣——一座<span style="color:var(--accent-red)">97%能源仰賴進口</span>的島嶼，正面臨斷電的存亡危機。<br><br>
+                        身為新任<span style="color:var(--accent-gold)">能源決策長</span>，您必須在接下來的50年間，帶領台灣穿越石油危機、經濟奇蹟、環保浪潮與地緣封鎖，打造一個<span style="color:var(--accent-blue)">永不斷電</span>的島嶼。<br><br>
+                        <span style="color:#888; font-size:12px;">建設電廠、採購燃料、完成階段任務即可勝利。</span>
                     </div>`,
                     () => {
                         ui.closeModal();
@@ -1517,11 +1527,11 @@
                     const s = STAGES[game.stageIdx];
                     document.getElementById('story-text').innerText = s.short;
                     document.getElementById('goal-list').innerHTML = s.goals.map(g => `
-                        <div class="goal-item"><span class="goal-check ${g.check(game) ? 'done' : ''}">${g.check(game) ? '✅' : '⬜'}</span> <span>${g.txt}</span></div>
+                        <div class="bar-goal-item"><span class="goal-check ${g.check(game) ? 'done' : ''}">${g.check(game) ? '✅' : '⬜'}</span> <span>${g.txt}</span></div>
                     `).join('');
                 } else {
                     document.getElementById('story-text').innerText = "自由執政模式";
-                    document.getElementById('goal-list').innerHTML = "<div class='goal-item'>維持競爭力 > 0%</div>";
+                    document.getElementById('goal-list').innerHTML = "<div class='bar-goal-item'>維持競爭力 > 0%</div>";
                 }
 
                 if (game.blockade) {
