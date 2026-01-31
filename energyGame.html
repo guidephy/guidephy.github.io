@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v72</title>
+    <title>⚡ 島嶼能源生存戰</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -21,6 +21,7 @@
             --text-white: #ecf0f1;
             
             --color-coal: #7f8c8d;
+            --color-oil: #1a1a2e;
             --color-gas: #d35400;
             --color-green: #2ecc71;
             --color-solar: #f39c12;
@@ -236,21 +237,26 @@
             flex: 1; 
             min-width: 0;
             position: relative;
-            background: #333; border: 2px solid #888;
-            box-shadow: 2px 2px 0px #000; padding: 2px; cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
-            min-height: 110px;
+            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%); 
+            border: 2px solid #888;
+            box-shadow: 2px 2px 0px #000; padding: 4px 2px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            min-height: 120px;
+            gap: 1px;
         }
-        .pixel-card.selected { background: #555; border-color: var(--accent-gold); transform: translateY(-3px); }
+        .pixel-card.selected { background: linear-gradient(180deg, #555 0%, #444 100%); border-color: var(--accent-gold); transform: translateY(-3px); }
         .pixel-card.disabled { opacity: 0.5; filter: grayscale(1); background: #222; }
         
-        .card-emoji { font-size: 26px; }
+        .card-emoji { font-size: 24px; margin-top: 2px; }
         .card-name { font-size: 12px; text-align: center; white-space: nowrap; color: #fff; font-weight: bold; }
+        .card-divider { width: 70%; height: 1px; background: #555; margin: 2px 0; }
+        .card-label { font-size: 9px; color: #999; letter-spacing: 1px; }
         
         /* Universal value style for Build and Market */
-        .card-val { font-family:'VT323'; color:#fff; font-size:15px; font-weight: bold; }
+        .card-val { font-family:'VT323'; color:#fff; font-size:16px; font-weight: bold; }
         .card-risk { font-size: 10px; color: var(--accent-red); font-weight: bold; margin: 2px 0; }
-        .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:20px; font-weight: bold; margin-top:auto;}
+        .card-cost { font-family:'VT323'; color:var(--accent-gold); font-size:18px; font-weight: bold; margin-top: auto; }
+        .card-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 1px; padding-bottom: 2px; }
         
         .card-badge {
             position: absolute; top: -4px; right: -4px;
@@ -262,7 +268,7 @@
         }
 
         .nuke-risk {
-            font-size: 10px; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;
+            font-size: 9px; color: var(--accent-red); font-weight: bold;
         }
 
         .lock-overlay {
@@ -279,23 +285,27 @@
         /* Market Tabs (Full Width) */
         .market-sub-tabs { display: flex; width: 100%; border-bottom: 2px solid #555; margin-bottom: 5px; }
         .market-sub-tab {
-            flex: 1; padding: 6px; text-align: center;
+            flex: 1; padding: 8px 6px; text-align: center;
             font-size: 14px; cursor: pointer; font-weight: bold;
-            border-bottom: 4px solid transparent;
+            border-bottom: 3px solid transparent;
             transition: all 0.2s;
-            opacity: 0.6;
+            opacity: 0.5;
+            background: #1a1a1a;
+            color: #888;
         }
         /* Specific Styles for Coal and Gas Tabs */
-        .market-sub-tab.tab-coal { background: #2c3e50; color: #ddd; }
         .market-sub-tab.tab-coal.active { 
-            opacity: 1; background: #34495e; color: #fff; 
-            border-bottom-color: #7f8c8d; /* Coal Color */
+            opacity: 1; 
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            color: #ccc; 
+            border-bottom-color: var(--color-coal);
         }
         
-        .market-sub-tab.tab-gas { background: #641e16; color: #ddd; }
         .market-sub-tab.tab-gas.active { 
-            opacity: 1; background: #922b21; color: #fff; 
-            border-bottom-color: #d35400; /* Gas Color */
+            opacity: 1; 
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            color: #f0a070; 
+            border-bottom-color: var(--color-gas);
         }
 
         /* Next Button */
@@ -562,45 +572,46 @@
 
         const STAGES = [
             {
-                title: "階段一：基礎建設 ",
-                short: "十大建設啟動，請擴充燃煤電力，滿足工業需求。",
-                desc: "🏗️ **基礎建設期**：<br>民國60年代，十大建設啟動。重工業與製造業興起，電力缺口擴大。<br>首要任務：擴充基載電力，確保工業動能不熄火。",
+                title: "階段一：以煤代油",
+                short: "石油危機爆發！油價飆漲，請盡速轉向燃煤發電。",
+                desc: "🛢️ **石油危機與基載重建**：<br>兩次石油危機重創經濟，燃油成本暴漲。為達成「能源多元化」，首要任務是降低燃油依賴，改用廉價的煤炭與核能作為基載電力。<br>任務：擴充燃煤機組，確保工業動能不熄火。",
                 goals: [
-                    { txt: "發電量 > 12000MW", check: g => g.calcPower() >= 12000 },
-                    { txt: "燃煤電廠 > 6 座", check: g => g.counts.coal >= 6 }
+                    { txt: "燃煤電廠 > 5 座", check: g => g.counts.coal >= 5 },
+                    { txt: "發電量 > 12000MW", check: g => g.calcPower() >= 12000 }
                 ]
             },
             {
-                title: "階段二：燃氣時代 ",
-                short: "石油危機引發通膨，竹科崛起。請建接收站發展燃氣。",
-                desc: "⛽ **能源轉型與竹科**：<br>石油危機引發通膨，政府決心「不把雞蛋放同個籃子」。<br>竹科崛起，晶圓代工需高穩定電力。燃氣低碳且環保。<br>任務：興建首座接收站，開啟燃氣時代！(注意：此階段煤價翻倍)",
+                title: "階段二：以氣代煤",
+                short: "邁入燃氣時代，並開放民營電廠，解決限電。",
+                desc: "🔥 **燃氣代煤**：<br>竹科崛起，晶圓代工需高穩定電力。燃氣低碳且環保。<br>為解決環保與限電問題，請興建燃氣發電廠。<br>任務：啟用首座接收站，並藉由燃氣發電拉高總發電量。",
                 goals: [
                     { txt: "接收站 > 1 座", check: g => g.counts.terminal >= 1 },
-                    { txt: "燃氣發電 > 20%", check: g => g.getGasPct() >= 20 },
+                    { txt: "燃氣發電 > 15%", check: g => g.getGasPct() >= 15 },
                     { txt: "總發電 > 30000MW", check: g => g.calcPower() >= 30000 }
                 ]
             },
             {
-                title: "階段三：能源韌性 ",
+                title: "階段三：能源韌性",
                 short: "為免斷氣危機，請增建接收站並拉高安全存量。",
                 desc: "🛡️ **強化能源韌性**：<br>避免單一接收站故障即斷電。請建設多座接收站分散風險。<br>同時將煤氣存量拉高至 7 天以上，確保國家能源韌性。<br><span style='color:var(--accent-red)'>(注意：從本階段起，庫存低於7天將扣除競爭力！)</span>",
                 goals: [
-                    { txt: "接收站 > 3 座", check: g => g.counts.terminal >= 3 },
+                    { txt: "接收站 > 2 座", check: g => g.counts.terminal >= 2 },
                     { txt: "安全存量 > 7天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 7 }
                 ]
             },
             {
-                title: "階段四：風氣互補 ",
-                short: "應對封鎖風險，利用風場發展自有能源，執行風氣互補。",
+                title: "階段四：再生轉型",
+                short: "國際戰爭致成本飆升，且有封鎖風險，利用再生能源實現自有能源目標。",
                 desc: "🌬️ **自有能源戰略**：<br>天然氣昂貴且易受封鎖影響。幸運的是台灣海峽有頂級風場！<br>執行『風氣互補』：以燃氣快速升降支援綠能。<br>建設再生能源，獲取『自有能源』以抗衡地緣風險。",
                 goals: [
-                    { txt: "再生能源 > 10%", check: g => g.getGreenPct() >= 10 },
+                    { txt: "接收站 > 3 座", check: g => g.counts.terminal >= 3 },
+                    { txt: "再生能源 > 15%", check: g => g.getGreenPct() >= 15 },
                     { txt: "安全存量 > 11天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 11 }
                 ]
             },
             {
-                title: "階段五：AI新局 ",
-                short: "AI與RE100需求大增。請大幅提升綠能與總發電量。",
+                title: "階段五：AI新局",
+                short: "面對AI爆發、RE100、永續目標及地緣封鎖風險，請大幅提升再生能源與總發電量。",
                 desc: "🤖 **AI 與永續競爭**：<br>AI 算力推升用電，RE100 限制出口。<br>為保產業優勢，需大幅提升綠能供應。<br>面對地緣軍演，更需將安全存量拉至 14 天，確保供電無虞。",
                 goals: [
                     { txt: "再生能源 > 20%", check: g => g.getGreenPct() >= 20 },
@@ -631,6 +642,7 @@
 
         const game = {
             year: 1, funds: 2000, comp: 100, demand: 10000, 
+            oilOutput: 2000,
             fuel: { coal: 3000, gas: 0 }, cap: { coal: 3000, gas: 0 },
             counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
             stageIdx: 0, selected: null, blockade: false, bDays: 0,
@@ -661,18 +673,8 @@
                         <span style="color:var(--accent-gold)">核心目標：</span>在有限資金下，建立一個穩定、安全且潔淨的電力系統。
                     </div>`,
                     () => {
-                        const s = STAGES[0];
-                        const goals = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
-                        ui.swapModal(s.title,
-                            `<div style="text-align:left; padding:0 10px; line-height:1.6;">
-                                ${s.desc}<br><br>
-                                <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${goals}
-                            </div>`,
-                            () => {
-                                ui.closeModal();
-                                if(game.year === 1) game.startTutorial();
-                            }
-                        );
+                        ui.closeModal();
+                        if(game.year === 1) game.startTutorial();
                     }
                 );
             },
@@ -681,6 +683,7 @@
                 this.year = 1; 
                 this.funds = 2000; 
                 this.comp = 100; this.demand = 10000;
+                this.oilOutput = 2000;
                 this.fuel = { coal: 3000, gas: 0 }; 
                 this.cap = { coal: 3000, gas: 0 };
                 this.counts = { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 };
@@ -936,18 +939,25 @@
                 this.year++; 
                 if (this.nukeShutdownTimer > 0) this.nukeShutdownTimer--;
 
-                const pCoal = this.counts.coal * PLANTS.coal.output;
-                const pGas = this.counts.gas * PLANTS.gas.output;
+                const pOil = this.oilOutput;
+                const pCoal = this.calcCoalOutput();
+                const pGas = this.calcGasOutput();
                 const pNuke = this.calcNukeOutput();
                 const pGreen = (this.counts.green * PLANTS.green.output) + (this.counts.solar * PLANTS.solar.output);
                 
                 this.history.push({
                     year: this.year,
+                    oil: pOil,
                     coal: pCoal,
                     gas: pGas,
                     nuclear: pNuke,
                     green: pGreen
                 });
+
+                // 燃油逐年遞減（石油危機後逐步淘汰）
+                if (this.oilOutput > 0) {
+                    this.oilOutput = Math.max(0, this.oilOutput - 200);
+                }
 
                 let turnEvents = [];
                 const nukeMsg = this.checkNuclearDisaster();
@@ -1055,11 +1065,26 @@
                 return this.counts.nuclear * PLANTS.nuclear.output;
             },
 
+            calcCoalOutput() {
+                if (this.counts.coal === 0) return 0;
+                const cUse = this.counts.coal * PLANTS.coal.fuel;
+                if (this.fuel.coal < cUse) return 0; // 存量不足一天，發電歸零
+                return this.counts.coal * PLANTS.coal.output;
+            },
+
+            calcGasOutput() {
+                if (this.counts.gas === 0) return 0;
+                const gUse = this.counts.gas * PLANTS.gas.fuel;
+                if (this.fuel.gas < gUse) return 0; // 存量不足一天，發電歸零
+                return this.counts.gas * PLANTS.gas.output;
+            },
+
             calcPower(ignoreShutdown = false) { 
                 let nukeOut = this.calcNukeOutput();
                 if (ignoreShutdown) nukeOut = this.counts.nuclear * PLANTS.nuclear.output;
-                return (this.counts.coal * PLANTS.coal.output) + 
-                       (this.counts.gas * PLANTS.gas.output) + 
+                return this.oilOutput +
+                       this.calcCoalOutput() + 
+                       this.calcGasOutput() + 
                        (this.counts.green * PLANTS.green.output) + 
                        (this.counts.solar * PLANTS.solar.output) + 
                        nukeOut;
@@ -1075,7 +1100,7 @@
             getGasPct() {
                 const total = this.calcPower();
                 if (total === 0) return 0;
-                const gas = this.counts.gas * PLANTS.gas.output;
+                const gas = this.calcGasOutput();
                 return Math.floor((gas / total) * 100);
             },
 
@@ -1179,16 +1204,26 @@
             },
 
             renderDeck() {
-                const buildable = Object.entries(PLANTS).filter(([k,v]) => k !== 'terminal');
+                const stageFilter = {
+                    coal: 0,     // 階段一起
+                    nuclear: 0,  // 階段一起
+                    gas: 1,      // 階段二起
+                    green: 3,    // 階段四起
+                    solar: 3     // 階段四起
+                };
+                const buildable = Object.entries(PLANTS)
+                    .filter(([k,v]) => k !== 'terminal')
+                    .filter(([k]) => game.stageIdx >= (stageFilter[k] || 0));
+
                 document.getElementById('build-deck').innerHTML = buildable.map(([k, v]) => {
                     let locked = false;
                     let lockReason = '';
-                    let riskText = '';
+                    let riskHtml = '';
                     if (k === 'nuclear') {
                         if (game.isNukePermanentlyBanned) { locked = true; lockReason = '⛔ 永久廢止'; }
                         else {
                             const risk = game.getNukeRisk();
-                            riskText = `<div class="nuke-risk">☢️核災機率+${risk}%</div>`;
+                            riskHtml = `<div class="nuke-risk">☢️ 核災 +${risk}%</div>`;
                         }
                     }
                     const count = game.counts[k];
@@ -1200,11 +1235,14 @@
                         
                         <div class="card-emoji">${v.emoji}</div>
                         <div class="card-name" style="color:${v.color}">${v.name}</div>
+                        <div class="card-divider"></div>
+                        <div class="card-label">發電量</div>
+                        <div class="card-val">+${v.output.toLocaleString()}MW</div>
                         
-                        ${riskText ? riskText : ''}
-                        
-                        <div class="card-val">+${v.output}MW</div>
-                        <div class="card-cost">$${v.cost.toLocaleString()}</div>
+                        <div class="card-bottom">
+                            <div class="card-cost">$${v.cost.toLocaleString()}</div>
+                            ${riskHtml}
+                        </div>
                     </div>
                 `}).join('');
             },
@@ -1226,8 +1264,12 @@
                         <div class="card-badge" style="background:var(--accent-blue)">${game.counts.terminal}</div>
                         <div class="card-emoji">${term.emoji}</div>
                         <div class="card-name" style="color:${term.color}">${term.name}</div>
-                        <div class="card-val" style="font-size:12px">容量+1500</div>
-                        <div class="card-cost" style="margin-top:auto;">$${term.cost.toLocaleString()}</div>
+                        <div class="card-divider"></div>
+                        <div class="card-label">儲氣容量</div>
+                        <div class="card-val">+1,500</div>
+                        <div class="card-bottom">
+                            <div class="card-cost">$${term.cost.toLocaleString()}</div>
+                        </div>
                     </div>`;
                 }
 
@@ -1235,12 +1277,17 @@
                     const base = game.marketPrices[tab + '_' + src.id] || src.base;
                     const surge = game.purchaseCounts[tab][src.id] || 0;
                     const price = base + surge;
+                    const fuelLabel = tab === 'coal' ? '燃煤' : '天然氣';
                     return `
                     <div class="pixel-card market-card" onclick="game.buyFuel('${tab}', '${src.id}')">
                         <div class="card-emoji">${src.flag}</div>
-                        <div class="card-name" style="font-size:12px; margin-top:4px;">${src.name}</div>
+                        <div class="card-name">${src.name}</div>
+                        <div class="card-divider"></div>
+                        <div class="card-label">${fuelLabel}</div>
                         <div class="card-val">+100</div>
-                        <div class="card-cost" style="margin-top:auto;">$${price}</div>
+                        <div class="card-bottom">
+                            <div class="card-cost">$${price}</div>
+                        </div>
                     </div>`;
                 }).join('');
                 
@@ -1248,11 +1295,12 @@
             },
 
             updatePieChart() {
-                const pCoal = game.counts.coal * PLANTS.coal.output;
-                const pGas = game.counts.gas * PLANTS.gas.output;
+                const pOil = game.oilOutput;
+                const pCoal = game.calcCoalOutput();
+                const pGas = game.calcGasOutput();
                 const pGreen = (game.counts.green * PLANTS.green.output) + (game.counts.solar * PLANTS.solar.output);
                 const pNuke = game.calcNukeOutput(); 
-                const total = pCoal + pGas + pGreen + pNuke;
+                const total = pOil + pCoal + pGas + pGreen + pNuke;
 
                 const chartContainer = document.getElementById('power-pie-chart');
                 chartContainer.innerHTML = ''; 
@@ -1262,16 +1310,18 @@
                     return;
                 }
 
+                const degOil = (pOil / total) * 360;
                 const degCoal = (pCoal / total) * 360;
                 const degGas = (pGas / total) * 360;
                 const degGreen = (pGreen / total) * 360;
                 const degNuke = (pNuke / total) * 360;
 
                 chartContainer.style.background = `conic-gradient(
-                    var(--color-coal) 0deg ${degCoal}deg,
-                    var(--color-gas) ${degCoal}deg ${degCoal + degGas}deg,
-                    var(--color-nuclear) ${degCoal + degGas}deg ${degCoal + degGas + degNuke}deg,
-                    var(--color-green) ${degCoal + degGas + degNuke}deg 360deg
+                    var(--color-oil) 0deg ${degOil}deg,
+                    var(--color-coal) ${degOil}deg ${degOil + degCoal}deg,
+                    var(--color-gas) ${degOil + degCoal}deg ${degOil + degCoal + degGas}deg,
+                    var(--color-nuclear) ${degOil + degCoal + degGas}deg ${degOil + degCoal + degGas + degNuke}deg,
+                    var(--color-green) ${degOil + degCoal + degGas + degNuke}deg 360deg
                 )`;
 
                 const addLabel = (name, val, startAngle, sliceAngle) => {
@@ -1294,6 +1344,11 @@
                 };
 
                 let currentAngle = 0;
+                if (pOil > 0) {
+                    const slice = (pOil / total) * 360;
+                    addLabel('油', pOil, currentAngle, slice);
+                    currentAngle += slice;
+                }
                 if (pCoal > 0) {
                     const slice = (pCoal / total) * 360;
                     addLabel('煤', pCoal, currentAngle, slice);
@@ -1518,15 +1573,16 @@
                 document.getElementById('modal-title').innerText = "🏆 能源轉型成功！";
                 let maxPower = 0;
                 game.history.forEach(h => {
-                    const total = h.coal + h.gas + h.nuclear + h.green;
+                    const total = (h.oil||0) + h.coal + h.gas + h.nuclear + h.green;
                     if(total > maxPower) maxPower = total;
                 });
                 const startYear = game.history[0].year;
                 const duration = game.history.length - 1;
-                let paths = { coal: "M0,200 ", gas: "M0,200 ", nuke: "M0,200 ", green: "M0,200 " };
+                let paths = { oil: "M0,200 ", coal: "M0,200 ", gas: "M0,200 ", nuke: "M0,200 ", green: "M0,200 " };
                 const lastH = game.history[game.history.length-1];
-                const lastTotal = lastH.coal + lastH.gas + lastH.nuclear + lastH.green;
+                const lastTotal = (lastH.oil||0) + lastH.coal + lastH.gas + lastH.nuclear + lastH.green;
                 const pcts = {
+                    oil: Math.round((lastH.oil||0)/lastTotal*100),
                     coal: Math.round(lastH.coal/lastTotal*100),
                     gas: Math.round(lastH.gas/lastTotal*100),
                     nuke: Math.round(lastH.nuclear/lastTotal*100),
@@ -1534,10 +1590,12 @@
                 };
                 game.history.forEach((h, i) => {
                     const x = (i / duration) * 400;
-                    const hCoal = (h.coal / maxPower) * 180;
-                    const hGas = (h.coal + h.gas) / maxPower * 180;
-                    const hNuke = (h.coal + h.gas + h.nuclear) / maxPower * 180;
-                    const hGreen = (h.coal + h.gas + h.nuclear + h.green) / maxPower * 180;
+                    const hOil = ((h.oil||0)) / maxPower * 180;
+                    const hCoal = ((h.oil||0) + h.coal) / maxPower * 180;
+                    const hGas = ((h.oil||0) + h.coal + h.gas) / maxPower * 180;
+                    const hNuke = ((h.oil||0) + h.coal + h.gas + h.nuclear) / maxPower * 180;
+                    const hGreen = ((h.oil||0) + h.coal + h.gas + h.nuclear + h.green) / maxPower * 180;
+                    paths.oil += `L${x},${200 - hOil} `;
                     paths.coal += `L${x},${200 - hCoal} `;
                     paths.gas += `L${x},${200 - hGas} `;
                     paths.nuke += `L${x},${200 - hNuke} `;
@@ -1571,9 +1629,11 @@
                             <path d="${paths.nuke + closePath}" fill="#8e44ad" />
                             <path d="${paths.gas + closePath}" fill="#d35400" />
                             <path d="${paths.coal + closePath}" fill="#7f8c8d" />
+                            <path d="${paths.oil + closePath}" fill="#1a1a2e" />
                             ${xAxisLabels}
                         </svg>
                         <div class="chart-legend">
+                            <div class="legend-item"><span class="color-box" style="background:#1a1a2e"></span>油 ${pcts.oil}%</div>
                             <div class="legend-item"><span class="color-box" style="background:#7f8c8d"></span>煤 ${pcts.coal}%</div>
                             <div class="legend-item"><span class="color-box" style="background:#d35400"></span>氣 ${pcts.gas}%</div>
                             <div class="legend-item"><span class="color-box" style="background:#8e44ad"></span>核 ${pcts.nuke}%</div>
