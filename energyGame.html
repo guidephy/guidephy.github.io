@@ -45,7 +45,7 @@
         }
 
         /* ============================================
-           ANIMATED OCEAN & SKY — FULL SCREEN BEHIND ALL
+           ANIMATED OCEAN BACKGROUND — INTERNATIONAL TRADE
            ============================================ */
         #ocean-bg {
             position: fixed;
@@ -53,22 +53,22 @@
             z-index: 0;
             overflow: hidden;
             background: linear-gradient(180deg, 
-                #d4ecf7 0%,
-                #b8ddf0 15%,
-                #9dd0ea 30%,
-                #88c4e0 45%,
-                #6db8d8 60%,
-                #58a8c8 75%,
-                #4898b8 90%,
-                #3a88a8 100%
+                #b8d8e8 0%,
+                #90c4d8 12%,
+                #70b4cc 25%,
+                #58a4c0 40%,
+                #4898b8 55%,
+                #3888a8 70%,
+                #2e7898 85%,
+                #256888 100%
             );
         }
 
-        /* Sun */
+        /* Sun reflection on water */
         .sun {
             position: absolute;
-            top: 4%;
-            right: 18%;
+            top: 3%;
+            right: 15%;
             width: 50px; height: 50px;
             background: radial-gradient(circle, #fff8e0 0%, #ffe880 40%, rgba(255,220,100,0.3) 70%, transparent 100%);
             border-radius: 50%;
@@ -79,92 +79,76 @@
             from { transform: scale(1); box-shadow: 0 0 60px 20px rgba(255,220,120,0.35), 0 0 120px 40px rgba(255,200,80,0.15); }
             to   { transform: scale(1.08); box-shadow: 0 0 80px 30px rgba(255,220,120,0.45), 0 0 150px 50px rgba(255,200,80,0.2); }
         }
-
-        /* Clouds */
-        .cloud {
+        /* Sun reflection column on water */
+        .sun-reflect {
             position: absolute;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.7);
-            filter: blur(8px);
-        }
-        .cloud::before, .cloud::after {
-            content: '';
-            position: absolute;
-            background: rgba(255,255,255,0.6);
-            border-radius: 50%;
-            filter: blur(6px);
-        }
-        .cloud-1 {
-            width: 160px; height: 40px; top: 6%;
-            animation: drift1 40s linear infinite;
-        }
-        .cloud-1::before { width: 80px; height: 35px; top: -12px; left: 30px; }
-        .cloud-1::after { width: 60px; height: 28px; top: -8px; left: 80px; }
-        .cloud-2 {
-            width: 120px; height: 32px; top: 14%;
-            animation: drift2 55s linear infinite;
-            opacity: 0.7;
-        }
-        .cloud-2::before { width: 60px; height: 26px; top: -10px; left: 20px; }
-        .cloud-2::after { width: 50px; height: 22px; top: -6px; left: 60px; }
-        .cloud-3 {
-            width: 180px; height: 35px; top: 3%;
-            animation: drift3 48s linear infinite;
-            opacity: 0.55;
-        }
-        .cloud-3::before { width: 90px; height: 30px; top: -14px; left: 40px; }
-        .cloud-3::after { width: 70px; height: 25px; top: -10px; left: 100px; }
-        .cloud-4 {
-            width: 100px; height: 28px; top: 10%;
-            animation: drift1 65s linear infinite;
-            animation-delay: -20s;
-            opacity: 0.5;
-        }
-        .cloud-4::before { width: 50px; height: 22px; top: -8px; left: 15px; }
-
-        @keyframes drift1 { from { left: -20%; } to { left: 110%; } }
-        @keyframes drift2 { from { left: 110%; } to { left: -20%; } }
-        @keyframes drift3 { from { left: -25%; } to { left: 115%; } }
-
-        /* Sea birds */
-        .bird {
-            position: absolute;
-            opacity: 0.35;
-            font-size: 16px;
-            animation: fly 25s linear infinite;
+            top: 12%;
+            right: 16%;
+            width: 20px;
+            height: 55%;
+            background: linear-gradient(180deg, rgba(255,230,150,0.2), rgba(255,230,150,0.06), transparent);
+            filter: blur(12px);
             pointer-events: none;
         }
-        .bird-1 { top: 8%; animation-duration: 22s; }
-        .bird-2 { top: 16%; animation-duration: 30s; animation-delay: -10s; font-size: 12px; opacity: 0.25; }
-        .bird-3 { top: 12%; animation-duration: 35s; animation-delay: -18s; font-size: 10px; opacity: 0.2; }
-        @keyframes fly { from { left: -5%; } to { left: 105%; } }
 
-        /* Ocean waves */
+        /* Cargo ships */
+        .ship {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.15));
+        }
+        .ship-1 { top: 30%; animation: sail-r 38s linear infinite; font-size: 28px; }
+        .ship-2 { top: 50%; animation: sail-l 45s linear infinite; font-size: 22px; opacity: 0.7; }
+        .ship-3 { top: 68%; animation: sail-r 52s linear infinite; animation-delay: -20s; font-size: 18px; opacity: 0.5; }
+        .ship-4 { top: 42%; animation: sail-l 60s linear infinite; animation-delay: -30s; font-size: 16px; opacity: 0.4; }
+        .ship-5 { top: 58%; animation: sail-r 48s linear infinite; animation-delay: -12s; font-size: 20px; opacity: 0.55; }
+
+        @keyframes sail-r { from { left: -8%; } to { left: 108%; } }
+        @keyframes sail-l { from { left: 108%; transform: scaleX(-1); } to { left: -8%; transform: scaleX(-1); } }
+
+        /* Ocean waves — full screen subtle */
         .wave-layer {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
             overflow: hidden; pointer-events: none;
         }
-        .wave {
+        .wave-band {
+            position: absolute;
+            width: 300%;
+            left: -100%;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+        .wb-1 { top: 25%; animation: wdrift 10s ease-in-out infinite alternate; }
+        .wb-2 { top: 35%; animation: wdrift 13s ease-in-out infinite alternate-reverse; width: 280%; }
+        .wb-3 { top: 45%; animation: wdrift 11s ease-in-out infinite alternate; width: 260%; }
+        .wb-4 { top: 55%; animation: wdrift 14s ease-in-out infinite alternate-reverse; opacity: 0.7; }
+        .wb-5 { top: 65%; animation: wdrift 9s ease-in-out infinite alternate; opacity: 0.6; }
+        .wb-6 { top: 75%; animation: wdrift 12s ease-in-out infinite alternate-reverse; opacity: 0.5; }
+        .wb-7 { top: 85%; animation: wdrift 15s ease-in-out infinite alternate; opacity: 0.4; }
+        @keyframes wdrift {
+            from { transform: translateX(-2%); }
+            to { transform: translateX(2%); }
+        }
+
+        /* Bottom shore waves */
+        .wave-shore {
             position: absolute;
             width: 250%;
             left: -75%;
-            height: 80px;
+            height: 60px;
         }
-        .wave svg { width: 100%; height: 100%; }
-        .wave-1 {
+        .wave-shore svg { width: 100%; height: 100%; }
+        .ws-1 {
             bottom: 0%;
             animation: sway 7s ease-in-out infinite alternate;
-            opacity: 0.18;
+            opacity: 0.2;
         }
-        .wave-2 {
-            bottom: 3%;
+        .ws-2 {
+            bottom: 2%;
             animation: sway 9s ease-in-out infinite alternate-reverse;
             opacity: 0.12;
-        }
-        .wave-3 {
-            bottom: 7%;
-            animation: sway 11s ease-in-out infinite alternate;
-            opacity: 0.08;
         }
         @keyframes sway {
             from { transform: translateX(-3%); }
@@ -210,11 +194,11 @@
             transition: background 0.2s;
         }
         .stat-box:active { background: rgba(255,248,230,0.8); }
-        .stat-label { font-size: 10px; color: var(--text-muted); display: block; letter-spacing: 1px; }
-        .stat-val { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text-main); font-weight: bold; line-height: 1; }
-        .stat-val.gold { color: var(--accent-gold); }
-        .stat-val.blue { color: var(--accent-blue); }
-        .stat-val.red { color: var(--accent-red); animation: blink 1s infinite; }
+        .stat-label { font-size: 11px; color: #6a5e4e; display: block; letter-spacing: 1px; }
+        .stat-val { font-family: 'Playfair Display', serif; font-size: 18px; color: #2a2218; font-weight: bold; line-height: 1; }
+        .stat-val.gold { color: #a06a08; }
+        .stat-val.blue { color: #3a7088; }
+        .stat-val.red { color: #b03830; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
         .help-btn {
@@ -235,7 +219,7 @@
             display: flex; width: 100%;
             background: rgba(250,245,235,0.92);
             border-bottom: 1.5px solid var(--ui-border);
-            font-size: 11px; line-height: 1.3;
+            font-size: 12px; line-height: 1.35;
             z-index: 90; flex-shrink: 0;
             backdrop-filter: blur(8px);
         }
@@ -246,15 +230,15 @@
         }
         #info-bar-goals { flex: 1; padding: 4px 8px; }
         #info-bar-story .bar-title {
-            font-size: 11px; color: var(--accent-gold); font-weight: 700; margin-bottom: 1px;
+            font-size: 12px; color: var(--accent-gold); font-weight: 700; margin-bottom: 1px;
             font-family: 'Noto Serif TC', serif;
         }
         #info-bar-goals .bar-title {
-            font-size: 11px; color: var(--accent-blue); font-weight: 700; margin-bottom: 1px;
+            font-size: 12px; color: var(--accent-blue); font-weight: 700; margin-bottom: 1px;
             font-family: 'Noto Serif TC', serif;
         }
-        .bar-goal-item { display: flex; align-items: center; gap: 3px; font-size: 10px; color: var(--text-muted); }
-        .bar-goal-item .goal-check { font-size: 11px; }
+        .bar-goal-item { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-main); }
+        .bar-goal-item .goal-check { font-size: 12px; }
         .bar-goal-item .goal-check.done { color: var(--accent-green); font-weight: bold; }
 
         /* ============================================
@@ -273,7 +257,7 @@
             padding: 5px 20px;
             color: var(--text-main);
             font-family: 'Noto Serif TC', serif;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             z-index: 92;
             pointer-events: none;
@@ -311,8 +295,8 @@
             backdrop-filter: blur(8px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        .data-row { font-size: 10px; color: var(--text-muted); margin-bottom: 1px; display: flex; justify-content: space-between; align-items: center; }
-        .data-val { color: var(--text-main); font-weight: bold; font-family: 'Playfair Display', serif; font-size: 13px; }
+        .data-row { font-size: 11px; color: var(--text-muted); margin-bottom: 1px; display: flex; justify-content: space-between; align-items: center; }
+        .data-val { color: var(--text-main); font-weight: bold; font-family: 'Playfair Display', serif; font-size: 14px; }
         .data-sep { border-top: 1px dashed var(--ui-border); margin: 2px 0; }
 
         #map-labels-layer {
@@ -352,9 +336,9 @@
             flex: 0 0 auto;
             background: var(--ui-bg);
             border-top: 2px solid var(--ui-border);
-            height: 190px;
-            padding: 6px;
-            padding-bottom: calc(6px + env(safe-area-inset-bottom));
+            height: 200px;
+            padding: 4px 6px;
+            padding-bottom: calc(4px + env(safe-area-inset-bottom));
             display: flex; flex-direction: column; z-index: 100;
             position: relative;
             backdrop-filter: blur(12px);
@@ -386,14 +370,15 @@
         }
 
         .tab-content {
-            display: none; flex: 1; overflow: visible; flex-direction: column;
+            display: none; flex: 1; overflow: hidden; flex-direction: column;
             border-top: 1.5px solid var(--accent-blue); margin-top: -2px; z-index: 5;
             background: transparent; position: relative;
         }
         .tab-content.active { display: flex; }
 
         #build-deck, #market-deck {
-            display: flex; gap: 4px; flex: 1; width: 100%; padding-top: 6px;
+            display: flex; gap: 4px; flex: 1; width: 100%; padding-top: 4px;
+            min-height: 0;
         }
 
         .pixel-card {
@@ -403,9 +388,10 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
             padding: 2px; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            min-height: 85px; gap: 0;
+            gap: 0;
             border-radius: 8px;
             transition: all 0.2s;
+            overflow: hidden;
         }
         .pixel-card:active { transform: scale(0.97); }
         .pixel-card.selected {
@@ -423,7 +409,7 @@
         .card-val { font-family: 'Playfair Display', serif; color: var(--text-main); font-size: 14px; font-weight: bold; }
         .card-risk { font-size: 9px; color: var(--accent-red); font-weight: bold; margin: 1px 0; line-height: 1; }
         .card-cost { font-family: 'Playfair Display', serif; color: var(--accent-gold); font-size: 15px; font-weight: bold; margin-top: auto; }
-        .card-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 0; padding-bottom: 2px; }
+        .card-bottom { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 0; padding-bottom: 1px; }
         .card-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--accent-ink); color: #fff;
@@ -442,9 +428,9 @@
         }
 
         /* Market Tabs */
-        .market-sub-tabs { display: flex; width: 100%; border-bottom: 1.5px solid var(--ui-border); margin-bottom: 3px; }
+        .market-sub-tabs { display: flex; width: 100%; border-bottom: 1.5px solid var(--ui-border); margin-bottom: 2px; }
         .market-sub-tab {
-            flex: 1; padding: 4px 6px; text-align: center;
+            flex: 1; padding: 3px 6px; text-align: center;
             font-size: 12px; cursor: pointer; font-weight: 700;
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
@@ -465,7 +451,7 @@
         /* Next Button */
         #next-btn {
             position: fixed;
-            bottom: calc(200px + env(safe-area-inset-bottom));
+            bottom: calc(210px + env(safe-area-inset-bottom));
             right: 15px;
             width: 62px; height: 62px;
             background: var(--accent-red);
@@ -486,14 +472,19 @@
            TUTORIAL & HIGHLIGHTS
            ============================================ */
         #tutorial-overlay {
-            position: fixed; inset: 0; background: rgba(62,52,40,0.55); z-index: 2000;
+            position: fixed; inset: 0; background: rgba(30,25,18,0.72); z-index: 2000;
             display: none; cursor: pointer;
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(3px);
         }
         .highlight-target {
             z-index: 2001 !important; position: relative !important;
-            box-shadow: 0 0 0 3px var(--accent-gold), 0 0 15px rgba(200,146,42,0.4) !important;
+            box-shadow: 0 0 0 4px #e8a020, 0 0 0 7px rgba(232,160,32,0.5), 0 0 25px rgba(232,160,32,0.6), 0 0 50px rgba(232,160,32,0.25) !important;
             transition: all 0.3s; pointer-events: auto; cursor: pointer;
+            animation: highlight-pulse 1.2s ease-in-out infinite alternate !important;
+        }
+        @keyframes highlight-pulse {
+            from { box-shadow: 0 0 0 4px #e8a020, 0 0 0 7px rgba(232,160,32,0.5), 0 0 25px rgba(232,160,32,0.6), 0 0 50px rgba(232,160,32,0.25) !important; }
+            to   { box-shadow: 0 0 0 4px #f0b840, 0 0 0 9px rgba(240,184,64,0.6), 0 0 35px rgba(240,184,64,0.7), 0 0 60px rgba(240,184,64,0.35) !important; }
         }
         #next-btn.highlight-target { position: fixed !important; }
 
@@ -502,12 +493,12 @@
             background: #fffdf7; color: var(--text-main); padding: 18px 20px;
             border-radius: 14px;
             font-weight: 600; z-index: 2002; display: none;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 0 0 3px #e8a020, 0 8px 30px rgba(0,0,0,0.25);
             text-align: center; width: 80%;
             animation: floatTip 2s ease-in-out infinite alternate;
             cursor: pointer;
             font-family: 'LXGW WenKai TC', serif;
-            border: 1.5px solid var(--ui-border);
+            border: 2px solid #e8a020;
             line-height: 1.6;
         }
         .tut-title {
@@ -653,36 +644,44 @@
 </head>
 <body>
 
-    <!-- ====== ANIMATED OCEAN & SKY BACKGROUND ====== -->
+    <!-- ====== ANIMATED OCEAN BACKGROUND ====== -->
     <div id="ocean-bg">
         <div class="sun"></div>
-        <div class="cloud cloud-1"></div>
-        <div class="cloud cloud-2"></div>
-        <div class="cloud cloud-3"></div>
-        <div class="cloud cloud-4"></div>
-        <div class="bird bird-1">🕊</div>
-        <div class="bird bird-2">🕊</div>
-        <div class="bird bird-3">🕊</div>
+        <div class="sun-reflect"></div>
 
+        <!-- Cargo ships sailing -->
+        <div class="ship ship-1">🚢</div>
+        <div class="ship ship-2">🛳️</div>
+        <div class="ship ship-3">🚢</div>
+        <div class="ship ship-4">⛴️</div>
+        <div class="ship ship-5">🛳️</div>
+
+        <!-- Wave bands across entire ocean -->
         <div class="wave-layer">
-            <div class="wave wave-3">
-                <svg viewBox="0 0 1200 80" preserveAspectRatio="none"><path d="M0,40 Q150,10 300,40 T600,40 T900,40 T1200,40 L1200,80 L0,80 Z" fill="rgba(255,255,255,0.5)"/></svg>
+            <div class="wave-band wb-1"></div>
+            <div class="wave-band wb-2"></div>
+            <div class="wave-band wb-3"></div>
+            <div class="wave-band wb-4"></div>
+            <div class="wave-band wb-5"></div>
+            <div class="wave-band wb-6"></div>
+            <div class="wave-band wb-7"></div>
+
+            <div class="wave-shore ws-2">
+                <svg viewBox="0 0 1200 60" preserveAspectRatio="none"><path d="M0,35 Q100,15 250,38 T500,32 T750,40 T1000,28 T1200,35 L1200,60 L0,60 Z" fill="rgba(255,255,255,0.4)"/></svg>
             </div>
-            <div class="wave wave-2">
-                <svg viewBox="0 0 1200 80" preserveAspectRatio="none"><path d="M0,35 Q100,15 250,40 T500,35 T750,42 T1000,30 T1200,38 L1200,80 L0,80 Z" fill="rgba(255,255,255,0.5)"/></svg>
-            </div>
-            <div class="wave wave-1">
-                <svg viewBox="0 0 1200 80" preserveAspectRatio="none"><path d="M0,30 Q200,5 400,35 T800,30 T1200,35 L1200,80 L0,80 Z" fill="rgba(255,255,255,0.55)"/></svg>
+            <div class="wave-shore ws-1">
+                <svg viewBox="0 0 1200 60" preserveAspectRatio="none"><path d="M0,30 Q200,8 400,32 T800,28 T1200,34 L1200,60 L0,60 Z" fill="rgba(255,255,255,0.45)"/></svg>
             </div>
         </div>
 
         <div class="sparkle" style="bottom:22%; left:15%; animation-delay:0s;"></div>
-        <div class="sparkle" style="bottom:18%; left:35%; animation-delay:0.8s;"></div>
-        <div class="sparkle" style="bottom:25%; left:55%; animation-delay:1.5s;"></div>
-        <div class="sparkle" style="bottom:15%; left:72%; animation-delay:0.3s;"></div>
-        <div class="sparkle" style="bottom:20%; left:88%; animation-delay:2s;"></div>
-        <div class="sparkle" style="bottom:28%; left:45%; animation-delay:1.2s;"></div>
-        <div class="sparkle" style="bottom:12%; left:25%; animation-delay:1.8s;"></div>
+        <div class="sparkle" style="bottom:35%; left:35%; animation-delay:0.8s;"></div>
+        <div class="sparkle" style="bottom:48%; left:55%; animation-delay:1.5s;"></div>
+        <div class="sparkle" style="bottom:40%; left:72%; animation-delay:0.3s;"></div>
+        <div class="sparkle" style="bottom:55%; left:88%; animation-delay:2s;"></div>
+        <div class="sparkle" style="bottom:30%; left:45%; animation-delay:1.2s;"></div>
+        <div class="sparkle" style="bottom:62%; left:25%; animation-delay:1.8s;"></div>
+        <div class="sparkle" style="bottom:45%; left:8%; animation-delay:0.5s;"></div>
     </div>
 
     <div id="toast-container"></div>
@@ -1038,7 +1037,7 @@
                         <div class="card-badge">${game.counts[k]}</div>${locked?`<div class="lock-overlay">${lockReason}</div>`:''}
                         <div class="card-emoji">${v.emoji}</div><div class="card-name">${v.name}</div><div class="card-divider"></div>
                         <div class="card-label">發電量</div><div class="card-val">+${v.output.toLocaleString()}MW</div>
-                        <div class="card-bottom"><div class="card-cost">$${v.cost.toLocaleString()}</div>${riskHtml}</div></div>`;
+                        <div class="card-bottom">${riskHtml}<div class="card-cost">$${v.cost.toLocaleString()}</div></div></div>`;
                 }).join('');
             },
             renderMarket(){
