@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v50</title>
+    <title>⚡ 像素能源：決戰台灣 v62</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -57,8 +57,9 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 4px;
             z-index: 100;
+            position: relative; /* For z-index to work */
         }
-        .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; }
+        .stat-box { position: relative; text-align: center; border: 2px solid #555; background: #000; padding: 4px 2px; cursor: pointer; }
         .stat-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
         .stat-val { font-family: 'VT323', monospace; font-size: 22px; color: #fff; font-weight: bold; line-height: 1; }
         .stat-val.gold { color: var(--accent-gold); }
@@ -72,6 +73,11 @@
             font-size: 12px; font-weight: bold; cursor: pointer;
             width: 14px; height: 14px; line-height: 14px;
             text-align: center; border-bottom-left-radius: 4px;
+        }
+        
+        /* New HUD Help Button Style */
+        .hud-help-icon {
+            font-size: 24px; color: #fff; line-height: 32px;
         }
 
         /* === Info Panels === */
@@ -96,6 +102,20 @@
             flex: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; width: 100%;
         }
         #map-container { position: relative; width: 100%; height: 100%; }
+
+        /* Year Display on Map */
+        #map-year-display {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            /* background removed */
+            /* border removed */
+            padding: 4px 15px;
+            color: #fff; /* White color */
+            font-family: 'VT323', monospace;
+            font-size: 24px; /* Smaller font */
+            font-weight: bold;
+            z-index: 92;
+            text-shadow: 2px 2px 0 #000; /* Shadow for readability */
+        }
 
         #taiwan-svg {
             width: 100%; height: 100%;
@@ -448,21 +468,24 @@
     </div>
 
     <div id="hud">
-        <div class="stat-box"><span class="stat-label">西元</span><span class="stat-val" id="hud-year">1975</span></div>
-        <div class="stat-box">
+        <div class="stat-box" onclick="ui.showFundsHelp()">
             <span class="stat-label">資金</span>
             <span class="stat-val gold" id="hud-funds">2,000</span>
-            <div class="help-btn" onclick="ui.showFundsHelp()">?</div>
+            <div class="help-btn">?</div>
         </div>
-        <div class="stat-box">
+        <div class="stat-box" onclick="ui.showCompHelp()">
             <span class="stat-label">競爭力</span>
             <span class="stat-val blue" id="hud-comp">100%</span>
-            <div class="help-btn" onclick="ui.showCompHelp()">?</div>
+            <div class="help-btn">?</div>
         </div>
-        <div class="stat-box">
-            <span class="stat-label">存量</span>
+        <div class="stat-box" onclick="ui.showStockHelp()">
+            <span class="stat-label">安全存量</span>
             <span class="stat-val" id="hud-days">--</span>
-            <div class="help-btn" onclick="ui.showStockHelp()">?</div>
+            <div class="help-btn">?</div>
+        </div>
+        <div class="stat-box" style="background:#4a5568; border-color:#fff;" onclick="game.replayTutorial()">
+            <span class="stat-label" style="color:#fff;">遊戲說明</span>
+            <span class="stat-val hud-help-icon">?</span>
         </div>
     </div>
 
@@ -477,6 +500,7 @@
 
     <div id="game-stage">
         <div id="map-container">
+            <div id="map-year-display">第 1 年</div>
             <svg id="taiwan-svg" viewBox="0 0 320 480">
                 <path class="map-path" d="
                     M 210 30 
@@ -512,7 +536,9 @@
         </div>
     </div>
 
-    <div id="next-btn" onclick="game.nextTurn()">下一<br>年度</div>
+    <div id="next-btn" onclick="game.nextTurn()">
+        下一<br>年度
+    </div>
 
     <div id="bottom-panel">
         <div class="arcade-tabs">
@@ -570,29 +596,48 @@
         const STAGES = [
             {
                 title: "階段一：基礎建設 (1975-1990)",
-                short: "十大建設啟動，請擴充基載電力，確保工業動能。",
-                desc: "🇹🇼 國家發展簡報：<br>時值民國60年代，十大建設正如火如荼展開。重工業與製造業的興起，帶動了龐大的電力缺口。<br><br>您的首要任務是擴充基載電力，確保工業動能不熄火。",
+                short: "十大建設啟動，請擴充燃煤電力，滿足工業需求。",
+                desc: "🏗️ **基礎建設期**：<br>民國60年代，十大建設啟動。重工業與製造業興起，電力缺口擴大。<br>首要任務：擴充基載電力，確保工業動能不熄火。",
                 goals: [
                     { txt: "發電量 > 12000MW", check: g => g.calcPower() >= 12000 },
                     { txt: "燃煤電廠 > 6 座", check: g => g.counts.coal >= 6 }
                 ]
             },
             {
-                title: "階段二：經濟起飛 (1990-2010)",
-                short: "竹科崛起，高科技需穩定電力。請發展燃氣與接收站。",
-                desc: "📈 產業轉型簡報：<br>邁入90年代，隨著新竹科學園區崛起，高科技產業成為國家命脈。晶圓代工與電子業對電力的穩定性要求極高。<br><br>同時環保意識抬頭，燃煤擴張受限，請致力於發展燃氣發電，並確保天然氣接收站的量能。",
+                title: "階段二：燃氣時代 (1990-2005)",
+                short: "石油危機引發通膨，竹科崛起。請建接收站發展燃氣。",
+                desc: "⛽ **能源轉型與竹科**：<br>石油危機引發通膨，政府決心「不把雞蛋放同個籃子」。<br>竹科崛起，晶圓代工需高穩定電力。燃氣低碳且環保。<br>任務：興建首座接收站，開啟燃氣時代！(注意：此階段煤價翻倍)",
                 goals: [
-                    { txt: "接收站 > 3 座", check: g => g.counts.terminal >= 3 },
-                    { txt: "燃氣電廠 > 10 座", check: g => g.counts.gas >= 10 }
+                    { txt: "接收站 > 1 座", check: g => g.counts.terminal >= 1 },
+                    { txt: "燃氣發電 > 20%", check: g => g.getGasPct() >= 20 },
+                    { txt: "總發電 > 30000MW", check: g => g.calcPower() >= 30000 }
                 ]
             },
             {
-                title: "階段三：能源轉型 (2010-2025)",
-                short: "能源轉型，面對廢核減煤壓力，請提升綠能與戰備存量。",
-                desc: "♻️ 永續未來簡報：<br>進入21世紀，面對全球氣候變遷與地緣政治風險，單一能源依賴已成國安隱憂。<br><br>您必須在廢核與減煤的雙重壓力下，大幅提升再生能源佔比，並建立足夠的戰備存量，以應對可能的封鎖危機。",
+                title: "階段三：能源韌性 (2005-2015)",
+                short: "為免斷氣危機，請增建接收站並拉高安全存量。",
+                desc: "🛡️ **強化能源韌性**：<br>避免單一接收站故障即斷電。請建設多座接收站分散風險。<br>同時將煤氣存量拉高至 7 天以上，確保國家能源韌性。<br><span style='color:var(--accent-red)'>(注意：從本階段起，庫存低於7天將扣除競爭力！)</span>",
                 goals: [
-                    { txt: "安全存量 > 14天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 14 },
+                    { txt: "接收站 > 3 座", check: g => g.counts.terminal >= 3 },
+                    { txt: "安全存量 > 7天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 7 }
+                ]
+            },
+            {
+                title: "階段四：風氣互補 (2015-2025)",
+                short: "應對封鎖風險，利用風場發展自有能源，執行風氣互補。",
+                desc: "🌬️ **自有能源戰略**：<br>天然氣昂貴且易受封鎖影響。幸運的是台灣海峽有頂級風場！<br>執行『風氣互補』：以燃氣快速升降支援綠能。<br>建設再生能源，獲取『自有能源』以抗衡地緣風險。",
+                goals: [
+                    { txt: "再生能源 > 10%", check: g => g.getGreenPct() >= 10 },
+                    { txt: "安全存量 > 11天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 11 }
+                ]
+            },
+            {
+                title: "階段五：AI新局 (2025-)",
+                short: "AI與RE100需求大增。請大幅提升綠能與總發電量。",
+                desc: "🤖 **AI 與永續競爭**：<br>AI 算力推升用電，RE100 限制出口。<br>為保產業優勢，需大幅提升綠能供應。<br>面對地緣軍演，更需將安全存量拉至 14 天，確保供電無虞。",
+                goals: [
                     { txt: "再生能源 > 20%", check: g => g.getGreenPct() >= 20 },
+                    { txt: "安全存量 > 14天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 14 },
                     { txt: "總發電 > 70000MW", check: g => g.calcPower() >= 70000 }
                 ]
             }
@@ -618,7 +663,7 @@
         const NUKE_RISK_MAP = [0, 1, 2, 5, 8, 11, 15, 20, 25, 30, 40]; 
 
         const game = {
-            year: 1975, funds: 2000, comp: 100, demand: 10000, 
+            year: 1, funds: 2000, comp: 100, demand: 10000, 
             fuel: { coal: 3000, gas: 0 }, cap: { coal: 3000, gas: 0 },
             counts: { coal: 0, gas: 0, terminal: 0, green: 0, solar: 0, nuclear: 0 },
             stageIdx: 0, selected: null, blockade: false, bDays: 0,
@@ -628,6 +673,7 @@
             history: [],
             importStats: { coal: {}, gas: {} },
             tutorialStep: 0,
+            isReplayTutorial: false,
             
             nukeDisasterCount: 0,
             nukeShutdownTimer: 0,
@@ -640,7 +686,7 @@
                 this.updateMarketPrices();
                 ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 
-                // --- Chain Modals: Intro -> Stage 1 -> Tutorial ---
+                // --- Chain Modals: Intro -> Stage 0 (Base) -> Tutorial ---
                 ui.showModal("任務簡報：能源任命",
                     `<div style="text-align:left; padding:0 10px; line-height:1.6;">
                         恭喜您！您已被任命為<span style="color:var(--accent-gold)">台灣能源決策長</span>。<br><br>
@@ -649,24 +695,15 @@
                     </div>`,
                     () => {
                         // Use swapModal instead of close+show to prevent flashing
-                        const s = STAGES[0];
-                        const goals = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
-                        ui.swapModal(s.title,
-                            `<div style="text-align:left; padding:0 10px; line-height:1.6;">
-                                ${s.desc}<br><br>
-                                <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${goals}
-                            </div>`,
-                            () => {
-                                ui.closeModal();
-                                if(game.year === 1975) game.startTutorial();
-                            }
-                        );
+                        // Start Tutorial immediately
+                        ui.closeModal();
+                        if(game.year === 1) game.startTutorial();
                     }
                 );
             },
 
             resetVariables() {
-                this.year = 1975; 
+                this.year = 1; 
                 this.funds = 2000; 
                 this.comp = 100; this.demand = 10000;
                 this.fuel = { coal: 3000, gas: 0 }; 
@@ -689,15 +726,35 @@
                 this.tutorialStep = 1;
                 this.updateTutorial();
             },
+            
+            replayTutorial() {
+                this.isReplayTutorial = true;
+                this.startTutorial();
+            },
 
             nextTutorialStep() {
-                if(this.tutorialStep > 0 && this.tutorialStep < 3) {
+                if(this.tutorialStep > 0 && this.tutorialStep < 7) {
                     this.tutorialStep++;
                     this.updateTutorial();
-                } else if(this.tutorialStep === 3) {
+                } else if(this.tutorialStep === 7) { 
                     this.tutorialStep = 0;
                     ui.clearHighlight();
-                    ui.switchTab('build', true); 
+                    ui.switchTab('build', true);
+                    
+                    // Show Current Stage Goals AFTER Tutorial
+                    const s = STAGES[this.stageIdx];
+                    const goals = s.goals.map(g => '🔹 ' + g.txt).join('<br>');
+                    
+                    // Show modal immediately
+                    ui.showModal(s.title,
+                        `<div style="text-align:left; padding:0 10px; line-height:1.6;">
+                            ${s.desc}<br><br>
+                            <span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${goals}
+                        </div>`,
+                        () => ui.closeModal()
+                    );
+                    
+                    this.isReplayTutorial = false;
                 }
             },
 
@@ -706,13 +763,20 @@
                 
                 if(this.tutorialStep === 1) {
                     ui.switchTab('build', true); 
-                    // Changed instruction text: purely informational now.
                     ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
                 } else if(this.tutorialStep === 2) {
                     ui.switchTab('market', true); 
                     ui.highlightElement('#market-container', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n(往下滑動可購買不同進口國的燃料)");
                 } else if(this.tutorialStep === 3) {
-                    ui.switchTab('build', true); // Switch back to build for better UX
+                     ui.highlightElement('#hud .stat-box:nth-child(1)', "【建設資金】\n建設電廠與購買燃料的經費。\n每年會依發電量獲得稅收。");
+                } else if(this.tutorialStep === 4) {
+                     ui.highlightElement('#hud .stat-box:nth-child(2)', "【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
+                } else if(this.tutorialStep === 5) {
+                     ui.highlightElement('#hud .stat-box:nth-child(3)', "【安全存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
+                } else if(this.tutorialStep === 6) {
+                     ui.highlightElement('#hud .stat-box:nth-child(4)', "【遊戲說明】\n隨時點擊此處可再次查看本教學。\n記得關注階段目標！");
+                } else if(this.tutorialStep === 7) {
+                    ui.switchTab('build', true);
                     ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
                 } else {
                     ui.clearHighlight();
@@ -732,8 +796,8 @@
             },
 
             selectCard(key) {
-                // Allow interaction if in Step 1 (Build Tutorial) OR Step 3 (Preparation) OR Step 0 (Game)
-                if (this.tutorialStep !== 0 && this.tutorialStep !== 1 && this.tutorialStep !== 3) return;
+                // Modified: Block interaction if in tutorial
+                if (this.tutorialStep !== 0) return;
 
                 if(this.selected === key) { this.selected = null; }
                 else { this.selected = key; this.tryBuild(); }
@@ -742,15 +806,21 @@
             },
 
             tryBuild() {
-                // Allow if Step 0, 1, or 3
-                if (this.tutorialStep !== 0 && this.tutorialStep !== 1 && this.tutorialStep !== 3) return;
+                // Modified: Only allow building if tutorial is finished (step 0)
+                if (this.tutorialStep !== 0) return;
                 
                 if (!this.selected) return;
                 const p = PLANTS[this.selected];
                 
                 if (this.selected === 'nuclear') {
-                    if (this.year >= 2021) {
-                        ui.floatText('🚫 2021後禁止新建核電', 'bad'); this.selected = null; return;
+                    if (this.year >= 46) { // Approx 2021 if start at 1? No, 1975+46=2021
+                         // Actually logic was year >= 2021. Since year is now 1, 2, 3...
+                         // 1975 is base. 2021 - 1975 = 46. So year > 46 is ban
+                         // Let's keep year as relative for logic? No user wanted "Year 1".
+                         // Logic needs update: 1975 + this.year > 2021
+                        if (1975 + this.year >= 2021) {
+                            ui.floatText('🚫 2021後禁止新建核電', 'bad'); this.selected = null; return;
+                        }
                     }
                     if (this.isNukePermanentlyBanned) {
                         ui.floatText('⛔ 核能已永久廢止', 'bad'); this.selected = null; return;
@@ -783,8 +853,8 @@
             },
 
             buildTerminal() {
-                // Allow if Step 0 or 3
-                if (this.tutorialStep !== 0 && this.tutorialStep !== 3) return;
+                // Modified: Disable during tutorial
+                if (this.tutorialStep !== 0) return;
 
                 const p = PLANTS.terminal;
                 if (this.funds < p.cost) {
@@ -815,8 +885,8 @@
             },
 
             buyFuel(type, countryId) {
-                // Allow if Step 0 or 3
-                if (this.tutorialStep !== 0 && this.tutorialStep !== 3) return;
+                // Modify: Disable during tutorial
+                if (this.tutorialStep !== 0) return;
 
                 if (this.blockade) { ui.floatText('🚫 封鎖中', 'bad'); return; }
                 const basePrice = this.marketPrices[`${type}_${countryId}`];
@@ -847,7 +917,14 @@
                 ['coal', 'gas'].forEach(type => {
                     MARKET_SOURCES[type].forEach(src => {
                         const fluc = 0.8 + Math.random() * 0.5;
-                        this.marketPrices[`${type}_${src.id}`] = Math.floor(src.base * fluc);
+                        let price = Math.floor(src.base * fluc);
+                        
+                        // Stage 2 (Index 1) Coal Price Double Logic
+                        if (game.stageIdx === 1 && type === 'coal') {
+                            price *= 2;
+                        }
+                        
+                        this.marketPrices[`${type}_${src.id}`] = price;
                     });
                 });
             },
@@ -855,7 +932,7 @@
             calcIncome() {
                 let baseIncome = 500;
                 if (game.stageIdx === 1) baseIncome = 1000;
-                if (game.stageIdx === 2) baseIncome = 2000;
+                if (game.stageIdx >= 2) baseIncome = 2000; // Adjusted for new stages
                 const powerBonus = Math.floor(this.calcPower(true) * 0.4); 
                 return baseIncome + powerBonus;
             },
@@ -961,14 +1038,16 @@
                     return;
                 }
 
-                // Low Stock Penalty
-                if (cDays !== null && cDays < 7) {
-                    this.comp -= 10;
-                    compChanges.push("缺煤 -10");
-                }
-                if (gDays !== null && gDays < 7) {
-                    this.comp -= 10;
-                    compChanges.push("缺氣 -10");
+                // Low Stock Penalty (Only active from Stage 3 onwards)
+                if (this.stageIdx >= 2) {
+                    if (cDays !== null && cDays < 7) {
+                        this.comp -= 10;
+                        compChanges.push("缺煤 -10");
+                    }
+                    if (gDays !== null && gDays < 7) {
+                        this.comp -= 10;
+                        compChanges.push("缺氣 -10");
+                    }
                 }
                 
                 // Blockade Check
@@ -1057,6 +1136,13 @@
                 return Math.floor((green / total) * 100);
             },
 
+            getGasPct() {
+                const total = this.calcPower();
+                if (total === 0) return 0;
+                const gas = this.counts.gas * PLANTS.gas.output;
+                return Math.floor((gas / total) * 100);
+            },
+
             getSafetyDays() {
                 const cDay = this.getCoalDays();
                 const gDay = this.getGasDays();
@@ -1129,6 +1215,12 @@
                         bottomPanel.style.zIndex = '2001'; 
                     }
 
+                    // FIX: Force lift HUD if target is inside HUD
+                    const hud = el.closest('#hud');
+                    if(hud) {
+                        hud.style.zIndex = '2001';
+                    }
+
                     const tooltip = document.getElementById('tutorial-tooltip');
                     // Change here to include title
                     document.getElementById('tut-text').innerHTML = `<div class='tut-title'>遊戲說明</div>${text.replace(/\n/g, '<br>')}`;
@@ -1144,6 +1236,10 @@
                 // Reset bottom panel z-index
                 const bottomPanel = document.getElementById('bottom-panel');
                 if(bottomPanel) bottomPanel.style.zIndex = ''; 
+                
+                // Reset HUD z-index
+                const hud = document.getElementById('hud');
+                if(hud) hud.style.zIndex = '100'; // Or just empty if default is fine, but HUD has specific style
             },
 
             renderDeck() {
@@ -1295,7 +1391,7 @@
             },
 
             updateAll() {
-                document.getElementById('hud-year').innerText = game.year;
+                document.getElementById('map-year-display').innerText = "第 " + game.year + " 年";
                 document.getElementById('hud-funds').innerText = game.funds.toLocaleString();
                 document.getElementById('hud-comp').innerText = game.comp + '%';
                 
@@ -1332,6 +1428,7 @@
                     document.getElementById('next-btn').innerHTML = `撐住<br>${game.bDays}天`;
                     document.getElementById('next-btn').style.background = '#000';
                 } else {
+                    // Update next btn innerHTML, but keep help btn
                     document.getElementById('next-btn').innerHTML = `下一<br>年度`;
                     document.getElementById('next-btn').style.background = 'var(--accent-red)';
                 }
@@ -1438,12 +1535,17 @@
             },
             
             showCompHelp() {
+                let stockRule = '';
+                if (game.stageIdx >= 2) {
+                    stockRule = `<div class="rule-item"><span>📉 低庫存(&lt;7天)</span><span style="color:#e74c3c">每項-10%</span></div>`;
+                }
+
                 ui.showModal("競爭力說明", `
                     <div class="rule-list">
                         <div class="rule-title">評分規則</div>
                         <div class="rule-item"><span>⚡ 供電充足</span><span style="color:#2ecc71">+5%</span></div>
                         <div class="rule-item"><span>⚡ 供電不足</span><span style="color:#e74c3c">-15%</span></div>
-                        <div class="rule-item"><span>📉 低庫存(&lt;7天)</span><span style="color:#e74c3c">每項-10%</span></div>
+                        ${stockRule}
                         <div class="rule-item"><span>☠️ 庫存耗盡(0天)</span><span style="color:#e74c3c">直接失敗</span></div>
                     </div>
                 `);
