@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>⚡ 像素能源：決戰台灣 v64</title>
+    <title>⚡ 像素能源：決戰台灣 v65</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@500;900&display=swap');
 
@@ -420,11 +420,20 @@
         .retro-btn.victory { background: var(--accent-gold); color: #000; border-color: #fff; }
 
         /* Report Modal Styles */
-        .report-section { text-align: left; margin-bottom: 12px; border-bottom: 1px solid #444; padding-bottom: 8px; }
-        .report-section:last-child { border-bottom: none; }
-        .report-title { font-weight: bold; color: #aaa; font-size: 12px; margin-bottom: 4px; }
-        .report-val { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; }
-        .report-detail { font-size: 12px; color: #888; margin-top: 2px; padding-left: 10px; }
+        .report-grid { display: flex; flex-direction: column; gap: 8px; }
+        .report-card { 
+            background: #1a1a1a; 
+            border: 1px solid #444; 
+            padding: 12px; 
+            border-radius: 4px;
+            text-align: left;
+        }
+        /* Swap visual: Label small at top, Big Val below */
+        .report-header { font-size: 11px; color: #888; letter-spacing: 1px; margin-bottom: 2px; }
+        .report-main-val { font-family: 'VT323', monospace; font-size: 32px; font-weight: bold; line-height: 1; display: block; text-align: right;}
+        
+        .report-change-list { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #444; }
+        .report-change-item { font-size: 13px; display: flex; justify-content: space-between; margin-bottom: 2px; font-weight: bold;}
 
         .crisis-mode { filter: sepia(100%) hue-rotate(-50deg) saturate(300%); }
         
@@ -747,22 +756,21 @@
                 
                 if(this.tutorialStep === 1) {
                     ui.switchTab('build', true); 
-                    ui.highlightElement('#hud .stat-box:nth-child(1)', "【建設資金】\n建設電廠與購買燃料的經費。\n每年會依發電量獲得稅收。");
-                } else if(this.tutorialStep === 2) {
-                     ui.highlightElement('#hud .stat-box:nth-child(2)', "【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
-                } else if(this.tutorialStep === 3) {
-                     ui.highlightElement('#hud .stat-box:nth-child(3)', "【燃料存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
-                } else if(this.tutorialStep === 4) {
-                    ui.switchTab('build', true); 
                     ui.highlightElement('#build-deck', "【建設區】\n這裡列出了各種發電設施。\n待會您可以選擇卡片進行建設。\n(點擊畫面繼續)");
-                } else if(this.tutorialStep === 5) {
+                } else if(this.tutorialStep === 2) {
                     ui.switchTab('market', true); 
                     ui.highlightElement('#market-container', "【燃料市場】\n點擊切換分頁，可購買煤炭與天然氣。\n(往下滑動可購買不同進口國的燃料)");
+                } else if(this.tutorialStep === 3) {
+                     ui.highlightElement('#hud .stat-box:nth-child(1)', "【建設資金】\n建設電廠與購買燃料的經費。\n每年會依發電量獲得稅收。");
+                } else if(this.tutorialStep === 4) {
+                     ui.highlightElement('#hud .stat-box:nth-child(2)', "【國家競爭力】\n國家發展的關鍵指標。\n供電不穩或燃料短缺將導致指數下降，\n一旦歸零，遊戲即刻結束。");
+                } else if(this.tutorialStep === 5) {
+                     ui.highlightElement('#hud .stat-box:nth-child(3)', "【燃料存量】\n國家能源安全的底線！\n代表目前的燃料庫存能支撐幾天。\n若歸零將導致國家崩潰。");
                 } else if(this.tutorialStep === 6) {
-                    ui.switchTab('build', true); 
-                    ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
-                } else if(this.tutorialStep === 7) {
                      ui.highlightElement('#hud .stat-box:nth-child(4)', "【遊戲說明】\n隨時點擊此處可再次查看本教學。\n記得關注階段目標！");
+                } else if(this.tutorialStep === 7) {
+                    ui.switchTab('build', true);
+                    ui.highlightElement('#next-btn', "【下一年度】\n準備好後，點擊此處推進時間並獲得稅收。");
                 } else {
                     ui.clearHighlight();
                 }
@@ -829,6 +837,12 @@
                 this.placeBuilding(this.selected);
                 this.selected = null;
                 ui.renderDeck(); ui.updateAll();
+                
+                // Advance Tutorial if constructing the first plant (coal usually)
+                if(this.tutorialStep === 1) {
+                    this.tutorialStep = 2;
+                    this.updateTutorial();
+                }
             },
 
             buildTerminal() {
@@ -888,6 +902,7 @@
                 const fuelName = type === 'coal' ? '煤炭' : '天然氣';
                 ui.floatText(`${fuelName}庫存 +100`, 'good');
                 ui.updateAll();
+                if(this.tutorialStep === 4) { this.tutorialStep = 5; ui.clearHighlight(); }
             },
 
             updateMarketPrices() {
@@ -1457,39 +1472,42 @@
                 
                 let compHtml = compDetails.map(d => {
                     const isNeg = d.includes('-');
-                    return `<div style="color:${isNeg ? '#e74c3c' : '#2ecc71'}">${d}</div>`;
+                    return `<div class="comp-row" style="color:${isNeg ? '#e74c3c' : '#2ecc71'}"><span>${d.split(' ')[0]}</span><span>${d.split(' ')[1]}</span></div>`;
                 }).join('');
                 
                 let eventHtml = '';
                 if(events && events.length > 0) {
                     eventHtml = `
-                    <div class="report-section">
-                        <div class="report-title" style="color:var(--accent-red)">⚠️ 重大事件</div>
-                        ${events.map(e => `<div style="color:#fff; font-size:14px; margin-bottom:4px;">${e}</div>`).join('')}
+                    <div class="report-card" style="border-color:var(--accent-red); background:rgba(231,76,60,0.1);">
+                        <div class="report-header" style="color:var(--accent-red)">⚠️ 重大突發事件</div>
+                        ${events.map(e => `<div style="color:#fff; font-size:13px; font-weight:bold;">${e}</div>`).join('')}
                     </div>`;
                 }
 
                 const html = `
-                    <div class="report-section">
-                        <div class="report-title">💰 財政收支</div>
-                        <div class="report-val">
-                            <span>本期收入</span>
-                            <span style="color:var(--accent-gold)">+$${income.toLocaleString()}</span>
-                        </div>
-                    </div>
+                    <div class="report-grid">
+                        ${eventHtml}
 
-                    <div class="report-section">
-                        <div class="report-title">📊 競爭力評估</div>
-                        <div class="report-val">
-                            <span>當前指數</span>
-                            <span style="color:var(--accent-blue)">${totalComp}%</span>
+                        <div class="report-card">
+                            <div class="report-header">💰 財政收支結算</div>
+                            <div class="report-flex">
+                                <span class="report-label">本期工業稅收</span>
+                                <span class="report-big" style="color:var(--accent-gold)">+$${income.toLocaleString()}</span>
+                            </div>
                         </div>
-                        <div class="report-detail">
-                            ${compHtml || '<div style="color:#888">無顯著變化</div>'}
+
+                        <div class="report-card">
+                            <div class="report-header">📊 國家競爭力評估</div>
+                            <div class="comp-list">
+                                <div class="report-label" style="margin-bottom:4px;">本年度變動分析</div>
+                                ${compHtml || '<div class="comp-row" style="color:#888"><span>平穩運行</span><span>-</span></div>'}
+                            </div>
+                            <div class="report-flex">
+                                <span class="report-label">最新競爭力指數</span>
+                                <span class="report-big" style="color:var(--accent-blue)">${totalComp}%</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    ${eventHtml}
                 `;
 
                 document.getElementById('modal-content-area').innerHTML = html;
