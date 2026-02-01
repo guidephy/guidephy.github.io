@@ -91,11 +91,11 @@
             pointer-events: none;
         }
 
-        /* Cargo ships — JS controlled, own layer above game-stage */
+        /* Cargo ships — JS controlled, BEHIND Taiwan (below game-stage) */
         #ship-layer {
             position: fixed;
             inset: 0;
-            z-index: 2;
+            z-index: 0;
             pointer-events: none;
             overflow: hidden;
         }
@@ -1132,63 +1132,50 @@
             closeModal(){document.getElementById('modal-overlay').style.display='none';document.getElementById('modal-content-area').innerHTML='<p id="modal-desc" style="font-size:14px;line-height:1.6;color:var(--text-main);margin:15px 0;">CONTENT</p>';document.querySelector('.retro-dialog').classList.remove('stage-clear-dialog');const btn=document.getElementById('modal-btn');btn.style.display='block';btn.className='retro-btn';const rb=document.querySelector('.retro-btn.restart');if(rb)rb.remove();}
         };
         // === SHIP ANIMATION ENGINE ===
+        // Ships sail across the ocean, passing beneath Taiwan naturally
         (function(){
-            const SHIP_EMOJI = ['🚢','🛳️','⛴️','🚢','🛳️','⛴️','🚢','🛳️'];
+            const SHIP_EMOJI = ['🚢','🛳️','⛴️','🚢','🛳️','⛴️'];
             const layer = document.getElementById('ship-layer');
+            if(!layer) return;
             const ships = [];
-            const BOUNCE_X = 42; // Taiwan center X (%)
-            const PAUSE_MS = 1800; // pause at Taiwan
             function randomEmoji(){ return SHIP_EMOJI[Math.floor(Math.random()*SHIP_EMOJI.length)]; }
-            function createShip(top, size, opacity, speed){
+
+            // dir: 1 = left-to-right, -1 = right-to-left
+            // 🚢 emoji faces LEFT by default, so flip for rightward travel
+            function createShip(top, size, opacity, speed, dir){
                 const el = document.createElement('div');
                 el.className = 'ship';
                 el.textContent = randomEmoji();
                 el.style.top = top + '%';
                 el.style.fontSize = size + 'px';
                 el.style.opacity = opacity;
+                el.style.transform = dir > 0 ? 'scaleX(-1)' : 'scaleX(1)';
                 layer.appendChild(el);
-                const fromLeft = Math.random() > 0.5;
-                return { el, top, size, opacity, speed,
-                    x: fromLeft ? -8 : 108,
-                    dir: fromLeft ? 1 : -1,
-                    state: 'sailing', pauseTimer: 0 };
+                const startX = dir > 0 ? -(5 + Math.random()*30) : (105 + Math.random()*30);
+                return { el, dir, speed, x: startX };
             }
-            ships.push(createShip(22, 32, 0.9, 0.04));
-            ships.push(createShip(40, 26, 0.75, 0.032));
-            ships.push(createShip(60, 24, 0.6, 0.025));
-            ships.push(createShip(35, 22, 0.5, 0.028));
-            ships.push(createShip(52, 28, 0.65, 0.035));
+
+            ships.push(createShip(28, 30, 0.85, 0.0055, 1));
+            ships.push(createShip(48, 24, 0.65, 0.004, -1));
+            ships.push(createShip(62, 20, 0.5, 0.0032, 1));
+            ships.push(createShip(38, 18, 0.4, 0.0045, -1));
+            ships.push(createShip(55, 26, 0.6, 0.005, 1));
 
             let lastT = 0;
             function tick(t){
                 const dt = lastT ? (t - lastT) : 16;
                 lastT = t;
                 ships.forEach(s => {
-                    if(s.state === 'sailing'){
-                        s.x += s.dir * s.speed * dt;
-                        // Check if reached Taiwan center
-                        if((s.dir > 0 && s.x >= BOUNCE_X) || (s.dir < 0 && s.x <= BOUNCE_X)){
-                            s.state = 'paused';
-                            s.pauseTimer = PAUSE_MS;
-                            s.x = BOUNCE_X + (s.dir > 0 ? -1 : 1);
-                        }
-                        // Check if sailed off screen
-                        if(s.x < -10 || s.x > 112){
-                            // Reset: new emoji, come from opposite side
-                            s.el.textContent = randomEmoji();
-                            s.dir = s.x < -10 ? 1 : -1;
-                            s.x = s.dir > 0 ? -8 : 108;
-                        }
-                    } else if(s.state === 'paused'){
-                        s.pauseTimer -= dt;
-                        if(s.pauseTimer <= 0){
-                            s.state = 'sailing';
-                            s.dir *= -1; // reverse direction
-                            s.el.textContent = randomEmoji();
-                        }
+                    s.x += s.dir * s.speed * dt;
+                    // Off screen? Reset from origin side with new emoji
+                    if(s.dir > 0 && s.x > 110){
+                        s.x = -(5 + Math.random()*20);
+                        s.el.textContent = randomEmoji();
+                    } else if(s.dir < 0 && s.x < -10){
+                        s.x = 105 + Math.random()*20;
+                        s.el.textContent = randomEmoji();
                     }
                     s.el.style.left = s.x + '%';
-                    s.el.style.transform = s.dir < 0 ? 'scaleX(-1)' : 'scaleX(1)';
                 });
                 requestAnimationFrame(tick);
             }
