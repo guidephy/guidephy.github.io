@@ -998,7 +998,34 @@
             getGasDays(){if(this.counts.gas===0)return null;return Math.floor(this.fuel.gas/(this.counts.gas*PLANTS.gas.fuel));},
             startBlockade(){this.blockade=true;this.bDays=11;document.body.classList.add('crisis-mode');ui.showModal("⚠️ 紅色警報","海峽封鎖開始！進口中斷，請撐過 11 天。",()=>ui.closeModal());},
             handleBlockade(){this.bDays--;this.consumeFuel();ui.floatText(`剩 ${this.bDays} 天`,'bad');if(this.bDays<=0){this.blockade=false;document.body.classList.remove('crisis-mode');ui.showModal("🏳️ 危機解除","封鎖結束，台灣存活！",()=>ui.closeModal());}ui.updateAll();},
-            captureScreenshot(){const el=document.getElementById('victory-capture')||document.querySelector('.retro-dialog');if(!el)return;const t=new Date();const fn=`${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}能源發展圖.png`;html2canvas(el,{backgroundColor:'#fffdf7',scale:2}).then(c=>{const a=document.createElement('a');a.download=fn;a.href=c.toDataURL("image/png");a.click();});}
+            captureScreenshot(){
+                const el=document.getElementById('victory-capture')||document.querySelector('.retro-dialog');
+                if(!el)return;
+                // Add temporary padding for nice border
+                el.style.padding='18px';
+                el.style.borderRadius='12px';
+                const t=new Date();
+                const fn=`${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}能源發展圖.png`;
+                html2canvas(el,{backgroundColor:'#fffdf7',scale:2}).then(c=>{
+                    el.style.padding='';
+                    el.style.borderRadius='';
+                    c.toBlob(blob=>{
+                        if(!blob)return;
+                        const file=new File([blob],fn,{type:'image/png'});
+                        // Mobile: use Web Share API to save to photo album
+                        if(navigator.canShare && navigator.canShare({files:[file]})){
+                            navigator.share({files:[file],title:'能源發展圖'}).catch(()=>{});
+                        } else {
+                            // Desktop fallback: download
+                            const a=document.createElement('a');
+                            a.download=fn;
+                            a.href=URL.createObjectURL(blob);
+                            a.click();
+                            URL.revokeObjectURL(a.href);
+                        }
+                    },'image/png');
+                });
+            }
         };
 
         const ui = {
