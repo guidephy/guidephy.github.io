@@ -573,6 +573,8 @@
         .retro-btn.stage-clear { background: rgba(200,146,42,0.15); color: var(--accent-gold); border-color: var(--accent-gold); font-weight: 900; }
 
         .btn-group-vertical { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .btn-group-horizontal { display: flex; flex-direction: row; gap: 8px; margin-top: 12px; }
+        .btn-group-horizontal .retro-btn { flex: 1; padding: 8px 6px; font-size: 13px; }
         .retro-btn.screenshot { background: rgba(90,143,168,0.12); color: var(--accent-blue); border-color: var(--accent-blue); }
         .retro-btn.restart-end { background: rgba(194,98,90,0.1); color: var(--accent-red); border-color: var(--accent-red); }
 
@@ -996,7 +998,7 @@
             getGasDays(){if(this.counts.gas===0)return null;return Math.floor(this.fuel.gas/(this.counts.gas*PLANTS.gas.fuel));},
             startBlockade(){this.blockade=true;this.bDays=11;document.body.classList.add('crisis-mode');ui.showModal("⚠️ 紅色警報","海峽封鎖開始！進口中斷，請撐過 11 天。",()=>ui.closeModal());},
             handleBlockade(){this.bDays--;this.consumeFuel();ui.floatText(`剩 ${this.bDays} 天`,'bad');if(this.bDays<=0){this.blockade=false;document.body.classList.remove('crisis-mode');ui.showModal("🏳️ 危機解除","封鎖結束，台灣存活！",()=>ui.closeModal());}ui.updateAll();},
-            captureScreenshot(){const el=document.querySelector('.retro-dialog');if(!el)return;const t=new Date();const fn=`${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}能源發展圖.png`;html2canvas(el,{backgroundColor:null,scale:2}).then(c=>{const a=document.createElement('a');a.download=fn;a.href=c.toDataURL("image/png");a.click();});}
+            captureScreenshot(){const el=document.getElementById('victory-capture')||document.querySelector('.retro-dialog');if(!el)return;const t=new Date();const fn=`${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}能源發展圖.png`;html2canvas(el,{backgroundColor:'#fffdf7',scale:2}).then(c=>{const a=document.createElement('a');a.download=fn;a.href=c.toDataURL("image/png");a.click();});}
         };
 
         const ui = {
@@ -1112,12 +1114,13 @@
                 const cp=`L400,200 L0,200 Z`;let xLabels="";
                 for(let i=0;i<=dur;i++){const cy=sY+i;if(cy%5===0||i===0||i===dur){const x=(i/dur)*400;let ta="middle";if(i===0)ta="start";if(i===dur)ta="end";xLabels+=`<text x="${x}" y="215" fill="var(--text-muted)" font-size="12" text-anchor="${ta}">${cy}</text>`;}}
                 const getRank=(obj,type)=>{const sorted=Object.entries(obj).sort((a,b)=>b[1]-a[1]);return sorted.map(([id,val])=>{const src=MARKET_SOURCES[type].find(s=>s.id===id);return `<div class="rank-row"><span>${src?src.flag+' '+src.name:id}</span><span class="rank-val">${val.toLocaleString()}00</span></div>`;}).join('')||'<div class="rank-row" style="color:var(--text-muted)">無進口紀錄</div>';};
-                document.getElementById('modal-content-area').innerHTML=`<p style="color:var(--accent-green);margin-bottom:10px;font-weight:bold;">您建立了高韌性的電力系統！</p>
-                    <div class="chart-container"><div class="chart-title">📈 發電結構堆疊圖 (總: ${game.calcPower().toLocaleString()} MW)</div>
-                    <svg viewBox="0 0 400 220" style="background:rgba(62,52,40,0.06);width:100%;height:auto;border-radius:4px;"><path d="${paths.green+cp}" fill="var(--color-green)"/><path d="${paths.nuke+cp}" fill="var(--color-nuclear)"/><path d="${paths.gas+cp}" fill="var(--color-gas)"/><path d="${paths.coal+cp}" fill="var(--color-coal)"/><path d="${paths.oil+cp}" fill="var(--color-oil)"/>${xLabels}</svg>
+                document.getElementById('modal-content-area').innerHTML=`<div id="victory-capture"><p style="color:var(--accent-green);margin-bottom:10px;font-weight:bold;">您建立了高韌性的電力系統！</p>
+                    <div class="chart-container"><div class="chart-title">📈 發電結構堆疊圖 (總: ${game.calcPower().toLocaleString()} MW)</div><div style="position:relative;">
+                    <div style="position:absolute;top:4px;left:6px;font-size:11px;color:var(--text-muted);font-weight:700;z-index:1;">第 ${game.year} 年完成</div>
+                    <svg viewBox="0 0 400 220" style="background:rgba(62,52,40,0.06);width:100%;height:auto;border-radius:4px;"><path d="${paths.green+cp}" fill="var(--color-green)"/><path d="${paths.nuke+cp}" fill="var(--color-nuclear)"/><path d="${paths.gas+cp}" fill="var(--color-gas)"/><path d="${paths.coal+cp}" fill="var(--color-coal)"/><path d="${paths.oil+cp}" fill="var(--color-oil)"/>${xLabels}</svg></div>
                     <div class="chart-legend"><div class="legend-item"><span class="color-box" style="background:var(--color-oil)"></span>油 ${pcts.oil}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-coal)"></span>煤 ${pcts.coal}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-gas)"></span>氣 ${pcts.gas}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-nuclear)"></span>核 ${pcts.nuke}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-green)"></span>綠 ${pcts.green}%</div></div></div>
-                    <div class="rank-section"><div class="rank-col"><div class="rank-header">🪨 燃煤進口總量</div>${getRank(game.importStats.coal,'coal')}</div><div class="rank-col"><div class="rank-header">🔥 燃氣進口總量</div>${getRank(game.importStats.gas,'gas')}</div></div>
-                    <div class="btn-group-vertical"><button class="retro-btn screenshot" onclick="game.captureScreenshot()">📷 截取圖片</button><button class="retro-btn restart-end" onclick="game.restart()">🔄 重新遊戲</button></div>`;
+                    <div class="rank-section"><div class="rank-col"><div class="rank-header">🪨 燃煤進口總量</div>${getRank(game.importStats.coal,'coal')}</div><div class="rank-col"><div class="rank-header">🔥 燃氣進口總量</div>${getRank(game.importStats.gas,'gas')}</div></div></div>
+                    <div class="btn-group-horizontal"><button class="retro-btn screenshot" onclick="game.captureScreenshot()">📷 截取圖片</button><button class="retro-btn restart-end" onclick="game.restart()">🔄 重新遊戲</button></div>`;
                 document.getElementById('modal-btn').style.display='none';document.getElementById('modal-overlay').style.display='flex';
             },
             showStageComplete(clearedStageIdx,nextStage,callback){
@@ -1125,7 +1128,7 @@
                 const goalsHtml=cs.goals.map(g=>`<div class="stage-clear-goal-item">✅ ${g.txt}</div>`).join('');
                 const nextGoalsHtml=nextStage.goals.map(g=>'🔹 '+g.txt).join('<br>');
                 document.getElementById('modal-title').innerText='';
-                document.getElementById('modal-content-area').innerHTML=`<div class="stage-clear-banner">🎉 階段 ${sn} 通關！</div><div class="stage-clear-sub">${cs.title} — 任務完成</div><div class="stage-clear-goals">${goalsHtml}</div><hr class="stage-clear-divider"><div style="text-align:left;padding:0 5px;line-height:1.6;"><div style="font-size:15px;font-weight:900;color:var(--accent-gold);margin-bottom:6px;font-family:'Noto Serif TC',serif;">▶ 下一階段：${nextStage.title}</div>${nextStage.desc}<br><br><span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${nextGoalsHtml}</div>`;
+                document.getElementById('modal-content-area').innerHTML=`<div class="stage-clear-banner">🎉 階段 ${sn} 過關！</div><div class="stage-clear-sub">${cs.title} — 任務完成</div><div class="stage-clear-goals">${goalsHtml}</div><hr class="stage-clear-divider"><div style="text-align:left;padding:0 5px;line-height:1.6;"><div style="font-size:15px;font-weight:900;color:var(--accent-gold);margin-bottom:6px;font-family:'Noto Serif TC',serif;">▶ 下一階段：${nextStage.title}</div>${nextStage.desc}<br><br><span style="color:var(--accent-blue)">🏆 本階段目標：</span><br>${nextGoalsHtml}</div>`;
                 document.querySelector('.retro-dialog').classList.add('stage-clear-dialog');
                 const btn=document.getElementById('modal-btn');btn.style.display='block';btn.innerText="🚀 開始挑戰";btn.className='retro-btn stage-clear';btn.onclick=callback||ui.closeModal;document.getElementById('modal-overlay').style.display='flex';
             },
