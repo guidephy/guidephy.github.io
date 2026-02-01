@@ -1001,30 +1001,18 @@
             captureScreenshot(){
                 const el=document.getElementById('victory-capture')||document.querySelector('.retro-dialog');
                 if(!el)return;
-                // Add temporary padding for nice border
                 el.style.padding='18px';
                 el.style.borderRadius='12px';
                 const t=new Date();
                 const fn=`${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}能源發展圖.png`;
-                html2canvas(el,{backgroundColor:'#fffdf7',scale:2}).then(c=>{
-                    el.style.padding='';
-                    el.style.borderRadius='';
-                    c.toBlob(blob=>{
-                        if(!blob)return;
-                        const file=new File([blob],fn,{type:'image/png'});
-                        // Mobile: use Web Share API to save to photo album
-                        if(navigator.canShare && navigator.canShare({files:[file]})){
-                            navigator.share({files:[file],title:'能源發展圖'}).catch(()=>{});
-                        } else {
-                            // Desktop fallback: download
-                            const a=document.createElement('a');
-                            a.download=fn;
-                            a.href=URL.createObjectURL(blob);
-                            a.click();
-                            URL.revokeObjectURL(a.href);
-                        }
-                    },'image/png');
-                });
+                setTimeout(()=>{
+                    html2canvas(el,{backgroundColor:'#fffdf7',scale:2}).then(c=>{
+                        el.style.padding='';el.style.borderRadius='';
+                        const a=document.createElement('a');
+                        a.download=fn;a.href=c.toDataURL('image/png');
+                        a.click();
+                    });
+                },50);
             }
         };
 
