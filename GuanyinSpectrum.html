@@ -1,614 +1,1498 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>觀高國際教育：黑煙囪裡的綠色煉金術 | 教學導引系統</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'paper': '#F9F7F2',
-                        'ink': '#2D3748',
-                        'accent-u1': '#D97D73', 
-                        'accent-u2': '#4A8C88', 
-                        'accent-u3': '#D4A453', 
-                        'accent-u4': '#4A5D5E', 
-                        'subtle-gray': '#E5E5E5',
-                    },
-                    fontFamily: {
-                        serif: ['Noto Serif TC', 'serif'],
-                        sans: ['Noto Sans TC', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-out',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>觀高國際教育：黑煙囪裡的綠色煉金術</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0C0F0E;
+  --surface: #151A18;
+  --surface-2: #1C2320;
+  --text: #E8E6E1;
+  --text-dim: #8A9490;
+  --text-bright: #FFFFFF;
+  --u1: #E76F51;
+  --u1-glow: rgba(231,111,81,0.15);
+  --u2: #2EC4B6;
+  --u2-glow: rgba(46,196,182,0.15);
+  --u3: #F4A261;
+  --u3-glow: rgba(244,162,97,0.15);
+  --u4: #6D9DC5;
+  --u4-glow: rgba(109,157,197,0.15);
+  --accent: #C8B88A;
+  --border: rgba(255,255,255,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.4s cubic-bezier(0.22,1,0.36,1);
+}
 
-    <style>
-        body {
-            background-color: #F9F7F2;
-            color: #2D3748;
-            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
-            font-size: 18px;
-        }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-        .nav-btn.active {
-            color: #2D3748;
-            font-weight: 700;
-            border-bottom: 4px solid;
-            border-color: inherit;
-        }
-        
-        .card-shadow {
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
-        }
+html { scroll-behavior: smooth; }
 
-        .guide-step {
-            border-left: 5px solid #E5E5E5;
-            padding-left: 1.5rem;
-            margin-bottom: 2rem;
-            transition: border-color 0.3s;
-        }
-        .guide-step:hover {
-            border-color: #A0AEC0;
-        }
+body {
+  font-family: 'Noto Sans TC', 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-        .visual-board {
-            background-color: white;
-            border-radius: 1.5rem;
-            padding: 2.5rem;
-            height: 100%;
-            border: 1px solid rgba(0,0,0,0.05);
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+/* ===== GRAIN OVERLAY ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
 
-        /* U2 Map Route Animation Line */
-        .map-route-line {
-            stroke-dasharray: 10;
-            animation: dash 30s linear infinite;
-        }
-        @keyframes dash {
-            to { stroke-dashoffset: -100; }
-        }
+/* ===== NAV ===== */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(12,15,14,0.85);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
 
-        .flow-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 2rem;
-            border-radius: 9999px;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .flow-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        .flow-btn-prev {
-            background-color: white;
-            color: #4A5568;
-            border: 1px solid #E2E8F0;
-        }
-        .flow-btn-next {
-            background-color: #2D3748;
-            color: white;
-        }
-    </style>
+.nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+@media(min-width:768px) { .nav-inner { height: 72px; padding: 0 48px; } }
+
+.nav-brand {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 900;
+  font-size: 1.15rem;
+  color: var(--accent);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: var(--transition);
+}
+.nav-brand:hover { opacity: 0.7; }
+
+.nav-links {
+  display: none;
+  gap: 4px;
+}
+@media(min-width:900px) { .nav-links { display: flex; } }
+
+.nav-link {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  white-space: nowrap;
+}
+.nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.nav-link.active { color: var(--text-bright); background: rgba(255,255,255,0.08); }
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+}
+.nav-link[data-page="unit1"].active::after { background: var(--u1); }
+.nav-link[data-page="unit2"].active::after { background: var(--u2); }
+.nav-link[data-page="unit3"].active::after { background: var(--u3); }
+.nav-link[data-page="unit4"].active::after { background: var(--u4); }
+.nav-link[data-page="overview"].active::after,
+.nav-link[data-page="architecture"].active::after { background: var(--accent); }
+
+/* Mobile hamburger */
+.nav-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+@media(min-width:900px) { .nav-hamburger { display: none; } }
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+.nav-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+/* Mobile menu */
+.mobile-menu {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(12,15,14,0.97);
+  backdrop-filter: blur(30px);
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  gap: 8px;
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+}
+.mobile-menu.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+.mobile-link {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mobile-link:hover { background: rgba(255,255,255,0.05); }
+.mobile-link .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ===== PAGES ===== */
+.page {
+  display: none;
+  opacity: 0;
+  transform: translateY(20px);
+  min-height: calc(100vh - 72px);
+  padding-top: 80px;
+}
+.page.visible {
+  display: block;
+  animation: pageIn 0.6s var(--transition) forwards;
+}
+@keyframes pageIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+@media(min-width:768px) { .container { padding: 0 48px; } }
+
+/* ===== OVERVIEW ===== */
+.hero {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px 20px 80px;
+  position: relative;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 1px solid rgba(200,184,138,0.3);
+  border-radius: 100px;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+.hero-tag::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; }
+  50% { opacity:0.3; }
+}
+
+.hero-title {
+  font-family: 'Noto Serif TC', 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+.hero-title .gradient {
+  background: linear-gradient(135deg, var(--u2), var(--u3), var(--u1));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: var(--text-dim);
+  max-width: 640px;
+  line-height: 1.9;
+  font-weight: 300;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 40px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 100px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: 'Noto Sans TC', sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+.hero-cta:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(200,184,138,0.2); }
+.hero-cta svg { transition: var(--transition); }
+.hero-cta:hover svg { transform: translateX(4px); }
+
+@keyframes fadeUp {
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* Overview info cards */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 1000px;
+  margin: 0 auto 60px;
+  opacity: 0;
+  animation: fadeUp 0.8s 1s forwards;
+}
+@media(min-width:600px) { .info-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(min-width:900px) { .info-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+.info-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-4px); }
+.info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+.info-card:nth-child(1)::before { background: var(--u1); }
+.info-card:nth-child(2)::before { background: var(--u2); }
+.info-card:nth-child(3)::before { background: var(--u3); }
+.info-card:nth-child(4)::before { background: var(--u4); }
+.info-card h4 {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+  color: var(--text-bright);
+}
+.info-card p {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* Floating orbs on hero */
+.hero-orbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: -1;
+}
+.hero-orbs .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+}
+
+/* ===== ARCHITECTURE ===== */
+.arch-header {
+  text-align: center;
+  padding: 60px 0 48px;
+}
+.arch-header h2 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.arch-header p { color: var(--text-dim); font-size: 1rem; }
+
+.arch-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 64px;
+}
+@media(min-width:600px) { .arch-grid { grid-template-columns: repeat(2,1fr); } }
+@media(min-width:900px) { .arch-grid { grid-template-columns: repeat(4,1fr); gap: 20px; } }
+
+.arch-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.arch-card:hover { transform: translateY(-6px); }
+.arch-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: var(--transition);
+  border-radius: var(--radius);
+}
+.arch-card:hover::after { opacity: 1; }
+.arch-card[data-unit="1"]::after { background: var(--u1-glow); }
+.arch-card[data-unit="2"]::after { background: var(--u2-glow); }
+.arch-card[data-unit="3"]::after { background: var(--u3-glow); }
+.arch-card[data-unit="4"]::after { background: var(--u4-glow); }
+.arch-card[data-unit="1"]:hover { border-color: var(--u1); }
+.arch-card[data-unit="2"]:hover { border-color: var(--u2); }
+.arch-card[data-unit="3"]:hover { border-color: var(--u3); }
+.arch-card[data-unit="4"]:hover { border-color: var(--u4); }
+
+.arch-card .icon {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+.arch-card .unit-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+.arch-card[data-unit="1"] .unit-tag { color: var(--u1); }
+.arch-card[data-unit="2"] .unit-tag { color: var(--u2); }
+.arch-card[data-unit="3"] .unit-tag { color: var(--u3); }
+.arch-card[data-unit="4"] .unit-tag { color: var(--u4); }
+.arch-card h3 {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  color: var(--text-bright);
+  position: relative;
+  z-index: 1;
+}
+.arch-card .desc {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+}
+.arch-card .arrow {
+  display: inline-flex;
+  margin-top: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  position: relative;
+  z-index: 1;
+  transition: var(--transition);
+}
+.arch-card[data-unit="1"] .arrow { background: var(--u1-glow); color: var(--u1); }
+.arch-card[data-unit="2"] .arrow { background: var(--u2-glow); color: var(--u2); }
+.arch-card[data-unit="3"] .arrow { background: var(--u3-glow); color: var(--u3); }
+.arch-card[data-unit="4"] .arrow { background: var(--u4-glow); color: var(--u4); }
+.arch-card:hover .arrow { transform: translateX(4px); }
+
+/* ===== UNIT PAGE LAYOUT ===== */
+.unit-page { padding-bottom: 80px; }
+
+.unit-hero {
+  padding: 48px 0 40px;
+  position: relative;
+}
+.unit-hero .unit-num {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(5rem, 15vw, 10rem);
+  font-weight: 900;
+  position: absolute;
+  right: 0;
+  top: 20px;
+  line-height: 1;
+  opacity: 0.04;
+  pointer-events: none;
+}
+.unit-hero .unit-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.unit-hero h2 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+.unit-hero .en-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.unit-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-top: 40px;
+}
+@media(min-width:900px) {
+  .unit-body { grid-template-columns: 5fr 7fr; gap: 48px; }
+}
+
+/* Left panel: teaching guide */
+.teach-panel { display: flex; flex-direction: column; gap: 20px; }
+
+.goal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.goal-box h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.goal-box p {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+
+.step-list { display: flex; flex-direction: column; gap: 0; }
+
+.step-item {
+  position: relative;
+  padding: 20px 20px 20px 28px;
+  border-left: 2px solid var(--border);
+  transition: var(--transition);
+  cursor: pointer;
+}
+.step-item:hover { background: var(--surface); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.step-item::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 26px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: var(--bg);
+  transition: var(--transition);
+}
+.step-item:hover::before { transform: scale(1.3); }
+
+.step-item[data-color="u1"] { border-left-color: rgba(231,111,81,0.3); }
+.step-item[data-color="u1"]:hover { border-left-color: var(--u1); }
+.step-item[data-color="u1"]::before { border-color: var(--u1); }
+.step-item[data-color="u2"] { border-left-color: rgba(46,196,182,0.3); }
+.step-item[data-color="u2"]:hover { border-left-color: var(--u2); }
+.step-item[data-color="u2"]::before { border-color: var(--u2); }
+.step-item[data-color="u3"] { border-left-color: rgba(244,162,97,0.3); }
+.step-item[data-color="u3"]:hover { border-left-color: var(--u3); }
+.step-item[data-color="u3"]::before { border-color: var(--u3); }
+.step-item[data-color="u4"] { border-left-color: rgba(109,157,197,0.3); }
+.step-item[data-color="u4"]:hover { border-left-color: var(--u4); }
+.step-item[data-color="u4"]::before { border-color: var(--u4); }
+
+.step-item h5 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 8px;
+}
+.step-item p {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+.step-item .step-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Right panel: visual board */
+.visual-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+@media(min-width:768px) { .visual-panel { padding: 40px 36px; } }
+
+.visual-panel .board-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 8px 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: white;
+  border-radius: 0 0 0 var(--radius-sm);
+}
+.visual-panel h3 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 32px;
+  text-align: center;
+  padding-top: 16px;
+}
+
+/* ===== U1 Visual: Color comparison ===== */
+.color-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.color-swatch {
+  border-radius: var(--radius-sm);
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+@media(min-width:768px) { .color-swatch { height: 200px; } }
+.color-swatch:hover { transform: scale(1.03); }
+.color-swatch .label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+.color-swatch .big-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 4px;
+}
+.color-swatch .sub-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+}
+
+.quote-box {
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 16px 20px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+  font-style: italic;
+}
+
+/* ===== U2 Visual: Route map ===== */
+.route-map {
+  background: rgba(46,196,182,0.03);
+  border: 1px solid rgba(46,196,182,0.1);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  min-height: 320px;
+}
+@media(min-width:768px) { .route-map { min-height: 380px; padding: 32px; } }
+
+.route-node {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: nodeIn 0.5s forwards;
+}
+.route-node:nth-child(2) { animation-delay: 0.2s; }
+.route-node:nth-child(3) { animation-delay: 0.4s; }
+@keyframes nodeIn { to { opacity:1; } }
+
+.route-node .node-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  position: relative;
+}
+.route-node .node-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px dashed;
+  opacity: 0.3;
+  animation: spin 20s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.route-node .node-info h5 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+.route-node .node-info p {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.route-connector {
+  width: 2px;
+  height: 32px;
+  margin-left: 21px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.route-connector::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  background: repeating-linear-gradient(to bottom, var(--u2) 0, var(--u2) 4px, transparent 4px, transparent 8px);
+  animation: flow 1s linear infinite;
+}
+@keyframes flow { to { transform: translateY(-8px); } }
+
+.supply-badge {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-top: 12px;
+}
+.supply-badge h6 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--u2);
+  margin-bottom: 8px;
+}
+.supply-badge ul {
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+.supply-badge li::before {
+  content: '→ ';
+  color: var(--u2);
+}
+
+/* ===== U3 Visual: Flow chart ===== */
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+@media(min-width:600px) {
+  .flow-steps { flex-direction: row; gap: 8px; }
+}
+
+.flow-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 16px;
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+  transition: var(--transition);
+  width: 100%;
+}
+.flow-card:hover { border-color: var(--u3); transform: translateY(-4px); }
+.flow-card.highlight {
+  background: rgba(244,162,97,0.08);
+  border-color: var(--u3);
+  transform: scale(1.02);
+}
+@media(min-width:600px) { .flow-card.highlight { transform: scale(1.08); } }
+.flow-card .fc-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+.flow-card .fc-tag { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--u3); margin-bottom: 4px; }
+.flow-card .fc-title { font-weight: 700; font-size: 1rem; color: var(--text-bright); margin-bottom: 4px; }
+.flow-card .fc-sub { font-size: 0.78rem; color: var(--text-dim); }
+
+.flow-arrow {
+  font-size: 1.5rem;
+  color: var(--u3);
+  transform: rotate(90deg);
+  flex-shrink: 0;
+}
+@media(min-width:600px) { .flow-arrow { transform: rotate(0); } }
+
+.local-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  text-align: center;
+  margin-top: 32px;
+}
+.local-box h5 { font-size: 0.95rem; font-weight: 700; color: var(--text-bright); margin-bottom: 8px; }
+.local-box p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+
+/* ===== U4 Visual: Exhibition zones ===== */
+.exhibit-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media(min-width:600px) {
+  .exhibit-grid { grid-template-columns: 1fr 1fr; }
+  .exhibit-grid .exhibit-main { grid-column: span 2; }
+}
+
+.exhibit-zone {
+  border: 1px dashed;
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  min-height: 140px;
+}
+.exhibit-zone:hover { transform: scale(1.02); }
+.exhibit-zone .ez-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.exhibit-zone h4 { font-size: 1.1rem; font-weight: 700; color: var(--text-bright); margin-bottom: 6px; }
+.exhibit-zone p { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+
+.exhibit-main {
+  min-height: 180px;
+  border-color: var(--u4);
+  background: var(--u4-glow);
+}
+.exhibit-main .ez-icon { font-size: 3rem; }
+.exhibit-main h4 { font-size: 1.3rem; }
+
+.exhibit-a { border-color: var(--u1); background: var(--u1-glow); }
+.exhibit-b { border-color: var(--u4); }
+
+/* ===== NAV BUTTONS ===== */
+.page-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+@media(min-width:600px) { .page-nav { flex-direction: row; justify-content: space-between; } }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  justify-content: center;
+}
+.btn:hover { transform: translateY(-2px); }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.btn-ghost:hover { background: var(--surface); color: var(--text); }
+
+.btn-primary {
+  color: var(--bg);
+}
+.btn-primary.u1 { background: var(--u1); }
+.btn-primary.u2 { background: var(--u2); }
+.btn-primary.u3 { background: var(--u3); }
+.btn-primary.u4 { background: var(--u4); }
+.btn-primary.accent { background: var(--accent); }
+.btn-primary:hover { box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+
+/* ===== FOOTER ===== */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 20px;
+  text-align: center;
+  margin-top: auto;
+}
+.footer .brand {
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.footer p { font-size: 0.8rem; color: var(--text-dim); }
+
+/* Progress bar at top of unit pages */
+.progress-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 40px;
+}
+.progress-dot {
+  height: 3px;
+  flex: 1;
+  border-radius: 3px;
+  background: var(--border);
+  transition: var(--transition);
+}
+.progress-dot.filled { opacity: 1; }
+
+/* Scroll indicator */
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeUp 0.8s 1.5s forwards;
+}
+.scroll-hint span {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.scroll-mouse {
+  width: 20px;
+  height: 32px;
+  border: 2px solid var(--text-dim);
+  border-radius: 10px;
+  position: relative;
+}
+.scroll-mouse::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 6px;
+  background: var(--text-dim);
+  border-radius: 3px;
+  animation: scrollPulse 2s infinite;
+}
+@keyframes scrollPulse {
+  0%,100% { opacity:1; transform: translateX(-50%) translateY(0); }
+  50% { opacity:0.3; transform: translateX(-50%) translateY(6px); }
+}
+</style>
 </head>
-<body class="antialiased min-h-screen flex flex-col font-sans text-lg">
+<body>
 
-    <!-- NAVIGATION -->
-    <nav class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
-            <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center gap-3">
-                    <!-- Brand Name Updated -->
-                    <div class="font-serif font-black text-2xl tracking-wide text-ink cursor-pointer hover:opacity-80 transition" onclick="showPage('overview')">
-                        觀高國際教育
-                    </div>
-                </div>
-                
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-10">
-                    <button onclick="showPage('overview')" id="nav-overview" class="nav-btn active text-gray-500 hover:text-ink px-2 py-2 text-lg font-medium border-transparent transition-all border-ink">首頁</button>
-                    <button onclick="showPage('architecture')" id="nav-architecture" class="nav-btn text-gray-500 hover:text-ink px-2 py-2 text-lg font-medium border-transparent transition-all border-gray-400">課程架構</button>
-                    <button onclick="showPage('unit1')" id="nav-unit1" class="nav-btn text-gray-400 hover:text-accent-u1 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #D97D73;">U1 消失色碼</button>
-                    <button onclick="showPage('unit2')" id="nav-unit2" class="nav-btn text-gray-400 hover:text-accent-u2 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #4A8C88;">U2 脈動國際</button>
-                    <button onclick="showPage('unit3')" id="nav-unit3" class="nav-btn text-gray-400 hover:text-accent-u3 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #D4A453;">U3 循環經濟</button>
-                    <button onclick="showPage('unit4')" id="nav-unit4" class="nav-btn text-gray-400 hover:text-accent-u4 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #4A5D5E;">U4 守護聯盟</button>
-                </div>
+<!-- ===== NAV ===== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand" onclick="go('overview')">觀高國際教育</div>
+    <div class="nav-links">
+      <button class="nav-link active" data-page="overview" onclick="go('overview')">首頁</button>
+      <button class="nav-link" data-page="architecture" onclick="go('architecture')">課程架構</button>
+      <button class="nav-link" data-page="unit1" onclick="go('unit1')">U1 消失色碼</button>
+      <button class="nav-link" data-page="unit2" onclick="go('unit2')">U2 脈動國際</button>
+      <button class="nav-link" data-page="unit3" onclick="go('unit3')">U3 循環經濟</button>
+      <button class="nav-link" data-page="unit4" onclick="go('unit4')">U4 守護聯盟</button>
+    </div>
+    <button class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
 
-                <!-- Mobile Menu Button -->
-                <div class="flex md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-ink focus:outline-none p-2">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
-                </div>
-            </div>
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-link" onclick="go('overview');toggleMenu()"><span class="dot" style="background:var(--accent)"></span>首頁</button>
+  <button class="mobile-link" onclick="go('architecture');toggleMenu()"><span class="dot" style="background:var(--text-dim)"></span>課程架構</button>
+  <button class="mobile-link" onclick="go('unit1');toggleMenu()"><span class="dot" style="background:var(--u1)"></span>U1 消失色碼</button>
+  <button class="mobile-link" onclick="go('unit2');toggleMenu()"><span class="dot" style="background:var(--u2)"></span>U2 脈動國際</button>
+  <button class="mobile-link" onclick="go('unit3');toggleMenu()"><span class="dot" style="background:var(--u3)"></span>U3 循環經濟</button>
+  <button class="mobile-link" onclick="go('unit4');toggleMenu()"><span class="dot" style="background:var(--u4)"></span>U4 守護聯盟</button>
+</div>
+
+<!-- ===== PAGE: OVERVIEW ===== -->
+<section class="page visible" id="page-overview">
+  <div class="hero">
+    <div class="hero-orbs">
+      <div class="orb" style="width:500px;height:500px;background:var(--u2);top:-100px;left:-200px;"></div>
+      <div class="orb" style="width:400px;height:400px;background:var(--u3);bottom:-100px;right:-150px;"></div>
+      <div class="orb" style="width:300px;height:300px;background:var(--u1);top:40%;left:60%;"></div>
+    </div>
+    <div class="hero-tag">跨領域課程設計架構</div>
+    <h1 class="hero-title">黑煙囪裡的<br><span class="gradient">綠色煉金術</span></h1>
+    <p class="hero-sub">
+      從「色彩」切入環境議題，從「技術」理解循環經濟。<br>
+      帶領學生走入台灣製造業的心臟——觀音工業區，<br>
+      在環保的戰場中，看見供應鏈的真實價值。
+    </p>
+    <button class="hero-cta" onclick="go('architecture')">
+      開始課程導覽
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div class="container">
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>主軸概念</h4>
+        <p>將環境議題具象化。從看見「污染色」到理解「技術循環」。</p>
+      </div>
+      <div class="info-card">
+        <h4>關鍵場域</h4>
+        <p>桃園觀音工業區。經濟隱形冠軍聚落，環境守護最前線。</p>
+      </div>
+      <div class="info-card">
+        <h4>SDGs 對焦</h4>
+        <p>SDG 12 責任消費 · SDG 6 淨水衛生 · SDG 9 工業創新</p>
+      </div>
+      <div class="info-card">
+        <h4>IE 2.0 目標</h4>
+        <p>全球競合力與國家認同。理解台灣在全球供應鏈的角色。</p>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-mouse"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ===== PAGE: ARCHITECTURE ===== -->
+<section class="page" id="page-architecture">
+  <div class="container">
+    <div class="arch-header">
+      <h2>課程架構地圖</h2>
+      <p>Curriculum Roadmap</p>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-card" data-unit="1" onclick="go('unit1')">
+        <span class="icon">🎨</span>
+        <div class="unit-tag">Unit 01</div>
+        <h3>消失的色碼</h3>
+        <div class="desc">視覺藝術 × 環境數據<br>看見污染的代價</div>
+        <div class="arrow">→</div>
+      </div>
+      <div class="arch-card" data-unit="2" onclick="go('unit2')">
+        <span class="icon">🚛</span>
+        <div class="unit-tag">Unit 02</div>
+        <h3>脈動國際</h3>
+        <div class="desc">Google Map 路線 × 分工<br>支撐全球產業</div>
+        <div class="arrow">→</div>
+      </div>
+      <div class="arch-card" data-unit="3" onclick="go('unit3')">
+        <span class="icon">♻️</span>
+        <div class="unit-tag">Unit 03</div>
+        <h3>循環經濟</h3>
+        <div class="desc">自然科學 × 生活科技<br>廢棄物變黃金</div>
+        <div class="arrow">→</div>
+      </div>
+      <div class="arch-card" data-unit="4" onclick="go('unit4')">
+        <span class="icon">🛡️</span>
+        <div class="unit-tag">Unit 04</div>
+        <h3>守護者聯盟</h3>
+        <div class="desc">綜合活動 × 探究實作<br>行動與承諾</div>
+        <div class="arrow">→</div>
+      </div>
+    </div>
+    <div class="page-nav">
+      <button class="btn btn-ghost" onclick="go('overview')">← 返回首頁</button>
+      <button class="btn btn-primary u1" onclick="go('unit1')">進入第一單元 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PAGE: UNIT 1 ===== -->
+<section class="page unit-page" id="page-unit1">
+  <div class="container">
+    <div class="progress-bar">
+      <div class="progress-dot filled" style="background:var(--u1)"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+    <div class="unit-hero">
+      <div class="unit-num">01</div>
+      <div class="unit-tag" style="color:var(--u1)">Unit 01</div>
+      <h2>消失的色碼</h2>
+      <div class="en-title" style="color:var(--u1)">The Cost of Color</div>
+    </div>
+    <div class="unit-body">
+      <div class="teach-panel">
+        <div class="goal-box">
+          <h4>🎯 教學目標</h4>
+          <p>讓學生「看見」肉眼忽視的污染，並將感官經驗轉化為數據圖表。</p>
         </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg z-40">
-            <div class="px-4 py-4 space-y-2">
-                <button onclick="showPage('overview'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-bold text-ink hover:bg-gray-50 rounded-lg">首頁</button>
-                <button onclick="showPage('architecture'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-bold text-gray-600 hover:bg-gray-50 rounded-lg">課程架構</button>
-                <button onclick="showPage('unit1'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u1 hover:bg-red-50 rounded-lg">U1 消失色碼</button>
-                <button onclick="showPage('unit2'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u2 hover:bg-teal-50 rounded-lg">U2 脈動國際</button>
-                <button onclick="showPage('unit3'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u3 hover:bg-yellow-50 rounded-lg">U3 循環經濟</button>
-                <button onclick="showPage('unit4'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u4 hover:bg-gray-50 rounded-lg">U4 守護聯盟</button>
-            </div>
+        <div class="step-list">
+          <div class="step-item" data-color="u1">
+            <span class="step-num" style="color:var(--u1)">Step 01</span>
+            <h5>震撼教育 Hook</h5>
+            <p>展示 H&M / Zara 流行色 vs 大堀溪混濁污染色。提問：「為什麼漂亮的衣服會製造出醜陋的河水？」</p>
+          </div>
+          <div class="step-item" data-color="u1">
+            <span class="step-num" style="color:var(--u1)">Step 02</span>
+            <h5>尋找消失色碼 Investigation</h5>
+            <p>實作：定位觀音，查詢大堀溪 COD（化學需氧量）數據。將數據高低轉化為顏色的深淺。</p>
+          </div>
+          <div class="step-item" data-color="u1">
+            <span class="step-num" style="color:var(--u1)">Step 03</span>
+            <h5>產出—觀音色票卡 Output</h5>
+            <p>製作 Pantone 風格色票：上為「消費 / 美」，下為「代價 / 污染」，標註真實 COD 數據。</p>
+          </div>
         </div>
-    </nav>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-grow max-w-7xl mx-auto px-6 lg:px-10 py-12 w-full">
-
-        <!-- PAGE: OVERVIEW (首頁) -->
-        <section id="page-overview" class="page-section animate-fade-in block">
-            <div class="text-center py-20">
-                <div class="inline-block px-4 py-2 mb-8 text-sm font-bold tracking-widest border border-gray-400 rounded-full text-gray-600 uppercase">
-                    跨領域課程設計架構
-                </div>
-                <!-- Title Updated -->
-                <h1 class="text-6xl md:text-7xl font-serif font-black text-ink mb-8 leading-tight">
-                    黑煙囪裡的<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-u2 to-accent-u3">綠色煉金術</span>
-                </h1>
-                <p class="text-2xl text-gray-600 max-w-3xl mx-auto mb-16 font-light leading-relaxed">
-                    從「色彩」切入環境議題，從「技術」理解循環經濟。<br>
-                    帶領學生走入台灣製造業的心臟——觀音工業區，<br>
-                    在環保的戰場中，看見供應鏈的真實價值。
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto text-left mb-16">
-                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u1">
-                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">主軸概念</h3>
-                        <p class="text-base text-gray-600">將環境議題具象化。從看見「污染色」到理解「技術循環」。</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u2">
-                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">關鍵場域</h3>
-                        <p class="text-base text-gray-600">桃園觀音工業區。經濟隱形冠軍聚落，環境守護最前線。</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u3">
-                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">SDGs 對焦</h3>
-                        <p class="text-base text-gray-600">SDG 12 責任消費<br>SDG 6 淨水衛生<br>SDG 9 工業創新</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u4">
-                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">IE 2.0 目標</h3>
-                        <p class="text-base text-gray-600">全球競合力與國家認同。理解台灣在全球供應鏈的角色。</p>
-                    </div>
-                </div>
-                
-                <div class="mt-12 text-center">
-                    <button onclick="showPage('architecture')" class="px-12 py-5 text-xl bg-ink text-white rounded-full hover:bg-gray-700 transition shadow-xl font-bold tracking-wide">開始課程導覽 ➜</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- PAGE: ARCHITECTURE (課程架構) -->
-        <section id="page-architecture" class="page-section animate-fade-in hidden">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-serif font-black text-ink mb-4">課程架構地圖</h2>
-                <p class="text-xl text-gray-500">Curriculum Roadmap</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto mb-20">
-                <!-- U1 -->
-                <div onclick="showPage('unit1')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u1 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">🎨</div>
-                    <div class="text-accent-u1 font-bold text-sm tracking-widest mb-2 uppercase">Unit 01</div>
-                    <h3 class="text-2xl font-bold text-ink mb-3">消失的色碼</h3>
-                    <p class="text-gray-500 text-base mb-6">視覺藝術 × 環境數據<br>看見污染的代價</p>
-                    <div class="w-10 h-10 rounded-full bg-accent-u1/10 text-accent-u1 flex items-center justify-center font-bold">➜</div>
-                </div>
-                <!-- U2 Updated Title -->
-                <div onclick="showPage('unit2')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u2 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">🚛</div>
-                    <div class="text-accent-u2 font-bold text-sm tracking-widest mb-2 uppercase">Unit 02</div>
-                    <h3 class="text-2xl font-bold text-ink mb-3">脈動國際</h3>
-                    <p class="text-gray-500 text-base mb-6">Google Map 路線 × 分工<br>支撐全球產業</p>
-                    <div class="w-10 h-10 rounded-full bg-accent-u2/10 text-accent-u2 flex items-center justify-center font-bold">➜</div>
-                </div>
-                <!-- U3 -->
-                <div onclick="showPage('unit3')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u3 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">♻️</div>
-                    <div class="text-accent-u3 font-bold text-sm tracking-widest mb-2 uppercase">Unit 03</div>
-                    <h3 class="text-2xl font-bold text-ink mb-3">循環經濟</h3>
-                    <p class="text-gray-500 text-base mb-6">自然科學 × 生活科技<br>廢棄物變黃金</p>
-                    <div class="w-10 h-10 rounded-full bg-accent-u3/10 text-accent-u3 flex items-center justify-center font-bold">➜</div>
-                </div>
-                <!-- U4 -->
-                <div onclick="showPage('unit4')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u4 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">🛡️</div>
-                    <div class="text-accent-u4 font-bold text-sm tracking-widest mb-2 uppercase">Unit 04</div>
-                    <h3 class="text-2xl font-bold text-ink mb-3">守護者聯盟</h3>
-                    <p class="text-gray-500 text-base mb-6">綜合活動 × 探究實作<br>行動與承諾</p>
-                    <div class="w-10 h-10 rounded-full bg-accent-u4/10 text-accent-u4 flex items-center justify-center font-bold">➜</div>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row justify-center gap-4 mt-12">
-                <button onclick="showPage('overview')" class="flow-btn flow-btn-prev">← 返回首頁</button>
-                <button onclick="showPage('unit1')" class="flow-btn flow-btn-next bg-accent-u1 hover:bg-red-600 border-none">進入第一單元：消失的色碼 →</button>
-            </div>
-        </section>
-
-        <!-- PAGE: UNIT 1 -->
-        <section id="page-unit1" class="page-section animate-fade-in hidden">
-            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
-                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">01</span>
-                <h2 class="text-4xl font-serif font-bold text-ink pl-6">消失的色碼 <span class="text-2xl font-sans font-normal text-accent-u1 ml-4">The Cost of Color</span></h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
-                <div class="lg:col-span-5 space-y-10">
-                    <div class="bg-white p-8 rounded-2xl card-shadow">
-                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
-                        <p class="text-gray-700 text-lg leading-relaxed">讓學生「看見」肉眼忽視的污染，並將感官經驗轉化為數據圖表。</p>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="guide-step border-accent-u1">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 震撼教育 (Hook)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">展示 H&M/Zara 流行色 vs 大堀溪混濁污染色。提問：「為什麼漂亮的衣服會製造出醜陋的河水？」</p>
-                        </div>
-                        <div class="guide-step border-accent-u1">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 尋找消失色碼 (Investigation)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">實作：定位觀音，查詢大堀溪 COD (化學需氧量) 數據。將數據高低轉化為顏色的深淺。</p>
-                        </div>
-                        <div class="guide-step border-accent-u1">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 產出—觀音色票卡 (Output)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">製作 Pantone 風格色票：上為「消費/美」，下為「代價/污染」，標註真實 COD 數據。</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-7">
-                    <div class="visual-board relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-accent-u1 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
-                        <h3 class="text-3xl font-serif font-bold text-ink mb-8 text-center">色彩的代價：視覺對照</h3>
-                        <div class="grid grid-cols-2 gap-8 mb-8">
-                            <div class="text-center group">
-                                <div class="h-48 w-full rounded-2xl bg-[#E76F51] shadow-md mb-4 flex flex-col items-center justify-center transform group-hover:scale-105 transition duration-500">
-                                    <span class="text-white/80 text-2xl font-bold">Fashion</span>
-                                    <span class="text-white/60 text-sm mt-1">2026 春夏流行色</span>
-                                </div>
-                                <h4 class="text-xl font-bold text-gray-700">消費端：美感</h4>
-                            </div>
-                            <div class="text-center group">
-                                <div class="h-48 w-full rounded-2xl bg-[#5D4037] shadow-md mb-4 flex flex-col items-center justify-center relative overflow-hidden transform group-hover:scale-105 transition duration-500">
-                                    <span class="text-white/60 text-2xl font-bold z-10">Pollution</span>
-                                    <span class="text-white/40 text-sm mt-1 z-10">COD: 150 mg/L</span>
-                                    <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/noise.png')]"></div>
-                                </div>
-                                <h4 class="text-xl font-bold text-gray-700">製造端：代價</h4>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-accent-u1">
-                            <p class="text-lg text-gray-600 italic">"根據聯合國環境署 (UNEP) 報告，時尚產業佔全球工業廢水 20%。我們身上的每一種顏色，都可能對應著一條河流的顏色。"</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
-                <button onclick="showPage('architecture')" class="flow-btn flow-btn-prev">← 回課程架構</button>
-                <button onclick="showPage('unit2')" class="flow-btn flow-btn-next bg-accent-u2 border-none hover:bg-teal-700">下一單元：脈動國際 →</button>
-            </div>
-        </section>
-
-        <!-- PAGE: UNIT 2 (Updated: International Pulse & Google Maps) -->
-        <section id="page-unit2" class="page-section animate-fade-in hidden">
-            <!-- Header Updated -->
-            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
-                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">02</span>
-                <h2 class="text-4xl font-serif font-bold text-ink pl-6">脈動國際 <span class="text-2xl font-sans font-normal text-accent-u2 ml-4">International Pulse</span></h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
-                <!-- Guide Updated -->
-                <div class="lg:col-span-5 space-y-10">
-                    <div class="bg-white p-8 rounded-2xl card-shadow">
-                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
-                        <p class="text-gray-700 text-lg leading-relaxed">追蹤化學槽車，認識觀音如何成為全球供應鏈心臟。利用 Google Maps 繪製產品路線，理解國際分工。</p>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="guide-step border-accent-u2">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 地圖解密與路線繪製 (Map & Routes)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">
-                                <b class="text-accent-u2">實作任務：</b>打開 Google Maps，定位「觀音工業區」。<br>
-                                1. 標示「三福化工」或「永光化學」位置。<br>
-                                2. 規劃至「桃園國際機場 (空運)」或「台北港 (海運)」的路線。<br>
-                                3. 畫出延伸至美國 Apple 總部或越南 Nike 代工廠的假想航線。
-                            </p>
-                        </div>
-                        <div class="guide-step border-accent-u2">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 國際產業分工 (Global Collaboration)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">解析供應鏈關係：<br>• <b>上游 (觀音)</b>：原料製造 (電子化學品/機能布)<br>• <b>中游 (海外)</b>：組裝代工 (中國/東南亞)<br>• <b>下游 (全球)</b>：品牌銷售 (歐美日)</p>
-                        </div>
-                        <div class="guide-step border-accent-u2">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 向世界發聲 (Voice to the World)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">製作簡報：<b>「如果沒有觀音...」</b>。向世界說明觀音化學與紡織產業的重要性，以及它們如何與國際接軌。</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Visual Board: Google Map Route Concept -->
-                <div class="lg:col-span-7">
-                    <div class="visual-board relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-accent-u2 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
-                        <h3 class="text-3xl font-serif font-bold text-ink mb-10 text-center">產品路線圖：從觀音到世界</h3>
-                        
-                        <!-- Map Visual Container -->
-                        <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-6 relative h-[400px] w-full mx-auto">
-                            <!-- Background Grid like map -->
-                            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"></div>
-
-                            <!-- Route Visual -->
-                            <div class="relative z-10 h-full w-full flex flex-col justify-between">
-                                
-                                <!-- Node 1: Guanyin -->
-                                <div class="absolute top-10 left-10 flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-accent-u2 rounded-full flex items-center justify-center text-white text-2xl shadow-lg z-20 animate-pulse">🏭</div>
-                                    <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-                                        <div class="font-bold text-ink">起點：觀音</div>
-                                        <div class="text-xs text-gray-500">原料生產 (永光/三福)</div>
-                                    </div>
-                                </div>
-
-                                <!-- Connection Line 1 -->
-                                <svg class="absolute inset-0 w-full h-full pointer-events-none z-0">
-                                    <path d="M 80 80 Q 200 150 400 100" stroke="#4A8C88" stroke-width="3" fill="none" class="map-route-line" />
-                                </svg>
-
-                                <!-- Node 2: Port/Airport -->
-                                <div class="absolute top-20 right-20 md:right-40 flex items-center gap-4 flex-row-reverse">
-                                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl shadow-lg z-20">✈️</div>
-                                    <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 text-right">
-                                        <div class="font-bold text-ink">中轉：桃園機場/台北港</div>
-                                        <div class="text-xs text-gray-500">物流出口</div>
-                                    </div>
-                                </div>
-
-                                <!-- Connection Line 2 -->
-                                <svg class="absolute inset-0 w-full h-full pointer-events-none z-0">
-                                    <path d="M 440 120 Q 300 300 100 350" stroke="#4A8C88" stroke-width="3" stroke-dasharray="5,5" fill="none" />
-                                </svg>
-
-                                <!-- Node 3: Global -->
-                                <div class="absolute bottom-10 left-20 flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl shadow-lg z-20">🌍</div>
-                                    <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-                                        <div class="font-bold text-ink">終點：全球市場</div>
-                                        <div class="text-xs text-gray-500">Apple HQ / Nike Store</div>
-                                    </div>
-                                </div>
-
-                                <!-- Stats Overlay -->
-                                <div class="absolute bottom-4 right-4 bg-white/90 p-4 rounded-xl shadow-lg border border-gray-100 text-xs text-gray-600 max-w-[200px]">
-                                    <div class="font-bold mb-1 text-accent-u2">分工模式 (Division of Labor)</div>
-                                    <ul class="list-disc pl-4 space-y-1">
-                                        <li>研發/原料：台灣 (觀音)</li>
-                                        <li>製造/組裝：東南亞/中國</li>
-                                        <li>品牌/行銷：歐美</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 text-center text-gray-500 italic text-sm">
-                            "透過 Google Maps，我們看見觀音不是孤島，而是連結世界的起點。"
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
-                <button onclick="showPage('unit1')" class="flow-btn flow-btn-prev">← 上一單元</button>
-                <button onclick="showPage('unit3')" class="flow-btn flow-btn-next bg-accent-u3 border-none hover:bg-yellow-600">下一單元：循環經濟 →</button>
-            </div>
-        </section>
-
-        <!-- PAGE: UNIT 3 -->
-        <section id="page-unit3" class="page-section animate-fade-in hidden">
-            <!-- Header -->
-            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
-                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">03</span>
-                <h2 class="text-4xl font-serif font-bold text-ink pl-6">循環經濟 <span class="text-2xl font-sans font-normal text-accent-u3 ml-4">Circular Economy</span></h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
-                <!-- Guide -->
-                <div class="lg:col-span-5 space-y-10">
-                    <div class="bg-white p-8 rounded-2xl card-shadow">
-                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
-                        <p class="text-gray-700 text-lg leading-relaxed">深入技術核心，理解「廢棄物如何變黃金」。聚焦紡織產業的循環轉型。</p>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="guide-step border-accent-u3">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 觀念翻轉 (Concept)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">紡織業的綠色轉身。連結單元一的污染議題，介紹觀音紡織大廠如何透過回收技術，將「污染源」轉變為「新資源」。</p>
-                        </div>
-                        <div class="guide-step border-accent-u3">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 循環製程解析 (Process)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">說明「寶特瓶 (PET) 變球衣」的技術流程：<br>1. 清洗與破碎 (Flakes)<br>2. 熔融抽絲 (Spinning)<br>3. 織造成布 (Fabric)<br>減少對石油依賴。</p>
-                        </div>
-                        <div class="guide-step border-accent-u3">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 產出—循環經濟模型</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">數位動態流程圖或使用廢材製作實體工廠模型。</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Visual Board -->
-                <div class="lg:col-span-7">
-                    <div class="visual-board relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-accent-u3 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
-                        <h3 class="text-3xl font-serif font-bold text-ink mb-12 text-center">從寶特瓶到時尚</h3>
-                        <!-- Flowchart -->
-                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 relative max-w-4xl mx-auto">
-                            <div class="absolute top-1/2 left-0 w-full h-1 border-t-2 border-dashed border-gray-300 -z-10 hidden md:block"></div>
-                            <div class="z-10 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm w-64 text-center h-64 flex flex-col justify-center items-center">
-                                <div class="text-6xl mb-4">🥤</div>
-                                <div class="text-sm text-gray-400 font-bold uppercase tracking-wider">Source</div>
-                                <div class="font-bold text-ink text-xl mt-1">廢棄寶特瓶</div>
-                                <div class="text-sm text-gray-500 mt-2">PET Waste</div>
-                            </div>
-                            <div class="text-accent-u3 text-4xl font-bold transform rotate-90 md:rotate-0">➜</div>
-                            <div class="z-10 bg-[#FFFBEB] p-6 rounded-2xl border-4 border-accent-u3 shadow-lg w-64 text-center h-64 flex flex-col justify-center items-center transform md:scale-110">
-                                <div class="text-6xl mb-4">⚙️</div>
-                                <div class="text-sm text-accent-u3 font-bold uppercase tracking-wider">Technology</div>
-                                <div class="font-bold text-ink text-xl mt-1">熔融抽絲</div>
-                                <div class="text-sm text-gray-500 mt-2">Recycled Tech</div>
-                            </div>
-                            <div class="text-accent-u3 text-4xl font-bold transform rotate-90 md:rotate-0">➜</div>
-                            <div class="z-10 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm w-64 text-center h-64 flex flex-col justify-center items-center">
-                                <div class="text-6xl mb-4">👕</div>
-                                <div class="text-sm text-accent-u3 font-bold uppercase tracking-wider">Product</div>
-                                <div class="font-bold text-ink text-xl mt-1">環保機能布</div>
-                                <div class="text-sm text-gray-500 mt-2">Sustainable Fabric</div>
-                            </div>
-                        </div>
-                        <div class="mt-16 text-center">
-                            <div class="inline-block bg-gray-50 border border-gray-200 rounded-xl p-6 max-w-2xl">
-                                <h5 class="text-lg font-bold text-ink mb-2">💡 觀音在地連結</h5>
-                                <p class="text-base text-gray-600">觀音工業區內的紡織相關供應鏈，正在將過去被視為垃圾的寶特瓶，轉化為世界盃足球賽球員身上的「環保球衣」。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
-                <button onclick="showPage('unit2')" class="flow-btn flow-btn-prev">← 上一單元</button>
-                <button onclick="showPage('unit4')" class="flow-btn flow-btn-next bg-accent-u4 border-none hover:bg-gray-700">下一單元：守護者聯盟 →</button>
-            </div>
-        </section>
-
-        <!-- PAGE: UNIT 4 -->
-        <section id="page-unit4" class="page-section animate-fade-in hidden">
-            <!-- Header -->
-            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
-                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">04</span>
-                <h2 class="text-4xl font-serif font-bold text-ink pl-6">守護者聯盟 <span class="text-2xl font-sans font-normal text-accent-u4 ml-4">The Guardian's League</span></h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
-                <!-- Guide -->
-                <div class="lg:col-span-5 space-y-10">
-                    <div class="bg-white p-8 rounded-2xl card-shadow">
-                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
-                        <p class="text-gray-700 text-lg leading-relaxed">總結學習，提出行動方案，連結全球責任。</p>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="guide-step border-accent-u4">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 大型裝置藝術製作 (Installation Art)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">結合循環經濟概念，使用工廠廢棄物或回收材（如線軸、寶特瓶）集體創作出「觀音循環圖騰」，象徵工業與生態共存。</p>
-                        </div>
-                        <div class="guide-step border-accent-u4">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 策展與承諾 (Manifesto)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">每位學生設計一枚「觀音守護勳章」。<br>宣言(雙語)：I support the Green Supply Chain starting from Guanyin.</p>
-                        </div>
-                        <div class="guide-step border-accent-u4">
-                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 成果發表會 (Showcase)</h5>
-                            <p class="text-lg text-gray-600 leading-relaxed">舉辦「觀音光譜展」，展出三項核心作品：<br>1. 單元一：觀音色票卡 (Output)<br>2. 單元四：大型裝置藝術<br>3. 單元四：每位學生的守護勳章</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Visual Board -->
-                <div class="lg:col-span-7">
-                    <div class="visual-board relative overflow-hidden">
-                        <div class="absolute top-0 right-0 bg-accent-u4 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
-                        <h3 class="text-3xl font-serif font-bold text-ink mb-8 text-center">成果發表展區規劃</h3>
-                        <!-- Exhibition Layout -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full max-h-[500px]">
-                            <div class="bg-[#F8F9FA] border-2 border-accent-u1 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-                                <div class="text-4xl mb-2">🎨</div>
-                                <h4 class="text-xl font-bold text-ink">Zone A: 色票牆</h4>
-                                <p class="text-gray-500 text-sm mt-2">Unit 1 作品展示<br>看見污染的代價</p>
-                            </div>
-                            <div class="bg-[#F8F9FA] border-2 border-accent-u4 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center md:row-span-2">
-                                <div class="text-6xl mb-4">🗿</div>
-                                <h4 class="text-2xl font-bold text-ink">Main Zone: 裝置藝術</h4>
-                                <p class="text-gray-500 text-base mt-2">Unit 4 集體創作<br>象徵循環與共存的核心圖騰</p>
-                            </div>
-                            <div class="bg-[#F8F9FA] border-2 border-accent-u4 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-                                <div class="text-4xl mb-2">🛡️</div>
-                                <h4 class="text-xl font-bold text-ink">Zone B: 守護勳章</h4>
-                                <p class="text-gray-500 text-sm mt-2">個人承諾展示<br>Green Manifesto</p>
-                            </div>
-                        </div>
-                        <div class="mt-8 text-center">
-                            <p class="text-gray-600 italic">"這不僅是作業展示，更是我們對觀音未來的共同承諾。"</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
-                <button onclick="showPage('unit3')" class="flow-btn flow-btn-prev">← 上一單元</button>
-                <button onclick="showPage('overview')" class="flow-btn flow-btn-next">回首頁 ➜</button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="bg-white border-t border-gray-200 py-12 mt-auto">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <div class="text-ink font-serif font-bold text-2xl mb-4">觀高國際教育</div>
-            <p class="text-gray-500 text-lg mb-6">Designed for Co-Teaching & Visual Learning</p>
-            <div class="flex justify-center gap-6 text-sm text-gray-400">
-                <span>© 2026 Curriculum Design</span>
-                <span>•</span>
-                <span>Tailwind CSS</span>
-            </div>
+      </div>
+      <div class="visual-panel">
+        <div class="board-tag" style="background:var(--u1)">教學視像板</div>
+        <h3>色彩的代價：視覺對照</h3>
+        <div class="color-compare">
+          <div class="color-swatch" style="background:linear-gradient(145deg,#E76F51,#E8956F)">
+            <span class="big-label">Fashion</span>
+            <span class="label">消費端：美感</span>
+            <span class="sub-label">2026 春夏流行色</span>
+          </div>
+          <div class="color-swatch" style="background:linear-gradient(145deg,#5D4037,#3E2723)">
+            <span class="big-label">Pollution</span>
+            <span class="label">製造端：代價</span>
+            <span class="sub-label">COD: 150 mg/L</span>
+          </div>
         </div>
-    </footer>
+        <div class="quote-box" style="border-color:var(--u1)">
+          「根據聯合國環境署 (UNEP) 報告，時尚產業佔全球工業廢水 20%。我們身上的每一種顏色，都可能對應著一條河流的顏色。」
+        </div>
+      </div>
+    </div>
+    <div class="page-nav">
+      <button class="btn btn-ghost" onclick="go('architecture')">← 回課程架構</button>
+      <button class="btn btn-primary u2" onclick="go('unit2')">下一單元：脈動國際 →</button>
+    </div>
+  </div>
+</section>
 
-    <!-- LOGIC SCRIPT -->
-    <script>
-        function showPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(el => {
-                el.classList.add('hidden');
-                el.classList.remove('block');
-            });
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-            document.getElementById('page-' + pageId).classList.add('block');
+<!-- ===== PAGE: UNIT 2 ===== -->
+<section class="page unit-page" id="page-unit2">
+  <div class="container">
+    <div class="progress-bar">
+      <div class="progress-dot filled" style="background:var(--u2);opacity:0.4"></div>
+      <div class="progress-dot filled" style="background:var(--u2)"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+    <div class="unit-hero">
+      <div class="unit-num">02</div>
+      <div class="unit-tag" style="color:var(--u2)">Unit 02</div>
+      <h2>脈動國際</h2>
+      <div class="en-title" style="color:var(--u2)">International Pulse</div>
+    </div>
+    <div class="unit-body">
+      <div class="teach-panel">
+        <div class="goal-box">
+          <h4>🎯 教學目標</h4>
+          <p>追蹤化學槽車，認識觀音如何成為全球供應鏈心臟。利用 Google Maps 繪製產品路線，理解國際分工。</p>
+        </div>
+        <div class="step-list">
+          <div class="step-item" data-color="u2">
+            <span class="step-num" style="color:var(--u2)">Step 01</span>
+            <h5>地圖解密與路線繪製 Map & Routes</h5>
+            <p>打開 Google Maps，定位「觀音工業區」。標示「三福化工」或「永光化學」位置。規劃至桃園機場（空運）或台北港（海運）的路線。畫出延伸至 Apple 總部或越南 Nike 代工廠的假想航線。</p>
+          </div>
+          <div class="step-item" data-color="u2">
+            <span class="step-num" style="color:var(--u2)">Step 02</span>
+            <h5>國際產業分工 Global Collaboration</h5>
+            <p>解析供應鏈關係：上游（觀音）原料製造、中游（海外）組裝代工、下游（全球）品牌銷售。</p>
+          </div>
+          <div class="step-item" data-color="u2">
+            <span class="step-num" style="color:var(--u2)">Step 03</span>
+            <h5>向世界發聲 Voice to the World</h5>
+            <p>製作簡報：「如果沒有觀音⋯⋯」。向世界說明觀音化學與紡織產業的重要性，以及它們如何與國際接軌。</p>
+          </div>
+        </div>
+      </div>
+      <div class="visual-panel">
+        <div class="board-tag" style="background:var(--u2)">教學視像板</div>
+        <h3>產品路線圖：從觀音到世界</h3>
+        <div class="route-map">
+          <div class="route-node">
+            <div class="node-dot" style="background:var(--u2-glow);color:var(--u2);border:2px solid var(--u2)">
+              🏭
+              <div style="border-color:var(--u2)"></div>
+            </div>
+            <div class="node-info">
+              <h5>起點：觀音工業區</h5>
+              <p>原料生產（永光 / 三福化工）</p>
+            </div>
+          </div>
+          <div class="route-connector" style="background:transparent"></div>
+          <div class="route-node">
+            <div class="node-dot" style="background:rgba(59,130,246,0.15);color:#3B82F6;border:2px solid #3B82F6">
+              ✈️
+            </div>
+            <div class="node-info">
+              <h5>中轉：桃園機場 / 台北港</h5>
+              <p>物流出口樞紐</p>
+            </div>
+          </div>
+          <div class="route-connector" style="background:transparent"></div>
+          <div class="route-node">
+            <div class="node-dot" style="background:rgba(239,68,68,0.15);color:#EF4444;border:2px solid #EF4444">
+              🌍
+            </div>
+            <div class="node-info">
+              <h5>終點：全球市場</h5>
+              <p>Apple HQ / Nike Store / 歐美品牌端</p>
+            </div>
+          </div>
+          <div class="supply-badge">
+            <h6>全球分工模式</h6>
+            <ul>
+              <li>研發 / 原料：台灣（觀音）</li>
+              <li>製造 / 組裝：東南亞 / 中國</li>
+              <li>品牌 / 行銷：歐美日</li>
+            </ul>
+          </div>
+        </div>
+        <div style="margin-top:20px;text-align:center;font-style:italic;font-size:0.82rem;color:var(--text-dim)">
+          「透過 Google Maps，我們看見觀音不是孤島，而是連結世界的起點。」
+        </div>
+      </div>
+    </div>
+    <div class="page-nav">
+      <button class="btn btn-ghost" onclick="go('unit1')">← 上一單元</button>
+      <button class="btn btn-primary u3" onclick="go('unit3')">下一單元：循環經濟 →</button>
+    </div>
+  </div>
+</section>
 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const navBtn = document.getElementById('nav-' + pageId);
-            if(navBtn) navBtn.classList.add('active');
+<!-- ===== PAGE: UNIT 3 ===== -->
+<section class="page unit-page" id="page-unit3">
+  <div class="container">
+    <div class="progress-bar">
+      <div class="progress-dot filled" style="background:var(--u3);opacity:0.3"></div>
+      <div class="progress-dot filled" style="background:var(--u3);opacity:0.5"></div>
+      <div class="progress-dot filled" style="background:var(--u3)"></div>
+      <div class="progress-dot"></div>
+    </div>
+    <div class="unit-hero">
+      <div class="unit-num">03</div>
+      <div class="unit-tag" style="color:var(--u3)">Unit 03</div>
+      <h2>循環經濟</h2>
+      <div class="en-title" style="color:var(--u3)">Circular Economy</div>
+    </div>
+    <div class="unit-body">
+      <div class="teach-panel">
+        <div class="goal-box">
+          <h4>🎯 教學目標</h4>
+          <p>深入技術核心，理解「廢棄物如何變黃金」。聚焦紡織產業的循環轉型。</p>
+        </div>
+        <div class="step-list">
+          <div class="step-item" data-color="u3">
+            <span class="step-num" style="color:var(--u3)">Step 01</span>
+            <h5>觀念翻轉 Concept</h5>
+            <p>紡織業的綠色轉身。連結單元一的污染議題，介紹觀音紡織大廠如何透過回收技術，將「污染源」轉變為「新資源」。</p>
+          </div>
+          <div class="step-item" data-color="u3">
+            <span class="step-num" style="color:var(--u3)">Step 02</span>
+            <h5>循環製程解析 Process</h5>
+            <p>說明「寶特瓶（PET）變球衣」的技術流程：清洗與破碎（Flakes）→ 熔融抽絲（Spinning）→ 織造成布（Fabric），減少對石油依賴。</p>
+          </div>
+          <div class="step-item" data-color="u3">
+            <span class="step-num" style="color:var(--u3)">Step 03</span>
+            <h5>產出—循環經濟模型</h5>
+            <p>數位動態流程圖或使用廢材製作實體工廠模型。</p>
+          </div>
+        </div>
+      </div>
+      <div class="visual-panel">
+        <div class="board-tag" style="background:var(--u3)">教學視像板</div>
+        <h3>從寶特瓶到時尚</h3>
+        <div class="flow-steps">
+          <div class="flow-card">
+            <span class="fc-icon">🥤</span>
+            <div class="fc-tag">Source</div>
+            <div class="fc-title">廢棄寶特瓶</div>
+            <div class="fc-sub">PET Waste</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-card highlight">
+            <span class="fc-icon">⚙️</span>
+            <div class="fc-tag">Technology</div>
+            <div class="fc-title">熔融抽絲</div>
+            <div class="fc-sub">Recycled Tech</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-card">
+            <span class="fc-icon">👕</span>
+            <div class="fc-tag">Product</div>
+            <div class="fc-title">環保機能布</div>
+            <div class="fc-sub">Sustainable Fabric</div>
+          </div>
+        </div>
+        <div class="local-box">
+          <h5>💡 觀音在地連結</h5>
+          <p>觀音工業區內的紡織相關供應鏈，正在將過去被視為垃圾的寶特瓶，轉化為世界盃足球賽球員身上的「環保球衣」。</p>
+        </div>
+      </div>
+    </div>
+    <div class="page-nav">
+      <button class="btn btn-ghost" onclick="go('unit2')">← 上一單元</button>
+      <button class="btn btn-primary u4" onclick="go('unit4')">下一單元：守護者聯盟 →</button>
+    </div>
+  </div>
+</section>
 
-            window.scrollTo(0, 0);
-        }
+<!-- ===== PAGE: UNIT 4 ===== -->
+<section class="page unit-page" id="page-unit4">
+  <div class="container">
+    <div class="progress-bar">
+      <div class="progress-dot filled" style="background:var(--u4);opacity:0.2"></div>
+      <div class="progress-dot filled" style="background:var(--u4);opacity:0.4"></div>
+      <div class="progress-dot filled" style="background:var(--u4);opacity:0.6"></div>
+      <div class="progress-dot filled" style="background:var(--u4)"></div>
+    </div>
+    <div class="unit-hero">
+      <div class="unit-num">04</div>
+      <div class="unit-tag" style="color:var(--u4)">Unit 04</div>
+      <h2>守護者聯盟</h2>
+      <div class="en-title" style="color:var(--u4)">The Guardian's League</div>
+    </div>
+    <div class="unit-body">
+      <div class="teach-panel">
+        <div class="goal-box">
+          <h4>🎯 教學目標</h4>
+          <p>總結學習，提出行動方案，連結全球責任。</p>
+        </div>
+        <div class="step-list">
+          <div class="step-item" data-color="u4">
+            <span class="step-num" style="color:var(--u4)">Step 01</span>
+            <h5>大型裝置藝術製作 Installation Art</h5>
+            <p>結合循環經濟概念，使用工廠廢棄物或回收材（如線軸、寶特瓶）集體創作出「觀音循環圖騰」，象徵工業與生態共存。</p>
+          </div>
+          <div class="step-item" data-color="u4">
+            <span class="step-num" style="color:var(--u4)">Step 02</span>
+            <h5>策展與承諾 Manifesto</h5>
+            <p>每位學生設計一枚「觀音守護勳章」。宣言（雙語）：I support the Green Supply Chain starting from Guanyin.</p>
+          </div>
+          <div class="step-item" data-color="u4">
+            <span class="step-num" style="color:var(--u4)">Step 03</span>
+            <h5>成果發表會 Showcase</h5>
+            <p>舉辦「觀音光譜展」，展出三項核心作品：觀音色票卡、大型裝置藝術、每位學生的守護勳章。</p>
+          </div>
+        </div>
+      </div>
+      <div class="visual-panel">
+        <div class="board-tag" style="background:var(--u4)">教學視像板</div>
+        <h3>成果發表展區規劃</h3>
+        <div class="exhibit-grid">
+          <div class="exhibit-zone exhibit-a">
+            <div class="ez-icon">🎨</div>
+            <h4>Zone A：色票牆</h4>
+            <p>Unit 1 作品展示<br>看見污染的代價</p>
+          </div>
+          <div class="exhibit-zone exhibit-b">
+            <div class="ez-icon">🛡️</div>
+            <h4>Zone B：守護勳章</h4>
+            <p>個人承諾展示<br>Green Manifesto</p>
+          </div>
+          <div class="exhibit-zone exhibit-main">
+            <div class="ez-icon">🗿</div>
+            <h4>Main Zone：裝置藝術</h4>
+            <p>Unit 4 集體創作<br>象徵循環與共存的核心圖騰</p>
+          </div>
+        </div>
+        <div style="margin-top:28px;text-align:center;font-style:italic;font-size:0.85rem;color:var(--text-dim)">
+          「這不僅是作業展示，更是我們對觀音未來的共同承諾。」
+        </div>
+      </div>
+    </div>
+    <div class="page-nav">
+      <button class="btn btn-ghost" onclick="go('unit3')">← 上一單元</button>
+      <button class="btn btn-primary accent" onclick="go('overview')">回首頁 →</button>
+    </div>
+  </div>
+</section>
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-    </script>
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="brand">觀高國際教育</div>
+  <p>Designed for Co-Teaching & Visual Learning · © 2026</p>
+</footer>
+
+<script>
+const pages = ['overview','architecture','unit1','unit2','unit3','unit4'];
+let current = 'overview';
+
+function go(id) {
+  if (current === id) return;
+  const oldPage = document.getElementById('page-' + current);
+  const newPage = document.getElementById('page-' + id);
+  
+  // Fade out old
+  oldPage.style.animation = 'none';
+  oldPage.style.opacity = '0';
+  oldPage.style.transform = 'translateY(-10px)';
+  
+  setTimeout(() => {
+    oldPage.classList.remove('visible');
+    oldPage.style.opacity = '';
+    oldPage.style.transform = '';
+    oldPage.style.animation = '';
+    
+    newPage.classList.add('visible');
+    current = id;
+    
+    // Update nav
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    const activeLink = document.querySelector(`.nav-link[data-page="${id}"]`);
+    if (activeLink) activeLink.classList.add('active');
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 200);
+}
+
+function toggleMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const ham = document.getElementById('hamburger');
+  menu.classList.toggle('open');
+  ham.classList.toggle('open');
+}
+
+// Close menu on outside click
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('mobileMenu');
+  const ham = document.getElementById('hamburger');
+  if (menu.classList.contains('open') && !menu.contains(e.target) && !ham.contains(e.target)) {
+    menu.classList.remove('open');
+    ham.classList.remove('open');
+  }
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  const idx = pages.indexOf(current);
+  if (e.key === 'ArrowRight' && idx < pages.length - 1) go(pages[idx + 1]);
+  if (e.key === 'ArrowLeft' && idx > 0) go(pages[idx - 1]);
+});
+</script>
 </body>
 </html>
