@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>觀音光譜：黑煙囪裡的綠色煉金術 | 教學導引系統</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'paper': '#F9F7F2',
+                        'ink': '#2D3748',
+                        'accent-u1': '#D97D73', 
+                        'accent-u2': '#4A8C88', 
+                        'accent-u3': '#D4A453', 
+                        'accent-u4': '#4A5D5E', 
+                        'subtle-gray': '#E5E5E5',
+                    },
+                    fontFamily: {
+                        serif: ['Noto Serif TC', 'serif'],
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #F9F7F2;
+            color: #2D3748;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+            font-size: 18px;
+        }
+
+        .nav-btn.active {
+            color: #2D3748;
+            font-weight: 700;
+            border-bottom: 4px solid;
+            border-color: inherit;
+        }
+        
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+        }
+
+        .guide-step {
+            border-left: 5px solid #E5E5E5;
+            padding-left: 1.5rem;
+            margin-bottom: 2rem;
+            transition: border-color 0.3s;
+        }
+        .guide-step:hover {
+            border-color: #A0AEC0;
+        }
+
+        .visual-board {
+            background-color: white;
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            height: 100%;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* 頁面切換按鈕樣式 */
+        .flow-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .flow-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .flow-btn-prev {
+            background-color: white;
+            color: #4A5568;
+            border: 1px solid #E2E8F0;
+        }
+        .flow-btn-next {
+            background-color: #2D3748;
+            color: white;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-sans text-lg">
+
+    <!-- NAVIGATION -->
+    <nav class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 lg:px-10">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="font-serif font-black text-2xl tracking-wide text-ink cursor-pointer hover:opacity-80 transition" onclick="showPage('overview')">
+                        觀音光譜
+                    </div>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-10">
+                    <button onclick="showPage('overview')" id="nav-overview" class="nav-btn active text-gray-500 hover:text-ink px-2 py-2 text-lg font-medium border-transparent transition-all border-ink">首頁</button>
+                    <button onclick="showPage('architecture')" id="nav-architecture" class="nav-btn text-gray-500 hover:text-ink px-2 py-2 text-lg font-medium border-transparent transition-all border-gray-400">課程架構</button>
+                    <button onclick="showPage('unit1')" id="nav-unit1" class="nav-btn text-gray-400 hover:text-accent-u1 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #D97D73;">U1 消失色碼</button>
+                    <button onclick="showPage('unit2')" id="nav-unit2" class="nav-btn text-gray-400 hover:text-accent-u2 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #4A8C88;">U2 隱形推手</button>
+                    <button onclick="showPage('unit3')" id="nav-unit3" class="nav-btn text-gray-400 hover:text-accent-u3 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #D4A453;">U3 循環經濟</button>
+                    <button onclick="showPage('unit4')" id="nav-unit4" class="nav-btn text-gray-400 hover:text-accent-u4 px-2 py-2 text-lg font-medium border-transparent transition-all" style="border-color: #4A5D5E;">U4 守護聯盟</button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-ink focus:outline-none p-2">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
+            <div class="px-4 py-4 space-y-2">
+                <button onclick="showPage('overview'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-bold text-ink hover:bg-gray-50 rounded-lg">首頁</button>
+                <button onclick="showPage('architecture'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-bold text-gray-600 hover:bg-gray-50 rounded-lg">課程架構</button>
+                <button onclick="showPage('unit1'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u1 hover:bg-red-50 rounded-lg">U1 消失色碼</button>
+                <button onclick="showPage('unit2'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u2 hover:bg-teal-50 rounded-lg">U2 隱形推手</button>
+                <button onclick="showPage('unit3'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u3 hover:bg-yellow-50 rounded-lg">U3 循環經濟</button>
+                <button onclick="showPage('unit4'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 font-medium text-accent-u4 hover:bg-gray-50 rounded-lg">U4 守護聯盟</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto px-6 lg:px-10 py-12 w-full">
+
+        <!-- PAGE: OVERVIEW (首頁) -->
+        <section id="page-overview" class="page-section animate-fade-in block">
+            <div class="text-center py-20">
+                <div class="inline-block px-4 py-2 mb-8 text-sm font-bold tracking-widest border border-gray-400 rounded-full text-gray-600 uppercase">
+                    跨領域課程設計架構
+                </div>
+                <h1 class="text-6xl md:text-7xl font-serif font-black text-ink mb-8 leading-tight">
+                    黑煙囪裡的<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-u2 to-accent-u3">綠色煉金術</span>
+                </h1>
+                <p class="text-2xl text-gray-600 max-w-3xl mx-auto mb-16 font-light leading-relaxed">
+                    從「色彩」切入環境議題，從「技術」理解循環經濟。<br>
+                    帶領學生走入台灣製造業的心臟——觀音工業區，<br>
+                    在環保的戰場中，看見供應鏈的真實價值。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto text-left mb-16">
+                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u1">
+                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">主軸概念</h3>
+                        <p class="text-base text-gray-600">將環境議題具象化。從看見「污染色」到理解「技術循環」。</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u2">
+                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">關鍵場域</h3>
+                        <p class="text-base text-gray-600">桃園觀音工業區。經濟隱形冠軍聚落，環境守護最前線。</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u3">
+                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">SDGs 對焦</h3>
+                        <p class="text-base text-gray-600">SDG 12 責任消費<br>SDG 6 淨水衛生<br>SDG 9 工業創新</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl card-shadow border-t-8 border-accent-u4">
+                        <h3 class="font-serif font-bold text-xl mb-3 text-ink">IE 2.0 目標</h3>
+                        <p class="text-base text-gray-600">全球競合力與國家認同。理解台灣在全球供應鏈的角色。</p>
+                    </div>
+                </div>
+                
+                <div class="mt-12">
+                    <button onclick="showPage('architecture')" class="px-12 py-5 text-xl bg-ink text-white rounded-full hover:bg-gray-700 transition shadow-xl font-bold tracking-wide">開始課程導覽 ➜</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: ARCHITECTURE (課程架構 - NEW) -->
+        <section id="page-architecture" class="page-section animate-fade-in hidden">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-serif font-black text-ink mb-4">課程架構地圖</h2>
+                <p class="text-xl text-gray-500">Curriculum Roadmap</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto mb-20">
+                <!-- U1 Card -->
+                <div onclick="showPage('unit1')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u1 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">🎨</div>
+                    <div class="text-accent-u1 font-bold text-sm tracking-widest mb-2 uppercase">Unit 01</div>
+                    <h3 class="text-2xl font-bold text-ink mb-3">消失的色碼</h3>
+                    <p class="text-gray-500 text-base mb-6">視覺藝術 × 環境數據<br>看見污染的代價</p>
+                    <div class="w-10 h-10 rounded-full bg-accent-u1/10 text-accent-u1 flex items-center justify-center font-bold">➜</div>
+                </div>
+
+                <!-- U2 Card -->
+                <div onclick="showPage('unit2')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u2 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">🧊</div>
+                    <div class="text-accent-u2 font-bold text-sm tracking-widest mb-2 uppercase">Unit 02</div>
+                    <h3 class="text-2xl font-bold text-ink mb-3">晶片的隱形推手</h3>
+                    <p class="text-gray-500 text-base mb-6">英語文 × 公民經濟<br>供應鏈的角色</p>
+                    <div class="w-10 h-10 rounded-full bg-accent-u2/10 text-accent-u2 flex items-center justify-center font-bold">➜</div>
+                </div>
+
+                <!-- U3 Card -->
+                <div onclick="showPage('unit3')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u3 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">♻️</div>
+                    <div class="text-accent-u3 font-bold text-sm tracking-widest mb-2 uppercase">Unit 03</div>
+                    <h3 class="text-2xl font-bold text-ink mb-3">循環經濟</h3>
+                    <p class="text-gray-500 text-base mb-6">自然科學 × 生活科技<br>廢棄物變黃金</p>
+                    <div class="w-10 h-10 rounded-full bg-accent-u3/10 text-accent-u3 flex items-center justify-center font-bold">➜</div>
+                </div>
+
+                <!-- U4 Card -->
+                <div onclick="showPage('unit4')" class="group cursor-pointer bg-white rounded-2xl p-8 card-shadow border-2 border-transparent hover:border-accent-u4 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-6xl mb-6 group-hover:scale-110 transition duration-300">🛡️</div>
+                    <div class="text-accent-u4 font-bold text-sm tracking-widest mb-2 uppercase">Unit 04</div>
+                    <h3 class="text-2xl font-bold text-ink mb-3">守護者聯盟</h3>
+                    <p class="text-gray-500 text-base mb-6">綜合活動 × 探究實作<br>行動與承諾</p>
+                    <div class="w-10 h-10 rounded-full bg-accent-u4/10 text-accent-u4 flex items-center justify-center font-bold">➜</div>
+                </div>
+            </div>
+
+            <!-- Flow Nav Buttons -->
+            <div class="flex flex-col md:flex-row justify-center gap-4 mt-12">
+                <button onclick="showPage('overview')" class="flow-btn flow-btn-prev">
+                    ← 返回首頁
+                </button>
+                <button onclick="showPage('unit1')" class="flow-btn flow-btn-next bg-accent-u1 hover:bg-red-600 border-none">
+                    進入第一單元：消失的色碼 →
+                </button>
+            </div>
+        </section>
+
+        <!-- PAGE: UNIT 1 -->
+        <section id="page-unit1" class="page-section animate-fade-in hidden">
+            <!-- Header -->
+            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
+                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">01</span>
+                <h2 class="text-4xl font-serif font-bold text-ink pl-6">消失的色碼 <span class="text-2xl font-sans font-normal text-accent-u1 ml-4">The Cost of Color</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
+                <!-- Guide -->
+                <div class="lg:col-span-5 space-y-10">
+                    <div class="bg-white p-8 rounded-2xl card-shadow">
+                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
+                        <p class="text-gray-700 text-lg leading-relaxed">讓學生「看見」肉眼忽視的污染，並將感官經驗轉化為數據圖表。</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="guide-step border-accent-u1">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 震撼教育 (Hook)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">展示 H&M/Zara 流行色 vs 大堀溪混濁污染色。提問：「為什麼漂亮的衣服會製造出醜陋的河水？」</p>
+                        </div>
+                        <div class="guide-step border-accent-u1">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 尋找消失色碼 (Investigation)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">實作：定位觀音，查詢大堀溪 COD (化學需氧量) 數據。將數據高低轉化為顏色的深淺。</p>
+                        </div>
+                        <div class="guide-step border-accent-u1">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 產出—觀音色票卡 (Output)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">製作 Pantone 風格色票：上為「消費/美」，下為「代價/污染」，標註真實 COD 數據。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Board -->
+                <div class="lg:col-span-7">
+                    <div class="visual-board relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-accent-u1 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
+                        <h3 class="text-3xl font-serif font-bold text-ink mb-8 text-center">色彩的代價：視覺對照</h3>
+                        <div class="grid grid-cols-2 gap-8 mb-8">
+                            <div class="text-center group">
+                                <div class="h-48 w-full rounded-2xl bg-[#E76F51] shadow-md mb-4 flex flex-col items-center justify-center transform group-hover:scale-105 transition duration-500">
+                                    <span class="text-white/80 text-2xl font-bold">Fashion</span>
+                                    <span class="text-white/60 text-sm mt-1">2026 春夏流行色</span>
+                                </div>
+                                <h4 class="text-xl font-bold text-gray-700">消費端：美感</h4>
+                            </div>
+                            <div class="text-center group">
+                                <div class="h-48 w-full rounded-2xl bg-[#5D4037] shadow-md mb-4 flex flex-col items-center justify-center relative overflow-hidden transform group-hover:scale-105 transition duration-500">
+                                    <span class="text-white/60 text-2xl font-bold z-10">Pollution</span>
+                                    <span class="text-white/40 text-sm mt-1 z-10">COD: 150 mg/L</span>
+                                    <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/noise.png')]"></div>
+                                </div>
+                                <h4 class="text-xl font-bold text-gray-700">製造端：代價</h4>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-accent-u1">
+                            <p class="text-lg text-gray-600 italic">"根據聯合國環境署 (UNEP) 報告，時尚產業佔全球工業廢水 20%。我們身上的每一種顏色，都可能對應著一條河流的顏色。"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
+                <button onclick="showPage('architecture')" class="flow-btn flow-btn-prev">← 回課程架構</button>
+                <button onclick="showPage('unit2')" class="flow-btn flow-btn-next bg-accent-u2 border-none hover:bg-teal-700">下一單元：晶片的隱形推手 →</button>
+            </div>
+        </section>
+
+        <!-- PAGE: UNIT 2 -->
+        <section id="page-unit2" class="page-section animate-fade-in hidden">
+            <!-- Header -->
+            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
+                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">02</span>
+                <h2 class="text-4xl font-serif font-bold text-ink pl-6">晶片的隱形推手 <span class="text-2xl font-sans font-normal text-accent-u2 ml-4">The Invisible Hand</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
+                <!-- Guide -->
+                <div class="lg:col-span-5 space-y-10">
+                    <div class="bg-white p-8 rounded-2xl card-shadow">
+                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
+                        <p class="text-gray-700 text-lg leading-relaxed">聚焦「電子業供應鏈」，讓學生理解觀音在全球科技業的不可替代性。</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="guide-step border-accent-u2">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 供應鏈解密 (Research)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">閱讀企業 ESG 報告，找出關鍵字：<br>• 欣興電子：ABF 載板 (Apple 晶片基座)<br>• 永光化學：光阻劑 (晶圓電路顯影)</p>
+                        </div>
+                        <div class="guide-step border-accent-u2">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 電梯簡報 (Elevator Pitch)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">情境：在電梯遇到 Tim Cook。<br>SOP：Hook (你知道嗎?) ➔ Value (我們生產30%載板) ➔ Commitment (全回收水)。</p>
+                        </div>
+                        <div class="guide-step border-accent-u2">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 產出—Pitch Video</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">拍攝 60 秒直立式英語短影音，背景合成觀音工廠照片。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Board -->
+                <div class="lg:col-span-7">
+                    <div class="visual-board relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-accent-u2 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
+                        <h3 class="text-3xl font-serif font-bold text-ink mb-8 text-center">全球供應鏈位置圖</h3>
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="flex items-center p-6 bg-gray-50 rounded-xl border border-gray-100">
+                                <div class="h-16 w-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-sm shrink-0">🧊</div>
+                                <div class="ml-6">
+                                    <h4 class="text-xl font-bold text-ink">欣興電子 (Unimicron)</h4>
+                                    <p class="text-accent-u2 font-bold text-sm uppercase tracking-wider">Key Partner: Apple / Intel</p>
+                                    <p class="text-gray-600 mt-2 text-base">"Without our ABF substrates, the M3 chip is just sand."</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-6 bg-gray-50 rounded-xl border border-gray-100">
+                                <div class="h-16 w-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-sm shrink-0">🌈</div>
+                                <div class="ml-6">
+                                    <h4 class="text-xl font-bold text-ink">永光化學 (Everlight)</h4>
+                                    <p class="text-accent-u2 font-bold text-sm uppercase tracking-wider">Key Partner: Global Foundries</p>
+                                    <p class="text-gray-600 mt-2 text-base">"The 'Makeup Artist' for semiconductors, providing crucial photoresists."</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-6 bg-gray-50 rounded-xl border border-gray-100">
+                                <div class="h-16 w-16 bg-white rounded-full flex items-center justify-center text-3xl shadow-sm shrink-0">♻️</div>
+                                <div class="ml-6">
+                                    <h4 class="text-xl font-bold text-ink">三福化工 (San Fu)</h4>
+                                    <p class="text-accent-u2 font-bold text-sm uppercase tracking-wider">Key Partner: TSMC</p>
+                                    <p class="text-gray-600 mt-2 text-base">"Rescuing toxic waste and turning it into gold-standard materials."</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
+                <button onclick="showPage('unit1')" class="flow-btn flow-btn-prev">← 上一單元</button>
+                <button onclick="showPage('unit3')" class="flow-btn flow-btn-next bg-accent-u3 border-none hover:bg-yellow-600">下一單元：循環經濟 →</button>
+            </div>
+        </section>
+
+        <!-- PAGE: UNIT 3 -->
+        <section id="page-unit3" class="page-section animate-fade-in hidden">
+            <!-- Header -->
+            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
+                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">03</span>
+                <h2 class="text-4xl font-serif font-bold text-ink pl-6">循環經濟 <span class="text-2xl font-sans font-normal text-accent-u3 ml-4">Circular Economy</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
+                <!-- Guide -->
+                <div class="lg:col-span-5 space-y-10">
+                    <div class="bg-white p-8 rounded-2xl card-shadow">
+                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
+                        <p class="text-gray-700 text-lg leading-relaxed">深入技術核心，理解「廢棄物如何變黃金」。聚焦紡織產業的循環轉型。</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="guide-step border-accent-u3">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 觀念翻轉 (Concept)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">紡織業的綠色轉身。連結單元一的污染議題，介紹觀音紡織大廠如何透過回收技術，將「污染源」轉變為「新資源」。</p>
+                        </div>
+                        <div class="guide-step border-accent-u3">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 循環製程解析 (Process)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">說明「寶特瓶 (PET) 變球衣」的技術流程：<br>1. 清洗與破碎 (Flakes)<br>2. 熔融抽絲 (Spinning)<br>3. 織造成布 (Fabric)<br>減少對石油依賴。</p>
+                        </div>
+                        <div class="guide-step border-accent-u3">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 產出—循環經濟模型</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">數位動態流程圖或使用廢材製作實體工廠模型。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Board -->
+                <div class="lg:col-span-7">
+                    <div class="visual-board relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-accent-u3 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
+                        <h3 class="text-3xl font-serif font-bold text-ink mb-12 text-center">從寶特瓶到時尚</h3>
+                        <!-- Flowchart -->
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-4 relative max-w-4xl mx-auto">
+                            <div class="absolute top-1/2 left-0 w-full h-1 border-t-2 border-dashed border-gray-300 -z-10 hidden md:block"></div>
+                            <div class="z-10 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm w-64 text-center h-64 flex flex-col justify-center items-center">
+                                <div class="text-6xl mb-4">🥤</div>
+                                <div class="text-sm text-gray-400 font-bold uppercase tracking-wider">Source</div>
+                                <div class="font-bold text-ink text-xl mt-1">廢棄寶特瓶</div>
+                                <div class="text-sm text-gray-500 mt-2">PET Waste</div>
+                            </div>
+                            <div class="text-accent-u3 text-4xl font-bold transform rotate-90 md:rotate-0">➜</div>
+                            <div class="z-10 bg-[#FFFBEB] p-6 rounded-2xl border-4 border-accent-u3 shadow-lg w-64 text-center h-64 flex flex-col justify-center items-center transform md:scale-110">
+                                <div class="text-6xl mb-4">⚙️</div>
+                                <div class="text-sm text-accent-u3 font-bold uppercase tracking-wider">Technology</div>
+                                <div class="font-bold text-ink text-xl mt-1">熔融抽絲</div>
+                                <div class="text-sm text-gray-500 mt-2">Recycled Tech</div>
+                            </div>
+                            <div class="text-accent-u3 text-4xl font-bold transform rotate-90 md:rotate-0">➜</div>
+                            <div class="z-10 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm w-64 text-center h-64 flex flex-col justify-center items-center">
+                                <div class="text-6xl mb-4">👕</div>
+                                <div class="text-sm text-accent-u3 font-bold uppercase tracking-wider">Product</div>
+                                <div class="font-bold text-ink text-xl mt-1">環保機能布</div>
+                                <div class="text-sm text-gray-500 mt-2">Sustainable Fabric</div>
+                            </div>
+                        </div>
+                        <div class="mt-16 text-center">
+                            <div class="inline-block bg-gray-50 border border-gray-200 rounded-xl p-6 max-w-2xl">
+                                <h5 class="text-lg font-bold text-ink mb-2">💡 觀音在地連結</h5>
+                                <p class="text-base text-gray-600">觀音工業區內的紡織相關供應鏈，正在將過去被視為垃圾的寶特瓶，轉化為世界盃足球賽球員身上的「環保球衣」。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
+                <button onclick="showPage('unit2')" class="flow-btn flow-btn-prev">← 上一單元</button>
+                <button onclick="showPage('unit4')" class="flow-btn flow-btn-next bg-accent-u4 border-none hover:bg-gray-700">下一單元：守護者聯盟 →</button>
+            </div>
+        </section>
+
+        <!-- PAGE: UNIT 4 -->
+        <section id="page-unit4" class="page-section animate-fade-in hidden">
+            <!-- Header -->
+            <div class="flex items-end gap-6 mb-10 border-b-2 border-gray-200 pb-6">
+                <span class="text-8xl font-serif font-black text-subtle-gray absolute -z-10 transform -translate-y-6">04</span>
+                <h2 class="text-4xl font-serif font-bold text-ink pl-6">守護者聯盟 <span class="text-2xl font-sans font-normal text-accent-u4 ml-4">The Guardian's League</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
+                <!-- Guide -->
+                <div class="lg:col-span-5 space-y-10">
+                    <div class="bg-white p-8 rounded-2xl card-shadow">
+                        <h4 class="text-xl font-bold text-ink mb-3 border-b border-gray-100 pb-3">🎯 教學目標</h4>
+                        <p class="text-gray-700 text-lg leading-relaxed">總結學習，提出行動方案，連結全球責任。</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="guide-step border-accent-u4">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 1: 大型裝置藝術製作 (Installation Art)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">結合循環經濟概念，使用工廠廢棄物或回收材（如線軸、寶特瓶）集體創作出「觀音循環圖騰」，象徵工業與生態共存。</p>
+                        </div>
+                        <div class="guide-step border-accent-u4">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 2: 策展與承諾 (Manifesto)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">每位學生設計一枚「觀音守護勳章」。<br>宣言(雙語)：I support the Green Supply Chain starting from Guanyin.</p>
+                        </div>
+                        <div class="guide-step border-accent-u4">
+                            <h5 class="font-bold text-ink text-xl mb-2">Step 3: 成果發表會 (Showcase)</h5>
+                            <p class="text-lg text-gray-600 leading-relaxed">舉辦「觀音光譜展」，展出三項核心作品：<br>1. 單元一：觀音色票卡 (Output)<br>2. 單元四：大型裝置藝術<br>3. 單元四：每位學生的守護勳章</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Board -->
+                <div class="lg:col-span-7">
+                    <div class="visual-board relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-accent-u4 text-white text-base px-6 py-2 rounded-bl-2xl font-bold tracking-wide">教學視像板</div>
+                        <h3 class="text-3xl font-serif font-bold text-ink mb-8 text-center">成果發表展區規劃</h3>
+                        <!-- Exhibition Layout -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full max-h-[500px]">
+                            <div class="bg-[#F8F9FA] border-2 border-accent-u1 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+                                <div class="text-4xl mb-2">🎨</div>
+                                <h4 class="text-xl font-bold text-ink">Zone A: 色票牆</h4>
+                                <p class="text-gray-500 text-sm mt-2">Unit 1 作品展示<br>看見污染的代價</p>
+                            </div>
+                            <div class="bg-[#F8F9FA] border-2 border-accent-u4 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center md:row-span-2">
+                                <div class="text-6xl mb-4">🗿</div>
+                                <h4 class="text-2xl font-bold text-ink">Main Zone: 裝置藝術</h4>
+                                <p class="text-gray-500 text-base mt-2">Unit 4 集體創作<br>象徵循環與共存的核心圖騰</p>
+                            </div>
+                            <div class="bg-[#F8F9FA] border-2 border-accent-u4 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+                                <div class="text-4xl mb-2">🛡️</div>
+                                <h4 class="text-xl font-bold text-ink">Zone B: 守護勳章</h4>
+                                <p class="text-gray-500 text-sm mt-2">個人承諾展示<br>Green Manifesto</p>
+                            </div>
+                        </div>
+                        <div class="mt-8 text-center">
+                            <p class="text-gray-600 italic">"這不僅是作業展示，更是我們對觀音未來的共同承諾。"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Navigation -->
+            <div class="flex flex-col md:flex-row justify-between gap-4 border-t border-gray-200 pt-8">
+                <button onclick="showPage('unit3')" class="flow-btn flow-btn-prev">← 上一單元</button>
+                <button onclick="showPage('overview')" class="flow-btn flow-btn-next">回首頁 ➜</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-200 py-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="text-ink font-serif font-bold text-2xl mb-4">觀音光譜</div>
+            <p class="text-gray-500 text-lg mb-6">Designed for Co-Teaching & Visual Learning</p>
+            <div class="flex justify-center gap-6 text-sm text-gray-400">
+                <span>© 2026 Curriculum Design</span>
+                <span>•</span>
+                <span>Tailwind CSS</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            document.getElementById('page-' + pageId).classList.add('block');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const navBtn = document.getElementById('nav-' + pageId);
+            if(navBtn) navBtn.classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
