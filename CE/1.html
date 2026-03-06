@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>觀音連結世界：供應鏈路徑圖</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        
+        /* Map Styles - 海洋與陸地風格 */
+        .country {
+            fill: #ffffff;
+            stroke: #bae6fd; /* sky-200 */
+            stroke-width: 0.8;
+            transition: fill 0.3s;
+        }
+        .country:hover {
+            fill: #f0f9ff; /* sky-50 */
+        }
+        
+        /* Path Animation Styles */
+        .route-path {
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.4));
+        }
+        
+        .node-circle {
+            filter: drop-shadow(0 0 4px currentColor);
+        }
+
+        /* 呼吸燈動畫 */
+        .pulse-ring {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        /* 資訊卡片進場動畫 */
+        @keyframes popup {
+            0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .info-card-animate {
+            animation: popup 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* 新增：虛線流動動畫 */
+        @keyframes march {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -20; }
+        }
+
+        /* 隱藏原生滾動條 */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-slate-800 h-screen w-screen overflow-hidden relative">
+
+    <!-- 滿版地圖容器 -->
+    <div class="absolute inset-0 bg-sky-100 flex items-center justify-center overflow-hidden z-0" id="map-container">
+        <!-- 讀取中提示 -->
+        <div id="loading" class="absolute inset-0 flex items-center justify-center bg-sky-100 z-50">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <span class="ml-3 text-blue-600 font-bold tracking-widest">載入世界地圖...</span>
+        </div>
+        
+        <svg id="world-map" class="w-full h-full cursor-grab active:cursor-grabbing"></svg>
+        
+        <!-- 用來放置 HTML 資訊卡的獨立圖層 (疊加在 SVG 之上) -->
+        <div id="tooltip-layer" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+    </div>
+
+    <!-- 首頁/企業選擇 Modal (毛玻璃覆蓋層) -->
+    <div id="view-list" class="absolute inset-0 bg-sky-900/40 backdrop-blur-md z-50 flex items-center justify-center transition-opacity duration-500 p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-transform duration-500 scale-100" id="modal-box">
+            <div class="p-8 text-center bg-slate-50 border-b border-slate-100">
+                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-emerald-500 mb-2">
+                    觀音連結世界
+                </h1>
+                <p class="text-sm text-slate-500 font-bold">全球供應鏈動態路徑探索</p>
+            </div>
+            <div class="p-6 space-y-4" id="company-list">
+                <!-- JavaScript 動態生成按鈕 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 地圖操作介面 (隱藏直到選擇企業) -->
+    <div id="view-controls" class="absolute inset-0 z-40 pointer-events-none opacity-0 transition-opacity duration-500 flex flex-col justify-between">
+        
+        <!-- 頂部資訊列 -->
+        <div class="p-4 md:p-6 flex justify-between items-start pointer-events-none">
+            <div class="bg-white/90 backdrop-blur shadow-lg rounded-2xl p-2 pr-5 flex items-center pointer-events-auto border border-white/50">
+                <button id="btn-back" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors mr-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <div>
+                    <span id="header-theme" class="text-[10px] font-bold px-2 py-0.5 rounded border block w-max mb-0.5"></span>
+                    <h2 id="header-title" class="text-lg font-black text-slate-800 leading-none"></h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部控制列 -->
+        <div class="p-6 md:p-8 flex justify-center pointer-events-none pb-10">
+            <div class="bg-white/90 backdrop-blur shadow-2xl rounded-full p-2 flex items-center border border-white/50 pointer-events-auto max-w-md w-full">
+                <!-- 進度指示器 -->
+                <div class="flex items-center space-x-2 px-4" id="step-indicators">
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-300 transition-colors" id="dot-1"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-300 transition-colors" id="dot-2"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-slate-300 transition-colors" id="dot-3"></div>
+                </div>
+                <!-- 操作按鈕 -->
+                <button id="btn-next-step" class="flex-1 py-3 px-6 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full shadow-md transition-all flex justify-center items-center group relative overflow-hidden">
+                    <span id="btn-next-text" class="relative z-10">開始展示</span>
+                    <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 資料定義區 ---
+        const locations = {
+            taiwan: { name: "台灣・觀音", coords: [121.08, 25.03], align: "right" },
+            vietnam: { name: "越南", coords: [105.85, 21.02], align: "bottom" },
+            indonesia: { name: "印尼", coords: [106.84, -6.20], align: "right" },
+            china: { name: "中國", coords: [114.00, 30.00], align: "left" },
+            germany: { name: "德國", coords: [10.45, 51.16], align: "right" },
+            argentina: { name: "阿根廷", coords: [-63.61, -38.41], align: "right" },
+            spain: { name: "西班牙", coords: [-3.70, 40.41], align: "left" },
+            na: { name: "北美", coords: [-100.00, 40.00], align: "left" }
+        };
+
+        const companies = [
+            {
+                id: "c1",
+                name: "遠東新世紀",
+                theme: "環保綠能線",
+                color: "#10B981", // Emerald 500
+                coreDesc: "負責回收全台寶特瓶，產出環保聚酯粒與紗線。",
+                coreDetailText: "回收寶特瓶 / 產出環保紗線",
+                processing: [
+                    { loc: "vietnam", text: "機能布料織造 / 球衣縫製" },
+                    { loc: "indonesia", text: "成衣代工 / 球衣組裝" },
+                    { loc: "china", text: "布料染整 / 終端縫製" }
+                ],
+                market: [
+                    { loc: "germany", text: "德國國家隊 / Adidas" },
+                    { loc: "argentina", text: "阿根廷國家隊 / Adidas" },
+                    { loc: "spain", text: "西班牙頂級賽事球衣" },
+                    { loc: "na", text: "Nike, Adidas 體育門市" }
+                ]
+            }
+        ];
+
+        // --- UI 狀態與 DOM ---
+        let activeCompany = null;
+        let currentStep = 0; 
+        const MAX_STEPS = 3;
+        let activeTooltips = []; // 儲存當前顯示在地圖上的 HTML 資訊卡
+
+        const viewList = document.getElementById('view-list');
+        const viewControls = document.getElementById('view-controls');
+        const companyListContainer = document.getElementById('company-list');
+        const btnBack = document.getElementById('btn-back');
+        const btnNextStep = document.getElementById('btn-next-step');
+        const btnNextText = document.getElementById('btn-next-text');
+
+        // --- 初始化 ---
+        function initApp() {
+            renderMenu();
+            btnBack.addEventListener('click', backToList);
+            btnNextStep.addEventListener('click', handleNextStep);
+        }
+
+        function renderMenu() {
+            companyListContainer.innerHTML = '';
+            companies.forEach((comp) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-2xl border-2 border-slate-100 bg-white hover:border-emerald-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex justify-between items-center`;
+                
+                btn.innerHTML = `
+                    <div>
+                        <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded border mb-1" style="color: ${comp.color}; border-color: ${comp.color}40; background: ${comp.color}10">
+                            ${comp.theme}
+                        </span>
+                        <h3 class="text-xl font-black text-slate-800">${comp.name}</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">點擊進入互動地圖</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                `;
+                btn.addEventListener('click', () => openCompany(comp));
+                companyListContainer.appendChild(btn);
+            });
+        }
+
+        function openCompany(comp) {
+            activeCompany = comp;
+            currentStep = 0; 
+            clearMapOverlays();
+
+            // 設定左上角標題
+            document.getElementById('header-title').textContent = comp.name;
+            const themeLabel = document.getElementById('header-theme');
+            themeLabel.textContent = comp.theme;
+            themeLabel.style.color = comp.color;
+            themeLabel.style.borderColor = comp.color;
+            themeLabel.style.backgroundColor = `${comp.color}10`;
+
+            // 切換視圖 (隱藏 Modal，顯示控制列)
+            viewList.classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-box').classList.add('scale-95');
+            setTimeout(() => {
+                viewControls.classList.remove('opacity-0', 'pointer-events-none');
+            }, 300);
+
+            updateStepperUI();
+        }
+
+        function backToList() {
+            viewControls.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                viewList.classList.remove('opacity-0', 'pointer-events-none');
+                document.getElementById('modal-box').classList.remove('scale-95');
+            }, 300);
+            
+            activeCompany = null;
+            clearMapOverlays();
+
+            // 重置地圖縮放
+            svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+        }
+
+        // --- 互動邏輯 (下一步) ---
+        function handleNextStep() {
+            if (!activeCompany) return;
+            
+            if (currentStep >= MAX_STEPS) {
+                currentStep = 0;
+                clearMapOverlays();
+                updateStepperUI();
+                return;
+            }
+
+            currentStep++;
+            updateStepperUI();
+            drawMapStep(currentStep);
+        }
+
+        function updateStepperUI() {
+            // 更新按鈕文字
+            if (currentStep === 0) btnNextText.textContent = "開始展示 (核心)";
+            else if (currentStep === 1) btnNextText.textContent = "下一步 (加工基地)";
+            else if (currentStep === 2) btnNextText.textContent = "下一步 (終端市場)";
+            else if (currentStep === 3) btnNextText.textContent = "重新演練";
+
+            // 更新指示燈
+            for (let i = 1; i <= MAX_STEPS; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (i <= currentStep) {
+                    dot.classList.remove('bg-slate-300');
+                    dot.classList.add('bg-emerald-500', 'shadow-[0_0_5px_rgba(16,185,129,0.5)]');
+                } else {
+                    dot.classList.remove('bg-emerald-500', 'shadow-[0_0_5px_rgba(16,185,129,0.5)]');
+                    dot.classList.add('bg-slate-300');
+                }
+            }
+        }
+
+        // --- D3.js 地圖核心邏輯 ---
+
+        const svg = d3.select("#world-map");
+        const mapContainer = document.getElementById("map-container");
+        
+        let width = mapContainer.clientWidth;
+        let height = mapContainer.clientHeight;
+        
+        const projection = d3.geoMercator()
+            .scale(width / 6)
+            .translate([width / 2.2, height / 1.5]); 
+            
+        const path = d3.geoPath().projection(projection);
+        
+        const gMap = svg.append("g").attr("id", "map-layer");
+        const gLines = svg.append("g").attr("id", "lines-layer");
+        const gNodes = svg.append("g").attr("id", "nodes-layer");
+
+        let currentTransform = d3.zoomIdentity;
+        
+        const zoom = d3.zoom()
+            .scaleExtent([0.8, 8])
+            .on("zoom", (event) => {
+                currentTransform = event.transform;
+                gMap.attr("transform", event.transform);
+                gLines.attr("transform", event.transform);
+                gNodes.attr("transform", event.transform);
+                // 每次縮放或拖曳時，同步更新 HTML 資訊卡的位置
+                updateHtmlTooltipsPositions();
+            });
+        svg.call(zoom);
+
+        d3.json("https://unpkg.com/world-atlas@2.0.2/countries-110m.json").then(world => {
+            document.getElementById('loading').style.display = 'none';
+            const countries = topojson.feature(world, world.objects.countries).features;
+
+            gMap.selectAll(".country")
+                .data(countries)
+                .enter().append("path")
+                .attr("class", "country")
+                .attr("d", path);
+
+            initApp();
+            
+            window.addEventListener('resize', () => {
+                width = mapContainer.clientWidth;
+                height = mapContainer.clientHeight;
+                projection.scale(width / 6).translate([width / 2.2, height / 1.5]);
+                gMap.selectAll(".country").attr("d", path);
+                updateHtmlTooltipsPositions();
+                
+                // 若無動畫狀態直接重繪線條與點 (簡化處理)
+                if(currentStep > 0 && activeCompany) {
+                    clearMapOverlays();
+                    for(let i=1; i<=currentStep; i++) drawMapStep(i, false);
+                }
+            });
+        });
+
+        function getBezierPath(sourceName, targetName) {
+            const source = locations[sourceName];
+            const target = locations[targetName];
+            if(!source || !target) return "";
+
+            const s = projection(source.coords);
+            const t = projection(target.coords);
+            
+            const dx = t[0] - s[0];
+            const dy = t[1] - s[1];
+            
+            const midX = (s[0] + t[0]) / 2;
+            const midY = (s[1] + t[1]) / 2;
+            
+            const normX = -dy * 0.25; 
+            const normY = dx * 0.25;
+            const sign = normY > 0 ? -1 : 1; 
+            
+            const cx = midX + normX * sign;
+            const cy = midY + normY * sign;
+            
+            return `M${s[0]},${s[1]} Q${cx},${cy} ${t[0]},${t[1]}`;
+        }
+
+        function clearMapOverlays() {
+            gLines.selectAll("*").remove();
+            gNodes.selectAll("*").remove();
+            activeTooltips = [];
+            document.getElementById('tooltip-layer').innerHTML = '';
+        }
+
+        // --- HTML 資訊卡管理 (Map Tooltips) ---
+        
+        function addHtmlTooltip(locKey, stepTitle, actionText, descriptionText = null) {
+            const loc = locations[locKey];
+            if(!loc) return;
+
+            // 定義顏色風格 based on 步驟
+            let themeColorClass = "text-emerald-700 bg-emerald-100"; // Step 1 & 3
+            let titleColorClass = "text-slate-800";
+            if(stepTitle.includes("2.")) {
+                themeColorClass = "text-slate-600 bg-slate-100"; // Step 2 加工
+            }
+
+            // 組裝 HTML 卡片內容
+            let htmlContent = `
+                <div class="pointer-events-auto bg-white/95 backdrop-blur shadow-2xl border border-white/50 p-3 rounded-2xl min-w-[180px] max-w-[220px] info-card-animate hover:z-50 relative">
+                    <div class="text-[10px] font-bold px-2 py-0.5 rounded-md ${themeColorClass} inline-block mb-1.5 shadow-sm">${stepTitle}</div>
+                    <div class="text-sm font-black ${titleColorClass} mb-1">${loc.name}</div>
+                    <div class="text-xs font-bold text-emerald-600 border-l-2 border-emerald-400 pl-2 leading-tight">${actionText}</div>
+                    ${descriptionText ? `<div class="mt-2 text-[10px] text-slate-500 leading-relaxed border-t border-slate-100 pt-1.5">${descriptionText}</div>` : ''}
+                </div>
+            `;
+
+            activeTooltips.push({ 
+                coords: loc.coords, 
+                html: htmlContent, 
+                align: loc.align,
+                id: `tooltip-${locKey}-${Date.now()}` 
+            });
+
+            renderHtmlTooltips();
+        }
+
+        // 渲染或更新所有 HTML 資訊卡的位置
+        function renderHtmlTooltips() {
+            const layer = document.getElementById('tooltip-layer');
+            
+            activeTooltips.forEach(t => {
+                let div = document.getElementById(t.id);
+                if (!div) {
+                    div = document.createElement('div');
+                    div.id = t.id;
+                    // 基本絕對定位與圖層樣式
+                    div.className = `absolute transform origin-top pointer-events-none transition-all duration-100`;
+                    div.innerHTML = t.html;
+                    layer.appendChild(div);
+                }
+            });
+            updateHtmlTooltipsPositions();
+        }
+
+        // 在地圖縮放或拖曳時，將經緯度轉換為螢幕實際座標並排版
+        function updateHtmlTooltipsPositions() {
+            activeTooltips.forEach(t => {
+                const div = document.getElementById(t.id);
+                if (!div) return;
+
+                // 1. 先投影基礎座標
+                const projected = projection(t.coords);
+                // 2. 套用目前的縮放與拖曳變形
+                const screenX = currentTransform.applyX(projected[0]);
+                const screenY = currentTransform.applyY(projected[1]);
+
+                // 3. 依照設定的對齊方式微調位置 (避免遮擋點)
+                let offsetX = 0;
+                let offsetY = 0;
+                
+                if (t.align === 'left') {
+                    // 出現在點的左側
+                    offsetX = -div.offsetWidth - 15;
+                    offsetY = -div.offsetHeight / 2;
+                } else if (t.align === 'bottom') {
+                    // 出現在點的下方
+                    offsetX = -div.offsetWidth / 2;
+                    offsetY = 15;
+                } else {
+                    // 預設出現在點的右側
+                    offsetX = 15;
+                    offsetY = -div.offsetHeight / 2;
+                }
+
+                div.style.left = `${screenX + offsetX}px`;
+                div.style.top = `${screenY + offsetY}px`;
+            });
+        }
+
+        // --- 繪製各步驟邏輯 ---
+
+        function drawMapStep(step, animate = true) {
+            const comp = activeCompany;
+            if(!comp) return;
+
+            if (step === 1) renderStep1(comp, animate);
+            else if (step === 2) renderStep2(comp, animate);
+            else if (step === 3) renderStep3(comp, animate);
+        }
+
+        function renderStep1(comp, animate = true) {
+            const coords = projection(locations.taiwan.coords);
+            const color = comp.color;
+            const dur = animate ? 800 : 0;
+
+            gNodes.append("circle")
+                .attr("cx", coords[0])
+                .attr("cy", coords[1])
+                .attr("r", 5)
+                .attr("fill", color)
+                .attr("class", "pulse-ring")
+                .style("transform-origin", `${coords[0]}px ${coords[1]}px`);
+
+            const node = gNodes.append("circle")
+                .attr("cx", coords[0])
+                .attr("cy", coords[1])
+                .attr("r", animate ? 0 : 6)
+                .attr("fill", color)
+                .attr("stroke", "white")
+                .attr("stroke-width", 2)
+                .attr("class", "node-circle");
+
+            if (animate) node.transition().duration(dur).ease(d3.easeBack).attr("r", 6);
+
+            // 加入 HTML 資訊卡
+            setTimeout(() => {
+                addHtmlTooltip("taiwan", "1. 研發與原料", comp.coreDetailText, comp.coreDesc);
+            }, animate ? 300 : 0);
+        }
+
+        function renderStep2(comp, animate = true) {
+            const color = comp.color;
+            const dur = animate ? 1500 : 0;
+
+            comp.processing.forEach((pObj, i) => {
+                const pLoc = pObj.loc;
+                if(!locations[pLoc]) return;
+
+                const pathString = getBezierPath('taiwan', pLoc);
+                const p = gLines.append("path")
+                    .attr("d", pathString)
+                    .attr("class", "route-path")
+                    .attr("stroke", color);
+
+                const len = p.node().getTotalLength();
+                const lineDelay = animate ? i * 250 : 0; // 錯開出發時間
+
+                if (animate) {
+                    p.attr("stroke-dasharray", `${len} ${len}`)
+                     .attr("stroke-dashoffset", len)
+                     .transition()
+                     .delay(lineDelay)
+                     .duration(dur)
+                     .ease(d3.easeCubicInOut)
+                     .attr("stroke-dashoffset", 0);
+                }
+
+                const coords = projection(locations[pLoc].coords);
+                // 修改：確保節點與資訊卡在線條「完全抵達」的那一刻才出現
+                const nodeDelay = animate ? lineDelay + dur : 0; 
+
+                const node = gNodes.append("circle")
+                    .attr("cx", coords[0])
+                    .attr("cy", coords[1])
+                    .attr("r", animate ? 0 : 4.5)
+                    .attr("fill", "#94a3b8") 
+                    .attr("stroke", "white")
+                    .attr("stroke-width", 1.5);
+
+                if (animate) {
+                    node.transition().delay(nodeDelay).duration(500).ease(d3.easeElastic).attr("r", 4.5);
+                    setTimeout(() => {
+                        addHtmlTooltip(pLoc, "2. 跨國加工", pObj.text);
+                    }, nodeDelay);
+                } else {
+                    addHtmlTooltip(pLoc, "2. 跨國加工", pObj.text);
+                }
+            });
+        }
+
+        function renderStep3(comp, animate = true) {
+            const color = comp.color;
+            const dur = animate ? 1500 : 0;
+            const drawnMarkets = new Set();
+
+            comp.processing.forEach((pObj, pIndex) => {
+                comp.market.forEach((mObj, mIndex) => {
+                    const mLoc = mObj.loc;
+                    const pathString = getBezierPath(pObj.loc, mLoc);
+                    const p = gLines.append("path")
+                        .attr("d", pathString)
+                        .attr("class", "route-path")
+                        .attr("stroke", color)
+                        .attr("stroke-width", 1.5) 
+                        .attr("opacity", 0.6);
+
+                    const len = p.node().getTotalLength();
+                    const lineDelay = animate ? (pIndex * 200) + (mIndex * 150) : 0;
+
+                    if (animate) {
+                        // 修改：先以實線畫過去，抵達目的地後再轉換成流動的虛線
+                        p.attr("stroke-dasharray", `${len} ${len}`)
+                         .attr("stroke-dashoffset", len)
+                         .transition()
+                         .delay(lineDelay)
+                         .duration(dur)
+                         .ease(d3.easeCubicInOut)
+                         .attr("stroke-dashoffset", 0)
+                         .on("end", function() {
+                             d3.select(this)
+                               .attr("stroke-dasharray", "4, 6")
+                               .style("animation", "march 1s linear infinite");
+                         });
+                    } else {
+                        p.attr("stroke-dasharray", "4, 6")
+                         .style("animation", "march 1s linear infinite");
+                    }
+
+                    if(!locations[mLoc] || drawnMarkets.has(mLoc)) return;
+                    drawnMarkets.add(mLoc);
+
+                    const coords = projection(locations[mLoc].coords);
+                    // 修改：確保在第一條到達該市場的線抵達時，才彈出節點與資訊卡
+                    const nodeDelay = animate ? lineDelay + dur : 0;
+
+                    const node = gNodes.append("circle")
+                        .attr("cx", coords[0])
+                        .attr("cy", coords[1])
+                        .attr("r", animate ? 0 : 5.5)
+                        .attr("fill", "white") 
+                        .attr("stroke", color)
+                        .attr("stroke-width", 2.5);
+
+                    if (animate) {
+                        node.transition().delay(nodeDelay).duration(500).ease(d3.easeBack).attr("r", 5.5);
+                        setTimeout(() => {
+                            const desc = mLoc === 'na' ? comp.marketDesc : null; 
+                            addHtmlTooltip(mLoc, "3. 國際消費市場", mObj.text, desc);
+                        }, nodeDelay);
+                    } else {
+                        const desc = mLoc === 'na' ? comp.marketDesc : null; 
+                        addHtmlTooltip(mLoc, "3. 國際消費市場", mObj.text, desc);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
