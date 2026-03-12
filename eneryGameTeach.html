@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣能源發展教學 — 島嶼能源生存戰</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=LXGW+WenKai+TC:wght@400;700&display=swap');
+
+        :root {
+            --bg: #faf8f3; --card-bg: #fff; --border: #e0d5c4;
+            --accent: #b8860b; --blue: #3a7088; --red: #c2625a; --green: #6b9e6b;
+            --text: #3e3428; --muted: #8a7e6e; --light: #c5b8a5;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'LXGW WenKai TC', serif; color: var(--text); background: var(--bg); line-height: 1.8; }
+
+        /* === HERO === */
+        .hero {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #2e3d50 0%, #1a2a3a 100%);
+            color: #fff; padding: 60px 24px 50px; text-align: center;
+        }
+        .hero-bg-svg { position: absolute; inset: 0; opacity: 0.08; }
+        .hero h1 { font-family: 'Noto Serif TC', serif; font-size: 28px; font-weight: 900; letter-spacing: 4px; margin-bottom: 12px; position: relative; }
+        .hero .subtitle { font-size: 15px; opacity: 0.8; max-width: 500px; margin: 0 auto; position: relative; }
+        .hero-stat-row { display: flex; justify-content: center; gap: 24px; margin-top: 24px; position: relative; }
+        .hero-stat { text-align: center; }
+        .hero-stat .num { font-family: 'Noto Serif TC', serif; font-size: 32px; font-weight: 900; color: #f0c040; }
+        .hero-stat .label { font-size: 12px; opacity: 0.7; }
+
+        /* === CONTAINER === */
+        .container { max-width: 800px; margin: 0 auto; padding: 0 16px; }
+
+        /* === SECTION === */
+        .section { padding: 40px 0; }
+        .section-title {
+            font-family: 'Noto Serif TC', serif; font-size: 22px; font-weight: 900;
+            color: var(--accent); letter-spacing: 3px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.7; }
+
+        /* === DEPENDENCY SVG === */
+        .dep-chart-wrap {
+            background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px;
+            padding: 20px; margin-bottom: 20px; overflow-x: auto;
+        }
+        .dep-chart-wrap svg { width: 100%; height: auto; display: block; }
+        .dep-caption { font-size: 12px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+        /* === ROUTE MAP === */
+        .route-map-wrap {
+            background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px;
+            padding: 20px; margin-bottom: 24px; cursor: pointer; position: relative; overflow: hidden;
+        }
+        .route-map-wrap svg { width: 100%; height: auto; }
+        .route-legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 12px; font-size: 12px; color: var(--muted); }
+        .route-legend-item { display: flex; align-items: center; gap: 4px; }
+        .route-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* === TIMELINE === */
+        .timeline { position: relative; padding-left: 28px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+            width: 3px; background: linear-gradient(180deg, var(--accent), var(--blue), var(--green));
+            border-radius: 2px;
+        }
+        .tl-stage {
+            position: relative; margin-bottom: 32px;
+        }
+        .tl-stage-dot {
+            position: absolute; left: -24px; top: 6px;
+            width: 16px; height: 16px; border-radius: 50%;
+            border: 3px solid var(--bg);
+            z-index: 2;
+        }
+        .tl-stage-header {
+            font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 900;
+            margin-bottom: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: color 0.2s;
+        }
+        .tl-stage-header:hover { color: var(--blue); }
+        .tl-stage-era { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+        .tl-stage-mission {
+            background: rgba(184,134,11,0.06); border: 1px solid rgba(184,134,11,0.2);
+            border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;
+            font-size: 13px; line-height: 1.7;
+        }
+        .tl-stage-mission .mission-title { font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+        .tl-stage-goals {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+        }
+        .goal-tag {
+            background: rgba(58,112,136,0.1); color: var(--blue); font-size: 11px;
+            padding: 2px 8px; border-radius: 12px; font-weight: 700;
+        }
+
+        /* === EVENT CARDS === */
+        .events-grid { display: flex; flex-direction: column; gap: 10px; }
+        .ev-card {
+            background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 12px;
+            padding: 14px 16px; cursor: pointer; transition: all 0.25s; overflow: hidden;
+        }
+        .ev-card:hover { border-color: var(--blue); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .ev-card.expanded { border-color: var(--accent); }
+        .ev-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .ev-headline { font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 700; }
+        .ev-headline.bad { color: var(--red); }
+        .ev-headline.good { color: var(--green); }
+        .ev-headline.neutral { color: var(--accent); }
+        .ev-toggle { font-size: 16px; color: var(--light); transition: transform 0.3s; flex-shrink: 0; margin-top: 2px; }
+        .ev-card.expanded .ev-toggle { transform: rotate(180deg); color: var(--accent); }
+        .ev-detail-wrap { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .ev-card.expanded .ev-detail-wrap { max-height: 500px; }
+        .ev-detail-inner { padding-top: 10px; }
+        .ev-detail-text { font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 8px; }
+        .ev-effect-tag {
+            display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; margin-bottom: 8px;
+        }
+        .ev-effect-tag.bad { background: rgba(194,98,90,0.1); color: var(--red); }
+        .ev-effect-tag.good { background: rgba(107,158,107,0.1); color: var(--green); }
+        .ev-effect-tag.neutral { background: rgba(184,134,11,0.08); color: var(--accent); }
+        .ev-voices { border-top: 1px dashed var(--border); padding-top: 8px; }
+        .ev-voice {
+            font-size: 12px; color: var(--muted); font-style: italic;
+            border-left: 2px solid var(--blue); padding-left: 8px; margin-bottom: 6px; line-height: 1.6;
+        }
+
+        /* === KEY INSIGHT BOXES === */
+        .insight-box {
+            background: linear-gradient(135deg, rgba(58,112,136,0.06), rgba(184,134,11,0.04));
+            border: 1.5px solid var(--border); border-radius: 14px;
+            padding: 20px; margin: 20px 0;
+        }
+        .insight-title { font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+        .insight-text { font-size: 14px; line-height: 1.8; }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center; padding: 40px 20px; color: var(--muted); font-size: 12px;
+            border-top: 1px solid var(--border); margin-top: 20px;
+        }
+
+        /* === INTERACTIVE SVG STYLES === */
+        .svg-interactive-region { cursor: pointer; transition: opacity 0.3s; }
+        .svg-interactive-region:hover { opacity: 0.8; }
+        .tooltip-box {
+            position: fixed; z-index: 999; background: rgba(62,52,40,0.95); color: #fff;
+            padding: 8px 14px; border-radius: 8px; font-size: 12px; pointer-events: none;
+            max-width: 260px; line-height: 1.5; display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 22px; }
+            .hero-stat .num { font-size: 24px; }
+            .section-title { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="tooltip-box" id="tooltip"></div>
+
+<!-- ====== HERO ====== -->
+<div class="hero">
+    <svg class="hero-bg-svg" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid slice">
+        <path d="M0,200 Q200,100 400,180 T800,150 L800,300 L0,300 Z" fill="rgba(255,255,255,0.15)"/>
+        <path d="M0,250 Q150,180 350,230 T800,200 L800,300 L0,300 Z" fill="rgba(255,255,255,0.1)"/>
+        <circle cx="700" cy="60" r="30" fill="rgba(240,192,64,0.3)"/>
+        <text x="50" y="80" fill="rgba(255,255,255,0.06)" font-size="80" font-weight="900">ENERGY</text>
+    </svg>
+    <h1>🏝️ 島嶼能源生存戰 — 教學手冊</h1>
+    <div class="subtitle">從1973石油危機到2026美伊戰爭，半世紀的能源抉擇如何塑造了台灣的命運</div>
+    <div class="hero-stat-row">
+        <div class="hero-stat"><div class="num">97%</div><div class="label">能源仰賴進口</div></div>
+        <div class="hero-stat"><div class="num">33</div><div class="label">歷史事件</div></div>
+        <div class="hero-stat"><div class="num">5</div><div class="label">關鍵階段</div></div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- ====== SECTION 1: WHY THIS MATTERS ====== -->
+    <div class="section">
+        <div class="section-title">🌏 為什麼台灣的能源如此脆弱？</div>
+        <div class="section-desc">台灣是全球能源自給率最低的國家之一。我們幾乎所有的石油、煤炭、天然氣都來自海外，而這些燃料必須透過漫長的海上航線運抵台灣。任何一場國際衝突、海峽封鎖或天災，都可能直接影響我們的電力供應與經濟命脈。</div>
+
+        <!-- DEPENDENCY DONUT SVG -->
+        <div class="dep-chart-wrap">
+            <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+                <text x="175" y="28" text-anchor="middle" font-size="14" font-weight="700" fill="#3e3428" font-family="'Noto Serif TC',serif">台灣能源進口依賴度</text>
+                <!-- Donut Chart -->
+                <circle cx="175" cy="145" r="85" fill="none" stroke="#e8e0d0" stroke-width="32"/>
+                <circle cx="175" cy="145" r="85" fill="none" stroke="#c2625a" stroke-width="32"
+                    stroke-dasharray="518.4 16" stroke-dashoffset="0" transform="rotate(-90 175 145)"/>
+                <text x="175" y="140" text-anchor="middle" font-size="36" font-weight="900" fill="#c2625a" font-family="'Noto Serif TC',serif">97%</text>
+                <text x="175" y="162" text-anchor="middle" font-size="12" fill="#8a7e6e">能源仰賴進口</text>
+
+                <!-- Breakdown bars -->
+                <text x="380" y="50" font-size="13" font-weight="700" fill="#3e3428" font-family="'Noto Serif TC',serif">2025年發電結構</text>
+                <rect x="380" y="65" width="280" height="24" rx="4" fill="#e8e0d0"/>
+                <rect x="380" y="65" width="149" height="24" rx="4" fill="#d4a04a"/>
+                <text x="454" y="82" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">燃氣 53%</text>
+
+                <rect x="380" y="97" width="280" height="24" rx="4" fill="#e8e0d0"/>
+                <rect x="380" y="97" width="78" height="24" rx="4" fill="#9e9488"/>
+                <text x="419" y="114" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">燃煤 28%</text>
+
+                <rect x="380" y="129" width="280" height="24" rx="4" fill="#e8e0d0"/>
+                <rect x="380" y="129" width="28" height="24" rx="4" fill="#9a88b8"/>
+                <text x="425" y="146" font-size="11" fill="#8a7e6e">核能 6%</text>
+
+                <rect x="380" y="161" width="280" height="24" rx="4" fill="#e8e0d0"/>
+                <rect x="380" y="161" width="25" height="24" rx="4" fill="#7aae7a"/>
+                <text x="425" y="178" font-size="11" fill="#8a7e6e">再生能源 9%</text>
+
+                <rect x="380" y="193" width="280" height="24" rx="4" fill="#e8e0d0"/>
+                <rect x="380" y="193" width="11" height="24" rx="4" fill="#6e6458"/>
+                <text x="425" y="210" font-size="11" fill="#8a7e6e">燃油 4%</text>
+
+                <!-- annotation -->
+                <line x1="530" y1="77" x2="640" y2="60" stroke="#c2625a" stroke-width="1" stroke-dasharray="3"/>
+                <text x="642" y="55" font-size="10" fill="#c2625a" font-weight="700">⅓ 經荷莫茲海峽</text>
+                <text x="642" y="67" font-size="10" fill="#c2625a">（2026美伊戰爭封鎖）</text>
+
+                <text x="380" y="245" font-size="11" fill="#8a7e6e">來源：台電 2025 年發電結構資料</text>
+            </svg>
+        </div>
+
+        <!-- SHIPPING ROUTES SVG -->
+        <div class="route-map-wrap">
+            <svg viewBox="0 0 750 380" xmlns="http://www.w3.org/2000/svg" id="route-svg">
+                <defs>
+                    <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#c2625a"/>
+                    </marker>
+                    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#3a7088"/>
+                    </marker>
+                    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#6b9e6b"/>
+                    </marker>
+                </defs>
+                <!-- Simplified world map outlines -->
+                <rect width="750" height="380" fill="#eaf4f8" rx="12"/>
+                <!-- Asia -->
+                <path d="M400,40 L480,50 L520,80 L530,130 L510,170 L490,180 L500,220 L480,250 L460,240 L440,260 L420,250 L400,220 L380,200 L370,160 L380,120 L400,80 Z" fill="#d4cbb8" stroke="#c5b8a5" stroke-width="1" opacity="0.6"/>
+                <!-- Australia -->
+                <path d="M520,280 L580,270 L620,290 L610,330 L570,340 L530,320 L520,300 Z" fill="#d4cbb8" stroke="#c5b8a5" stroke-width="1" opacity="0.6"/>
+                <!-- Middle East -->
+                <path d="M280,110 L320,100 L340,130 L330,170 L300,180 L270,150 Z" fill="#d4cbb8" stroke="#c5b8a5" stroke-width="1" opacity="0.6"/>
+                <!-- Africa -->
+                <path d="M220,140 L270,130 L270,150 L280,200 L260,280 L220,300 L200,250 L210,180 Z" fill="#d4cbb8" stroke="#c5b8a5" stroke-width="1" opacity="0.6"/>
+                <!-- Americas -->
+                <path d="M60,60 L120,50 L130,100 L120,160 L100,200 L80,250 L60,200 L50,140 Z" fill="#d4cbb8" stroke="#c5b8a5" stroke-width="1" opacity="0.6"/>
+
+                <!-- Taiwan -->
+                <ellipse cx="510" cy="175" rx="8" ry="12" fill="#f0c040" stroke="#b8860b" stroke-width="2"/>
+                <text x="510" y="195" text-anchor="middle" font-size="11" font-weight="900" fill="#b8860b" font-family="'Noto Serif TC',serif">台灣</text>
+
+                <!-- Hormuz Strait marker -->
+                <circle cx="310" cy="155" r="12" fill="none" stroke="#c2625a" stroke-width="2" stroke-dasharray="4">
+                    <animate attributeName="r" values="10;14;10" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <text x="310" y="145" text-anchor="middle" font-size="8" fill="#c2625a" font-weight="700">荷莫茲</text>
+                <text x="310" y="175" text-anchor="middle" font-size="8" fill="#c2625a" font-weight="700">海峽</text>
+
+                <!-- South China Sea marker -->
+                <rect x="455" y="210" width="40" height="18" rx="4" fill="rgba(194,98,90,0.15)" stroke="#c2625a" stroke-width="1" stroke-dasharray="3"/>
+                <text x="475" y="223" text-anchor="middle" font-size="8" fill="#c2625a">南海</text>
+
+                <!-- Route: Qatar → Taiwan (through Hormuz) -->
+                <path class="svg-interactive-region" d="M 320 150 Q 380 200, 430 210 Q 470 200, 505 180" fill="none" stroke="#c2625a" stroke-width="2.5" stroke-dasharray="6 3" marker-end="url(#arrow-red)"
+                    onmouseenter="showTip(event,'🇶🇦 卡達 → 台灣（經荷莫茲海峽）\n⚠️ 2026年美伊戰爭封鎖此航線\n佔台灣天然氣進口約15%')" onmouseleave="hideTip()"/>
+                <text x="395" y="195" font-size="9" fill="#c2625a">🇶🇦 卡達</text>
+
+                <!-- Route: Australia → Taiwan -->
+                <path class="svg-interactive-region" d="M 560 285 Q 550 240, 520 200 L 512 183" fill="none" stroke="#3a7088" stroke-width="2.5" marker-end="url(#arrow-blue)"
+                    onmouseenter="showTip(event,'🇦🇺 澳洲 → 台灣（太平洋直航）\n✅ 不受中東局勢影響\n為台灣最大煤炭與LNG來源國之一')" onmouseleave="hideTip()"/>
+                <text x="555" y="260" font-size="9" fill="#3a7088">🇦🇺 澳洲</text>
+
+                <!-- Route: USA → Taiwan -->
+                <path class="svg-interactive-region" d="M 100 130 Q 200 250, 350 280 Q 430 270, 502 185" fill="none" stroke="#6b9e6b" stroke-width="2.5" marker-end="url(#arrow-green)"
+                    onmouseenter="showTip(event,'🇺🇸 美國 → 台灣（太平洋直航）\n✅ 不受荷莫茲海峽影響\n頁岩氣革命讓美國成為LNG出口大國')" onmouseleave="hideTip()"/>
+                <text x="90" y="120" font-size="9" fill="#6b9e6b">🇺🇸 美國</text>
+
+                <!-- Route: Malaysia → Taiwan -->
+                <path class="svg-interactive-region" d="M 460 245 Q 480 220, 505 190" fill="none" stroke="#b8860b" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-red)"
+                    onmouseenter="showTip(event,'🇲🇾 馬來西亞 → 台灣（經南海）\n⚠️ 南海主權爭議影響航線安全\n約佔台灣天然氣進口10%')" onmouseleave="hideTip()"/>
+                <text x="435" y="255" font-size="9" fill="#b8860b">🇲🇾 馬來西亞</text>
+
+                <!-- Route: Indonesia → Taiwan -->
+                <path class="svg-interactive-region" d="M 490 270 Q 500 230, 508 188" fill="none" stroke="#3a7088" stroke-width="2" marker-end="url(#arrow-blue)"
+                    onmouseenter="showTip(event,'🇮🇩 印尼 → 台灣（南洋近航）\n✅ 航線相對短且安全\n為台灣重要煤炭來源')" onmouseleave="hideTip()"/>
+                <text x="490" y="278" font-size="9" fill="#3a7088">🇮🇩 印尼</text>
+
+                <!-- Russia label -->
+                <text x="400" y="55" font-size="9" fill="#8a7e6e">🇷🇺 俄國（制裁風險）</text>
+
+                <!-- Legend -->
+                <rect x="20" y="340" width="710" height="30" rx="6" fill="rgba(255,255,255,0.7)"/>
+                <circle cx="40" cy="355" r="5" fill="#6b9e6b"/><text x="50" y="359" font-size="10" fill="#8a7e6e">安全航線</text>
+                <circle cx="140" cy="355" r="5" fill="#3a7088"/><text x="150" y="359" font-size="10" fill="#8a7e6e">一般航線</text>
+                <circle cx="240" cy="355" r="5" fill="#c2625a"/><text x="250" y="359" font-size="10" fill="#8a7e6e">風險航線</text>
+                <text x="370" y="359" font-size="10" fill="#8a7e6e">🖱️ 將滑鼠移到航線上可查看詳細資訊</text>
+            </svg>
+        </div>
+
+        <div class="insight-box">
+            <div class="insight-title">💡 教學重點</div>
+            <div class="insight-text">
+                台灣的發電結構中，<b>超過 81% 來自火力發電</b>（燃氣 53% + 燃煤 28%），而這些燃料全部仰賴進口。其中約三分之一的天然氣必須經過<b>荷莫茲海峽</b>——一條最窄僅 33 公里的咽喉要道。2026 年美伊戰爭爆發後，伊朗封鎖該海峽，全球約 20% 的石油和三分之一的 LNG 運輸瞬間中斷。台灣的天然氣安全存量僅約 8 天，一旦海上運輸長時間中斷，電力與產業運作都將面臨巨大壓力。<br><br>
+                這就是為什麼<b>國際局勢的每一個變動，都與我們息息相關</b>。
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== SECTION 2: TIMELINE ====== -->
+    <div class="section">
+        <div class="section-title">📜 五大歷史階段與遊戲任務</div>
+        <div class="section-desc">遊戲的每一個階段都對應台灣能源發展史上的關鍵時期。以下將每個階段的歷史背景、遊戲任務，以及相關國際事件完整呈現。點擊事件卡片可展開詳細說明。</div>
+
+        <div class="timeline" id="timeline"></div>
+    </div>
+
+    <!-- ====== SECTION 3: ENERGY TRANSITION SVG ====== -->
+    <div class="section">
+        <div class="section-title">📊 半世紀的能源轉型之路</div>
+        <div class="section-desc">從 100% 依賴石油，到今天燃氣、燃煤、核能、再生能源並存的多元結構——台灣的能源轉型是一部不斷回應危機的歷史。</div>
+        <div class="dep-chart-wrap">
+            <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" id="transition-svg">
+                <!-- Stacked area chart of Taiwan energy transition -->
+                <text x="350" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#3e3428" font-family="'Noto Serif TC',serif">台灣發電結構演變 (1973-2026)</text>
+
+                <!-- Axes -->
+                <line x1="60" y1="40" x2="60" y2="270" stroke="#c5b8a5" stroke-width="1"/>
+                <line x1="60" y1="270" x2="680" y2="270" stroke="#c5b8a5" stroke-width="1"/>
+
+                <!-- Y axis labels -->
+                <text x="55" y="48" text-anchor="end" font-size="10" fill="#8a7e6e">100%</text>
+                <text x="55" y="156" text-anchor="end" font-size="10" fill="#8a7e6e">50%</text>
+                <text x="55" y="274" text-anchor="end" font-size="10" fill="#8a7e6e">0%</text>
+
+                <!-- X axis labels -->
+                <text x="60" y="290" text-anchor="middle" font-size="10" fill="#8a7e6e">1973</text>
+                <text x="215" y="290" text-anchor="middle" font-size="10" fill="#8a7e6e">1990</text>
+                <text x="370" y="290" text-anchor="middle" font-size="10" fill="#8a7e6e">2010</text>
+                <text x="525" y="290" text-anchor="middle" font-size="10" fill="#8a7e6e">2020</text>
+                <text x="680" y="290" text-anchor="middle" font-size="10" fill="#8a7e6e">2026</text>
+
+                <!-- Stacked areas (simplified representative data) -->
+                <!-- Oil: starts high, decreases -->
+                <path d="M60,50 L215,180 L370,230 L525,250 L680,260 L680,270 L60,270 Z" fill="#6e6458" opacity="0.7"/>
+                <!-- Coal: grows then stabilizes -->
+                <path d="M60,50 L215,90 L370,120 L525,150 L680,170 L680,260 L525,250 L370,230 L215,180 L60,50 Z" fill="#9e9488" opacity="0.7"/>
+                <!-- Nuclear: appears then decreases -->
+                <path d="M60,50 L215,90 L370,100 L525,130 L680,155 L680,170 L525,150 L370,120 L215,90 L60,50 Z" fill="#9a88b8" opacity="0.6"/>
+                <!-- Gas: grows significantly -->
+                <path d="M60,50 L215,85 L370,75 L525,80 L680,90 L680,155 L525,130 L370,100 L215,90 L60,50 Z" fill="#d4a04a" opacity="0.7"/>
+                <!-- Renewables: small but growing -->
+                <path d="M60,50 L215,50 L370,48 L525,55 L680,50 L680,90 L525,80 L370,75 L215,85 L60,50 Z" fill="#7aae7a" opacity="0.7"/>
+
+                <!-- Stage markers -->
+                <line x1="60" y1="40" x2="60" y2="270" stroke="#b8860b" stroke-width="1" stroke-dasharray="4" opacity="0.5"/>
+                <line x1="215" y1="40" x2="215" y2="270" stroke="#b8860b" stroke-width="1" stroke-dasharray="4" opacity="0.5"/>
+                <line x1="370" y1="40" x2="370" y2="270" stroke="#b8860b" stroke-width="1" stroke-dasharray="4" opacity="0.5"/>
+                <line x1="525" y1="40" x2="525" y2="270" stroke="#b8860b" stroke-width="1" stroke-dasharray="4" opacity="0.5"/>
+
+                <!-- Stage labels at top -->
+                <text x="137" y="310" text-anchor="middle" font-size="9" fill="#b8860b" font-weight="700">階段一：以煤代油</text>
+                <text x="292" y="310" text-anchor="middle" font-size="9" fill="#b8860b" font-weight="700">階段二：以氣代煤</text>
+                <text x="447" y="310" text-anchor="middle" font-size="9" fill="#b8860b" font-weight="700">階段三：能源韌性</text>
+                <text x="602" y="310" text-anchor="middle" font-size="9" fill="#b8860b" font-weight="700">階段四五：轉型</text>
+
+                <!-- Legend -->
+                <rect x="100" y="38" width="10" height="10" fill="#6e6458" rx="2"/><text x="115" y="47" font-size="10" fill="#8a7e6e">石油</text>
+                <rect x="160" y="38" width="10" height="10" fill="#9e9488" rx="2"/><text x="175" y="47" font-size="10" fill="#8a7e6e">煤炭</text>
+                <rect x="220" y="38" width="10" height="10" fill="#9a88b8" rx="2"/><text x="235" y="47" font-size="10" fill="#8a7e6e">核能</text>
+                <rect x="280" y="38" width="10" height="10" fill="#d4a04a" rx="2"/><text x="295" y="47" font-size="10" fill="#8a7e6e">天然氣</text>
+                <rect x="360" y="38" width="10" height="10" fill="#7aae7a" rx="2"/><text x="375" y="47" font-size="10" fill="#8a7e6e">再生能源</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- ====== SECTION 4: FINAL INSIGHT ====== -->
+    <div class="section">
+        <div class="section-title">🔑 課後反思問題</div>
+        <div class="insight-box">
+            <div class="insight-text">
+                <b>1.</b> 在遊戲中，你是否曾因為國際事件（如戰爭、海峽封鎖）而被迫改變能源策略？這反映了現實中什麼問題？<br><br>
+                <b>2.</b> 台灣的天然氣安全存量僅約 8 天。如果荷莫茲海峽封鎖持續一個月，會發生什麼？我們該如何準備？<br><br>
+                <b>3.</b> 再生能源（風力、太陽能）被稱為「自有能源」。相比進口的煤炭和天然氣，它在地緣政治風險下有什麼優勢？<br><br>
+                <b>4.</b> 遊戲中每個國家的燃料價格不同、航線風險不同。這對台灣的能源採購策略有什麼啟示？<br><br>
+                <b>5.</b> 從1973年到2026年，台灣經歷了多次能源危機。你認為下一次危機可能是什麼？我們該如何提前準備？
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer">
+    島嶼能源生存戰 — 教學輔助教材<br>
+    資料來源：台電、經濟部能源署、國際能源總署(IEA)
+</div>
+
+<script>
+// === TOOLTIP ===
+function showTip(e, text) {
+    const tip = document.getElementById('tooltip');
+    tip.innerHTML = text.replace(/\n/g, '<br>');
+    tip.style.display = 'block';
+    tip.style.left = (e.clientX + 16) + 'px';
+    tip.style.top = (e.clientY - 10) + 'px';
+}
+function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
+document.addEventListener('mousemove', (e) => {
+    const tip = document.getElementById('tooltip');
+    if (tip.style.display === 'block') {
+        tip.style.left = (e.clientX + 16) + 'px';
+        tip.style.top = (e.clientY - 10) + 'px';
+    }
+});
+
+// === TIMELINE DATA (mirrors game WORLD_EVENTS) ===
+const STAGES_DATA = [
+    {
+        title: '階段一：以煤代油',
+        era: '1973 — 1980年代',
+        color: '#9e9488',
+        mission: '第四次中東戰爭爆發，阿拉伯國家祭出石油禁運，油價暴漲四倍。台灣工廠被迫輪流停工、街頭陷入搶購潮。你的第一個任務：用煤炭取代石油，讓工廠的燈重新亮起來。',
+        goals: ['燃煤電廠 ≥ 5 座', '發電量 ≥ 12,000MW'],
+        connection: '1970年代的石油危機是台灣能源政策轉型的起點。政府推動「十大建設」，大力發展燃煤與核能發電，奠定了台灣工業化的電力基礎。這個階段讓學生理解「為什麼台灣一開始會選擇煤炭」——因為石油太貴、太不穩定了。',
+        events: [
+            { headline: '🛢️ 中東戰火：石油禁運擴大', tone: 'bad', detail: '1973年10月，第四次中東戰爭爆發。阿拉伯石油輸出國組織（OAPEC）對支持以色列的西方國家實施石油禁運，國際油價在三個月內從每桶3美元暴漲至12美元——漲幅高達四倍。台灣當時90%以上的發電依賴燃油，這場危機直接讓全台工廠被迫實施「分區輪流停電」，街頭出現搶購物資的恐慌。這是台灣第一次深刻體會到「能源安全」的意義。', effectDesc: '燃油成本飆升，加速轉型壓力', voices: ['高雄加工區女工：「工廠開始輪流放假，聽說是石油不夠了⋯⋯」', '台北計程車司機：「油價漲成這樣，跑一天賺的還不夠油錢。」', '基隆碼頭工人：「聽說中東在打仗，油輪都不來了。」'] },
+            { headline: '🏗️ 十大建設全面啟動', tone: 'good', detail: '1974年，行政院長蔣經國宣布推動「十大建設」——包括中鋼、中船、石化、核能電廠等重大工程。這些建設不僅改變了台灣的產業結構，也讓全國用電需求急劇攀升。十大建設是台灣從農業社會轉型為工業社會的關鍵推手，但同時也讓能源需求的缺口更加明顯。', effectDesc: '工業稅收 +$300', voices: ['高雄鋼鐵工人：「中鋼開工了！聽說薪水不錯，但電力夠不夠啊？」', '台中港工程師：「建設越多，電就越不夠用，希望政府有準備。」', '彰化農民：「聽說要蓋很多工廠，田地都要被徵收了⋯⋯」'] },
+            { headline: '⚡ 全台限電令發布', tone: 'bad', detail: '石油危機期間，台電被迫實施分區輪流限電措施。工業區每週停電兩天，民生用電也受到嚴重影響。民眾搶購蠟燭和手電筒，許多家庭在黑暗中度過漫漫長夜。這次限電經驗深深烙印在那一代人的記憶中，也催生了「能源多元化」的國家政策方向。', effectDesc: '限電衝擊，競爭力 -5', voices: ['台北主婦：「又停電了！冰箱的東西都壞了，小孩作業也寫不了。」', '新竹工廠老闆：「一停電，整條產線的半成品全報廢，損失慘重。」', '屏東漁民：「冷凍庫停電，魚貨全臭了，這個月白忙。」'] },
+            { headline: '🏭 台灣經濟奇蹟持續', tone: 'good', detail: '1970-80年代，台灣躍升為「亞洲四小龍」之一。加工出口區的紡織、電子產品出口暢旺，「Made in Taiwan」的產品行銷全球。但經濟快速成長的背後，是不斷攀升的能源需求。當時台灣的工業用電年成長率高達10%以上，遠超過電力建設的速度。', effectDesc: '出口暢旺，稅收 +$200', voices: ['桃園紡織廠女工：「加班加到天亮，訂單接不完！」', '台北外貿商：「MIT的東西全世界都要，但電費越來越貴了。」', '高雄港務員：「貨櫃船排隊排到港外去了！」'] },
+            { headline: '🪨 澳洲煤礦新合約簽訂', tone: 'good', detail: '為了擺脫對石油的依賴，台電積極開拓煤炭進口來源。與澳洲BHP等大型礦業公司簽訂長期煤炭供應合約，確保了穩定的燃料來源。澳洲煤炭品質優良、航線安全（太平洋直航），成為台灣最重要的煤炭供應國之一。', effectDesc: '🇦🇺 澳洲煤炭降價 20%', voices: ['台電採購員：「終於簽到好價格了，至少煤炭不用擔心。」', '經濟部官員：「多元化能源進口是當務之急。」'] },
+            { headline: '🛢️ 伊朗革命：第二次石油危機', tone: 'bad', detail: '1979年，伊朗伊斯蘭革命推翻巴勒維王朝，新政權中斷石油出口。緊接著1980年兩伊戰爭爆發，全球石油供應再度緊縮，油價從每桶14美元飆升至35美元。台灣再次受到嚴重衝擊，更加堅定了「以煤代油」的政策方向。', effectDesc: '油價再漲，經濟承壓 -3', voices: ['台北大學生：「教授說台灣太依賴進口石油了，我們該怎麼辦？」', '高雄煉油廠員工：「原油又漲了，上面說要趕快轉用煤炭發電。」', '花蓮民宿老闆：「觀光客變少了，大家都在省錢。」'] }
+        ]
+    },
+    {
+        title: '階段二：以氣代煤',
+        era: '1990 — 2000年代',
+        color: '#d4a04a',
+        mission: '台灣經濟奇蹟的背後是暴增的電力需求。竹科的晶圓廠 24 小時不停轉，一次跳電就是數億損失。但燃煤電廠的黑煙讓中南部居民走上街頭。你需要找到更乾淨的電力來源——天然氣。',
+        goals: ['接收站 ≥ 1 座', '燃氣發電 ≥ 15%', '總發電 ≥ 30,000MW'],
+        connection: '這個階段反映了台灣從「經濟發展至上」轉向「兼顧環保」的社會轉變。1990年代環保意識興起、台海危機凸顯國安問題，而半導體產業的崛起讓「供電穩定」成為國家競爭力的核心。學生在遊戲中體會到：能源選擇不只是技術問題，更是社會、環境與國安的綜合考量。',
+        events: [
+            { headline: '🚀 台海飛彈危機！', tone: 'bad', detail: '1996年3月，中國為了影響台灣總統大選，在台灣外海試射飛彈並舉行軍事演習。國際航運一度繞道，台灣海峽的安全性首次受到國際關注。這場危機讓台灣深刻認識到：能源運輸航線的安全與國家存亡息息相關，若海峽被封鎖，所有的進口能源都會中斷。', effectDesc: '⚠️ 全球航運緊張，燃料全面漲價', voices: ['新竹科學園區工程師：「飛彈都打過來了，電力會不會中斷？」', '基隆港船長：「好多船都改道了，運費漲得離譜。」', '台北股市投資人：「股市崩盤！外資全跑了⋯⋯」'] },
+            { headline: '💡 竹科崛起：台積電擴廠', tone: 'good', detail: '1990年代，台積電成為全球晶圓代工龍頭。半導體製造需要極為穩定的電力供應——一次毫秒級的電壓波動就可能導致整批晶圓報廢，損失動輒數億元。竹科的用電量逐年攀升，成為台灣經濟的命脈，也讓「永不斷電」從口號變成了國家安全層級的要求。', effectDesc: '半導體帶動稅收 +$500', voices: ['台積電工程師：「一次跳電就是幾億損失，拜託電力千萬要穩。」', '竹科管理員：「用電量年年創新高，園區又要擴建了。」', '新竹房仲：「科技新貴進來，房價又要漲了！」'] },
+            { headline: '⚫ 729全台大停電', tone: 'bad', detail: '1999年7月29日，南投地區一座高壓輸電鐵塔因地層滑動倒塌，引發連鎖跳電，全台846萬戶陷入黑暗。這是台灣有史以來影響範圍最大的停電事故之一。停電持續數小時至數天不等，醫院靠備用發電機維持運作，交通號誌失靈導致車禍頻傳。這次事件暴露了台灣電力輸配系統的脆弱，也催生了後續的電力改革討論。', effectDesc: '💥 全台大停電！競爭力 -10', voices: ['台北上班族：「電梯停了，我爬了18層樓回家⋯⋯」', '醫院護理師：「開刀開到一半停電，靠備用發電機撐著，嚇死人！」', '高雄攤販：「整條夜市黑漆漆的，冰淇淋全融了。」'] },
+            { headline: '🌿 京都議定書簽署', tone: 'neutral', detail: '1997年，全球149個國家在日本京都簽署了《京都議定書》，首次以國際公約的形式要求已開發國家減少溫室氣體排放。雖然台灣不是締約國（因聯合國席次問題），但作為全球主要出口國，國際減碳壓力直接影響了台灣的產業與能源政策。燃煤發電因高碳排而被國際社會批評，推動了台灣「以氣代煤」的政策轉向。', effectDesc: '🌍 減碳壓力，煤炭成本上升', voices: ['環保署官員：「世界都在減碳，台灣不能置身事外。」', '台中市民：「火力電廠的煙囪一直冒黑煙，小孩都在咳嗽。」', '電力學者：「天然氣碳排只有煤的一半，是過渡期最好選擇。」'] },
+            { headline: '🏭 民營電廠(IPP)正式加入', tone: 'good', detail: '2000年代，政府開放民營電廠（Independent Power Producer, IPP）投入發電市場。麥寮汽電、和平電廠等相繼加入供電行列，緩解了因經濟快速成長而日益吃緊的電力供應。但IPP的環保爭議（尤其是麥寮六輕工業區）也引發了社會討論：經濟發展與環境保護之間，該如何取得平衡？', effectDesc: '電力充裕，經濟成長 +$300', voices: ['經濟部長：「開放民間投資電力，是正確的方向。」', '雲林居民：「六輕那邊又蓋了新電廠，空氣會不會更差？」', '台電工會：「民營電廠搶走生意，我們的日子不好過。」'] },
+            { headline: '😤 反火力發電抗爭', tone: 'bad', detail: '隨著環保意識抬頭，中南部居民對燃煤電廠的空氣污染忍無可忍。彰化、台西、高雄等地頻繁爆發反對燃煤電廠擴建的抗議行動。居民指控燃煤電廠排放的PM2.5、硫氧化物、氮氧化物嚴重危害健康，要求政府關閉老舊燃煤機組。這波環保運動加速了台灣能源結構的轉型。', effectDesc: '環保壓力，燃煤採購趨謹慎', voices: ['彰化媽媽：「小孩氣喘越來越嚴重，都是電廠害的！」', '台西鄉長：「我們的天空什麼時候才能看到藍色？」', '台電發言人：「我們會加裝脫硫脫硝設備，請民眾放心。」'] }
+        ]
+    },
+    {
+        title: '階段三：能源韌性',
+        era: '2010 — 2018年',
+        color: '#5a8fa8',
+        mission: '2011年福島核災震撼全球，台灣25萬人走上街頭高喊「我是人，我反核」。2017年815大停電暴露了台灣能源系統的脆弱——一座電廠出事，全台就陷入黑暗。你必須打造一個更有韌性的電力網絡。',
+        goals: ['接收站 ≥ 2 座', '安全存量 ≥ 7天'],
+        connection: '這個階段的核心議題是「系統韌性」——單一節點的失敗不應該導致整個系統崩潰。815大停電的教訓是：當大潭電廠的天然氣因為一個閥門操作失誤而中斷時，全台668萬戶就陷入黑暗。學生在遊戲中必須建設多座接收站來分散風險，這正是現實中台灣能源政策的核心挑戰。',
+        events: [
+            { headline: '☢️ 福島核災震撼全球', tone: 'bad', detail: '2011年3月11日，日本東北發生規模9.0大地震並引發海嘯，福島第一核電廠三座反應爐相繼熔毀，大量輻射物質外洩。這是繼1986年車諾比事件後最嚴重的核災。福島核災的畫面透過網路即時傳播到全世界，台灣社會的反核聲浪達到前所未有的高峰。許多原本支持核能的民眾轉向反核，核四建設案成為全國最具爭議的政治議題。', effectDesc: '反核浪潮，社會動盪 -5', voices: ['台北反核遊行民眾：「我是人，我反核！台灣不能有下一個福島！」', '核電廠員工：「核電其實很安全的⋯⋯但現在沒人聽得進去。」', '基隆漁民：「萬一核電廠出事，我們的海還能捕魚嗎？」'] },
+            { headline: '⚫ 815全台大停電', tone: 'bad', detail: '2017年8月15日下午4點51分，大潭電廠的天然氣供應因中油桃園供氣站操作人員的一次閥門操作失誤而瞬間中斷。大潭電廠6部機組全部跳機，全台瞬間失去約438萬瓩的供電能力。全台668萬戶大停電，持續3至5小時。這次事件深刻揭示了台灣能源系統「把雞蛋放在同一個籃子」的致命弱點：單一接收站、單一管線就能癱瘓全國。', effectDesc: '💥 大潭事故！一座電廠癱瘓全台 -12', voices: ['台北101大樓管理員：「電梯全停，遊客困在觀景台上。」', '便利商店店員：「冷氣停了，飲料全溫的，客人都在抱怨。」', '經濟部長（辭職）：「我為此負起政治責任。」'] },
+            { headline: '✊ 25萬人反核大遊行', tone: 'neutral', detail: '2013-2014年間，台灣爆發史上最大規模的反核運動。2014年4月，前民進黨主席林義雄以無限期絕食抗議核四興建，引發社會震動。最終政府宣布核四封存。反核運動是台灣公民社會力量的重要展現，但也讓能源政策面臨「去核之後，電從哪裡來？」的嚴峻問題。2018年的「以核養綠」公投更顯示社會對此議題的深度分歧。', effectDesc: '核四封存，能源政策轉向', voices: ['大學教授：「沒有核四，電夠不夠用是嚴肅的問題。」', '環保團體領袖：「這是台灣民主的勝利！下一步是發展再生能源。」', '工商大老：「沒有核電，電價一定會漲，產業承受得了嗎？」'] },
+            { headline: '😷 PM2.5紫爆！中南部空污', tone: 'bad', detail: '2015-2017年間，台中火力發電廠成為全台空污爭議的焦點。每到秋冬季節，中南部天空灰濛濛，PM2.5頻繁達到「紫爆」（危害）等級。台中市長要求台電「降載減排」，引發中央與地方的能源角力。空污問題讓燃煤發電承受巨大的社會壓力，加速了「增氣減煤」政策的推動。', effectDesc: '空污壓力，燃煤受限、成本上升', voices: ['台中媽媽：「小孩每天戴N95口罩上學，這是什麼生活品質？」', '台中市長：「我要求台電降載減排，空污不能再惡化了！」', '高雄居民：「左營的天空灰濛濛的，太陽都看不到。」'] },
+            { headline: '🌍 巴黎協定正式生效', tone: 'neutral', detail: '2015年12月，196個國家在巴黎達成歷史性的氣候協議，承諾將全球平均氣溫升幅控制在工業化前水準以上2°C以內，並努力限制在1.5°C。雖然台灣不是締約國，但作為全球供應鏈的重要一環，國際客戶（如蘋果、Google）開始要求供應商使用綠電，間接推動了台灣的能源轉型。', effectDesc: '全球減碳，煤炭長期看漲', voices: ['外交部官員：「台灣不是締約國，但不能自外於國際趨勢。」', '環保學者：「巴黎協定是人類最後的機會，台灣必須跟上。」', '石化業主管：「碳稅碳費遲早要來，先準備吧。」'] }
+        ]
+    },
+    {
+        title: '階段四：再生轉型',
+        era: '2020 — 2024年',
+        color: '#7aae7a',
+        mission: '2022年俄烏戰爭讓歐洲陷入能源危機，天然氣價格飆漲三倍。同年8月，中國軍演包圍台灣，貨船繞道航行。台灣海峽——世界頂級風場之一——成了你手中最珍貴的籌碼。是時候讓這座島嶼擁有自己的能源了。',
+        goals: ['接收站 ≥ 3 座', '再生能源 ≥ 10%', '安全存量 ≥ 11天'],
+        connection: '俄烏戰爭是一個活生生的教材：歐洲長年依賴俄國天然氣，當戰爭爆發後，能源立刻變成武器。台灣面臨類似的地緣風險——如果台海發生衝突，進口能源將全面中斷。這個階段讓學生理解「能源自主」不是口號，而是國家安全的基石。台灣海峽是全球最好的風場之一，離岸風電是台灣實現能源自主的關鍵。',
+        events: [
+            { headline: '🔥 俄烏戰爭爆發！歐洲能源危機', tone: 'bad', detail: '2022年2月24日，俄羅斯全面入侵烏克蘭。歐盟隨即對俄國實施制裁，俄國則以天然氣為武器反擊——大幅減少對歐洲的供氣量。歐洲天然氣價格飆漲至歷史新高，各國開始在全球市場搶購LNG。台灣作為LNG進口國，也受到波及：現貨天然氣價格翻了三倍，原本簽好的合約價格也面臨重新談判壓力。', effectDesc: '🔴 全球天然氣價格飆漲 80%！', voices: ['台電採購主管：「現貨價翻了三倍！歐洲人把貨都搶走了！」', '台積電能源顧問：「電價再漲，我們的成本優勢就沒了。」', '家庭主婦：「天然氣漲價，瓦斯費、電費什麼都漲⋯⋯」'] },
+            { headline: '⚫ 303全台大停電', tone: 'bad', detail: '2022年3月3日上午9點7分，興達電廠的開關場因人為操作失誤發生事故，導致南部電網大量機組跳脫。全台549萬戶大停電，台鐵、高鐵、捷運全面停擺，紅綠燈失靈造成交通混亂。這是台灣三年內第二次大規模停電，再次凸顯電力系統韌性的不足。事後調查發現，問題根源在於電力調度的備援機制不夠完善。', effectDesc: '💥 興達事故！又是一次全台大停電 -10', voices: ['高鐵乘客：「車停在隧道裡兩個小時，又悶又熱！」', '半導體工程師：「晶圓又報廢了⋯⋯公司損失好幾億。」', '小吃店老闆：「連續兩次大停電，食材壞了誰要賠？」'] },
+            { headline: '⚓ 軍演威脅：中國環台軍演', tone: 'bad', detail: '2022年8月，美國眾議院議長裴洛西訪台，中國隨即宣布在台灣周邊六個海域進行實彈軍事演習。飛彈飛越台灣上空，多條國際航線被迫改道。雖然軍演僅持續數天，但已經讓全世界看到：台灣海峽一旦出事，全球供應鏈都會受到衝擊。對台灣而言，這次軍演是一個明確的警訊——我們的能源運輸航線隨時可能被切斷。', effectDesc: '⚠️ 航線繞道，運輸成本上升', voices: ['基隆港務局：「好幾艘LNG船臨時改道，到港時間延後三天。」', '金門居民：「飛彈就從頭頂飛過去⋯⋯真的很可怕。」', '國防部發言人：「國軍嚴密監控，請國人放心。」'] },
+            { headline: '🌊 離岸風電首座風場完工', tone: 'good', detail: '台灣海峽的平均風速全球名列前茅，是發展離岸風電的絕佳場域。2020年代，台灣陸續完工多座離岸風場，包括海洋風電（Formosa 1）、允能風場等。這些風場的電力不需要從國外進口燃料——風吹就能發電，是真正的「自有能源」。雖然建設成本高、且面臨漁民抗議等挑戰，但離岸風電已成為台灣能源轉型最重要的一張牌。', effectDesc: '🟢 綠能里程碑！稅收 +$400', voices: ['風電工程師：「海上風大到不行，發電效率比預期還好！」', '彰化漁民：「風機蓋了之後，魚變少了⋯⋯但補償金還可以。」', '環保團體：「這是台灣能源自主的第一步！繼續衝！」'] },
+            { headline: '🍎 RE100企業施壓', tone: 'neutral', detail: 'RE100是一個由國際氣候組織發起的倡議，要求加入的企業承諾在2050年前達成100%使用再生能源。蘋果、Google、微軟等科技巨頭不僅自己加入，還要求旗下供應商也必須使用綠電。台灣作為全球電子產品供應鏈的核心，首當其衝：如果無法提供足夠的綠電，台灣的代工廠可能被排除在國際供應鏈之外。', effectDesc: '產業綠電需求急升', voices: ['蘋果供應鏈主管：「2030年前要100%綠電，做不到就換供應商。」', '中小企業老闆：「綠電憑證買不到也買不起，怎麼辦？」', '台積電ESG部門：「我們已簽下全台最大綠電購買合約。」'] }
+        ]
+    },
+    {
+        title: '階段五：AI新局',
+        era: '2025 — 2026年',
+        color: '#c2625a',
+        mission: '2026年2月，美伊戰爭爆發，伊朗封鎖荷莫茲海峽，全球三分之一的天然氣運輸中斷。台灣天然氣安全存量僅剩8天，油價突破每桶110美元。AI資料中心的用電需求還在暴增、台積電2奈米廠即將量產⋯⋯這是你身為決策長最嚴峻的考驗。',
+        goals: ['再生能源 ≥ 20%', '安全存量 ≥ 14天', '總發電 ≥ 70,000MW'],
+        connection: '這是最貼近當下的階段。2026年美伊戰爭不是虛構的劇情——它正在發生。荷莫茲海峽的封鎖讓全球能源市場劇烈震盪，台灣約三分之一的天然氣進口受到直接影響。同時，AI時代帶來的電力需求暴增、RE100的綠電要求、台海地緣風險⋯⋯所有壓力同時匯聚。學生在這個階段會深刻體會：能源安全不是歷史課本上的故事，而是此刻正在影響我們生活的現實。',
+        events: [
+            { headline: '💣 美伊戰爭爆發！荷莫茲海峽封鎖', tone: 'bad', detail: '2026年2月底，美國與以色列對伊朗發動代號「咆哮雄獅」的大規模空襲行動，伊朗最高領袖哈米尼身亡。伊朗伊斯蘭革命衛隊隨即宣布封鎖荷莫茲海峽作為報復。這條全球最重要的能源運輸咽喉——最窄處僅33公里——承載了全球約20%的石油供應和三分之一的LNG運輸。封鎖後，國際油價在5天內從每桶73美元飆升至110美元以上，能源市場情報公司Kpler指出油輪通行量下降了九成。台灣約三分之一的天然氣來自經荷莫茲海峽運輸的卡達，安全存量僅約8天。', effectDesc: '🔴 卡達天然氣中斷！全球氣價飆漲 60%', voices: ['經濟部長：「已啟動緊急應變，呼籲國人節約用電。」', '台積電發言人：「目前生產不受影響，但我們密切關注局勢。」', '高雄阿嬤：「又要打仗了⋯⋯希望台灣平平安安。」'] },
+            { headline: '🤖 AI資料中心用電暴增', tone: 'neutral', detail: '2025-2026年，全球AI產業進入爆發期。各大科技公司競相在台灣建設超大型資料中心——GPU伺服器的功耗是傳統伺服器的數倍，單一AI資料中心的年用電量可達數億度，相當於一座小城市的用電量。根據國際能源署(IEA)預測，全球資料中心用電量到2026年將達到1000TWh，約為日本全年用電量。台灣作為半導體與AI硬體的生產重鎮，面臨的電力壓力尤其巨大。', effectDesc: '⚡ 電力需求激增 +2000MW', voices: ['資料中心營運長：「我們需要的不只是電，是24小時不間斷的綠電。」', '雲林農民：「那麼大一片農地要蓋機房，以後還種得了田嗎？」', '台電總經理：「AI的用電成長速度超出所有人預期。」'] },
+            { headline: '🔬 台積電2奈米量產', tone: 'good', detail: '台積電2奈米先進製程正式量產，這是全球最先進的半導體技術。2奈米製程將應用於AI晶片、高效能運算等領域，鞏固了台灣「矽盾」的地位——全球對台灣半導體的依賴，某種程度上成為台灣的安全保障。然而，先進製程的生產需要極大量的電力和超高穩定性的供電。台積電的擴產計畫讓台灣的電力需求再創新高。', effectDesc: '🟢 矽盾發威！稅收 +$800', voices: ['台積電工程師：「2奈米良率達標了！但工廠用電量又破紀錄。」', '美國商務部：「台灣半導體對全球供應鏈至關重要。」', '竹科工程師：「年終獎金有望了，但電費帳單也嚇人。」'] },
+            { headline: '🇺🇸 美國LNG增產，太平洋航線暢通', tone: 'good', detail: '在荷莫茲海峽封鎖的背景下，美國的天然氣出口成為全球能源市場的救生圈。美國頁岩氣革命讓美國從天然氣進口國轉變為全球最大的LNG出口國之一。川普政府進一步放寬LNG出口管制，鼓勵增產。對台灣而言，美國LNG經太平洋直航運輸，完全不受荷莫茲海峽和南海局勢影響，成為當前最穩定的天然氣來源。', effectDesc: '🇺🇸 美國天然氣降價 25%', voices: ['台灣駐美代表：「已與美方簽署緊急LNG供應備忘錄。」', '能源分析師：「美國頁岩氣改變了全球天然氣版圖。」', '環保人士：「天然氣再便宜也是化石燃料，綠能才是正解。」'] },
+            { headline: '⚓ 南海航線緊張', tone: 'bad', detail: '南海是全球最繁忙的海上航線之一，也是台灣從東南亞進口能源的必經之路。近年來南海主權爭議持續升溫，中國、越南、菲律賓、馬來西亞等國在島礁建設軍事設施，多次發生海上對峙事件。2026年，在美伊戰爭的大背景下，南海局勢也變得更加緊張。來自馬來西亞的天然氣船被迫繞道，運輸成本大幅上升，保險費用飆漲五倍。', effectDesc: '🔴 馬來西亞天然氣中斷！巴紐漲價', voices: ['海軍發言人：「南海局勢複雜，我方持續維護航行自由。」', '航運公司主管：「保險費漲了五倍，沒人敢走南海了。」', '台電燃料處：「緊急改向澳洲和美國調貨。」'] },
+            { headline: '🌍 RE100最後通牒', tone: 'neutral', detail: 'RE100倡議進入最後倒數階段，越來越多國際品牌對供應鏈發出「綠電最後通牒」。未能在限期內達成綠電目標的供應商，將被排除在合格供應商名單之外。對台灣的出口導向型經濟而言，這不只是環保議題，更是攸關數十萬個工作機會的經濟議題。加速發展再生能源，已經從「選擇」變成「必須」。', effectDesc: '產業壓力，競爭力 -3', voices: ['蘋果採購副總：「很遺憾，未達標的供應商我們將不再續約。」', '台灣中小企業主：「綠電太貴了，我們真的撐不住⋯⋯」', '經濟部長：「全力發展再生能源，這是國家競爭力的關鍵。」'] }
+        ]
+    }
+];
+
+// === RENDER TIMELINE ===
+function renderTimeline() {
+    const container = document.getElementById('timeline');
+    container.innerHTML = STAGES_DATA.map((stage, si) => {
+        const goalsHtml = stage.goals.map(g => `<span class="goal-tag">${g}</span>`).join('');
+        const eventsHtml = stage.events.map((ev, ei) => {
+            const voicesHtml = ev.voices.map(v => `<div class="ev-voice">💬 ${v}</div>`).join('');
+            return `<div class="ev-card" onclick="toggleCard(this)" id="ev-${si}-${ei}">
+                <div class="ev-card-top">
+                    <div class="ev-headline ${ev.tone}">${ev.headline}</div>
+                    <div class="ev-toggle">▼</div>
+                </div>
+                <div class="ev-detail-wrap">
+                    <div class="ev-detail-inner">
+                        <div class="ev-detail-text">${ev.detail}</div>
+                        <div class="ev-effect-tag ${ev.tone}">${ev.effectDesc}</div>
+                        <div class="ev-voices">${voicesHtml}</div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        return `<div class="tl-stage">
+            <div class="tl-stage-dot" style="background:${stage.color};"></div>
+            <div class="tl-stage-header" onclick="toggleStageEvents(this)">
+                <span>${stage.title}</span>
+                <span style="font-size:12px;color:var(--muted);">▼ ${stage.events.length} 個歷史事件</span>
+            </div>
+            <div class="tl-stage-era">${stage.era}</div>
+            <div class="tl-stage-mission">
+                <div class="mission-title">🎮 遊戲任務</div>
+                ${stage.mission}
+                <div class="tl-stage-goals">${goalsHtml}</div>
+            </div>
+            <div class="insight-box" style="margin:8px 0 12px;padding:14px;">
+                <div class="insight-title" style="font-size:13px;">🔗 歷史與遊戲的連結</div>
+                <div class="insight-text" style="font-size:13px;">${stage.connection}</div>
+            </div>
+            <div class="events-grid">${eventsHtml}</div>
+        </div>`;
+    }).join('');
+}
+
+function toggleCard(el) {
+    el.classList.toggle('expanded');
+}
+
+function toggleStageEvents(header) {
+    const stage = header.closest('.tl-stage');
+    const grid = stage.querySelector('.events-grid');
+    if (grid.style.display === 'none') {
+        grid.style.display = 'flex';
+        header.querySelector('span:last-child').textContent = '▼ ' + stage.querySelectorAll('.ev-card').length + ' 個歷史事件';
+    } else {
+        grid.style.display = 'none';
+        header.querySelector('span:last-child').textContent = '▶ ' + stage.querySelectorAll('.ev-card').length + ' 個歷史事件';
+    }
+}
+
+renderTimeline();
+</script>
+</body>
+</html>
