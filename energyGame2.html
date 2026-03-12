@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -250,6 +249,32 @@
             letter-spacing: 3px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
+
+        #event-review-btn {
+            position: absolute; top: 12px; right: 12px;
+            padding: 4px 10px;
+            color: var(--text-main);
+            font-family: 'Noto Serif TC', serif;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 92;
+            pointer-events: auto;
+            cursor: pointer;
+            background: rgba(250,245,235,0.85);
+            border-radius: 16px;
+            border: 1.5px solid var(--ui-border);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            display: none;
+        }
+        #event-review-btn:active { transform: scale(0.95); background: rgba(255,248,230,0.95); }
+        #event-review-btn .ev-dot {
+            display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; vertical-align: middle;
+        }
+        #event-review-btn .ev-dot.bad { background: var(--accent-red); }
+        #event-review-btn .ev-dot.good { background: var(--accent-green); }
+        #event-review-btn .ev-dot.neutral { background: var(--accent-gold); }
 
         #taiwan-svg {
             position: absolute; top: 0; left: 0;
@@ -728,6 +753,7 @@
     <div id="game-stage">
         <div id="map-container">
             <div id="map-year-display">第 1 年</div>
+            <div id="event-review-btn" onclick="ui.showEventReview()"><span class="ev-dot"></span><span id="ev-btn-text">📰 本年事件</span></div>
             <svg id="taiwan-svg" viewBox="0 0 320 480">
                 <defs>
                     <clipPath id="taiwan-clip">
@@ -1281,7 +1307,7 @@
                 else{document.getElementById('story-text').innerText="自由執政模式";document.getElementById('goal-list').innerHTML="<div class='bar-goal-item'>維持競爭力 > 0%</div>";}
                 if(game.blockade){document.getElementById('next-btn').innerHTML=`撐住<br>${game.bDays}天`;document.getElementById('next-btn').style.background='#555';}
                 else{document.getElementById('next-btn').innerHTML=`下一<br>年度`;document.getElementById('next-btn').style.background='var(--accent-red)';}
-                this.updatePieChart(); this.renderMarket(); this.renderDeck();
+                this.updatePieChart(); this.renderMarket(); this.renderDeck(); this.updateEventButton();
             },
             floatText(txt,type){const c=document.getElementById('toast-container');const el=document.createElement('div');el.className=`toast-msg ${type||''}`;
                 if(type==='good')el.innerHTML=`<span>${txt}</span> <span>💰</span>`;else if(type==='bad')el.innerHTML=`<span>${txt}</span> <span>⚠️</span>`;else el.innerText=txt;
@@ -1307,6 +1333,24 @@
             showModal(title,desc,callback){document.getElementById('modal-title').innerText=title;document.getElementById('modal-content-area').innerHTML=`<p id="modal-desc" style="font-size:14px;line-height:1.6;color:var(--text-main);margin:15px 0;">${desc}</p>`;const btn=document.getElementById('modal-btn');btn.innerText="確 定";btn.onclick=callback||ui.closeModal;btn.className='retro-btn';document.getElementById('modal-overlay').style.display='flex';},
             showCompHelp(){let sr='';if(game.stageIdx>=2)sr=`<div class="rule-item"><span>📉 低庫存(&lt;7天)</span><span style="color:var(--accent-red)">每項-10%</span></div>`;ui.showModal("競爭力說明",`<div class="rule-list"><div class="rule-title">評分規則</div><div class="rule-item"><span>⚡ 供電充足</span><span style="color:var(--accent-green)">+5%</span></div><div class="rule-item"><span>⚡ 供電不足</span><span style="color:var(--accent-red)">-15%</span></div>${sr}<div class="rule-item"><span>☠️ 庫存耗盡(0天)</span><span style="color:var(--accent-red)">直接失敗</span></div></div>`);},
             showFundsHelp(){ui.showModal("工業稅收說明",`<div class="rule-list"><div class="rule-title">計算公式</div><div class="rule-item"><span>💰 基礎稅收</span><span>$${game.stageIdx===0?500:(game.stageIdx===1?1000:2000)}</span></div><div class="rule-item"><span>⚡ 工業稅收</span><span>+$${Math.floor(game.calcPower(true)*0.4).toLocaleString()}</span></div><div class="rule-item" style="border-top:1px solid var(--ui-border);margin-top:5px;padding-top:5px;"><span>預計下年收入</span><span style="color:var(--accent-gold)">$${game.calcIncome().toLocaleString()}</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:5px;">(公式：發電量 x 0.4 + 基礎稅)</div></div>`);},
+            showEventReview(){
+                const ev=game.currentEvent;
+                if(!ev){ui.showModal('📰 國際情勢','<div style="text-align:center;color:var(--text-muted);padding:20px;">尚無事件。請先推進年度。</div>');return;}
+                const toneClass=ev.tone==='good'?'good':(ev.tone==='neutral'?'neutral':'');
+                const effectClass=ev.tone==='good'?'positive':(ev.tone==='bad'?'negative':'');
+                const voicesHtml=ev.voices.map(v=>`<div class="people-voice" style="margin-bottom:6px;">💬 ${v}</div>`).join('');
+                ui.showModal('📰 本年度國際情勢',`<div class="event-card" style="margin:0;"><div class="event-headline ${toneClass}">${ev.headline}</div><div class="event-detail">${ev.detail}</div><div class="event-effect ${effectClass}">${ev.effectDesc}</div></div><div style="margin-top:10px;"><div style="font-size:12px;font-weight:700;color:var(--accent-blue);margin-bottom:6px;font-family:'Noto Serif TC',serif;">🗣️ 民間聲音</div>${voicesHtml}</div>`);
+            },
+            updateEventButton(){
+                const btn=document.getElementById('event-review-btn');
+                const ev=game.currentEvent;
+                if(!ev){btn.style.display='none';return;}
+                btn.style.display='block';
+                const dot=btn.querySelector('.ev-dot');
+                dot.className='ev-dot '+(ev.tone||'neutral');
+                const txt=ev.headline.length>10?ev.headline.substring(0,10)+'…':ev.headline;
+                document.getElementById('ev-btn-text').innerText='📰 '+txt.replace(/^[^\u4e00-\u9fff]*/,'').substring(0,8);
+            },
             showStockHelp(){const cD=game.getCoalDays(),gD=game.getGasDays();ui.showModal("存量說明",`<div class="rule-list"><div class="rule-title">目前可支撐天數</div><div class="rule-item"><span>🪨 煤炭</span><span>${cD===null?'--':(cD>99?'∞':cD+' 天')}</span></div><div class="rule-item"><span>🔥 天然氣</span><span>${gD===null?'--':(gD>99?'∞':gD+' 天')}</span></div><div style="margin-top:10px;font-size:11px;color:var(--text-muted);line-height:1.4;">消耗公式：<br>燃煤消耗 = 電廠數 x ${PLANTS.coal.fuel}<br>燃氣消耗 = 電廠數 x ${PLANTS.gas.fuel}<br>天數 = 庫存 / 年消耗</div></div>`);},
             showGameOver(reason){document.getElementById('modal-title').innerText="國家破產";document.getElementById('modal-content-area').innerHTML=`<p style="color:var(--accent-red)">${reason||'電力不穩導致產業外移，競爭力歸零。'}</p>`;const btn=document.getElementById('modal-btn');btn.innerText="🔄 重新開始";btn.classList.add('restart');btn.onclick=()=>game.restart();document.getElementById('modal-overlay').style.display='flex';},
             showVictory(){
