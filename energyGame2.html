@@ -1594,9 +1594,16 @@
                         html:`<div style="text-align:left;"><div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;border-bottom:1px dashed var(--ui-border);padding-bottom:6px;">根據你在遊戲中做出的決策，這是你的個人能源洞見：</div>
 ${insights.map(i=>`<div style="display:flex;gap:8px;margin-bottom:10px;"><span style="font-size:18px;flex-shrink:0;">${i.icon}</span><div style="font-size:12px;color:var(--text-main);line-height:1.6;">${i.text}</div></div>`).join('')}
 <div style="background:rgba(90,143,168,0.08);border:1px solid var(--accent-blue);border-radius:8px;padding:8px 10px;margin-top:8px;">
-<div style="font-size:11px;font-weight:700;color:var(--accent-blue);margin-bottom:4px;">📊 台灣2026年真實能源結構（對照）</div>
-<div style="font-size:11px;color:var(--text-muted);line-height:1.7;">天然氣 45% ｜ 燃煤 35% ｜ 再生能源 9% ｜ 核能 0% ｜ 石油 11%<br>
-進口依賴：97% ｜ LNG存量：約14天 ｜ 煤炭存量：約30天</div></div></div>`,
+<div style="font-size:11px;font-weight:700;color:var(--accent-blue);margin-bottom:6px;">📊 台灣2026年真實能源結構（對照）</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:11px;color:var(--text-muted);line-height:1.8;margin-bottom:6px;">
+  <div>🔥 天然氣</div><div style="color:var(--accent-gold);font-weight:700;">約 50 ~ 52%</div>
+  <div>🪨 燃煤</div><div style="color:var(--text-main);font-weight:700;">30% 以下</div>
+  <div>🌱 再生能源</div><div style="color:var(--accent-green);font-weight:700;">約 18.9 ~ 20%</div>
+  <div>⚛️ 核能</div><div style="color:var(--text-muted);font-weight:700;">0%（非核家園）</div>
+</div>
+<div style="font-size:10px;color:var(--text-muted);line-height:1.6;margin-bottom:6px;">進口依賴：97% ｜ LNG存量：約14天 ｜ 煤炭存量：約30天<br>核三廠2號機2025年5月役滿除役，2026年正式邁入非核家園。</div>
+<a href="https://www.taipower.com.tw/d006/loadGraph/loadGraph/genshx_.html" target="_blank" style="display:block;text-align:center;font-size:11px;color:var(--accent-blue);text-decoration:none;padding:5px 8px;border:1px solid var(--accent-blue);border-radius:6px;background:rgba(90,143,168,0.08);">⚡ 點此查看台電即時發電結構 →</a>
+</div></div>`,
                         btn:"繼續 →"
                     },
                     {
