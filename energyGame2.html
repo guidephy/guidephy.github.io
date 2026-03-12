@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -351,7 +352,7 @@
             flex: 0 0 auto;
             background: var(--ui-bg);
             border-top: 2px solid var(--ui-border);
-            height: 200px;
+            height: 240px;
             padding: 4px 6px;
             padding-bottom: calc(4px + env(safe-area-inset-bottom));
             display: flex; flex-direction: column; z-index: 100;
@@ -401,12 +402,12 @@
             background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(250,245,235,0.8) 100%);
             border: 1.5px solid var(--ui-border);
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-            padding: 2px; cursor: pointer;
+            padding: 2px 2px 4px; cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             gap: 0;
             border-radius: 8px;
             transition: all 0.2s;
-            overflow: hidden;
+            overflow: visible;
         }
         .pixel-card:active { transform: scale(0.97); }
         .pixel-card.selected {
@@ -466,7 +467,7 @@
         /* Next Button */
         #next-btn {
             position: fixed;
-            bottom: calc(210px + env(safe-area-inset-bottom));
+            bottom: calc(250px + env(safe-area-inset-bottom));
             right: 15px;
             width: 62px; height: 62px;
             background: var(--accent-red);
@@ -740,8 +741,8 @@
     </div>
 
     <div id="info-bar">
-        <div id="info-bar-story">
-            <div class="bar-title">📋 任務簡報</div>
+        <div id="info-bar-story" onclick="ui.showStageDetail()" style="cursor:pointer;">
+            <div class="bar-title">📋 任務簡報 <span style="font-size:10px;color:var(--accent-blue);font-weight:400;">點擊查看全文</span></div>
             <div id="story-text">...</div>
         </div>
         <div id="info-bar-goals">
@@ -810,6 +811,44 @@
         </div>
     </div>
 
+    <!-- ====== NAME INPUT OVERLAY ====== -->
+    <div id="name-overlay" style="display:none;position:fixed;inset:0;z-index:6000;background:#0a0e1a;flex-direction:column;align-items:center;justify-content:center;padding:20px;">
+        <div style="text-align:center;max-width:340px;width:100%;">
+            <div style="font-family:monospace;color:#00ff88;font-size:11px;letter-spacing:2px;margin-bottom:20px;opacity:0.6;">SYSTEM BOOT v2.6.0 ··· CONNECTING ···</div>
+            <div style="font-size:28px;font-weight:900;color:#ffffff;font-family:'Noto Serif TC',serif;letter-spacing:4px;margin-bottom:6px;">⚡ 島嶼能源生存戰</div>
+            <div style="font-family:monospace;color:#00ff88;font-size:13px;letter-spacing:1px;margin-bottom:28px;">ISLAND ENERGY SURVIVAL</div>
+            <div id="name-input-box" style="background:#111827;border:1.5px solid #00ff88;border-radius:10px;padding:20px 18px;text-align:left;">
+                <div style="font-family:monospace;color:#00ff88;font-size:11px;margin-bottom:12px;line-height:1.7;">
+                    &gt; 能源危機任命系統<br>
+                    &gt; 正在掃描可用決策者⋯⋯<br>
+                    &gt; <span style="color:#ffffff;">請輸入您的姓名以接受任命：</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-family:monospace;color:#00ff88;font-size:14px;">&gt;</span>
+                    <input id="player-name-input" type="text" maxlength="12" placeholder="輸入姓名…"
+                        style="flex:1;min-width:0;box-sizing:border-box;background:transparent;border:none;border-bottom:1.5px solid #00ff88;color:#ffffff;font-size:16px;padding:4px 2px;outline:none;font-family:'Noto Serif TC',serif;letter-spacing:2px;"
+                        onkeydown="if(event.key==='Enter')game.confirmName()"/>
+                    <span id="cursor-blink" style="font-family:monospace;color:#00ff88;font-size:16px;animation:blink 1s infinite;">▋</span>
+                </div>
+            </div>
+            <button onclick="game.confirmName()" style="margin-top:18px;width:100%;padding:14px;background:transparent;border:1.5px solid #00ff88;color:#00ff88;font-size:15px;font-family:'Noto Serif TC',serif;font-weight:700;letter-spacing:4px;cursor:pointer;border-radius:8px;transition:all 0.2s;"
+                onmouseover="this.style.background='rgba(0,255,136,0.1)'" onmouseout="this.style.background='transparent'">
+                ⚡ 接受任命，開始任務
+            </button>
+            <div style="margin-top:14px;font-size:11px;color:#4a6080;font-family:monospace;">此任命將載入台灣能源歷史 1973-2026</div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes nameShake {
+            0%,100%{transform:translateX(0);}
+            20%{transform:translateX(-8px);}
+            40%{transform:translateX(8px);}
+            60%{transform:translateX(-5px);}
+            80%{transform:translateX(5px);}
+        }
+    </style>
+
     <script>
         const PLANTS = {
             coal: { name: '燃煤', emoji: '🏭', cost: 1000, output: 1500, fuel: 40, type: 'land', color: '#9e9488' },
@@ -817,7 +856,8 @@
             terminal: { name: '接收站', emoji: '⚓', cost: 2000, output: 0, fuel: 0, type: 'coast', color: '#5a8fa8' },
             green: { name: '風電', emoji: '🌀', cost: 3000, output: 100, fuel: 0, type: 'sea', color: '#7aae7a' },
             solar: { name: '太陽能', emoji: '☀️', cost: 1200, output: 50, fuel: 0, type: 'land', color: '#e8b84a' },
-            nuclear: { name: '核能', emoji: '☢️', cost: 5000, output: 6000, fuel: 0, type: 'land', color: '#9a88b8' }
+            nuclear: { name: '核能', emoji: '☢️', cost: 5000, output: 4000, fuel: 0, type: 'land', color: '#9a88b8' },
+            smr: { name: 'SMR核能', emoji: '⚛️', cost: 3500, output: 2000, fuel: 0, type: 'land', color: '#c088d8' }
         };
 
         // Fourth-wall transition lines shown between stages
@@ -843,8 +883,8 @@
               desc: "🌬️ 2022年，俄烏戰爭讓歐洲陷入能源危機，天然氣飆漲三倍。同年8月，<span style='color:var(--accent-red)'>中國軍演包圍台灣</span>。<br><br>台灣海峽——<span style='color:var(--accent-gold)'>世界頂級風場之一</span>——成了你手中最珍貴的籌碼。<br><br><div style='font-family:monospace;background:#1a1a1a;color:#00ff88;padding:8px 10px;border-radius:6px;font-size:12px;margin:6px 0;'>系統提示：自己的能源自己發。建設風電與太陽能。</div>",
               goals: [ { txt: "接收站 ≥ 3 座", check: g => g.counts.terminal >= 3 }, { txt: "再生能源 ≥ 10%", check: g => g.getGreenPct() >= 10 }, { txt: "安全存量 ≥ 11天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 11 } ] },
             { title: "階段五：回到2026", short: "你終於回到了出發的時代。荷莫茲海峽封鎖、AI暴增⋯⋯",
-              desc: "🤖 <span style='color:var(--accent-gold);font-weight:900;'>你回來了。</span><br><br>2026年2月——就是你滑手機看到那則新聞的時刻。<span style='color:var(--accent-red)'>美伊戰爭爆發</span>，伊朗封鎖荷莫茲海峽，全球三分之一天然氣運輸中斷。台灣安全存量僅剩8天。<br><br>但這一次，你不再是那個說「跟我無關」的人了。<br><br><div style='font-family:monospace;background:#1a1a1a;color:#00ff88;padding:8px 10px;border-radius:6px;font-size:12px;margin:6px 0;'>最終任務：大幅提升再生能源、存量拉滿、撐過這場風暴。<br>完成後，你就能回到你的世界。</div>",
-              goals: [ { txt: "再生能源 ≥ 20%", check: g => g.getGreenPct() >= 20 }, { txt: "安全存量 ≥ 14天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 14 }, { txt: "總發電 ≥ 70000MW", check: g => g.calcPower() >= 70000 } ] }
+              desc: "🤖 <span style='color:var(--accent-gold);font-weight:900;'>你回來了。</span><br><br>2026年2月——就是你滑手機看到那則新聞的時刻。<span style='color:var(--accent-red)'>美伊戰爭爆發</span>，伊朗封鎖荷莫茲海峽，全球三分之一天然氣運輸中斷。台灣安全存量僅剩8天。<br><br>與此同時——微軟讓三哩島重啟，Google、Amazon紛紛簽訂核電合約。<span style='color:var(--accent-gold)'>AI時代，核能問題重新浮上台面。</span><br><br><div style='font-family:monospace;background:#1a1a1a;color:#00ff88;padding:8px 10px;border-radius:6px;font-size:12px;margin:6px 0;'>最終任務：大幅提升再生能源、存量拉滿、撐過這場風暴。<br>完成後，你就能回到你的世界。</div>",
+              goals: [ { txt: "再生能源 ≥ 20%", check: g => g.getGreenPct() >= 20 }, { txt: "安全存量 ≥ 14天", check: g => g.getSafetyDays() !== null && g.getSafetyDays() >= 14 }, { txt: "總發電 ≥ 60000MW", check: g => g.calcPower() >= 60000 } ] }
         ];
 
         const MARKET_SOURCES = {
@@ -961,11 +1001,47 @@
                   voices:['蘋果採購副總：「很遺憾，未達標的供應商我們將不再續約。」','台灣中小企業主：「綠電太貴了，我們真的撐不住⋯⋯」','經濟部長：「全力發展再生能源，這是國家競爭力的關鍵。」'] },
                 { headline:'📰 國際局勢短暫緩和', detail:'各方展開外交斡旋，荷莫茲海峽部分通航，油價小幅回落。', tone:'neutral',
                   effects:[], effectDesc:'市場短暫喘息',
-                  voices:['外交部：「歡迎和平努力，但台灣仍需保持警覺。」','油輪船長：「海峽有條件通航了，但保費還是很貴。」'] }
+                  voices:['外交部：「歡迎和平努力，但台灣仍需保持警覺。」','油輪船長：「海峽有條件通航了，但保費還是很貴。」'] },
+                { headline:'🌪️ 超級颱風橫掃台灣！', detail:'史上最強颱風正面襲台，多座離岸風機暫停運作，部分輸電線路受損，全國進入緊急備戰。', tone:'bad',
+                  effects:[{type:'comp',penalty:5}], effectDesc:'颱風衝擊電網，競爭力 -5',
+                  voices:['台電搶修員：「連夜搶修，三天不能睡。」','台南市民：「風機都倒了，再生能源原來也有弱點。」','氣象局長：「全球暖化讓颱風越來越強，這不會是最後一次。」'] },
+                { headline:'🇦🇺 澳洲礦工大罷工', detail:'澳洲煤礦工會宣布無限期罷工，出口量驟降四成，全球煤炭價格上漲，台灣採購難度增加。', tone:'bad',
+                  effects:[{type:'coal',country:'au',priceMultiplier:1.5}], effectDesc:'🇦🇺 澳洲煤炭漲價 50%',
+                  voices:['台電採購員：「澳洲貨不夠，只好往南非和印尼找。」','礦工代表：「我們要的只是合理的工資和安全保障。」','能源局：「多元供應商的重要性，現在看到了吧？」'] },
+                { headline:'⚛️ 核融合技術突破！', detail:'美國NIF宣布核融合達到「點火」里程碑，雖商業化仍需10年，但全球對清潔能源的信心大幅提升。', tone:'good',
+                  effects:[{type:'income',bonus:300}], effectDesc:'科技股帶動，稅收 +$300',
+                  voices:['台大物理教授：「這是人類能源史上最重要的突破之一！」','台積電：「我們早就預備好用核融合電了，只等商業化。」','高中生：「老師說以後電費會變超便宜，真的假的？」'] },
+                { headline:'🇨🇳 中國限制稀土出口', detail:'北京宣布對多種稀土礦物實施出口管制，影響太陽能板和電池製造，再生能源設備成本上漲。', tone:'bad',
+                  effects:[{type:'comp',penalty:4}], effectDesc:'稀土限制，綠能設備成本增 -4',
+                  voices:['太陽能廠商：「矽材料以外的稀土組件成本暴漲，利潤被壓縮了。」','政委：「加速建立本土供應鏈，減少對中依賴。」','民進黨立委：「能源安全和供應鏈安全是同一件事。」'] },
+                { headline:'🌊 台灣本土天然氣田探勘成功', detail:'台灣海峽南部探勘發現中型天然氣田，初估儲量可供應台灣兩年，台灣自主能源首現曙光。', tone:'good',
+                  effects:[{type:'gas',allCountries:true,priceMultiplier:0.85}], effectDesc:'🟢 本土能源消息，天然氣全面降價 15%',
+                  voices:['中油探勘工程師：「30年來第一個重大發現，我激動到哭出來！」','立法院：「要加快開採，減少進口依賴！」','環保團體：「先做好環評，別急著開採。」'] },
+                { headline:'🏭 台灣碳費正式開徵', detail:'環境部宣布碳費自今年起正式課徵，高排碳產業衝擊最大，促使企業加速轉向低碳能源。', tone:'neutral',
+                  effects:[{type:'coal',allCountries:true,priceMultiplier:1.2}], effectDesc:'碳費上路，燃煤成本上升 20%',
+                  voices:['工業總會：「碳費轉嫁消費者，通膨壓力恐加劇。」','環境部長：「碳費是推動淨零轉型的必要工具。」','台積電永續長：「其實我們支持碳定價，讓所有人都公平競爭。」'] },
+                { headline:'🤝 台美能源合作協定', detail:'台美簽署能源安全合作協定，美方承諾優先供應台灣LNG，並協助台灣發展小型模組化核反應爐（SMR）。', tone:'good',
+                  effects:[{type:'gas',country:'us',priceMultiplier:0.8},{type:'income',bonus:400}], effectDesc:'🇺🇸 美台合作！美國氣價降 20%，稅收 +$400',
+                  voices:['AIT處長：「台美關係前所未有的深化，能源安全是核心之一。」','行政院：「感謝美方夥伴，我們台灣不孤單。」','反對黨立委：「好是好，但不能只靠一個盟友。」'] },
+                { headline:'💡 台灣虛擬電廠上線', detail:'台電推出需量反應與虛擬電廠平台，整合50萬戶家庭儲能與電動車，高峰時段可調度500MW備援電力。', tone:'good',
+                  effects:[{type:'income',bonus:250}], effectDesc:'智慧電網上線，稅收 +$250',
+                  voices:['台電智慧電網處：「用戶變成電力資源，這是能源民主化！」','裝了儲能的屋主：「每個月賣回給台電，我也變成小電廠了。」','電動車車主：「我的車在停車場幫電網調度，聽說還有補貼。」'] },
+                { headline:'📉 全球氣候峰會宣言', detail:'190國在COP峰會簽署「化石燃料退場宣言」，2040年前停止新建煤電，台灣宣示2050淨零路徑。', tone:'neutral',
+                  effects:[{type:'coal',allCountries:true,priceMultiplier:1.1}], effectDesc:'淨零承諾，煤電長期趨勢向上',
+                  voices:['政務委員：「台灣已提出完整的2050淨零轉型路徑，我們做得到。」','燃煤工人：「那我們這些靠傳統能源吃飯的人怎麼辦？」','高中生氣候社：「政府說要淨零，但電廠還在蓋，說一套做一套！」'] },
+                { headline:'🚂 台灣捷運系統擴張，電力需求激增', detail:'台北、台中、高雄三地捷運新線同步動工，電氣化交通大躍進，年增電力需求超過1000MW。', tone:'neutral',
+                  effects:[{type:'demandSpike',amount:1000}], effectDesc:'⚡ 電動交通擴張，需求 +1000MW',
+                  voices:['捷運局長：「這是百年大建設，減碳效益是汽車的1/20。」','台電：「一邊建設、一邊要電，我們也在趕工擴充。」','環保人士：「電動交通的電從哪裡來？必須是再生能源！」'] }
             ]
         };
 
-        const NUKE_RISK_MAP = [0, 1, 2, 5, 8, 11, 15, 20, 25, 30, 40];
+        const NUKE_RISK_MAP = [0, 2, 5, 10, 0, 0, 0, 0, 0, 0, 0]; // max 3 nuclear plants
+        const SMR_RISK_PCT = 3; // 3% risk per SMR plant (inherently safer design)
+
+        // === DATA COLLECTION CONFIG ===
+        // Apps Script: function doPost(e){var s=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('遊戲紀錄');if(!s){s=SpreadsheetApp.getActiveSpreadsheet().insertSheet('遊戲紀錄');s.appendRow(['姓名','時間','花費年數','競爭力','燃油%','燃煤%','天然氣%','核能%','再生%','煤炭進口','天然氣進口']);}var d=JSON.parse(e.postData.contents);s.appendRow([d.name,d.time,d.years,d.comp,d.oil,d.coal,d.gas,d.nuclear,d.green,d.coal_import,d.gas_import]);return ContentService.createTextOutput('OK');}
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyyhv5j2wRiGMtz-Yv-ZwTOnRsBwR9pSKUvkPH96XJFCKl5rDRkgDOAQ6x5YzHj2Rch/exec'; // ← 到 script.google.com 建立新專案，貼入上方 Apps Script 後以 Web App 部署，將網址貼於此
+        const FEEDBACK_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSePBzy-DlX72J-EWOAN-SbCfi_-iQGfMZ3p19b8o44YA0bBNg/viewform?usp=dialog';
 
         const game = {
             year:1, funds:2000, comp:100, demand:10000, oilOutput:2000,
@@ -980,12 +1056,29 @@
             fuelZeroWarned:{coal:false,gas:false},
             currentEvent:null, blockedCountries:{coal:{},gas:{}}, eventPriceEffects:{coal:{},gas:{}},
             lastEventIdx:{0:-1,1:-1,2:-1,3:-1,4:-1},
+            playerName:'玩家',
 
             introStep: 0,
             init() {
                 this.resetVariables(); this.counts.coal=0; this.cap.coal=3000;
                 this.updateMarketPrices(); ui.renderDeck(); ui.renderMarket(); ui.updateAll();
                 this.introStep=0; this.showIntro();
+            },
+            showNameInput(){
+                document.getElementById('name-overlay').style.display='flex';
+                setTimeout(()=>{const inp=document.getElementById('player-name-input');if(inp){inp.focus();}},400);
+            },
+            confirmName(){
+                const inp=document.getElementById('player-name-input');
+                const name=(inp?inp.value:'').trim();
+                if(!name){
+                    const box=document.getElementById('name-input-box');
+                    if(box){box.style.animation='none';setTimeout(()=>{box.style.animation='nameShake 0.4s ease';},10);}
+                    return;
+                }
+                this.playerName=name;
+                document.getElementById('name-overlay').style.display='none';
+                this.showIntro();
             },
             showIntro(){
                 const steps=[
@@ -1026,13 +1119,14 @@
                         > 和你的房間裡那盞燈，<br>
                         > 有著直接的關係。
                         </div><br>
-                        <span style="color:var(--accent-gold);font-weight:700;">你被任命為這座島嶼的「能源決策長」。</span>
+                        <span style="color:var(--accent-gold);font-weight:700;">${game.playerName}，你被任命為這座島嶼的「能源決策長」。</span>
                     </div>`, btn:"⚡ 開始任務" }
                 ];
                 const s=steps[this.introStep];
                 ui.showModal(s.title,s.text,()=>{
                     ui.closeModal();
                     this.introStep++;
+                    if(this.introStep===2){this.showNameInput();return;}
                     if(this.introStep<steps.length){setTimeout(()=>this.showIntro(),200);}
                     else{if(game.year===1)game.startTutorial();}
                 });
@@ -1041,12 +1135,13 @@
             resetVariables() {
                 this.year=1; this.funds=2000; this.comp=100; this.demand=10000; this.oilOutput=2000;
                 this.fuel={coal:3000,gas:0}; this.cap={coal:3000,gas:0};
-                this.counts={coal:0,gas:0,terminal:0,green:0,solar:0,nuclear:0};
+                this.counts={coal:0,gas:0,terminal:0,green:0,solar:0,nuclear:0,smr:0};
                 this.stageIdx=0; this.selected=null; this.blockade=false; this.isFreePlay=false;
                 this.history=[]; this.importStats={coal:{},gas:{}}; this.purchaseCounts={coal:{},gas:{}};
                 this.marketTab='coal'; this.nukeDisasterCount=0; this.nukeShutdownTimer=0;
                 this.currentEvent=null; this.blockedCountries={coal:{},gas:{}}; this.eventPriceEffects={coal:{},gas:{}};
                 this.lastEventIdx={0:-1,1:-1,2:-1,3:-1,4:-1};
+                this.counts.smr=0;
                 this.isNukePermanentlyBanned=false; this.fuelZeroWarned={coal:false,gas:false};
                 document.getElementById('buildings-layer').innerHTML='';
                 document.body.classList.remove('crisis-mode');
@@ -1133,6 +1228,7 @@
                 if(this.tutorialStep!==0||this.stageTutorialStep!==0)return;
                 if(!this.selected)return; const p=PLANTS[this.selected];
                 if(this.selected==='nuclear'&&this.isNukePermanentlyBanned){ui.floatText('⛔ 核能已永久廢止','bad');this.selected=null;return;}
+                if(this.selected==='nuclear'&&this.counts.nuclear>=3){ui.floatText('⛔ 公眾反對：最多3座傳統核電廠','bad');this.selected=null;return;}
                 if(this.funds<p.cost){ui.floatText('💸 資金不足','bad');this.selected=null;return;}
                 if(this.selected==='gas'&&this.counts.terminal===0){ui.floatText('⚠️ 需建接收站','bad');this.selected=null;return;}
                 this.funds-=p.cost; this.counts[this.selected]++;
@@ -1161,6 +1257,15 @@
                 const basePrice=this.marketPrices[`${type}_${countryId}`]; const surge=this.purchaseCounts[type][countryId]||0; const finalCost=basePrice+surge;
                 if(this.funds<finalCost){ui.floatText('💸 資金不足','bad');return;}
                 if(this.fuel[type]+100>this.cap[type]){ui.floatText('📦 倉庫已滿','bad');if(type==='gas'&&this.counts.terminal===0)ui.floatText('⚠️ 需接收站','bad');return;}
+                // === SHIPMENT RISK MECHANIC ===
+                const src=MARKET_SOURCES[type].find(s=>s.id===countryId);
+                const riskChance=src?(src.route==='hormuz'?0.15:src.route==='south-china-sea'?0.12:src.route==='risk'?0.09:0):0;
+                if(riskChance>0&&Math.random()<riskChance){
+                    // Shipment delayed — refund in full, no fuel gained
+                    const srcName=src?src.name:countryId;
+                    ui.floatText(`🌊 ${srcName}航運延誤，燃料未到港（已退款）`,'bad');
+                    ui.updateAll(); return; // money NOT deducted
+                }
                 this.funds-=finalCost; this.fuel[type]+=100;
                 if(!this.purchaseCounts[type][countryId])this.purchaseCounts[type][countryId]=0; this.purchaseCounts[type][countryId]++;
                 if(!this.importStats[type][countryId])this.importStats[type][countryId]=0; this.importStats[type][countryId]+=100;
@@ -1196,16 +1301,27 @@
                 });
                 return {extraIncome,extraCompPenalty,extraDemand};
             },
-            calcIncome(){let b=500;if(game.stageIdx===1)b=1000;if(game.stageIdx>=2)b=2000;return b+Math.floor(this.calcPower(true)*0.4);},
+            calcIncome(){let b=500;if(game.stageIdx===1)b=1000;if(game.stageIdx>=2)b=2000;const nukeCost=this.counts.nuclear*200+(this.counts.smr||0)*100;return b+Math.floor(this.calcPower(true)*0.4)-nukeCost;},
             getNukeRisk(){const c=this.counts.nuclear;return c>=NUKE_RISK_MAP.length?50:NUKE_RISK_MAP[c];},
             checkNuclearDisaster(){
+                let msg=null;
+                // Traditional nuclear disaster check
                 if(this.counts.nuclear>0){const risk=this.getNukeRisk();if(Math.random()*100<risk){
-                    this.nukeDisasterCount++;let loss=Math.max(5000,Math.floor(this.funds/2));this.funds-=loss;this.funds-=2000;
-                    if(this.funds<0)this.comp-=15;this.counts.nuclear--;this.nukeShutdownTimer=2;this.comp-=30;
-                    let msg="☢️ 核災爆發！競爭力-30";if(this.funds<0)msg+="，國家破產 -15";
-                    if(this.nukeDisasterCount>=3){this.isNukePermanentlyBanned=true;this.counts.nuclear=0;return "☢️ 核災3次：核能永久廢止！";}else{return msg;}
+                    this.nukeDisasterCount++;let loss=Math.max(3000,Math.floor(this.funds/3));this.funds-=loss;
+                    if(this.funds<0)this.comp-=10;this.counts.nuclear--;this.nukeShutdownTimer=3;this.comp-=25;
+                    msg="☢️ 核災爆發！競爭力-25，核廢料洩漏";
+                    if(this.nukeDisasterCount>=3){this.isNukePermanentlyBanned=true;this.counts.nuclear=0;msg="☢️ 核災3次：傳統核能永久廢止！";}
                     ui.renderDeck();
-                }}return null;
+                }}
+                // SMR minor incident check (inherently safer — no meltdown, just brief halt)
+                if((this.counts.smr||0)>0&&!msg){
+                    let smrRisk=SMR_RISK_PCT*(this.counts.smr||0);
+                    if(Math.random()*100<smrRisk){
+                        this.comp-=8;this.funds-=500;
+                        msg="⚛️ SMR輕微事故停機！競爭力-8（設計安全，無輻射洩漏）";
+                    }
+                }
+                return msg;
             },
             nextTurn(){
                 if(this.stageTutorialStep!==0)return;if(this.blockade){this.handleBlockade();return;}
@@ -1243,10 +1359,10 @@
                 if(this.tutorialStep===3){this.tutorialStep=0;ui.clearHighlight();ui.switchTab('build',true);}this.tutorialStep=0;
             },
             consumeFuel(){const cN=this.counts.coal*PLANTS.coal.fuel,gN=this.counts.gas*PLANTS.gas.fuel;this.fuel.coal=this.fuel.coal>=cN?this.fuel.coal-cN:0;this.fuel.gas=this.fuel.gas>=gN?this.fuel.gas-gN:0;},
-            calcNukeOutput(){return this.nukeShutdownTimer>0?0:this.counts.nuclear*PLANTS.nuclear.output;},
+            calcNukeOutput(){return (this.nukeShutdownTimer>0?0:this.counts.nuclear*PLANTS.nuclear.output)+((this.counts.smr||0)*PLANTS.smr.output);},
             calcCoalOutput(){if(this.counts.coal===0)return 0;return this.fuel.coal<this.counts.coal*PLANTS.coal.fuel?0:this.counts.coal*PLANTS.coal.output;},
             calcGasOutput(){if(this.counts.gas===0)return 0;return this.fuel.gas<this.counts.gas*PLANTS.gas.fuel?0:this.counts.gas*PLANTS.gas.output;},
-            calcPower(ignoreShutdown=false){let n=this.calcNukeOutput();if(ignoreShutdown)n=this.counts.nuclear*PLANTS.nuclear.output;return this.oilOutput+this.calcCoalOutput()+this.calcGasOutput()+(this.counts.green*PLANTS.green.output)+(this.counts.solar*PLANTS.solar.output)+n;},
+            calcPower(ignoreShutdown=false){let n=this.calcNukeOutput();if(ignoreShutdown)n=this.counts.nuclear*PLANTS.nuclear.output+(this.counts.smr||0)*PLANTS.smr.output;return this.oilOutput+this.calcCoalOutput()+this.calcGasOutput()+(this.counts.green*PLANTS.green.output)+(this.counts.solar*PLANTS.solar.output)+n;},
             getGreenPct(){const t=this.calcPower();return t===0?0:Math.floor(((this.counts.green*PLANTS.green.output)+(this.counts.solar*PLANTS.solar.output))/t*100);},
             getGasPct(){const t=this.calcPower();return t===0?0:Math.floor(this.calcGasOutput()/t*100);},
             getSafetyDays(){const c=this.getCoalDays(),g=this.getGasDays();if(c===null&&g===null)return null;return Math.min(c===null?9999:c,g===null?9999:g);},
@@ -1254,6 +1370,20 @@
             getGasDays(){if(this.counts.gas===0)return null;return Math.floor(this.fuel.gas/(this.counts.gas*PLANTS.gas.fuel));},
             startBlockade(){this.blockade=true;this.bDays=11;document.body.classList.add('crisis-mode');ui.showModal("⚠️ 紅色警報","海峽封鎖開始！進口中斷，請撐過 11 天。",()=>ui.closeModal());},
             handleBlockade(){this.bDays--;this.consumeFuel();ui.floatText(`剩 ${this.bDays} 天`,'bad');if(this.bDays<=0){this.blockade=false;document.body.classList.remove('crisis-mode');ui.showModal("🏳️ 危機解除","封鎖結束，台灣存活！",()=>ui.closeModal());}ui.updateAll();},
+            submitToSheets(silent=false){
+                const lH=this.history[this.history.length-1]||{oil:0,coal:0,gas:0,nuclear:0,green:0};
+                const lT=(lH.oil||0)+lH.coal+lH.gas+lH.nuclear+lH.green;
+                const pcts=lT>0?{oil:Math.round((lH.oil||0)/lT*100),coal:Math.round(lH.coal/lT*100),gas:Math.round(lH.gas/lT*100),nuclear:Math.round(lH.nuclear/lT*100),green:Math.round(lH.green/lT*100)}:{oil:0,coal:0,gas:0,nuclear:0,green:0};
+                const coalImp=Object.entries(this.importStats.coal).sort((a,b)=>b[1]-a[1]).map(([id,v])=>{const s=MARKET_SOURCES.coal.find(x=>x.id===id);return `${s?s.name:id}:${v}`}).join('/');
+                const gasImp=Object.entries(this.importStats.gas).sort((a,b)=>b[1]-a[1]).map(([id,v])=>{const s=MARKET_SOURCES.gas.find(x=>x.id===id);return `${s?s.name:id}:${v}`}).join('/');
+                const data={name:this.playerName,date:new Date().toLocaleString('zh-TW'),years:this.year,comp:this.comp+'%',oilPct:pcts.oil+'%',coalPct:pcts.coal+'%',gasPct:pcts.gas+'%',nuclearPct:pcts.nuclear+'%',renewPct:pcts.green+'%',coalImport:coalImp||'無',gasImport:gasImp||'無'};
+                if(GOOGLE_SHEETS_URL){
+                    fetch(GOOGLE_SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(()=>{});
+                    if(!silent)ui.floatText('✅ 紀錄已送出！','good');
+                } else {
+                    if(!silent)ui.floatText('⚠️ 請先設定試算表網址','bad');
+                }
+            },
             captureScreenshot(){
                 const el=document.getElementById('victory-capture')||document.querySelector('.retro-dialog');
                 if(!el)return;
@@ -1305,7 +1435,8 @@
                 const buildable=Object.entries(PLANTS).filter(([k])=>k!=='terminal').filter(([k])=>game.stageIdx>=(sf[k]||0));
                 document.getElementById('build-deck').innerHTML=buildable.map(([k,v])=>{
                     let locked=false,lockReason='',riskHtml='';
-                    if(k==='nuclear'){if(game.isNukePermanentlyBanned){locked=true;lockReason='⛔ 永久廢止';}else{riskHtml=`<div class="nuke-risk">☢️ 核災 +${game.getNukeRisk()}%</div>`;}}
+                    if(k==='nuclear'){if(game.isNukePermanentlyBanned){locked=true;lockReason='⛔ 永久廢止';}else if(game.counts.nuclear>=3){locked=true;lockReason='已達上限';}else{riskHtml=`<div class="nuke-risk">☢️ 核災+${game.getNukeRisk()}% 廢料$200/年</div>`;}}
+                    if(k==='smr'){if((game.counts.smr||0)>=3){locked=true;lockReason='已達上限';}else{riskHtml=`<div class="nuke-risk">⚛️ 事故+${SMR_RISK_PCT*(((game.counts.smr||0)+1))}% 廢料$100/年</div>`;}}
                     return `<div class="pixel-card ${game.selected===k?'selected':''} ${locked?'disabled':''}" onclick="game.selectCard('${k}')">
                         <div class="card-badge">${game.counts[k]}</div>${locked?`<div class="lock-overlay">${lockReason}</div>`:''}
                         <div class="card-emoji">${v.emoji}</div><div class="card-name">${v.name}</div><div class="card-divider"></div>
@@ -1404,10 +1535,16 @@
                 const txt=ev.headline.length>10?ev.headline.substring(0,10)+'…':ev.headline;
                 document.getElementById('ev-btn-text').innerText='📰 '+txt.replace(/^[^\u4e00-\u9fff]*/,'').substring(0,8);
             },
+            showStageDetail(){
+                if(game.isFreePlay){ui.showModal('自由執政模式','<div style="text-align:center;color:var(--text-muted);padding:15px;">所有目標已完成，自由發展島嶼能源。</div>');return;}
+                const s=STAGES[game.stageIdx];
+                const goals=s.goals.map(g=>{const done=g.check(game);return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px;color:${done?'var(--accent-green)':'var(--text-main)'};">${done?'✅':'⬜'} ${g.txt}</div>`;}).join('');
+                ui.showModal(s.title,`<div style="text-align:left;padding:0 5px;line-height:1.6;">${s.desc}<br><br><div style="border-top:1px dashed var(--ui-border);padding-top:10px;"><span style="color:var(--accent-blue);font-weight:700;font-family:'Noto Serif TC',serif;">🏆 本階段目標：</span><div style="margin-top:6px;">${goals}</div></div></div>`);
+            },
             showStockHelp(){const cD=game.getCoalDays(),gD=game.getGasDays();ui.showModal("存量說明",`<div class="rule-list"><div class="rule-title">目前可支撐天數</div><div class="rule-item"><span>🪨 煤炭</span><span>${cD===null?'--':(cD>99?'∞':cD+' 天')}</span></div><div class="rule-item"><span>🔥 天然氣</span><span>${gD===null?'--':(gD>99?'∞':gD+' 天')}</span></div><div style="margin-top:10px;font-size:11px;color:var(--text-muted);line-height:1.4;">消耗公式：<br>燃煤消耗 = 電廠數 x ${PLANTS.coal.fuel}<br>燃氣消耗 = 電廠數 x ${PLANTS.gas.fuel}<br>天數 = 庫存 / 年消耗</div></div>`);},
             showGameOver(reason){document.getElementById('modal-title').innerText="⚠️ 傳送失敗";document.getElementById('modal-content-area').innerHTML=`<p style="color:var(--accent-red);margin-bottom:10px;">${reason||'電力不穩導致產業外移，競爭力歸零。'}</p><div style="font-family:monospace;background:#1a1a1a;color:#ff4444;padding:10px;border-radius:8px;font-size:12px;line-height:1.6;text-align:left;margin-top:10px;">> 時間線崩潰。島嶼陷入黑暗。<br>> 你無法回到2026年了⋯⋯<br>> <br>> 但歷史可以重來。<br>> 這次，記得——每一個能源決策<br>> 都關係著2300萬人的命運。</div>`;const btn=document.getElementById('modal-btn');btn.innerText="🔄 重新穿越";btn.classList.add('restart');btn.onclick=()=>game.restart();document.getElementById('modal-overlay').style.display='flex';},
             showVictory(){
-                document.getElementById('modal-title').innerText="🌀 傳送完成";
+                // Compute stats first
                 let maxP=0;game.history.forEach(h=>{const t=(h.oil||0)+h.coal+h.gas+h.nuclear+h.green;if(t>maxP)maxP=t;});
                 const sY=game.history[0].year,dur=game.history.length-1;let paths={oil:"M0,200 ",coal:"M0,200 ",gas:"M0,200 ",nuke:"M0,200 ",green:"M0,200 "};
                 const lH=game.history[game.history.length-1],lT=(lH.oil||0)+lH.coal+lH.gas+lH.nuclear+lH.green;
@@ -1417,26 +1554,94 @@
                 const cp=`L400,200 L0,200 Z`;let xLabels="";
                 for(let i=0;i<=dur;i++){const cy=sY+i;if(cy%5===0||i===0||i===dur){const x=(i/dur)*400;let ta="middle";if(i===0)ta="start";if(i===dur)ta="end";xLabels+=`<text x="${x}" y="215" fill="var(--text-muted)" font-size="12" text-anchor="${ta}">${cy}</text>`;}}
                 const getRank=(obj,type)=>{const sorted=Object.entries(obj).sort((a,b)=>b[1]-a[1]);return sorted.map(([id,val])=>{const src=MARKET_SOURCES[type].find(s=>s.id===id);return `<div class="rank-row"><span>${src?src.flag+' '+src.name:id}</span><span class="rank-val">${val.toLocaleString()}00</span></div>`;}).join('')||'<div class="rank-row" style="color:var(--text-muted)">無進口紀錄</div>';};
-                document.getElementById('modal-content-area').innerHTML=`<div id="victory-capture"><div style="font-family:monospace;background:#1a1a1a;color:#00ff88;padding:12px;border-radius:8px;font-size:13px;line-height:1.7;margin-bottom:12px;text-align:left;">
-                        > 傳送完成。歡迎回到2026年。<br>
-                        > <br>
-                        > 你走過了半世紀的能源風暴。<br>
-                        > 從石油危機的黑暗，到荷莫茲海峽的封鎖。<br>
-                        > <br>
-                        > 現在你知道了——<br>
-                        > 中東的一場戰爭，<br>
-                        > 真的能讓你房間的燈熄滅。<br>
-                        > <br>
-                        > 這不是遊戲。這是現實。<br>
-                        > 而你，剛剛親手改變了它。
-                    </div><p style="color:var(--accent-green);margin-bottom:10px;font-weight:bold;">🏆 你守護了2300萬人的燈火。</p>
-                    <div class="chart-container"><div class="chart-title">📈 發電結構堆疊圖 (總: ${game.calcPower().toLocaleString()} MW)</div><div style="position:relative;">
+                // Generate personalized insights based on player's choices
+                let insights=[];
+                if(pcts.green>=25)insights.push({icon:'🌱',text:'你的再生能源占比超過25%——已超越台灣2026年的實際目標。台灣目前再生能源仍不足10%，你做到了它尚未做到的事。'});
+                else if(pcts.green>=15)insights.push({icon:'🌿',text:`你的再生能源佔 ${pcts.green}%——接近台灣2030年的目標。真實的台灣還在追趕中，每一座風機和太陽能板都是一步。`});
+                else insights.push({icon:'🏭',text:`你的能源結構中再生能源僅 ${pcts.green}%。台灣的目標是2030年達到30%綠電——距離還很遠。真正的挑戰是：速度夠快嗎？`});
+                if(pcts.gas>40)insights.push({icon:'⚓',text:`你的天然氣比例高達 ${pcts.gas}%——這正是台灣現實的縮影。台灣超過50%電力來自天然氣，而天然氣97%靠進口。荷莫茲封鎖時，你感受到的壓力，是真實的。`});
+                if(pcts.coal>30)insights.push({icon:'🪨',text:`燃煤佔比 ${pcts.coal}%——煤炭雖然便宜穩定，卻是最大的碳排來源。台灣目前仍有35%電力來自煤炭，這也是PM2.5問題的根源。`});
+                if(game.counts.nuclear>0||((game.counts.smr||0)>0)){const nucStr=`傳統核能 ${game.counts.nuclear} 座`;const smrStr=(game.counts.smr||0)>0?`、SMR ${game.counts.smr} 座`:'';insights.push({icon:'⚛️',text:`你選擇了核能（${nucStr}${smrStr}）。2024年，微軟讓三哩島重啟、Google簽訂SMR合約——AI用電讓核能回歸視野。台灣目前核能已全部除役，但政策討論重啟中。核能是解方還是風險？沒有標準答案，只有每個時代的集體抉擇。`});}else{insights.push({icon:'⚛️',text:'你沒有使用核能——與台灣2025年的選擇相同。但全球AI浪潮下，微軟、Google、Amazon紛紛投資核電和SMR。再生能源的間歇性，讓核能討論再次浮上檯面。你認為台灣應該重啟核能嗎？'});}
+                const totalImportCountries=new Set([...Object.keys(game.importStats.coal),...Object.keys(game.importStats.gas)]).size;
+                if(totalImportCountries>=4)insights.push({icon:'🌍',text:`你從 ${totalImportCountries} 個國家進口燃料——這是正確的戰略！真實的台灣能源安全學者也建議：至少3個以上的供應來源，才能在任一國家發生事故時不陷入危機。`});
+                else insights.push({icon:'⚠️',text:`你主要從 ${totalImportCountries} 個國家進口——集中依賴讓你在危機中更脆弱。台灣現實中高度依賴澳洲煤和卡達、澳洲LNG，一旦某條航線中斷，後果不堪設想。`});
+                // Step-by-step victory dialogue
+                const dialogSteps=[
+                    {
+                        title:"🌀 傳送完成",
+                        html:`<div style="font-family:monospace;background:#1a1a1a;color:#00ff88;padding:12px;border-radius:8px;font-size:13px;line-height:1.8;text-align:left;margin-bottom:12px;">
+> 傳送完成。歡迎回到2026年。<br>
+> <br>
+> 你走過了53年的能源歷史。<br>
+> 1973石油危機 → 729大停電 → 福島核災<br>
+> → 303大停電 → 美伊戰爭<br>
+> <br>
+> 每一次，這座島嶼都撐過來了。<br>
+> 因為有人做出了正確的決策。<br>
+> <br>
+> 那個人，就是你。</div>
+<p style="color:var(--accent-green);font-weight:bold;font-size:15px;">🏆 你守護了2300萬人的燈火。</p>`,
+                        btn:"繼續 →"
+                    },
+                    {
+                        title:"💡 原來如此——你的能源報告",
+                        html:`<div style="text-align:left;"><div style="font-size:13px;color:var(--text-muted);margin-bottom:10px;border-bottom:1px dashed var(--ui-border);padding-bottom:6px;">根據你在遊戲中做出的決策，這是你的個人能源洞見：</div>
+${insights.map(i=>`<div style="display:flex;gap:8px;margin-bottom:10px;"><span style="font-size:18px;flex-shrink:0;">${i.icon}</span><div style="font-size:12px;color:var(--text-main);line-height:1.6;">${i.text}</div></div>`).join('')}
+<div style="background:rgba(90,143,168,0.08);border:1px solid var(--accent-blue);border-radius:8px;padding:8px 10px;margin-top:8px;">
+<div style="font-size:11px;font-weight:700;color:var(--accent-blue);margin-bottom:4px;">📊 台灣2026年真實能源結構（對照）</div>
+<div style="font-size:11px;color:var(--text-muted);line-height:1.7;">天然氣 45% ｜ 燃煤 35% ｜ 再生能源 9% ｜ 核能 0% ｜ 石油 11%<br>
+進口依賴：97% ｜ LNG存量：約14天 ｜ 煤炭存量：約30天</div></div></div>`,
+                        btn:"繼續 →"
+                    },
+                    {
+                        title:"🧠 思考題——帶著問題離開",
+                        html:`<div style="text-align:left;"><div style="font-size:13px;color:var(--text-main);margin-bottom:10px;line-height:1.6;">現在你回到了2026年，帶著這些問題重新看這個世界——</div>
+${[
+    {q:"你家的電，今天從哪裡來？",hint:"查一下台電的即時電力供需，你會發現你剛才遊戲的影子。"},
+    {q:"如果荷莫茲海峽真的封鎖，台灣的天然氣還能用幾天？",hint:"答案大約是14天。這就是為什麼能源安全比你想像的緊迫。"},
+    {q:"再生能源越多，就越安全嗎？",hint:"風力和太陽能有間歇性——沒風沒日照怎麼辦？儲能和備援同樣重要。台灣2026年的挑戰：再生能源佔比提升，但穩定電力的需求也越來越高。"},
+    {q:"AI時代的電從哪來？台灣該重啟核能嗎？",hint:"微軟讓三哩島重啟，Google簽SMR合約。AI資料中心需要24小時不間斷的穩定電力，間歇性再生能源難以單獨供應。核能安全嗎？廢料怎麼處理？這是你這一代需要面對的真實問題。"}
+].map((item,i)=>`<div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,0.4);border-radius:8px;border-left:3px solid var(--accent-gold);">
+<div style="font-size:13px;font-weight:700;color:var(--text-main);margin-bottom:3px;">Q${i+1}. ${item.q}</div>
+<div style="font-size:11px;color:var(--text-muted);font-style:italic;">${item.hint}</div></div>`).join('')}</div>`,
+                        btn:"查看成績單 →"
+                    }
+                ];
+                let victoryStep=0;
+                const showVictoryStep=()=>{
+                    const s=dialogSteps[victoryStep];
+                    document.getElementById('modal-title').innerText=s.title;
+                    document.getElementById('modal-content-area').innerHTML=s.html;
+                    const btn=document.getElementById('modal-btn');
+                    btn.style.display='block';btn.className='retro-btn victory';
+                    if(victoryStep<dialogSteps.length-1){
+                        btn.innerText=s.btn;
+                        btn.onclick=()=>{victoryStep++;showVictoryStep();};
+                    } else {
+                        btn.innerText="📊 查看發展成績單";
+                        btn.onclick=()=>{showFinalStats();};
+                    }
+                    document.getElementById('modal-overlay').style.display='flex';
+                };
+                const showFinalStats=()=>{
+                    game.submitToSheets(true);
+                    document.getElementById('modal-title').innerText="📊 能源發展成績單";
+                    document.getElementById('modal-content-area').innerHTML=`<div id="victory-capture">
+                    <div class="chart-container"><div class="chart-title">📈 發電結構演變圖 (最終: ${game.calcPower().toLocaleString()} MW)</div><div style="position:relative;">
                     <div style="position:absolute;top:4px;left:6px;font-size:11px;color:var(--text-muted);font-weight:700;z-index:1;">第 ${game.year} 年完成</div>
                     <svg viewBox="0 0 400 220" style="background:rgba(62,52,40,0.06);width:100%;height:auto;border-radius:4px;"><path d="${paths.green+cp}" fill="var(--color-green)"/><path d="${paths.nuke+cp}" fill="var(--color-nuclear)"/><path d="${paths.gas+cp}" fill="var(--color-gas)"/><path d="${paths.coal+cp}" fill="var(--color-coal)"/><path d="${paths.oil+cp}" fill="var(--color-oil)"/>${xLabels}</svg></div>
                     <div class="chart-legend"><div class="legend-item"><span class="color-box" style="background:var(--color-oil)"></span>油 ${pcts.oil}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-coal)"></span>煤 ${pcts.coal}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-gas)"></span>氣 ${pcts.gas}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-nuclear)"></span>核 ${pcts.nuke}%</div><div class="legend-item"><span class="color-box" style="background:var(--color-green)"></span>綠 ${pcts.green}%</div></div></div>
-                    <div class="rank-section"><div class="rank-col"><div class="rank-header">🪨 燃煤進口總量</div>${getRank(game.importStats.coal,'coal')}</div><div class="rank-col"><div class="rank-header">🔥 燃氣進口總量</div>${getRank(game.importStats.gas,'gas')}</div></div></div>
-                    <div class="btn-group-horizontal"><button class="retro-btn screenshot" onclick="game.captureScreenshot()">📷 截取圖片</button><button class="retro-btn restart-end" onclick="game.restart()">🔄 重新遊戲</button></div>`;
-                document.getElementById('modal-btn').style.display='none';document.getElementById('modal-overlay').style.display='flex';
+                    <div class="rank-section"><div class="rank-col"><div class="rank-header">🪨 燃煤進口來源</div>${getRank(game.importStats.coal,'coal')}</div><div class="rank-col"><div class="rank-header">🔥 燃氣進口來源</div>${getRank(game.importStats.gas,'gas')}</div></div>
+                    <div style="background:rgba(107,158,107,0.08);border:1px solid var(--accent-green);border-radius:8px;padding:8px 10px;margin-top:8px;text-align:center;">
+                    <div style="font-size:12px;font-weight:700;color:var(--accent-green);">最終能源安全指數</div>
+                    <div style="font-size:22px;font-weight:900;color:var(--accent-blue);font-family:'Playfair Display',serif;">${game.comp}%</div>
+                    <div style="font-size:11px;color:var(--text-muted);">進口來源多元度：${totalImportCountries} 個國家｜完成年度：第 ${game.year} 年</div></div></div>
+                    <div class="btn-group-horizontal"><button class="retro-btn screenshot" onclick="game.captureScreenshot()">📷 截取成績</button><button class="retro-btn restart-end" onclick="game.restart()">🔄 重新遊戲</button></div>
+                    <div class="btn-group-horizontal" style="margin-top:6px;"><button id="sheets-btn" class="retro-btn" style="background:rgba(107,158,107,0.15);color:var(--accent-green);border-color:var(--accent-green);opacity:0.7;" disabled>✅ 紀錄已自動送出</button><button class="retro-btn" style="background:rgba(90,143,168,0.15);color:var(--accent-blue);border-color:var(--accent-blue);" onclick="window.open(FEEDBACK_FORM_URL,'_blank')">💬 填寫遊戲意見</button></div>`;
+                    const btn=document.getElementById('modal-btn');btn.style.display='none';
+                    document.getElementById('modal-overlay').style.display='flex';
+                };
+                showVictoryStep();
             },
             showStageComplete(clearedStageIdx,nextStage,callback){
                 const cs=STAGES[clearedStageIdx],sn=clearedStageIdx+1;
