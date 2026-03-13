@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>島嶼能源生存戰 - 台灣能源政策互動遊戲</title>
+    <meta name="description" content="穿越53年台灣能源危機，在關鍵時刻做出決策。一款讓你用歷史決策學習能源政策的教育遊戲。">
+    <meta name="theme-color" content="#f0f7ff">
+    
+    <!-- Open Graph for social sharing -->
+    <meta property="og:title" content="島嶼能源生存戰 - 台灣能源政策互動遊戲">
+    <meta property="og:description" content="穿越53年台灣能源危機，守護2300萬人的燈火。通過歷史決策學習能源政策。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://energygame.example.com/intro.html">
+    <meta property="og:image" content="https://energygame.example.com/og-image.jpg">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-light: #f0f7ff;
+            --accent-solar: #f59e0b;
+            --accent-blue: #1d6fdb;
+            --accent-green: #16a34a;
+            --text-dark: #1e293b;
+            --text-muted: #475569;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(245, 158, 11, 0.25);
+            --accent-gold: #f59e0b;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated energy grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, rgba(245, 158, 11, 0.06) 1px, transparent 1px),
+                linear-gradient(rgba(29, 111, 219, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridShift 20s linear infinite;
+        }
+
+        @keyframes gridShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Radial energy glows */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 40%, rgba(245, 158, 11, 0.10) 0%, transparent 45%),
+                radial-gradient(circle at 85% 70%, rgba(29, 111, 219, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 50% 10%, rgba(22, 163, 74, 0.07) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        main {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(245, 158, 11, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4%;
+            z-index: 1000;
+            box-shadow: 0 2px 16px rgba(29, 111, 219, 0.08);
+        }
+
+        .nav-logo {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-solar), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-cta {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-cta a {
+            padding: 8px 20px;
+            border: 2px solid var(--accent-blue);
+            border-radius: 6px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta a:hover {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        /* Main content spacing */
+        section {
+            position: relative;
+            padding: 80px 4%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        section.no-min-height {
+            min-height: auto;
+            padding: 60px 4%;
+        }
+
+        /* Fade-in animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 70px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(29,111,219,0.06) 50%, rgba(22,163,74,0.05) 100%);
+        }
+
+        .hero-content h1 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #d97706, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.15); }
+        }
+
+        .hero-content p.subtitle {
+            font-size: 1.4rem;
+            color: #b45309;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hero-content p.tagline {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 50px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: 2px solid var(--accent-blue);
+            background: transparent;
+            color: var(--accent-blue);
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', sans-serif;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: var(--accent-blue);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(29, 111, 219, 0.25);
+        }
+
+        .btn-primary {
+            background: var(--accent-solar);
+            color: #1e293b;
+            border-color: var(--accent-solar);
+        }
+
+        .btn-primary:hover {
+            background: #d97706;
+            color: #fff;
+            border-color: #d97706;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.35);
+        }
+
+        .floating-stats {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        /* What is the game section */
+        .what-is-game {
+            background: linear-gradient(135deg, rgba(29, 111, 219, 0.04) 0%, rgba(22, 163, 74, 0.04) 100%);
+        }
+
+        .section-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 50px;
+            text-align: center;
+            background: linear-gradient(135deg, #d97706, var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quote-section {
+            max-width: 900px;
+            margin: 0 auto 50px;
+        }
+
+        .pull-quote {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.8rem;
+            color: #92400e;
+            font-weight: 600;
+            padding: 30px;
+            border-left: 5px solid var(--accent-solar);
+            background: rgba(245, 158, 11, 0.08);
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        .column-text p {
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        .game-screenshot {
+            background: var(--glass-bg);
+            border: 2px solid rgba(29, 111, 219, 0.2);
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(29, 111, 219, 0.08);
+        }
+
+        .game-screenshot-content {
+            font-size: 1.2rem;
+            color: var(--accent-blue);
+            line-height: 2;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            border: 1.5px solid rgba(29, 111, 219, 0.15);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        .feature-card:hover {
+            border-color: rgba(245, 158, 11, 0.5);
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 12px 32px rgba(245, 158, 11, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #b45309;
+        }
+
+        .feature-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Game Flow Section */
+        .game-flow {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+        }
+
+        .flow-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+        }
+
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .timeline-item {
+            background: var(--glass-bg);
+            border: 1.5px solid rgba(29, 111, 219, 0.15);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 0;
+            background: linear-gradient(180deg, var(--accent-solar), var(--accent-blue));
+            left: 50%;
+            transform: translateX(-50%);
+            transition: height 0.3s ease;
+            top: -20px;
+        }
+
+        .timeline-item:hover {
+            border-color: rgba(245, 158, 11, 0.5);
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 12px 32px rgba(245, 158, 11, 0.15);
+        }
+
+        .timeline-item:hover::before {
+            height: 20px;
+        }
+
+        .timeline-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .timeline-year {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.1rem;
+            color: #b45309;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .timeline-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Education Section */
+        .education {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(29, 111, 219, 0.05) 100%);
+        }
+
+        .edu-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .objectives-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        .objective-item {
+            background: var(--glass-bg);
+            border: 1.5px solid rgba(22, 163, 74, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.06);
+        }
+
+        .objective-item::before {
+            content: '✓';
+            color: var(--accent-green);
+            font-size: 1.5rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .objective-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .suitable-for {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background: rgba(245, 158, 11, 0.08);
+            border-radius: 12px;
+            border: 1.5px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .suitable-for p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .suitable-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .tag {
+            padding: 6px 16px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1.5px solid var(--accent-solar);
+            border-radius: 20px;
+            color: #92400e;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Data Section */
+        .real-data {
+            background: linear-gradient(135deg, rgba(29, 111, 219, 0.05) 0%, rgba(22, 163, 74, 0.05) 100%);
+        }
+
+        .data-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 50px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .data-card {
+            background: var(--glass-bg);
+            border: 1.5px solid rgba(29, 111, 219, 0.15);
+            border-radius: 12px;
+            padding: 40px 30px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        .data-card:hover {
+            border-color: rgba(245, 158, 11, 0.5);
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 12px 32px rgba(245, 158, 11, 0.15);
+        }
+
+        .data-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .data-number {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+        }
+
+        .data-label {
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .data-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Endings Section */
+        .endings {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+        }
+
+        .endings-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+        }
+
+        .endings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .ending-card {
+            background: var(--glass-bg);
+            border: 1.5px solid rgba(29, 111, 219, 0.15);
+            border-radius: 12px;
+            padding: 35px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        .ending-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-solar), var(--accent-blue), var(--accent-green));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .ending-card:hover {
+            border-color: rgba(245, 158, 11, 0.5);
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 12px 32px rgba(245, 158, 11, 0.15);
+        }
+
+        .ending-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .ending-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .ending-name {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #b45309;
+            margin-bottom: 12px;
+        }
+
+        .ending-teaser {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Final CTA Section */
+        .final-cta {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(245,158,11,0.10) 0%, rgba(29,111,219,0.08) 100%);
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .final-cta > div {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .final-headline {
+            font-family: 'Noto Serif TC', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #d97706, var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .final-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .cta-button-large {
+            padding: 20px 60px;
+            background: linear-gradient(135deg, var(--accent-solar), #f97316);
+            color: #1e293b;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.40);
+            letter-spacing: 0.5px;
+        }
+
+        .cta-button-large:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(245, 158, 11, 0.55);
+            background: linear-gradient(135deg, #f97316, var(--accent-solar));
+        }
+
+        .final-info {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .secondary-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .secondary-links a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            border-bottom: 1px solid var(--accent-blue);
+            transition: all 0.3s ease;
+            padding-bottom: 2px;
+        }
+
+        .secondary-links a:hover {
+            color: #d97706;
+            border-bottom-color: #d97706;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 2px solid rgba(245, 158, 11, 0.2);
+            padding: 40px 4%;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+            color: #d97706;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            nav {
+                padding: 0 3%;
+            }
+
+            .nav-logo {
+                font-size: 1rem;
+            }
+
+            .nav-cta a {
+                font-size: 0.8rem;
+                padding: 6px 14px;
+            }
+
+            section {
+                padding: 50px 3%;
+                min-height: auto;
+                padding-top: 100px;
+            }
+
+            .hero {
+                margin-top: 70px;
+                padding-top: 60px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .floating-stats {
+                gap: 20px;
+            }
+
+            .pull-quote {
+                font-size: 1.4rem;
+            }
+
+            .timeline {
+                grid-template-columns: 1fr;
+            }
+
+            .final-cta {
+                padding: 60px 3% !important;
+            }
+        }
+
+        /* Smooth scroll support */
+        @supports (scroll-behavior: smooth) {
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo">🌀 島嶼能源生存戰</div>
+        <div class="nav-cta">
+            <a href="#play">體驗遊戲</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero fade-in">
+            <div class="hero-content">
+                <h1>🌀 島嶼能源生存戰</h1>
+                <p class="subtitle">穿越53年台灣能源危機，守護2300萬人的燈火</p>
+                <p class="tagline">一款讓你用歷史決策學習能源政策的教育遊戲</p>
+                
+                <div class="hero-buttons">
+                    <a href="energyGame3.html" class="btn btn-primary">▶ 立即體驗遊戲</a>
+                    <a href="#what-is-game" class="btn">📋 了解遊戲內容↓</a>
+                </div>
+
+                <div class="floating-stats">
+                    <div class="stat-item">5個歷史階段</div>
+                    <div class="stat-item">·</div>
+                    <div class="stat-item">20+歷史事件</div>
+                    <div class="stat-item">·</div>
+                    <div class="stat-item">4種結局</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- What is the game? -->
+        <section id="what-is-game" class="what-is-game fade-in">
+            <div style="width: 100%;">
+                <h2 class="section-title">遊戲是什麼？</h2>
+                
+                <div class="quote-section">
+                    <div class="pull-quote">「如果你是1973年的台灣能源部長，你會怎麼做？」</div>
+                </div>
+
+                <div class="two-column">
+                    <div class="column-text">
+                        <p>
+                            島嶼能源生存戰是一款互動式歷史策略遊戲，讓玩家扮演不同時代的台灣決策者，在真實的歷史危機時刻做出能源政策選擇。從1973年石油禁運開始，你將面臨一次次的能源危機考驗，每一個決定都會影響台灣的能源結構、人民生活與經濟發展。
+                        </p>
+                        <p>
+                            遊戲不提供「正確答案」，而是讓玩家體驗不同能源政策的取捨。您將在短短20分鐘內穿越53年的台灣能源史，理解為什麼台灣會面臨各種能源困境，以及政策制定有多困難。
+                        </p>
+                    </div>
+                    <div class="game-screenshot">
+                        <div class="game-screenshot-content">
+                            🎮<br>
+                            遊戲關鍵決策畫面<br>
+                            <br>
+                            ⚡ 選擇能源配比<br>
+                            📊 觀看即時回饋<br>
+                            📈 看見未來後果<br>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">🕰️</div>
+                        <h3>時間穿越敘事</h3>
+                        <p>從1973石油危機穿越到2026美伊戰爭，親歷台灣能源的關鍵時刻</p>
+                    </div>
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">📜</div>
+                        <h3>真實歷史事件</h3>
+                        <p>729大停電、福島核災、俄烏能源危機——都是真實發生過的事件</p>
+                    </div>
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">⚡</div>
+                        <h3>政策選擇後果</h3>
+                        <p>每個決定影響供電穩定、民心滿意度、環境汙染、經濟成本</p>
+                    </div>
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">🌱</div>
+                        <h3>多元結局設定</h3>
+                        <p>綠能先驅、核能復興、化石路線、均衡轉型——你的選擇決定結局</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Flow -->
+        <section class="game-flow fade-in">
+            <div style="width: 100%;">
+                <h2 class="section-title">你將如何穿越台灣能源史？</h2>
+                <p class="flow-subtitle">5個關鍵階段，20+歷史決策，體驗能源政策的複雜性</p>
+
+                <div class="timeline">
+                    <div class="timeline-item fade-in">
+                        <div class="timeline-icon">🛢️</div>
+                        <div class="timeline-year">1973–1980</div>
+                        <div class="timeline-title">石油危機</div>
+                        <div class="timeline-desc">阿拉伯禁運，第一次能源震撼。台灣如何應對？</div>
+                    </div>
+                    <div class="timeline-item fade-in">
+                        <div class="timeline-icon">☢️</div>
+                        <div class="timeline-year">1990–2000</div>
+                        <div class="timeline-title">核能全盛</div>
+                        <div class="timeline-desc">台海危機、竹科崛起。大量用電如何滿足？</div>
+                    </div>
+                    <div class="timeline-item fade-in">
+                        <div class="timeline-icon">💥</div>
+                        <div class="timeline-year">2000–2015</div>
+                        <div class="timeline-title">福島震撼</div>
+                        <div class="timeline-desc">815大停電、反核浪潮。如何平衡安全與供電？</div>
+                    </div>
+                    <div class="timeline-item fade-in">
+                        <div class="timeline-icon">🌊</div>
+                        <div class="timeline-year">2015–2022</div>
+                        <div class="timeline-title">能源轉型</div>
+                        <div class="timeline-desc">俄烏戰爭、離岸風電。綠能轉型面臨挑戰</div>
+                    </div>
+                    <div class="timeline-item fade-in">
+                        <div class="timeline-icon">🤖</div>
+                        <div class="timeline-year">2025–2026</div>
+                        <div class="timeline-title">AI與戰爭</div>
+                        <div class="timeline-desc">荷莫茲封鎖、AI算力需求。未來的能源危機</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section class="education fade-in">
+            <div style="width: 100%;">
+                <h2 class="section-title">為什麼要玩這個遊戲？</h2>
+                <p class="edu-subtitle">設計給中小學、大學、社會教育的能源素養課程</p>
+
+                <div class="objectives-list">
+                    <div class="objective-item fade-in">
+                        <div class="objective-text">了解台灣能源97%依賴進口的現實與脆弱性</div>
+                    </div>
+                    <div class="objective-item fade-in">
+                        <div class="objective-text">理解歷史重大事件（石油危機、核災、戰爭）對能源政策的影響</div>
+                    </div>
+                    <div class="objective-item fade-in">
+                        <div class="objective-text">體驗再生能源、核能、化石燃料各自的優缺點與取捨</div>
+                    </div>
+                    <div class="objective-item fade-in">
+                        <div class="objective-text">認識荷莫茲海峽、南海航線等地緣政治對台灣能源安全的威脅</div>
+                    </div>
+                    <div class="objective-item fade-in">
+                        <div class="objective-text">思考AI時代的電力需求與能源結構轉型挑戰</div>
+                    </div>
+                    <div class="objective-item fade-in">
+                        <div class="objective-text">培養系統思考：每一個能源決策都有連鎖效應</div>
+                    </div>
+                </div>
+
+                <div class="suitable-for fade-in">
+                    <p style="font-weight: 600; font-size: 1rem; color: var(--text-dark); margin-bottom: 15px;">適合以下課程與活動</p>
+                    <div class="suitable-tags">
+                        <span class="tag">中小學議題融入</span>
+                        <span class="tag">大學通識課</span>
+                        <span class="tag">能源教育活動</span>
+                        <span class="tag">博物館展覽</span>
+                        <span class="tag">教師專業成長</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real Data Section -->
+        <section class="real-data fade-in">
+            <div style="width: 100%;">
+                <h2 class="section-title">遊戲背後的真實台灣</h2>
+                <p class="data-subtitle">這些數據來自能源局、國際能源署、氣象局的真實統計</p>
+
+                <div class="data-grid">
+                    <div class="data-card fade-in">
+                        <div class="data-icon">📊</div>
+                        <div class="data-number">97%</div>
+                        <div class="data-label">能源進口依賴度</div>
+                        <div class="data-desc">台灣幾乎所有能源都仰賴進口，極易受全球局勢影響</div>
+                    </div>
+                    <div class="data-card fade-in">
+                        <div class="data-icon">⏱️</div>
+                        <div class="data-number">14天</div>
+                        <div class="data-label">天然氣安全存量</div>
+                        <div class="data-desc">台灣天然氣儲存不足兩週，供應鏈中斷風險極高</div>
+                    </div>
+                    <div class="data-card fade-in">
+                        <div class="data-icon">🌱</div>
+                        <div class="data-number">20%</div>
+                        <div class="data-label">2026年再生能源占比</div>
+                        <div class="data-desc">離岸風電、太陽能快速成長，但仍需化石能源穩定供應</div>
+                    </div>
+                    <div class="data-card fade-in">
+                        <div class="data-icon">🤖</div>
+                        <div class="data-number">+20%</div>
+                        <div class="data-label">AI帶動用電成長預測</div>
+                        <div class="data-desc">至2030年，AI數據中心將大幅增加電力需求</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Endings Section -->
+        <section class="endings fade-in">
+            <div style="width: 100%;">
+                <h2 class="section-title">你的選擇，決定台灣的能源未來</h2>
+                <p class="endings-subtitle">4種結局，無標準答案。每條路都有其代價與希望。</p>
+
+                <div class="endings-grid">
+                    <div class="ending-card fade-in">
+                        <div class="ending-icon">🌱</div>
+                        <div class="ending-name">綠能先驅</div>
+                        <div class="ending-teaser">你讓台灣走上了再生能源的康莊大道。乾淨、永續，但挑戰重重。</div>
+                    </div>
+                    <div class="ending-card fade-in">
+                        <div class="ending-icon">⚛️</div>
+                        <div class="ending-name">核能復興</div>
+                        <div class="ending-teaser">穩定的核電撐過了荷莫茲危機。安全與廢料是永遠的課題。</div>
+                    </div>
+                    <div class="ending-card fade-in">
+                        <div class="ending-icon">🏭</div>
+                        <div class="ending-name">化石路線</div>
+                        <div class="ending-teaser">電力充足，但代價是什麼？經濟成本與環境衝擊都在。</div>
+                    </div>
+                    <div class="ending-card fade-in">
+                        <div class="ending-icon">⚖️</div>
+                        <div class="ending-name">均衡轉型</div>
+                        <div class="ending-teaser">在現實與理想間找到了平衡。沒有完美，但務實而可行。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="final-cta fade-in" id="play">
+            <div>
+                <h2 class="final-headline">準備好了嗎？</h2>
+                <p class="final-subtitle">台灣的能源未來，從你的決策開始。</p>
+
+                <a href="energyGame3.html" class="cta-button-large">▶ 立即體驗 島嶼能源生存戰</a>
+
+                <div class="final-info">
+                    免費 · 無需下載 · 約20分鐘完成
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>桃園觀音高中林仟弘老師製作 | <a href="mailto:ttnpgjqua26@gish.tyc.edu.tw">聯絡我們</a></p>
+    </footer>
+
+    <script>
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(element => {
+            observer.observe(element);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Nav scroll effect
+        let lastScroll = 0;
+        const nav = document.querySelector('nav');
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > lastScroll && currentScroll > 500) {
+                nav.style.opacity = '0.8';
+            } else {
+                nav.style.opacity = '1';
+            }
+            
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>
