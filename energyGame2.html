@@ -1094,7 +1094,7 @@
         // === DATA COLLECTION CONFIG ===
         // Apps Script: function doPost(e){var s=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('遊戲紀錄');if(!s){s=SpreadsheetApp.getActiveSpreadsheet().insertSheet('遊戲紀錄');s.appendRow(['姓名','時間','花費年數','民心','燃油%','燃煤%','天然氣%','核能%','再生%','煤炭進口','天然氣進口']);}var d=JSON.parse(e.postData.contents);s.appendRow([d.name,d.time,d.years,d.comp,d.oil,d.coal,d.gas,d.nuclear,d.green,d.coal_import,d.gas_import]);return ContentService.createTextOutput('OK');}
         const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyyhv5j2wRiGMtz-Yv-ZwTOnRsBwR9pSKUvkPH96XJFCKl5rDRkgDOAQ6x5YzHj2Rch/exec'; // ← 到 script.google.com 建立新專案，貼入上方 Apps Script 後以 Web App 部署，將網址貼於此
-        const FEEDBACK_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSePBzy-DlX72J-EWOAN-SbCfi_-iQGfMZ3p19b8o44YA0bBNg/viewform?usp=dialog';
+        const FEEDBACK_FORM_URL = 'feedback.html'; // 本地意見回饋頁面
 
         const game = {
             year:1, funds:2000, comp:100, demand:10000, oilOutput:2000,
@@ -1813,7 +1813,7 @@ ${[
                     <div style="font-size:22px;font-weight:900;color:var(--accent-blue);font-family:'Playfair Display',serif;">${game.comp}%</div>
                     <div style="font-size:11px;color:var(--text-muted);">進口來源多元度：${totalImportCountries} 個國家｜完成年度：第 ${game.year} 年</div></div></div>
                     <div class="btn-group-horizontal"><button class="retro-btn screenshot" onclick="game.captureScreenshot()">📷 截取成績</button><button class="retro-btn restart-end" onclick="game.restart()">🔄 重新遊戲</button></div>
-                    <div class="btn-group-horizontal" style="margin-top:6px;"><button id="sheets-btn" class="retro-btn" style="background:rgba(107,158,107,0.15);color:var(--accent-green);border-color:var(--accent-green);opacity:0.7;" disabled>✅ 紀錄已自動送出</button><button class="retro-btn" style="background:rgba(90,143,168,0.15);color:var(--accent-blue);border-color:var(--accent-blue);" onclick="window.open(FEEDBACK_FORM_URL,'_blank')">💬 填寫遊戲意見</button></div>`;
+                    <div class="btn-group-horizontal" style="margin-top:6px;"><button class="retro-btn" style="background:rgba(90,143,168,0.15);color:var(--accent-blue);border-color:var(--accent-blue);" onclick="window.open(FEEDBACK_FORM_URL,'_blank')">💬 填寫遊戲意見</button></div>`;
                     const btn=document.getElementById('modal-btn');btn.style.display='none';
                     document.getElementById('modal-overlay').style.display='flex';
                 };
