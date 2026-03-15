@@ -5,20 +5,24 @@
   <title>Guidephy's HTML Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
+    
+    /* 修正 2-1：鎖定 body 高度為 100vh，禁止整個網頁捲動 */
     body {
       margin: 0;
+      height: 100vh;
+      overflow: hidden; 
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f3f4f6;
       color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
     }
-
+    
+    /* header 變成 flex 項目，永遠固定在最上方 */
     header {
+      flex-shrink: 0;
       padding: 0.75rem 1.5rem;
       background: #111827;
       color: #f9fafb;
@@ -26,7 +30,6 @@
       align-items: center;
       justify-content: space-between;
     }
-
     header h1 {
       margin: 0;
       font-size: 1.1rem;
@@ -34,7 +37,6 @@
       align-items: center;
       gap: 8px;
     }
-
     .brand-link {
       display: inline-flex;
       align-items: center;
@@ -42,11 +44,7 @@
       color: inherit;
       text-decoration: none;
     }
-
-    .brand-link:hover {
-      opacity: 0.9;
-    }
-
+    .brand-link:hover { opacity: 0.9; }
     .home-icon {
       width: 20px;
       height: 20px;
@@ -59,13 +57,11 @@
       font-size: 14px;
       font-weight: 700;
     }
-
     .toolbar {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-
     button {
       border: none;
       padding: 0.45rem 0.9rem;
@@ -78,172 +74,105 @@
       align-items: center;
       gap: 6px;
     }
-
     .btn-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
     }
-
     .btn-icon svg {
       width: 16px;
       height: 16px;
       display: block;
     }
-
-    button.secondary {
-      background: #374151;
-    }
-
-    button:active {
-      transform: translateY(1px);
-    }
-
-    /* main 使用 min-height，讓下面圖片區有空間長出來 */
+    button.secondary { background: #374151; }
+    button.danger { background: #ef4444; color: white; }
+    button.danger:hover { background: #dc2626; }
+    button:active { transform: translateY(1px); }
+    
+    /* main 自動填滿剩餘高度 */
     main {
-      min-height: calc(100vh - 56px);
+      flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: 0; /* 確保 flex 子元素不會撐破容器 */
     }
-
     .split {
       flex: 1;
       display: flex;
       border-top: 1px solid #e5e7eb;
+      min-height: 0;
     }
-
     .pane {
       flex: 1;
       display: flex;
       flex-direction: column;
       min-width: 0;
     }
-
     .pane-header {
+      flex-shrink: 0;
       padding: 0.5rem 0.9rem;
       background: #e5e7eb;
       border-bottom: 1px solid #d1d5db;
       font-size: 0.85rem;
       color: #111827;
-
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
     }
-
     .pane-header-title {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-weight: 600;
     }
-
     .pane-header-right {
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
     }
-
     .pane-body {
       flex: 1;
       position: relative;
       overflow: hidden;
     }
-
-    /* 給左邊編輯區當拖拉目標用 */
     .pane-body.editor-drop-target.drag-over {
       outline: 2px dashed #60a5fa;
       outline-offset: -4px;
       background: radial-gradient(circle at top, rgba(191,219,254,0.18), transparent 55%);
     }
-
-    /* CodeMirror 尺寸 */
+    
+    /* CodeMirror 本身會處理內部捲動 */
     .CodeMirror {
       height: 100%;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
-
+    
     /* ===== ChatGPT 風格暗色主題：gpt-dark ===== */
-    .cm-s-gpt-dark.CodeMirror {
-      background: #0a0f1a;
-      color: #e5e7eb;
-      padding: 0.75rem;
-    }
-
-    .cm-s-gpt-dark .CodeMirror-gutters {
-      background: #0a0f1a;
-      border-right: 1px solid #1e293b;
-      color: #64748b;
-    }
-
-    .cm-s-gpt-dark .CodeMirror-linenumber {
-      color: #64748b;
-    }
-
-    .cm-s-gpt-dark .CodeMirror-cursor {
-      border-left: 1px solid #e5e7eb;
-    }
-
-    .cm-s-gpt-dark .CodeMirror-selected {
-      background: #1e293b;
-    }
-
-    .cm-s-gpt-dark .CodeMirror-activeline-background {
-      background: #020617;
-    }
-
-    .cm-s-gpt-dark span.cm-tag {
-      color: #ff4d4f;
-    }
-
-    .cm-s-gpt-dark span.cm-bracket {
-      color: #ff4d4f;
-    }
-
-    .cm-s-gpt-dark span.cm-attribute {
-      color: #c4b5fd;
-    }
-
-    .cm-s-gpt-dark span.cm-string {
-      color: #bef264;
-    }
-
-    .cm-s-gpt-dark span.cm-comment {
-      color: #6b7280;
-      font-style: italic;
-    }
-
-    .cm-s-gpt-dark span.cm-keyword {
-      color: #f472b6;
-    }
-
-    .cm-s-gpt-dark span.cm-def {
-      color: #7dd3fc;
-    }
-
-    .cm-s-gpt-dark span.cm-number {
-      color: #facc15;
-    }
-
-    .cm-s-gpt-dark span.cm-atom {
-      color: #f97316;
-    }
-
-    .cm-s-gpt-dark span.cm-builtin {
-      color: #38bdf8;
-    }
-
-    .cm-s-gpt-dark span.cm-meta {
-      color: #a5b4fc;
-    }
-
+    .cm-s-gpt-dark.CodeMirror { background: #0a0f1a; color: #e5e7eb; padding: 0.75rem; }
+    .cm-s-gpt-dark .CodeMirror-gutters { background: #0a0f1a; border-right: 1px solid #1e293b; color: #64748b; }
+    .cm-s-gpt-dark .CodeMirror-linenumber { color: #64748b; }
+    .cm-s-gpt-dark .CodeMirror-cursor { border-left: 1px solid #e5e7eb; }
+    .cm-s-gpt-dark .CodeMirror-selected { background: #1e293b; }
+    .cm-s-gpt-dark .CodeMirror-activeline-background { background: #020617; }
+    .cm-s-gpt-dark span.cm-tag { color: #ff4d4f; }
+    .cm-s-gpt-dark span.cm-bracket { color: #ff4d4f; }
+    .cm-s-gpt-dark span.cm-attribute { color: #c4b5fd; }
+    .cm-s-gpt-dark span.cm-string { color: #bef264; }
+    .cm-s-gpt-dark span.cm-comment { color: #6b7280; font-style: italic; }
+    .cm-s-gpt-dark span.cm-keyword { color: #f472b6; }
+    .cm-s-gpt-dark span.cm-def { color: #7dd3fc; }
+    .cm-s-gpt-dark span.cm-number { color: #facc15; }
+    .cm-s-gpt-dark span.cm-atom { color: #f97316; }
+    .cm-s-gpt-dark span.cm-builtin { color: #38bdf8; }
+    .cm-s-gpt-dark span.cm-meta { color: #a5b4fc; }
+    
     iframe {
       width: 100%;
       height: 100%;
       border: none;
       background: white;
     }
-
     .status-bar {
       position: absolute;
       bottom: 0.4rem;
@@ -251,265 +180,15 @@
       font-size: 0.75rem;
       background: rgba(17, 24, 39, 0.8);
       color: white;
-      padding: 0.15rem 0.5rem;
+      padding: 0.2rem 0.6rem;
       border-radius: 999px;
       pointer-events: none;
+      z-index: 10;
     }
-
-    /* ===== 圖片抓取區 ===== */
-
-    .image-section {
-      max-width: 1200px;
-      margin: 1.5rem auto 3rem auto;
-      padding: 0 1.5rem;
-      color: #111827;
-      display: none;
-    }
-
-    .image-section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .image-section h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #111827;
-    }
-
-    .image-section h2 span {
-      font-size: 0.75rem;
-      padding: 0.1rem 0.4rem;
-      border-radius: 999px;
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    .image-minimize-btn {
-      background: #e5e7eb;
-      color: #111827;
-      border: 1px solid #d1d5db;
-      font-size: 0.8rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      cursor: pointer;
-    }
-
-    .image-minimize-btn:hover {
-      background: #d1d5db;
-    }
-
-    .image-status {
-      margin-bottom: 0.75rem;
-      font-size: 0.9rem;
-    }
-
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-    }
-
-    .image-card {
-      background: #ffffff;
-      border-radius: 0.75rem;
-      border: 1px solid #d1d5db;
-      overflow: hidden;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .image-card img {
-      width: 100%;
-      height: 150px;
-      object-fit: contain;
-      background: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .image-card-body {
-      padding: 0.75rem 0.9rem 0.9rem 0.9rem;
-      font-size: 0.8rem;
-    }
-
-    .image-card-body input {
-      width: 100%;
-      padding: 0.35rem 0.45rem;
-      font-size: 0.75rem;
-      border-radius: 0.4rem;
-      border: 1px solid #d1d5db;
-      margin-bottom: 0.4rem;
-    }
-
-    .image-card-body a {
-      display: inline-block;
-      font-size: 0.75rem;
-      color: #2563eb;
-      text-decoration: underline;
-      margin-bottom: 0.45rem;
-      word-break: break-all;
-    }
-
-    .image-card-body button {
-      width: 100%;
-      font-size: 0.75rem;
-      padding: 0.35rem 0.45rem;
-      border-radius: 999px;
-      background: #bfdbfe;
-      color: #1e3a8a;
-      border: 1px solid #60a5fa;
-      text-align: center;
-      justify-content: center;
-    }
-
-    .image-card-body button:hover {
-      background: #93c5fd;
-    }
-
-    .image-toggle-btn {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      z-index: 60;
-      background: #111827;
-      color: #f9fafb;
-      border-radius: 999px;
-      padding: 0.45rem 0.9rem;
-      font-size: 0.85rem;
-      border: 1px solid #1f2937;
-      display: none;
-      box-shadow: 0 12px 20px rgba(15, 23, 42, 0.4);
-      cursor: pointer;
-    }
-
-    .image-toggle-btn:hover {
-      background: #1f2937;
-    }
-
-    .loader {
-      border: 3px solid #e5e7eb;
-      border-top: 3px solid #22d3ee;
-      border-radius: 50%;
-      width: 26px;
-      height: 26px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 0.5rem auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-
-    .modal {
-      background: #f9fafb;
-      border-radius: 1rem;
-      padding: 1.25rem 1.5rem;
-      max-width: 480px;
-      width: 100%;
-      box-shadow: 0 25px 60px rgba(15,23,42,0.35);
-      color: #111827;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .modal-header h2 {
-      font-size: 1rem;
-      margin: 0;
-      font-weight: 600;
-    }
-
-    .modal-close {
-      background: transparent;
-      border: none;
-      color: #6b7280;
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 0;
-      line-height: 1;
-    }
-
-    .modal-body {
-      font-size: 0.9rem;
-    }
-
-    .modal-body label {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-weight: 500;
-    }
-
-    .modal-body input[type="url"] {
-      width: 100%;
-      padding: 0.6rem 0.7rem;
-      border-radius: 0.5rem;
-      border: 1px solid #d1d5db;
-      font-size: 0.9rem;
-      margin-bottom: 0.6rem;
-    }
-
-    .modal-body small {
-      display: block;
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin-bottom: 0.8rem;
-    }
-
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .modal-footer button {
-      font-size: 0.85rem;
-      padding: 0.4rem 0.9rem;
-      border-radius: 999px;
-    }
-
-    .btn-secondary-light {
-      background: #e5e7eb;
-      color: #111827;
-      border: 1px solid #d1d5db;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-      color: #f9fafb;
-      border: 1px solid #1d4ed8;
-    }
-
+    
     @media (max-width: 900px) {
-      .split {
-        flex-direction: column;
-      }
-      .pane {
-        height: 50vh;
-      }
+      .split { flex-direction: column; }
+      .pane { height: 50%; }
     }
   </style>
 </head>
@@ -523,10 +202,8 @@
       </a>
     </h1>
     <div class="toolbar">
-      <!-- 顯示網頁 -->
       <button id="runBtn">
         <span class="btn-icon">
-          <!-- 小螢幕 icon -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="12" rx="2" ry="2"></rect>
             <line x1="8" y1="20" x2="16" y2="20"></line>
@@ -536,22 +213,19 @@
         <span>預覽網頁</span>
       </button>
 
-      <button id="imageBtn" class="secondary">
+      <button id="imageBtn" class="secondary" title="前往 upload.cc 上傳圖片取得網址">
         <span class="btn-icon">
-          <!-- 小圖片 icon -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
-            <circle cx="9" cy="10" r="1.6"></circle>
-            <path d="M21 16l-4.5-4.5a1 1 0 0 0-1.4 0L9 18"></path>
-            <path d="M3 15l3-3 4.5 4.5"></path>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
           </svg>
         </span>
-        <span>圖片抓取</span>
+        <span>上傳圖片</span>
       </button>
 
       <button id="openNewBtn" class="secondary">
         <span class="btn-icon">
-          <!-- 開新視窗 icon -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <rect x="4" y="4" width="13" height="13" rx="2" ry="2"></rect>
             <polyline points="14 4 20 4 20 10"></polyline>
@@ -570,9 +244,19 @@
       <section class="pane">
         <div class="pane-header">
           <span class="pane-header-title">
-            HTML 程式碼（可於下方編寫程式碼或將已寫好的html檔拉進來）
+            HTML 程式碼編輯區
           </span>
-          <span class="pane-header-right"></span>
+          <span class="pane-header-right">
+            <button id="clearBtn" class="danger" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">
+              <span class="btn-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px;">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </span>
+              清空
+            </button>
+          </span>
         </div>
         <div class="pane-body editor-drop-target" id="editor-pane-body">
           <textarea id="code"></textarea>
@@ -582,7 +266,7 @@
 
       <section class="pane">
         <div class="pane-header">
-          <span class="pane-header-title">預覽</span>
+          <span class="pane-header-title">預覽結果</span>
           <span class="pane-header-right"></span>
         </div>
         <div class="pane-body">
@@ -592,38 +276,6 @@
     </div>
   </main>
 
-  <section id="image-section" class="image-section">
-    <div class="image-section-header">
-      <h2>
-        Google 文件圖片抓取結果
-        <span id="image-count-badge">0 張</span>
-      </h2>
-      <button id="image-minimize-btn" class="image-minimize-btn">縮小</button>
-    </div>
-    <div id="image-status" class="image-status"></div>
-    <div id="image-grid" class="image-grid"></div>
-  </section>
-
-  <button id="image-toggle-btn" class="image-toggle-btn">展開圖片</button>
-
-  <div id="image-modal-backdrop" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>從 Google 文件抓取圖片</h2>
-        <button class="modal-close" id="image-modal-close" aria-label="關閉">×</button>
-      </div>
-      <div class="modal-body">
-        <label for="gdoc-url">共用連結（建議使用「發佈到網路」的網址）</label>
-        <input type="url" id="gdoc-url" placeholder="https://docs.google.com/document/d/e/.../pub">
-        <small>貼上 Google 文件的共用連結，按「開始抓取」後，下方會顯示所有圖片與網址。</small>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary-light" id="image-modal-cancel">取消</button>
-        <button class="btn-primary" id="image-modal-submit">開始抓取</button>
-      </div>
-    </div>
-  </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/xml/xml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/javascript/javascript.min.js"></script>
@@ -631,8 +283,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/htmlmixed/htmlmixed.min.js"></script>
 
   <script>
-    const defaultCode =
-`<!DOCTYPE html>
+    const defaultCode = `<!DOCTYPE html>
 <html>
 <head>
 <title>Page Title</title>
@@ -650,6 +301,7 @@
     const runBtn          = document.getElementById("runBtn");
     const downloadBtn     = document.getElementById("downloadBtn");
     const openNewBtn      = document.getElementById("openNewBtn");
+    const clearBtn        = document.getElementById("clearBtn");
     const statusEl        = document.getElementById("status");
     const editorPaneBody  = document.getElementById("editor-pane-body");
 
@@ -667,6 +319,24 @@
     function setStatus(msg) {
       statusEl.textContent = msg;
     }
+
+    // 修正 2-2：監聽貼上事件，強制把游標和捲軸移回第一行第一字元
+    editor.on("paste", (cm) => {
+      setTimeout(() => {
+        cm.setCursor(0, 0);
+        cm.scrollTo(0, 0);
+      }, 10); // 微小延遲確保在 CodeMirror 處理完貼上行為後才執行
+    });
+
+    // 修正 1 的功能實作：清空編輯器
+    clearBtn.addEventListener("click", () => {
+      if (confirm("確定要清空所有程式碼嗎？")) {
+        editor.setValue("");
+        editor.clearHistory(); // 順便清除上一步/下一步紀錄，避免 Ctrl+Z 叫回舊扣
+        editor.focus();
+        setStatus("程式碼已清空");
+      }
+    });
 
     function runCode() {
       const html = editor.getValue();
@@ -700,7 +370,6 @@
       setStatus("已下載：" + filename + ".html");
     }
 
-    // 新視窗預覽：真正獨立頁面，適合 three.js / 3D
     function openInNewWindow() {
       const html = editor.getValue();
       const win = window.open("", "_blank");
@@ -721,7 +390,6 @@
     openNewBtn.addEventListener("click", openInNewWindow);
 
     /* ===== 左側編輯區：拖曳載入 HTML 檔 ===== */
-
     function setupDragAndDropForEditor() {
       if (!editorPaneBody) return;
 
@@ -763,6 +431,9 @@
         reader.onload = (event) => {
           const text = event.target.result || "";
           editor.setValue(text);
+          // 載入後自動滾回頂部
+          editor.setCursor(0, 0);
+          editor.scrollTo(0, 0);
           setStatus("已載入：" + name);
         };
         reader.onerror = () => {
@@ -774,209 +445,12 @@
 
     setupDragAndDropForEditor();
 
-    /* ===== 圖片抓取功能 ===== */
-
-    const imageBtn           = document.getElementById("imageBtn");
-    const imageModalBackdrop = document.getElementById("image-modal-backdrop");
-    const imageModalClose    = document.getElementById("image-modal-close");
-    const imageModalCancel   = document.getElementById("image-modal-cancel");
-    const imageModalSubmit   = document.getElementById("image-modal-submit");
-    const gdocUrlInput       = document.getElementById("gdoc-url");
-
-    const imageSection       = document.getElementById("image-section");
-    const imageStatusEl      = document.getElementById("image-status");
-    const imageGridEl        = document.getElementById("image-grid");
-    const imageCountBadge    = document.getElementById("image-count-badge");
-
-    const imageMinimizeBtn   = document.getElementById("image-minimize-btn");
-    const imageToggleBtn     = document.getElementById("image-toggle-btn");
-
-    let extractedImageUrls = [];
-
-    function openImageModal() {
-      imageModalBackdrop.style.display = "flex";
-      setTimeout(() => gdocUrlInput.focus(), 50);
-    }
-
-    function closeImageModal() {
-      imageModalBackdrop.style.display = "none";
-    }
-
-    imageBtn.addEventListener("click", openImageModal);
-    imageModalClose.addEventListener("click", closeImageModal);
-    imageModalCancel.addEventListener("click", closeImageModal);
-
-    imageModalSubmit.addEventListener("click", () => {
-      const url = gdocUrlInput.value.trim();
-      if (!url) {
-        alert("請先輸入 Google 文件的共用連結");
-        return;
-      }
-      closeImageModal();
-      extractImagesFromGDoc(url);
+    /* ===== 圖片上傳功能 (開啟 upload.cc) ===== */
+    const imageBtn = document.getElementById("imageBtn");
+    imageBtn.addEventListener("click", () => {
+      window.open("https://upload.cc/", "_blank");
+      setStatus("已開啟 upload.cc");
     });
-
-    gdocUrlInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        imageModalSubmit.click();
-      }
-    });
-
-    function showImageSection() {
-      imageSection.style.display = "block";
-      imageToggleBtn.style.display = "none";
-    }
-
-    function minimizeImageSection() {
-      imageSection.style.display = "none";
-      imageToggleBtn.style.display = "inline-flex";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    imageMinimizeBtn.addEventListener("click", minimizeImageSection);
-    imageToggleBtn.addEventListener("click", () => {
-      showImageSection();
-      scrollToImageSection();
-    });
-
-    function scrollToImageSection() {
-      const top = imageSection.offsetTop - 16;
-      window.scrollTo({
-        top,
-        behavior: "smooth"
-      });
-    }
-
-    function setImageStatusLoading() {
-      showImageSection();
-      imageStatusEl.innerHTML = `
-        <div class="loader"></div>
-        <div style="text-align:center; font-size:0.9rem;">正在從 Google 文件抓取圖片...</div>
-      `;
-      scrollToImageSection();
-    }
-
-    function setImageStatusMessage(message, type) {
-      showImageSection();
-      let color = "#111827";
-      if (type === "error") color = "#b91c1c";
-      else if (type === "success") color = "#166534";
-      imageStatusEl.innerHTML = '<div style="font-size:0.9rem; color:' + color + ';">' + message + '</div>';
-    }
-
-    function clearImageResults() {
-      imageGridEl.innerHTML = "";
-      extractedImageUrls = [];
-      imageCountBadge.textContent = "0 張";
-    }
-
-    async function extractImagesFromGDoc(url) {
-      clearImageResults();
-      setImageStatusLoading();
-
-      const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
-
-      try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) {
-          throw new Error("網路錯誤: " + response.status + " " + response.statusText);
-        }
-
-        const htmlText = await response.text();
-        const parser   = new DOMParser();
-        const doc      = parser.parseFromString(htmlText, "text/html");
-        const images   = doc.querySelectorAll("img");
-
-        if (!images || images.length === 0) {
-          setImageStatusMessage("這個連結裡找不到任何圖片喔。", "info");
-          return;
-        }
-
-        let count = 0;
-        images.forEach(img => {
-          const src = img.src;
-          if (src && src.includes("googleusercontent.com")) {
-            count++;
-            extractedImageUrls.push(src);
-            createImageCard(src);
-          }
-        });
-
-        imageCountBadge.textContent = count + " 張";
-
-        if (count === 0) {
-          setImageStatusMessage("有圖片，但不是 Google 文件的圖檔（沒有 googleusercontent.com）。", "info");
-        } else {
-          setImageStatusMessage("成功抓到 " + count + " 張圖片！", "success");
-        }
-
-      } catch (err) {
-        console.error(err);
-        setImageStatusMessage("抓取失敗，請確認連結是否正確，且文件已對外開放或「發佈到網路」。", "error");
-      }
-    }
-
-    function createImageCard(src) {
-      const card = document.createElement("div");
-      card.className = "image-card";
-
-      const img = document.createElement("img");
-      img.src = src;
-      img.alt = "提取圖片";
-      img.loading = "lazy";
-
-      const body = document.createElement("div");
-      body.className = "image-card-body";
-
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = src;
-      input.readOnly = true;
-
-      const link = document.createElement("a");
-      link.href = src;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = "在新分頁開啟圖片";
-
-      const btn = document.createElement("button");
-      btn.textContent = "複製網址";
-
-      btn.addEventListener("click", async () => {
-        btn.disabled = true;
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(src);
-          } else {
-            input.select();
-            document.execCommand("copy");
-          }
-          btn.textContent = "已複製！";
-          btn.style.background = "#4ade80";
-          btn.style.color = "#064e3b";
-        } catch (e) {
-          btn.textContent = "複製失敗";
-          btn.style.background = "#fecaca";
-          btn.style.color = "#7f1d1d";
-        } finally {
-          setTimeout(() => {
-            btn.textContent = "複製網址";
-            btn.style.background = "#bfdbfe";
-            btn.style.color = "#1e3a8a";
-            btn.disabled = false;
-          }, 1800);
-        }
-      });
-
-      body.appendChild(input);
-      body.appendChild(link);
-      body.appendChild(btn);
-
-      card.appendChild(img);
-      card.appendChild(body);
-      imageGridEl.appendChild(card);
-    }
   </script>
 </body>
 </html>
