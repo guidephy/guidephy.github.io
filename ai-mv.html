@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 音樂 MV 製作教學</title>
+  <style>
+    /* ── BASE & RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-main:     #f4f7f9;
+      --bg-card:     rgba(255, 255, 255, 0.8);
+      --border:      rgba(0, 0, 0, 0.08);
+      --text-main:   #1e293b;
+      --text-muted:  #64748b;
+      /* 觀音高中配色 */
+      --c1:          #F37021; /* 活力橘 */
+      --c2:          #00B0F0; /* 觀音藍 */
+      --c3:          #FF9800; /* 暖橘黃 */
+      --c4:          #0ea5e9; /* 天空藍 */
+      --warn:        #ea580c;
+      --shadow:      0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', 'PingFang TC', system-ui, sans-serif;
+      background-color: var(--bg-main);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(243, 112, 33, 0.06), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(0, 176, 240, 0.06), transparent 25%);
+      color: var(--text-main);
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ── IMMERSIVE BACKGROUND & CURSOR GLOW ── */
+    #cursor-glow {
+      position: fixed;
+      top: 0; left: 0;
+      width: 40vw; height: 40vw;
+      background: radial-gradient(circle, rgba(243, 112, 33, 0.1) 0%, rgba(0,0,0,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      transition: background 0.5s ease;
+      filter: blur(40px);
+    }
+    
+    .bg-svg-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .floating-element {
+      position: absolute;
+      opacity: 0.15;
+      animation: float 20s infinite linear;
+    }
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(180deg); }
+      100% { transform: translateY(0) rotate(360deg); }
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      padding: 80px 24px 60px;
+      text-align: center;
+      z-index: 1;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.9) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    header h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #F37021 0%, #00B0F0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    header .subtitle {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 650px;
+      margin: 0 auto;
+      font-weight: 500;
+    }
+
+    /* ── FLOW STRIP (RESPONSIVE GRID) ── */
+    .flow-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 40px 24px 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative; z-index: 2;
+    }
+    .flow-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      padding: 24px 12px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+    .flow-card::before {
+      content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.02) 0%, transparent 100%); opacity: 0; transition: opacity 0.3s;
+    }
+    .flow-card:hover { transform: translateY(-5px); border-color: rgba(0,0,0,0.15); box-shadow: var(--shadow); }
+    .flow-card:hover::before { opacity: 1; }
+    
+    .flow-card.active { transform: translateY(-8px) scale(1.02); background: #ffffff; box-shadow: 0 12px 35px rgba(0,0,0,0.08); }
+    .flow-card.s1.active { border-color: var(--c1); }
+    .flow-card.s2.active { border-color: var(--c2); }
+    .flow-card.s3.active { border-color: var(--c3); }
+    .flow-card.s4.active { border-color: var(--c4); }
+    
+    /* Image Logos Wrapper & Animation */
+    .flow-icon-wrap {
+      position: relative;
+      width: 76px; height: 76px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 4px;
+    }
+    .tool-logo {
+      width: 42px; height: 42px;
+      object-fit: contain;
+      z-index: 2;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .s4 .tool-logo { width: 56px; }
+    
+    .icon-ring {
+      position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+      pointer-events: none;
+    }
+    .flow-card:hover .tool-logo { transform: scale(1.15) rotate(3deg); }
+    .flow-card.active .tool-logo { transform: scale(1.1); }
+    
+    .flow-meta { line-height: 1.4; }
+    .flow-step { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .flow-tool { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+    .flow-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-bar-wrap { max-width: 1000px; margin: 0 auto 20px; padding: 0 24px; position: relative; z-index: 2; }
+    .progress-bar { height: 4px; background: rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.6s ease; width: 25%; }
+    .progress-fill.s1 { background: var(--c1); box-shadow: 0 0 10px rgba(243,112,33,0.3); }
+    .progress-fill.s2 { background: var(--c2); box-shadow: 0 0 10px rgba(0,176,240,0.3); }
+    .progress-fill.s3 { background: var(--c3); box-shadow: 0 0 10px rgba(255,152,0,0.3); }
+    .progress-fill.s4 { background: var(--c4); box-shadow: 0 0 10px rgba(14,165,233,0.3); }
+
+    /* ── PRE-REQ BANNER ── */
+    .prereq { max-width: 900px; margin: 0 auto 30px; padding: 0 24px; position: relative; z-index: 2; }
+    .prereq-inner {
+      background: linear-gradient(90deg, rgba(243, 112, 33, 0.05), rgba(0, 176, 240, 0.03));
+      border: 1px solid rgba(243, 112, 33, 0.15);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex; gap: 16px; align-items: flex-start;
+      backdrop-filter: blur(10px);
+    }
+    .prereq-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .prereq-content { flex: 1; }
+    .prereq-title { font-size: 0.95rem; font-weight: 800; color: var(--c1); margin-bottom: 12px; }
+    .prereq-list { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; }
+    .prereq-list li {
+      background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 8px;
+      padding: 6px 14px; font-size: 0.85rem; color: var(--text-main); display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02); font-weight: 500;
+    }
+    .anim-icon { width: 16px; height: 16px; display: inline-block; }
+
+    /* ── MAIN CONTENT ── */
+    main { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 2; }
+
+    .tab-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tab-panel.active { display: block; opacity: 1; transform: translateY(0) scale(1); }
+
+    /* ── STEP CARD (GLASSMORPHISM) ── */
+    .step-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .step-head {
+      padding: 30px 32px;
+      display: flex; align-items: center; gap: 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      position: relative; overflow: hidden;
+    }
+    .step-head::after {
+      content: ''; position: absolute; right: -50px; top: -50px; width: 150px; height: 150px;
+      border-radius: 50%; opacity: 0.08; filter: blur(30px);
+    }
+    
+    .step-num {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 900; flex-shrink: 0; z-index: 1;
+    }
+    .step-titles { z-index: 1; flex: 1; }
+    .step-titles h2 { font-size: 1.5rem; font-weight: 800; line-height: 1.3; color: var(--text-main); margin-bottom: 4px; }
+    .step-titles small { font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; font-weight: 500;}
+    .step-tag {
+      padding: 6px 16px; border-radius: 30px; font-size: 0.8rem; font-weight: 700;
+      white-space: nowrap; z-index: 1; border: 1px solid transparent;
+    }
+
+    /* Step Color Accents */
+    .step-card.s1 .step-head { background: linear-gradient(135deg, rgba(243,112,33,0.05), transparent); }
+    .step-card.s1 .step-head::after { background: var(--c1); }
+    .step-card.s1 .step-num { background: linear-gradient(135deg, var(--c1), #ea580c); color: #fff; box-shadow: 0 4px 10px rgba(243,112,33,0.3); }
+    .step-card.s1 .step-tag { background: rgba(243,112,33,0.1); color: var(--c1); border-color: rgba(243,112,33,0.2); }
+
+    .step-card.s2 .step-head { background: linear-gradient(135deg, rgba(0,176,240,0.05), transparent); }
+    .step-card.s2 .step-head::after { background: var(--c2); }
+    .step-card.s2 .step-num { background: linear-gradient(135deg, var(--c2), #0284c7); color: #fff; box-shadow: 0 4px 10px rgba(0,176,240,0.3); }
+    .step-card.s2 .step-tag { background: rgba(0,176,240,0.1); color: var(--c2); border-color: rgba(0,176,240,0.2); }
+
+    .step-card.s3 .step-head { background: linear-gradient(135deg, rgba(255,152,0,0.05), transparent); }
+    .step-card.s3 .step-head::after { background: var(--c3); }
+    .step-card.s3 .step-num { background: linear-gradient(135deg, var(--c3), #f57c00); color: #fff; box-shadow: 0 4px 10px rgba(255,152,0,0.3); }
+    .step-card.s3 .step-tag { background: rgba(255,152,0,0.1); color: var(--c3); border-color: rgba(255,152,0,0.2); }
+
+    .step-card.s4 .step-head { background: linear-gradient(135deg, rgba(14,165,233,0.05), transparent); }
+    .step-card.s4 .step-head::after { background: var(--c4); }
+    .step-card.s4 .step-num { background: linear-gradient(135deg, var(--c4), #0284c7); color: #fff; box-shadow: 0 4px 10px rgba(14,165,233,0.3); }
+    .step-card.s4 .step-tag { background: rgba(14,165,233,0.1); color: var(--c4); border-color: rgba(14,165,233,0.2); }
+
+    .step-body { padding: 32px; }
+
+    /* ── IO ROW (Input/Output) ── */
+    .io-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+    .io-box {
+      background: #ffffff; border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 12px; padding: 18px 20px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .io-box::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    }
+    .io-box:nth-child(1)::before { background: #94a3b8; }
+    .step-card.s1 .io-box:nth-child(2)::before { background: var(--c1); }
+    .step-card.s2 .io-box:nth-child(2)::before { background: var(--c2); }
+    .step-card.s3 .io-box:nth-child(2)::before { background: var(--c3); }
+    .step-card.s4 .io-box:nth-child(2)::before { background: var(--c4); }
+    
+    .io-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .io-value { font-size: 1rem; color: var(--text-main); font-weight: 600; }
+
+    /* ── TYPOGRAPHY & LABELS ── */
+    .section-label {
+      font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+      color: #64748b; margin: 32px 0 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.06); }
+
+    /* ── PROMPT BOX (Light IDE Style) ── */
+    .prompt-wrap {
+      border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 12px; background: #ffffff;
+    }
+    .prompt-bar {
+      background: #f1f5f9; border-bottom: 1px solid rgba(0,0,0,0.06);
+      padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .mac-dots { display: flex; gap: 6px; }
+    .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mac-dot:nth-child(1) { background: #ef4444; }
+    .mac-dot:nth-child(2) { background: #f59e0b; }
+    .mac-dot:nth-child(3) { background: #10b981; }
+    
+    .prompt-bar-name { font-size: 0.8rem; color: #475569; font-family: 'Fira Code', monospace; flex: 1; text-align: center; font-weight: 600;}
+    
+    .copy-btn {
+      background: #ffffff; border: 1px solid #cbd5e1;
+      border-radius: 6px; color: #475569; padding: 6px 14px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .copy-btn:hover { background: #e2e8f0; color: #0f172a; }
+    .copy-btn.ok  { background: rgba(243,112,33,0.1); border-color: rgba(243,112,33,0.3); color: #ea580c; }
+    
+    .prompt-text {
+      padding: 24px; font-family: 'Fira Code', Consolas, monospace; font-size: 0.9rem;
+      line-height: 1.8; color: #334155; white-space: pre-wrap; word-break: break-word;
+      max-height: 450px; overflow-y: auto; background: #f8fafc;
+    }
+    .prompt-text strong { color: #0f172a; font-weight: 700; }
+    .prompt-text .highlight { color: #ea580c; background: rgba(243,112,33,0.1); padding: 0 4px; border-radius: 4px;}
+
+    /* ── STEPS LIST ── */
+    .steps-ol { list-style: none; counter-reset: expert-step; }
+    .steps-ol li {
+      position: relative; padding: 16px 0 16px 50px; font-size: 0.95rem; color: #334155;
+      border-bottom: 1px solid rgba(0,0,0,0.05); font-weight: 500;
+    }
+    .steps-ol li:last-child { border-bottom: none; }
+    .steps-ol li::before {
+      counter-increment: expert-step; content: counter(expert-step);
+      position: absolute; left: 0; top: 16px; width: 32px; height: 32px;
+      background: #f1f5f9; border: 1px solid #e2e8f0;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #64748b; font-family: 'Fira Code', monospace;
+    }
+    .steps-ol li strong { color: #0f172a; font-weight: 700; }
+
+    /* ── CANVA GRID ── */
+    .canva-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .canva-tile {
+      background: #ffffff; border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 16px; padding: 20px 16px; text-align: center;
+      transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    }
+    .canva-tile:hover { transform: translateY(-4px); background: #f8fafc; border-color: rgba(0,176,240,0.3); box-shadow: 0 10px 20px rgba(0,176,240,0.1); }
+    .canva-tile .ti { height: 40px; margin-bottom: 12px; display: flex; justify-content: center; }
+    .canva-tile .tt { font-size: 0.9rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+    .canva-tile .td { font-size: 0.8rem; color: #64748b; line-height: 1.5; font-weight: 500;}
+
+    /* ── OUTPUT PREVIEW ── */
+    .output-prev {
+      background: #ffffff; border: 1px dashed rgba(0,0,0,0.15);
+      border-radius: 12px; padding: 20px; margin: 16px 0; position: relative;
+    }
+    .output-prev::before {
+      content: 'Output Preview'; position: absolute; top: -10px; left: 16px;
+      background: #ffffff; padding: 0 8px; font-size: 0.7rem; color: #94a3b8; font-family: monospace; font-weight: 600;
+    }
+    .output-prev-body { font-size: 0.9rem; color: #475569; line-height: 1.8; font-weight: 500;}
+    .output-prev-body strong { color: var(--c1); font-weight: 700;}
+
+    /* ── NAV BUTTONS ── */
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; gap: 16px; }
+    .nav-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 32px; border-radius: 12px;
+      border: 1px solid #cbd5e1; background: #ffffff;
+      color: #334155; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .nav-btn:hover:not(:disabled) { transform: translateY(-2px); background: #f8fafc; border-color: #94a3b8; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
+    .nav-btn.primary { background: linear-gradient(135deg, var(--c1), #ea580c); border: none; color: #fff; box-shadow: 0 4px 15px rgba(243,112,33,0.3); }
+    .nav-btn.primary:hover:not(:disabled) { box-shadow: 0 8px 25px rgba(243,112,33,0.4); filter: brightness(1.05); }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 40px 24px; border-top: 1px solid var(--border);
+      color: #64748b; font-size: 0.85rem; position: relative; z-index: 1; margin-top: 40px;
+      font-weight: 500;
+      line-height: 1.8;
+    }
+    footer span { color: var(--text-main); font-weight: 600; }
+
+    /* ── CUSTOM SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-main); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+
+    /* ── RESPONSIVE FIXES ── */
+    @media (max-width: 768px) {
+      .flow-strip { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 24px 16px; }
+      .flow-card { padding: 16px 12px; }
+      .flow-tool { font-size: 1rem; }
+      .flow-icon-wrap { width: 60px; height: 60px; }
+      .tool-logo { width: 32px; height: 32px; }
+      .s4 .tool-logo { width: 44px; }
+      .flow-desc { font-size: 0.75rem; }
+      
+      .io-row { grid-template-columns: 1fr; gap: 12px; }
+      .step-head { flex-direction: column; align-items: flex-start; gap: 16px; padding: 24px; }
+      .step-tag { position: absolute; top: 24px; right: 24px; }
+      .nav-buttons { flex-direction: column; width: 100%; }
+      .nav-btn { width: 100%; padding: 16px; }
+      header h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+<div class="bg-svg-container">
+  <svg class="floating-element" style="top: 10%; left: 5%; width: 120px;" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="40" fill="none" stroke="#00B0F0" stroke-width="1.5" stroke-dasharray="10 15"/>
+    <circle cx="50" cy="50" r="20" fill="none" stroke="#F37021" stroke-width="1"/>
+  </svg>
+  <svg class="floating-element" style="top: 60%; right: 10%; width: 180px; animation-duration: 30s;" viewBox="0 0 100 100">
+    <polygon points="50,10 90,90 10,90" fill="none" stroke="#FF9800" stroke-width="1" opacity="0.4"/>
+  </svg>
+  <svg class="floating-element" style="bottom: 5%; left: 20%; width: 100px; animation-duration: 25s; animation-direction: reverse;" viewBox="0 0 100 100">
+    <rect x="20" y="20" width="60" height="60" fill="none" stroke="#0ea5e9" stroke-width="1.5" transform="rotate(45 50 50)"/>
+  </svg>
+</div>
+
+<header>
+  <h1>AI 音樂 MV 製作大師課</h1>
+  <p class="subtitle">從歌詞概念到高質感 MV</p>
+</header>
+
+<div class="flow-strip">
+  
+  <div class="flow-card s1 active" data-tab="1" onclick="switchTab(1)">
+    <div class="flow-icon-wrap">
+      <svg class="icon-ring" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#F37021" stroke-width="2" stroke-dasharray="8 8" opacity="0.4">
+          <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="15s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#F37021" stroke-width="1" opacity="0.2"/>
+      </svg>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/OpenAI_logo_2025_%28symbol%29.svg/330px-OpenAI_logo_2025_%28symbol%29.svg.png" class="tool-logo" alt="ChatGPT">
+    </div>
+    <div class="flow-meta">
+      <div class="flow-step">Step 1</div>
+      <div class="flow-tool">ChatGPT</div>
+      <div class="flow-desc">專業分鏡腳本企劃</div>
+    </div>
+  </div>
+
+  <div class="flow-card s2" data-tab="2" onclick="switchTab(2)">
+    <div class="flow-icon-wrap">
+      <svg class="icon-ring" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#00B0F0" stroke-width="2" stroke-dasharray="30 10" opacity="0.4">
+          <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="20s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#00B0F0" stroke-width="1" stroke-dasharray="5 5" opacity="0.3">
+          <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="10s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Google-gemini-icon.svg/250px-Google-gemini-icon.svg.png" class="tool-logo" alt="Gemini">
+    </div>
+    <div class="flow-meta">
+      <div class="flow-step">Step 2</div>
+      <div class="flow-tool">Gemini</div>
+      <div class="flow-desc">電影級分鏡圖生成</div>
+    </div>
+  </div>
+
+  <div class="flow-card s3" data-tab="3" onclick="switchTab(3)">
+    <div class="flow-icon-wrap">
+      <svg class="icon-ring" viewBox="0 0 100 100">
+        <rect x="8" y="8" width="84" height="84" rx="20" fill="none" stroke="#FF9800" stroke-width="2" opacity="0.3" stroke-dasharray="15 15">
+          <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="25s" repeatCount="indefinite" />
+        </rect>
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#FF9800" stroke-width="1" opacity="0.2">
+          <animate attributeName="r" values="45; 42; 45" dur="3s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Grok-icon.svg/3840px-Grok-icon.svg.png" class="tool-logo" alt="Grok">
+    </div>
+    <div class="flow-meta">
+      <div class="flow-step">Step 3</div>
+      <div class="flow-tool">Grok</div>
+      <div class="flow-desc">高保真動態影片運算</div>
+    </div>
+  </div>
+
+  <div class="flow-card s4" data-tab="4" onclick="switchTab(4)">
+    <div class="flow-icon-wrap">
+      <svg class="icon-ring" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#0ea5e9" stroke-width="2" opacity="0.6">
+          <animate attributeName="r" values="30; 48; 30" dur="4s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.8; 0; 0.8" dur="4s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.4">
+          <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="-360 50 50" dur="30s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+      <img src="https://logos-world.net/wp-content/uploads/2020/02/Canva-New-Logo.png" class="tool-logo" alt="Canva">
+    </div>
+    <div class="flow-meta">
+      <div class="flow-step">Step 4</div>
+      <div class="flow-tool">Canva</div>
+      <div class="flow-desc">節拍同步專業剪輯</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar">
+    <div class="progress-fill s1" id="progressFill"></div>
+  </div>
+</div>
+
+<div class="prereq">
+  <div class="prereq-inner">
+    <div class="prereq-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        <animateTransform attributeName="transform" type="translate" values="0,0; 0,-3; 0,0" dur="3s" repeatCount="indefinite"/>
+      </svg>
+    </div>
+    <div class="prereq-content">
+      <div class="prereq-title">製片前置作業 (Pre-production Checklist)</div>
+      <ul class="prereq-list">
+        <li>
+          <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><animateTransform attributeName="transform" type="scale" values="1; 1.1; 1" dur="2s" repeatCount="indefinite"/></svg>
+          Suno / Udio 生成的音樂檔
+        </li>
+        <li>
+          <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/><animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" stroke-dasharray="100"/></svg>
+          完整歌詞文本與段落
+        </li>
+        <li>
+          <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><animateTransform attributeName="transform" type="translate" values="0,0; 0,2; 0,0" dur="4s" repeatCount="indefinite"/></svg>
+          ChatGPT 帳號
+        </li>
+        <li>
+          <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="15 12 12" dur="2s" repeatCount="indefinite" direction="alternate"/></svg>
+          Google Gemini 帳號
+        </li>
+        <li>
+          <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/><animate attributeName="opacity" values="1; 0.4; 1" dur="1.5s" repeatCount="indefinite"/></svg>
+          X Premium (Grok 權限)
+        </li>
+        <li>
+          <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/><animate attributeName="stroke-dasharray" values="0,20; 20,0; 0,20" dur="4s" repeatCount="indefinite"/></svg>
+          Canva 免費帳號
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <div class="tab-panel active" id="tab1">
+    <div class="step-card s1">
+      <div class="step-head">
+        <div class="step-num">1</div>
+        <div class="step-titles">
+          <h2>導演級企劃：ChatGPT 分鏡腳本生成</h2>
+          <small>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+            工具：ChatGPT (GPT-4o)
+          </small>
+        </div>
+        <div class="step-tag">Director's Script</div>
+      </div>
+      <div class="step-body">
+        <div class="io-row">
+          <div class="io-box">
+            <div class="io-label">📥 Input 你的輸入</div>
+            <div class="io-value">歌曲曲風設定 + 完整歌詞</div>
+          </div>
+          <div class="io-box">
+            <div class="io-label">📤 Output 你將得到</div>
+            <div class="io-value">具備「角色設定基準提示詞、鏡位、光影」的分鏡表</div>
+          </div>
+        </div>
+
+        <div class="section-label">📋 ChatGPT 專業導演提詞模板 (Prompt)</div>
+        <div class="prompt-wrap">
+          <div class="prompt-bar">
+            <div class="mac-dots"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
+            <span class="prompt-bar-name">director_script_prompt.txt</span>
+            <button class="copy-btn" data-target="p1">複製提詞</button>
+          </div>
+          <div class="prompt-text" id="p1">你現在是一位榮獲多項大獎的專業 MV 導演。我需要你根據以下歌詞，為我規劃一個充滿電影感且視覺張力極強的 MV 分鏡腳本。
+
+歌曲名稱：<span class="highlight">【在此填入歌名】</span>
+曲風與情緒：<span class="highlight">【例如：賽博龐克電子樂 / 憂鬱抒情 / 史詩搖滾】</span>
+歌詞：
+<span class="highlight">【在此貼上完整歌詞】</span>
+
+請按照以下步驟進行企劃規劃：
+
+第一步：【主要角色設定 (Character Design)】
+請設計 MV 中的主要角色（可依歌詞情境設定一位或多位）。
+針對「每一位」角色，請提供：
+1. 一段「純英文」的極度詳細外貌特徵描述（包含性別、年齡、髮型、髮色、服裝、配件等）。這段文字將作為後續場景提示詞的共同開頭。
+2. 撰寫一組用於生成「角色基準墊圖」的【角色設定圖提示詞 (Character Sheet Prompt)】。必須包含：該角色的詳細外貌描述、要求多角度視圖 (multiple angles, character design sheet)、設定為純白背景 (solid white background)，以便後續作為 AI 生圖的參考標準。
+
+第二步：【分鏡規劃】
+請按照歌詞段落（前奏、主歌、副歌等）精準分段。一首3分鐘的歌約需 12-15 個分鏡。
+每個分鏡必須包含以下四個要素：
+1. 【畫面與情緒描述】：以繁體中文描述場景細節、人物動作與傳達的情感氛圍。
+2. 【攝影機運動】：指定運鏡方式（如：Dolly in, Pan right, Handheld）。
+3. 【光影設定】：指定光線氛圍（如：Cinematic lighting, Neon glow）。
+4. 【AI 繪圖提示詞】：請用「純英文」撰寫詳細提示詞（至少 60-80 個單字），包含場景環境、光線與景深設定。**請務必將第一步的【外貌特徵描述】放在這段提示詞的最前面。**
+
+第三步：【全局視覺一致性建議】
+請列出固定的風格詞彙（如畫質、比例 --ar 16:9、整體色調），讓我能加在每個圖片提示詞的結尾。</div>
+        </div>
+
+        <div class="output-prev">
+          <div class="output-prev-body">
+            <strong>🎵 第一步：主要角色設定</strong><br>
+            【男主角：Leo】<br>
+            ● 外貌特徵：A 20-year-old Asian young man, messy black hair, wearing a loose black hoodie and silver necklace...<br>
+            ● 角色設定圖提示詞：Character design sheet of a 20-year-old Asian young man... multiple angles, front view, side view, solid white background, flat lighting, clear facial features.<br><br>
+            <strong>🎵 第二步：分鏡規劃（副歌 1:12 ～ 1:35）</strong><br>
+            【分鏡 4】<br>
+            ● 畫面描述：Leo 站在霓虹閃爍的雨中街道，抬頭看著天空。<br>
+            ● AI 繪圖提示詞：A 20-year-old Asian young man, messy black hair, wearing a loose black hoodie... standing in a neon-lit cyberpunk street in the rain, looking up at the sky, cinematic lighting, neon reflections...
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" disabled>上一步</button>
+          <button class="nav-btn primary" onclick="switchTab(2)">下一步：Gemini 生圖 ➔</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab2">
+    <div class="step-card s2">
+      <div class="step-head">
+        <div class="step-num">2</div>
+        <div class="step-titles">
+          <h2>視覺具象化：Gemini 生圖</h2>
+          <small>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            工具：Google Gemini
+          </small>
+        </div>
+        <div class="step-tag">Visual Generation</div>
+      </div>
+      <div class="step-body">
+        <div class="io-row">
+          <div class="io-box">
+            <div class="io-label">📥 Input</div>
+            <div class="io-value">「角色設定圖提示詞」+「分鏡提示詞」+「風格詞」</div>
+          </div>
+          <div class="io-box">
+            <div class="io-label">📤 Output</div>
+            <div class="io-value">角色基準圖 + 人物特徵高度一致的分鏡靜態圖</div>
+          </div>
+        </div>
+
+        <div class="section-label">🔧 影像生成與人物一致性操作流程</div>
+        <ol class="steps-ol">
+          <li>開啟 Gemini，下方工具選建立圖像，右邊選快捷即可。</li>
+          <li><strong>【階段一：生成角色基準圖】</strong>將 Step 1 產生的【角色設定圖提示詞】複製貼上給 Gemini。如果有多位角色，請分別為他們生成基準圖。從結果中挑選最滿意的角色圖下載，並命名備用（例如 <code>Char_Leo.jpg</code>）。</li>
+          <li><strong>【階段二：依基準圖生成分鏡】</strong>這一步是保持人物一致性的核心！點擊 Gemini 對話框的「+」或圖片上傳按鈕，上傳你剛剛下載好的【角色基準圖】。</li>
+          <li>上傳圖片後，在同一個對話框中貼上 Step 1 該分鏡的【AI 繪圖提示詞】，並在最前面加上指令：<code>Keep the character exactly the same as the uploaded image.</code>（保持人物與上傳圖片完全一致）。</li>
+          <li>記得在提示詞最後面加上【全局風格詞】以及比例設定 <code>--ar 16:9</code> 或 <code>wide 16:9 aspect ratio</code>，確保畫風統一，然後送出生成。</li>
+          <li>針對每一個分鏡重複步驟 3-5 (每次都要附上角色基準圖)。將滿意的場景圖下載並嚴格命名（如 <code>Shot_01.jpg</code>），以利後續作業。</li>
+        </ol>
+
+        <div class="section-label">🎨 提升質感的神級咒語後綴 (Style Modifiers)</div>
+        <div class="prompt-wrap">
+          <div class="prompt-bar">
+            <div class="mac-dots"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
+            <span class="prompt-bar-name">cinematic_modifiers.txt</span>
+            <button class="copy-btn" data-target="p2">複製</button>
+          </div>
+          <div class="prompt-text" id="p2">── 無論你生什麼圖，把符合曲風的這段加在提示詞最後，質感直接升級 ──
+
+【好萊塢電影質感 (Cinematic Realism)】
+, shot on ARRI Alexa 65, cinematic color grading, 8k resolution, photorealistic, dramatic lighting, volumetric fog, sharp focus, hyper-detailed, masterpiece, 16:9 aspect ratio.
+
+【日系新海誠動畫風 (Anime Masterpiece)】
+, Makoto Shinkai style, Studio Ghibli, breathtaking anime background, vibrant colors, beautiful lighting, cinematic anime sky, highly detailed illustration, 16:9 aspect ratio.
+
+【賽博龐克/科幻 (Sci-Fi Cyberpunk)】
+, cyberpunk aesthetic, unreal engine 5 render, neon illumination, ray tracing, futuristic, dark and moody, high contrast, 16:9 aspect ratio.</div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="switchTab(1)">🡨 上一步：分鏡腳本</button>
+          <button class="nav-btn primary" onclick="switchTab(3)">下一步：Grok 動態化 ➔</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab3">
+    <div class="step-card s3">
+      <div class="step-head">
+        <div class="step-num">3</div>
+        <div class="step-titles">
+          <h2>賦予生命：Grok 圖生影片運算</h2>
+          <small>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 8 6 4-6 4Z"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>
+            工具：X (Twitter) / Grok AI Video
+          </small>
+        </div>
+        <div class="step-tag">Motion Computing</div>
+      </div>
+      <div class="step-body">
+        <div class="io-row">
+          <div class="io-box">
+            <div class="io-label">📥 Input</div>
+            <div class="io-value">Step 2 分鏡圖片 + Step 1 攝影機運動指令</div>
+          </div>
+          <div class="io-box">
+            <div class="io-label">📤 Output</div>
+            <div class="io-value">流暢無變形的 4-5 秒高畫質短片 (MP4)</div>
+          </div>
+        </div>
+
+        <div class="section-label">🔧 動態運算操作流程</div>
+        <ol class="steps-ol">
+          <li>開啟 Grok 介面，先點擊左邊的 imagine 模式，上傳 Gemini 生成的分鏡圖片，下方選「生成影片」。</li>
+          <li>在對話框中，我們不需要描述畫面內容（圖片已經有了），我們只需要<strong>指揮攝影機和動態</strong>。</li>
+          <li>參考 Step 1 腳本中的【攝影機運動】，轉換為簡短有力的動態提示詞輸入給 Grok。</li>
+          <li>檢視生成的影片。如果人物臉部扭曲或背景崩壞，立刻減少動態幅度重新生成（加入 <code>subtle motion</code>）。</li>
+          <li>滿意後下載，嚴格命名為 <strong>Clip_01.mp4</strong>。依序處理完所有鏡頭。</li>
+        </ol>
+
+        <div class="section-label">🎬 動態提示詞秘笈 (Motion Prompts)</div>
+        <div class="prompt-wrap">
+          <div class="prompt-bar">
+            <div class="mac-dots"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
+            <span class="prompt-bar-name">grok_motion_prompts.txt</span>
+            <button class="copy-btn" data-target="p3">複製</button>
+          </div>
+          <div class="prompt-text" id="p3">將圖片餵給 Grok 時，使用這類簡短精準的指令控制動態：
+
+【靜態場景 / 緩慢氛圍】
+Subtle motion, slow pan to the right, hair blowing gently in the wind, atmospheric particles floating.
+
+【強烈情緒 / 推進】
+Slow dolly in towards the character's face, cinematic depth of field transition, intense gaze, subtle blinking.
+
+【大景 / 空拍視角】
+Drone shot, slow tracking forward over the landscape, clouds moving slowly in the background.
+
+【防崩壞保命咒語 (如果 Grok 算壞了加這句)】
+Minimal movement, completely static face, only background elements moving subtly, high coherence.</div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="switchTab(2)">🡨 上一步：Gemini 生圖</button>
+          <button class="nav-btn primary" onclick="switchTab(4)">下一步：Canva 剪輯 ➔</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab4">
+    <div class="step-card s4">
+      <div class="step-head">
+        <div class="step-num">4</div>
+        <div class="step-titles">
+          <h2>魔法拼圖：Canva 節拍同步剪輯</h2>
+          <small>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            工具：Canva 影片專案 (支援多軌剪輯)
+          </small>
+        </div>
+        <div class="step-tag">Post-Production</div>
+      </div>
+      <div class="step-body">
+        
+        <div class="canva-grid">
+          <div class="canva-tile">
+            <div class="ti">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="10s" repeatCount="indefinite"/></svg>
+            </div>
+            <div class="tt">建立畫布</div>
+            <div class="td">選「影片 1920x1080」確保畫質</div>
+          </div>
+          <div class="canva-tile">
+            <div class="ti">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><animateTransform attributeName="transform" type="translate" values="0,-2; 0,2; 0,-2" dur="2s" repeatCount="indefinite"/></svg>
+            </div>
+            <div class="tt">匯入素材</div>
+            <div class="td">MP4 短片與 Suno 產出的 MP3</div>
+          </div>
+          <div class="canva-tile">
+            <div class="ti">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><animate attributeName="opacity" values="0.6; 1; 0.6" dur="1.5s" repeatCount="indefinite"/></svg>
+            </div>
+            <div class="tt">鋪設音軌</div>
+            <div class="td">展開音訊波形，尋找重拍點</div>
+          </div>
+          <div class="canva-tile">
+            <div class="ti">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/><animateTransform attributeName="transform" type="scale" values="1; 1.1; 1" dur="2s" repeatCount="indefinite"/></svg>
+            </div>
+            <div class="tt">節拍同步 (Beat Sync)</div>
+            <div class="td">讓畫面切換點精準落在鼓點上</div>
+          </div>
+          <div class="canva-tile">
+            <div class="ti">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="180 12 12" dur="4s" repeatCount="indefinite"/></svg>
+            </div>
+            <div class="tt">轉場設計</div>
+            <div class="td">避免濫用轉場，90%使用「硬切(Cut)」</div>
+          </div>
+          <div class="canva-tile">
+            <div class="ti">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/><animate attributeName="stroke-dasharray" values="0,50; 50,0; 0,50" dur="3s" repeatCount="indefinite"/></svg>
+            </div>
+            <div class="tt">質感字幕</div>
+            <div class="td">使用無襯線字體，加微透明黑底</div>
+          </div>
+        </div>
+
+        <div class="section-label">🔧 剪輯與同步操作流程</div>
+        <ol class="steps-ol">
+          <li><strong>鋪設基底：</strong> 將 MP3 音樂拖到最下方的音訊軌。點擊音軌兩下，放大波形圖 (Waveform)。</li>
+          <li><strong>尋找節奏：</strong> 觀察波形圖上突起的尖峰，那些通常是鼓點 (Kick/Snare) 或是歌手換氣唱歌的起點。</li>
+          <li><strong>對拍剪輯：</strong> 將你的影片片段拖入時間軸。拖動片段的邊緣，讓片段結束與下一段開始的交界線，剛剛好對齊音軌波形的「尖峰」。這種在音樂重拍上切換畫面的手法，能大幅提升專業感。</li>
+          <li><strong>轉場的克制：</strong> 專業 MV 中 90% 的切換都是「直接切 (Hard Cut)」。只有在段落轉換（如：主歌進副歌）或情緒轉折時，才使用「淡入/淡出 (Cross Dissolve)」。</li>
+          <li><strong>顏色統一：</strong> 如果發現某段影片顏色突兀，使用 Canva 內建的「影片編輯」>「調整」，拉低飽和度或調整色溫，讓整支 MV 色調一致。</li>
+          <li><strong>匯出：</strong> 確認頭尾不突兀後，點擊右上角分享 > 下載 > MP4 格式 (1080p)。</li>
+        </ol>
+
+        <div class="nav-buttons">
+          <button class="nav-btn" onclick="switchTab(3)">🡨 上一步：Grok 動態化</button>
+          <button class="nav-btn primary" disabled style="opacity: 1; cursor: default; background: linear-gradient(135deg, #F37021, #ea580c); box-shadow: 0 0 20px rgba(243,112,33,0.3);">
+            🎉 恭喜！你的 MV 完成了
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p style="font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 8px;">AI 音樂 MV 專業製片工作流</p>
+  <p style="margin-bottom: 16px;"><span>ChatGPT</span> 企劃腳本 ➔ <span>Gemini</span> 電影級生圖 ➔ <span>Grok</span> 動態運算 ➔ <span>Canva</span> 對拍剪輯</p>
+  <p>桃園市立觀音高中物理科林仟弘製作 | <a href="https://guidephy.github.io/" target="_blank" style="color: var(--c1); text-decoration: none; font-weight: bold;">Guidephy</a></p>
+</footer>
+
+<script>
+  // Dynamic Cursor Glow Effect
+  const glow = document.getElementById('cursor-glow');
+  document.addEventListener('mousemove', (e) => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+
+  // Tab switching logic
+  function switchTab(num) {
+    const panels = document.querySelectorAll('.tab-panel');
+    panels.forEach(p => {
+      p.classList.remove('active');
+      p.style.display = 'none'; 
+    });
+    
+    const targetPanel = document.getElementById('tab' + num);
+    targetPanel.style.display = 'block';
+    void targetPanel.offsetWidth;
+    targetPanel.classList.add('active');
+
+    document.querySelectorAll('.flow-card').forEach(c => c.classList.remove('active'));
+    document.querySelector('.flow-card[data-tab="' + num + '"]').classList.add('active');
+
+    const fill = document.getElementById('progressFill');
+    fill.style.width = (num * 25) + '%';
+    fill.className = 'progress-fill s' + num;
+
+    window.scrollTo({ 
+      top: document.querySelector('.flow-strip').offsetTop - 30, 
+      behavior: 'smooth' 
+    });
+  }
+
+  // Copy buttons interaction
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-target');
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('ok');
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove('ok');
+        }, 2000);
+      });
+    });
+  });
+
+  // Keyboard navigation for power users
+  document.addEventListener('keydown', (e) => {
+    const current = document.querySelector('.tab-panel.active');
+    if (!current) return;
+    const num = parseInt(current.id.replace('tab', ''));
+    if (e.key === 'ArrowRight' && num < 4) switchTab(num + 1);
+    if (e.key === 'ArrowLeft' && num > 1) switchTab(num - 1);
+  });
+</script>
+</body>
+</html>
