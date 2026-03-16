@@ -328,16 +328,80 @@
             <p class="text-slate-400 font-medium italic">即將發布你的網頁到全世界...</p>
         </div>
         <section id="step-4" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
-            <div class="flex items-center gap-4 mb-6 text-slate-800">
+            <div class="flex items-center gap-4 mb-8 text-slate-800">
                 <div class="p-3 bg-slate-100 rounded-2xl shadow-inner">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 </div>
-                <h2 class="text-3xl font-bold">4. GitHub 上架三部曲</h2>
+                <h2 class="text-3xl font-bold">4. 上架Github</h2>
             </div>
-            <div class="space-y-6">
-                <div class="flex gap-4"><span class="w-8 h-8 flex-shrink-0 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span><p class="text-slate-600"><b>建立 Repository</b>：命名為 <code class="bg-slate-100 px-1">my-page</code>，設為 <b>Public</b>。</p></div>
-                <div class="flex gap-4"><span class="w-8 h-8 flex-shrink-0 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span><p class="text-slate-600"><b>上傳檔案</b>：將檔名命名為 <code class="font-bold text-red-500 underline">index.html</code> 後上傳。</p></div>
-                <div class="flex gap-4"><span class="w-8 h-8 flex-shrink-0 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span><p class="text-slate-600"><b>啟動網站</b>：Settings → Pages → Branch 選 <b>main</b> → Save。</p></div>
+            
+            <!-- 動態 SVG 流程圖 -->
+            <div class="mb-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <h4 class="font-bold text-center mb-6 text-slate-700 flex items-center justify-center gap-2 text-lg">
+                    <!-- GitHub Icon -->
+                    <svg class="w-6 h-6 text-slate-700" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"></path></svg>
+                    GitHub 上架四部曲
+                </h4>
+                <style>
+                    .flow4-line { stroke-dasharray: 140; stroke-dashoffset: 140; fill: none; stroke: #cbd5e1; stroke-width: 4; stroke-linecap: round; }
+                    .flow4-node { opacity: 0; transform-origin: center; }
+                    .flow4-text { opacity: 0; }
+                    
+                    /* 動畫順序與延遲設定 */
+                    .step4-1 .flow4-node { animation: popNode 0.5s 0.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-1 .flow4-text { animation: fadeUp 0.5s 0.3s forwards ease-out; }
+                    .line4-1 { animation: drawLine 0.6s 0.7s forwards ease-in-out; }
+                    
+                    .step4-2 .flow4-node { animation: popNode 0.5s 1.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-2 .flow4-text { animation: fadeUp 0.5s 1.4s forwards ease-out; }
+                    .line4-2 { animation: drawLine 0.6s 1.8s forwards ease-in-out; }
+                    
+                    .step4-3 .flow4-node { animation: popNode 0.5s 2.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-3 .flow4-text { animation: fadeUp 0.5s 2.5s forwards ease-out; }
+                    .line4-3 { animation: drawLine 0.6s 2.9s forwards ease-in-out; }
+                    
+                    .step4-4 .flow4-node { animation: popNode 0.5s 3.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-4 .flow4-text { animation: fadeUp 0.5s 3.6s forwards ease-out; }
+                </style>
+                <svg viewBox="0 0 600 120" class="w-full h-auto drop-shadow-sm">
+                    <!-- 連接線 -->
+                    <path class="flow4-line line4-1" d="M 90 40 L 210 40" />
+                    <path class="flow4-line line4-2" d="M 250 40 L 370 40" />
+                    <path class="flow4-line line4-3" d="M 410 40 L 530 40" />
+                    
+                    <!-- 節點 1 -->
+                    <g class="step4-1" transform="translate(60, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#334155" />
+                        <text class="flow4-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">1</text>
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">申請帳號</text>
+                    </g>
+                    <!-- 節點 2 -->
+                    <g class="step4-2" transform="translate(220, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#334155" />
+                        <text class="flow4-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">2</text>
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">建立 Repository</text>
+                    </g>
+                    <!-- 節點 3 -->
+                    <g class="step4-3" transform="translate(380, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#334155" />
+                        <text class="flow4-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">3</text>
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">上傳網頁</text>
+                    </g>
+                    <!-- 節點 4 -->
+                    <g class="step4-4" transform="translate(540, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#10b981" />
+                        <path class="flow4-node" d="M-6-1 l4 4 l8-8" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">設定發佈</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- 嵌入 Canva 簡報 -->
+            <div class="w-full transform hover:scale-[1.01] transition-transform duration-300 border-t border-slate-100 pt-8 mt-4">
+                <h4 class="font-bold text-center mb-4 text-slate-500">操作提示與範例解析</h4>
+                <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden; border-radius: 8px; will-change: transform;">
+                    <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;" src="https://www.canva.com/design/DAHEBo1ZKWg/vzZJSIabNEBhPCwmwHzoug/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
+                </div>
             </div>
         </section>
 
