@@ -26,6 +26,14 @@
         /* 新增：卡片玻璃擬物化與懸浮動畫 */
         .section-card { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.7); backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85); }
         .section-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); }
+
+        /* 新增：標題圖示專屬動態效果 */
+        .anim-float { animation: float-up-down 3s ease-in-out infinite; }
+        .anim-wiggle { animation: wiggle-icon 2.5s ease-in-out infinite; }
+        .anim-pulse-scale { animation: pulse-scale 2s ease-in-out infinite; }
+        @keyframes float-up-down { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes wiggle-icon { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+        @keyframes pulse-scale { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
     </style>
 </head>
 <body class="pb-32 relative">
@@ -42,9 +50,36 @@
         <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-1000" style="width: 20%"></div>
     </div>
 
-    <header class="py-12 px-4 text-center bg-white shadow-sm mb-12">
-        <h1 class="text-4xl font-black text-slate-800 mb-4">🚀 <span class="gradient-text">教學網頁：開啟無限可能</span></h1>
-        <p id="status-text" class="text-slate-500 text-sm flex items-center justify-center gap-2">
+    <header class="py-12 px-4 text-center bg-white shadow-sm mb-12 relative overflow-hidden">
+        <h1 class="text-4xl font-black text-slate-800 mb-4 relative z-10"><span class="gradient-text">網頁：開啟無限可能</span></h1>
+        
+        <!-- 新增：動態 SVG 講師與時間資訊 -->
+        <div class="flex justify-center mb-6 relative z-10">
+            <style>
+                .badge-line { stroke-dasharray: 400; stroke-dashoffset: 400; animation: drawBadge 1s 0.2s forwards cubic-bezier(0.4, 0, 0.2, 1); }
+                .badge-text { opacity: 0; transform: translateY(10px); animation: fadeUpBadge 0.8s 0.6s forwards ease-out; }
+                .badge-icon { opacity: 0; transform: scale(0); transform-origin: center; animation: popIcon 0.5s 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                @keyframes drawBadge { to { stroke-dashoffset: 0; } }
+                @keyframes fadeUpBadge { to { opacity: 1; transform: translateY(0); } }
+                @keyframes popIcon { to { opacity: 1; transform: scale(1); } }
+            </style>
+            <svg class="w-full max-w-lg h-12" viewBox="0 0 500 48">
+                <!-- 裝飾底線 -->
+                <path class="badge-line" d="M 50 40 L 450 40" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.3"/>
+                <path class="badge-line" d="M 180 40 L 320 40" stroke="#0ea5e9" stroke-width="4" stroke-linecap="round" fill="none" />
+                
+                <!-- 裝飾小圓點 -->
+                <circle class="badge-icon" cx="170" cy="40" r="4" fill="#0ea5e9" />
+                <circle class="badge-icon" cx="330" cy="40" r="4" fill="#0ea5e9" />
+
+                <!-- 資訊文字 -->
+                <text class="badge-text" x="250" y="28" font-family="'Noto Sans TC', sans-serif" font-weight="bold" text-anchor="middle">
+                    <tspan fill="#0ea5e9" font-size="18">觀音高中 物理科 林仟弘</tspan>
+                </text>
+            </svg>
+        </div>
+
+        <p id="status-text" class="text-slate-500 text-sm flex items-center justify-center gap-2 relative z-10">
             <span class="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
             準備就緒，等待課程解鎖...
         </p>
@@ -63,10 +98,10 @@
             
             <div class="space-y-6">
                 <p class="text-xl text-slate-700 leading-relaxed font-medium">
-                    🚀 歡迎來到這場<span class="text-sky-600 font-bold">零基礎快速上手</span>的數位工作坊！
+                    歡迎來到這場<span class="text-sky-600 font-bold">零基礎快速上手</span>的數位工作坊！
                 </p>
                 <p class="text-lg text-slate-600 leading-relaxed">
-                    請放輕鬆看投影幕，等待內容慢慢解鎖。在這裡，我們將打破艱澀程式語言的藩籬，帶領你利用 <b>AI 工具</b>，高效率生成專屬的教學網頁！
+                    請放輕鬆學習，等待內容慢慢解鎖。在這裡，我們將打破艱澀程式語言的藩籬，帶領你高效率生成專屬的個人網頁！
                 </p>
                 <div class="p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700 relative overflow-hidden shadow-xl">
                     <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2 relative z-10">
@@ -129,7 +164,7 @@
         <section id="step-2" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
             <div class="flex items-center gap-4 mb-6 text-emerald-600">
                 <div class="p-3 bg-emerald-100 rounded-2xl shadow-inner">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <svg class="w-8 h-8 anim-float" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 </div>
                 <h2 class="text-3xl font-bold">2. 網頁的基本架構</h2>
             </div>
@@ -179,7 +214,7 @@
         <section id="step-3" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
             <div class="flex items-center gap-4 mb-6 text-indigo-600">
                 <div class="p-3 bg-indigo-100 rounded-2xl shadow-inner">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    <svg class="w-8 h-8 anim-wiggle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
                 </div>
                 <h2 class="text-3xl font-bold">3. 建立第一個網頁</h2>
             </div>
@@ -330,7 +365,7 @@
         <section id="step-4" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
             <div class="flex items-center gap-4 mb-8 text-slate-800">
                 <div class="p-3 bg-slate-100 rounded-2xl shadow-inner">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <svg class="w-8 h-8 anim-float" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 </div>
                 <h2 class="text-3xl font-bold">4. 上架Github</h2>
             </div>
@@ -410,17 +445,82 @@
             <svg class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <p class="text-slate-400 font-medium italic">學無止盡，看看還能做什麼？</p>
         </div>
-        <section id="step-5" class="section-card bg-emerald-50 p-8 rounded-3xl border border-emerald-100">
-            <div class="flex items-center gap-4 mb-6 text-emerald-800">
-                <div class="p-3 bg-emerald-200 rounded-2xl shadow-inner">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        <section id="step-5" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
+            <div class="flex items-center gap-4 mb-8 text-emerald-800">
+                <div class="p-3 bg-emerald-100 rounded-2xl shadow-inner">
+                    <svg class="w-8 h-8 anim-pulse-scale" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                 </div>
                 <h2 class="text-3xl font-bold">5. 延伸挑戰與練習</h2>
             </div>
+            
+            <!-- 動態 SVG 延伸挑戰流程 -->
+            <div class="mb-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <h4 class="font-bold text-center mb-6 text-slate-700 flex items-center justify-center gap-2 text-lg">
+                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    能力進化藍圖
+                </h4>
+                <style>
+                    .flow5-line { stroke-dasharray: 140; stroke-dashoffset: 140; fill: none; stroke: #cbd5e1; stroke-width: 4; stroke-linecap: round; }
+                    .flow5-node { opacity: 0; transform-origin: center; }
+                    .flow5-text { opacity: 0; }
+                    
+                    .step5-1 .flow5-node { animation: popNode 0.5s 0.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step5-1 .flow5-text { animation: fadeUp 0.5s 0.3s forwards ease-out; }
+                    .line5-1 { animation: drawLine 0.6s 0.7s forwards ease-in-out; }
+                    
+                    .step5-2 .flow5-node { animation: popNode 0.5s 1.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step5-2 .flow5-text { animation: fadeUp 0.5s 1.4s forwards ease-out; }
+                    .line5-2 { animation: drawLine 0.6s 1.8s forwards ease-in-out; }
+                    
+                    .step5-3 .flow5-node { animation: popNode 0.5s 2.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step5-3 .flow5-text { animation: fadeUp 0.5s 2.5s forwards ease-out; }
+                </style>
+                <svg viewBox="0 0 600 120" class="w-full h-auto drop-shadow-sm">
+                    <!-- 連接線 -->
+                    <path class="flow5-line line5-1" d="M 140 40 L 260 40" />
+                    <path class="flow5-line line5-2" d="M 340 40 L 460 40" />
+                    
+                    <!-- 節點 1 -->
+                    <g class="step5-1" transform="translate(100, 40)">
+                        <circle class="flow5-node" cx="0" cy="0" r="24" fill="#f43f5e" />
+                        <text class="flow5-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">1</text>
+                        <text class="flow5-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">視覺升級</text>
+                    </g>
+                    <!-- 節點 2 -->
+                    <g class="step5-2" transform="translate(300, 40)">
+                        <circle class="flow5-node" cx="0" cy="0" r="24" fill="#10b981" />
+                        <text class="flow5-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">2</text>
+                        <text class="flow5-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">資料串接</text>
+                    </g>
+                    <!-- 節點 3 -->
+                    <g class="step5-3" transform="translate(500, 40)">
+                        <circle class="flow5-node" cx="0" cy="0" r="24" fill="#8b5cf6" />
+                        <text class="flow5-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">3</text>
+                        <text class="flow5-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">智能互動</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- 任務內容區塊 (全新配色) -->
             <div class="space-y-4">
-                <div class="bg-white p-4 rounded-xl shadow-sm"><h4 class="font-bold text-emerald-700 mb-1">🖼️ Canva/Google 簡報嵌入</h4><p class="text-sm text-slate-500">將簡報「發佈到網路」並獲取 iframe 代碼，請 AI 幫你放入網頁中。</p></div>
-                <div class="bg-white p-4 rounded-xl shadow-sm"><h4 class="font-bold text-emerald-700 mb-1">📊 試算表作為資料庫</h4><p class="text-sm text-slate-500">利用 GAS 讀寫試算表，做出簽到表或留言板功能。</p></div>
-                <div class="bg-white p-4 rounded-xl shadow-sm"><h4 class="font-bold text-emerald-700 mb-1">🤖 AI 聊天機器人</h4><p class="text-sm text-slate-500">串接 Felo AI 的免費 API，讓你的網頁會自動回答問題。</p></div>
+                <div class="bg-rose-50 p-5 rounded-2xl shadow-sm border border-rose-100 hover:shadow-md transition-shadow">
+                    <h4 class="font-bold text-rose-700 mb-1 flex items-center gap-2">
+                        <span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-xs">視覺</span> 🖼️ Canva/Google 簡報嵌入
+                    </h4>
+                    <p class="text-sm text-rose-900/80 mt-2">將簡報「發佈到網路」並獲取 iframe 代碼，請 AI 幫你放入網頁中。</p>
+                </div>
+                <div class="bg-emerald-50 p-5 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-md transition-shadow">
+                    <h4 class="font-bold text-emerald-700 mb-1 flex items-center gap-2">
+                        <span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-xs">資料</span> 📊 試算表作為資料庫
+                    </h4>
+                    <p class="text-sm text-emerald-900/80 mt-2">利用 GAS 讀寫試算表，做出簽到表或留言板功能。</p>
+                </div>
+                <div class="bg-violet-50 p-5 rounded-2xl shadow-sm border border-violet-100 hover:shadow-md transition-shadow">
+                    <h4 class="font-bold text-violet-700 mb-1 flex items-center gap-2">
+                        <span class="bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full text-xs">互動</span> 🤖 AI 聊天機器人
+                    </h4>
+                    <p class="text-sm text-violet-900/80 mt-2">串接 Felo AI 的免費 API，讓你的網頁會自動回答問題。</p>
+                </div>
             </div>
         </section>
 
