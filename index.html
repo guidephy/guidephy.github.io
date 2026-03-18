@@ -1,554 +1,1425 @@
-<!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<!doctype html>
+<html lang="zh-TW">
 <head>
   <meta charset="utf-8">
-   <title>Guidephy學習教室</title>
-   <meta name="description" content="提供物理與程式學習的教學與心得">
-  <link rel="icon" type="image/png" href="images/GuidephyNotes-sLogo.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ReflexKit · 神經反應互動訓練平台</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
-  <link href="https://fonts.googleapis.com/css?family=Philosopher" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
-  
-  <meta name="google-site-verification" content="tvvXxbI18opHJBKJIQdDbub-eFv-PrXfNGiKNXskiL8" />
-  
-  <script src="JS/menu.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
- <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LQRF00LJWJ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Webduino -->
+  <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js"></script>
+  <script src="https://blocklypro.webduino.io/node_modules/webduino-module-ws2812/WS2812.js"></script>
+  <script src="https://blocklypro.webduino.io/node_modules/webduino-module-ws2812/WS2812-blockly.js"></script>
 
-  gtag('config', 'G-LQRF00LJWJ');
-</script>
-  
+  <style>
+    /* ══ 全域 ══ */
+    :root {
+      --sci-dark:  #1e293b;
+      --sci-blue:  #0ea5e9;
+      --sci-green: #10b981;
+      --sci-amber: #f59e0b;
+      --sci-red:   #ef4444;
+      --sci-purple:#8b5cf6;
+      --bg:    #f8fafc;
+      --card:  #ffffff;
+      --muted: #64748b;
+      --border:#e2e8f0;
+      --surf2: #f1f5f9;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── 動態漸層背景 ── */
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 0 0 80px;
+      color: var(--sci-dark);
+      background: #f0f9ff;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(14,165,233,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(16,185,129,.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(139,92,246,.04) 0%, transparent 70%);
+      min-height: 100vh;
+    }
+
+    /* ── 主卡 ── */
+    .main-card { background: var(--card); border-radius: 24px; max-width: 1040px; margin: 24px auto; padding: 40px 36px; box-shadow: 0 8px 48px rgba(0,0,0,.07); }
+    @media(max-width:600px){ .main-card{ margin:12px; padding:24px 16px; border-radius:20px; } }
+
+    /* ── 畫面切換 ── */
+    .screen { display:none; }
+    .screen.active { display:block; animation: fadeIn .4s cubic-bezier(.16,1,.3,1); }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+    /* ── 返回 ── */
+    .nav-back { display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;margin-bottom:28px;text-decoration:none;transition:color .2s; }
+    .nav-back:hover{ color:var(--sci-blue); }
+
+    /* ══════════════════════════════════════
+       SCREEN 1: 首頁 · 沉浸式設計
+    ══════════════════════════════════════ */
+
+    /* 首頁不要普通白卡，用頁面風格 */
+    #screen-home { padding: 40px 20px 20px; }
+    @media(max-width:600px){ #screen-home{ padding:24px 12px 12px; } }
+
+    /* ── Hero Header ── */
+    .rk-hero {
+      max-width: 1040px;
+      margin: 0 auto 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .rk-brand { display:flex; align-items:center; gap:16px; }
+    .rk-logo-wrap {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, rgba(14,165,233,.12), rgba(16,185,129,.12));
+      border: 1.5px solid rgba(14,165,233,.2);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(14,165,233,.15);
+    }
+    .rk-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; line-height: 1;
+      background: linear-gradient(135deg, #0c4a6e, #0ea5e9 50%, #10b981);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .rk-subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; letter-spacing: .3px; }
+
+    /* 設定小按鈕 */
+    .rk-settings-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: rgba(255,255,255,.8);
+      backdrop-filter: blur(8px);
+      color: var(--muted);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .rk-settings-btn:hover { border-color: var(--sci-purple); color: var(--sci-purple); background: rgba(139,92,246,.06); }
+
+    /* ── 模式卡片容器 ── */
+    .hero-cards-wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media(max-width: 900px){ .hero-cards-wrap { grid-template-columns: 1fr; max-width: 440px; } }
+    @media(min-width: 601px) and (max-width: 900px){ .hero-cards-wrap { grid-template-columns: repeat(3,1fr); max-width:900px; } }
+
+    /* ── 英雄模式卡 ── */
+    .hero-card {
+      border-radius: 24px;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--card);
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 4px 20px rgba(0,0,0,.06);
+      display: flex;
+      flex-direction: column;
+      transition: transform .35s cubic-bezier(.34,1.4,.64,1), box-shadow .35s ease;
+      position: relative;
+    }
+    .hero-card:hover { transform: translateY(-14px) scale(1.02); }
+    .hero-card.athlete:hover { box-shadow: 0 32px 64px rgba(14,165,233,.28); }
+    .hero-card.elderly:hover  { box-shadow: 0 32px 64px rgba(234,88,12,.24); }
+    .hero-card.kids:hover     { box-shadow: 0 32px 64px rgba(16,185,129,.24); }
+
+    /* 彩色 banner */
+    .hero-banner {
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .hero-card.athlete .hero-banner { background: linear-gradient(145deg, #0c1445 0%, #1d4ed8 45%, #0ea5e9 100%); }
+    .hero-card.elderly .hero-banner { background: linear-gradient(145deg, #431407 0%, #c2410c 45%, #fb923c 100%); }
+    .hero-card.kids    .hero-banner { background: linear-gradient(145deg, #052e16 0%, #059669 45%, #34d399 100%); }
+
+    /* banner 裝飾圓 */
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      top: -60px; right: -60px;
+    }
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+      bottom: -40px; left: -30px;
+    }
+    .hero-banner-icon {
+      font-size: 52px;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,.3));
+      z-index: 1;
+      animation: iconFloat 3s ease-in-out infinite;
+    }
+    @keyframes iconFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .hero-banner-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,.7); z-index: 1;
+    }
+
+    /* 卡片內容區 */
+    .hero-body {
+      padding: 22px 22px 20px;
+      flex: 1;
+      display: flex; flex-direction: column;
+    }
+    .hero-body h3 { font-size: 21px; font-weight: 800; margin-bottom: 6px; letter-spacing: -.3px; }
+    .hero-body p  { font-size: 13px; color: var(--muted); line-height: 1.65; flex: 1; margin-bottom: 14px; }
+
+    /* 標籤 pills */
+    .hero-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+    .hero-pill {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+    }
+    .athlete .hero-pill { background: #eff6ff; color: #1d4ed8; }
+    .elderly  .hero-pill { background: #fff7ed; color: #c2410c; }
+    .kids    .hero-pill { background: #f0fdf4; color: #059669; }
+
+    /* CTA 按鈕 */
+    .hero-cta {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; border: none;
+      transition: filter .2s, transform .15s;
+      color: #fff;
+    }
+    .hero-cta:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .athlete .hero-cta { background: linear-gradient(90deg, #1d4ed8, #0ea5e9); }
+    .elderly  .hero-cta { background: linear-gradient(90deg, #c2410c, #f97316); }
+    .kids    .hero-cta { background: linear-gradient(90deg, #059669, #10b981); }
+
+    /* ── 首頁底部 ── */
+    .rk-footer {
+      max-width: 1040px;
+      margin: 28px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 4px;
+    }
+    .rk-footer-tip { font-size: 12px; color: #94a3b8; }
+
+    /* ══ SCREEN 2: 角色選擇 ══ */
+    .role-card { border-radius:16px;padding:40px;text-align:center;border:2px solid var(--border);background:var(--surf2);cursor:pointer;transition:all .2s; }
+    .role-card:hover { border-color:var(--sci-blue);background:var(--card);transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.08); }
+    .role-card i { font-size:40px;margin-bottom:14px;display:block; }
+
+    /* ══ SCREEN: 設定表單 ══ */
+    .form-label { font-weight:600;font-size:14px; }
+
+    /* ══ SCREEN: 遊戲 ══ */
+    #screen-game .main-card {
+      /* 遊戲畫面給予更多沉浸感 */
+      background: linear-gradient(160deg, #f8fafc 0%, #f0f9ff 100%);
+    }
+    .game-signal {
+      width: 220px; height: 220px; border-radius: 50%; margin: 0 auto;
+      background: var(--border);
+      transition: background .15s, box-shadow .4s cubic-bezier(.34,1.4,.64,1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 60px;
+      position: relative;
+    }
+    .game-signal::before {
+      content: '';
+      position: absolute; inset: -8px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      transition: border-color .3s, opacity .3s;
+      opacity: 0;
+    }
+    .game-signal.lit::before { opacity: 1; border-color: currentColor; animation: signalRing 1s ease-out infinite; }
+    @keyframes signalRing { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(1.25);opacity:0} }
+    .game-signal.lit  { box-shadow: 0 0 80px 24px var(--signal-glow, rgba(14,165,233,.4)), 0 0 32px 8px var(--signal-glow, rgba(14,165,233,.2)); }
+    .game-signal.hit  { box-shadow: 0 0 60px 16px rgba(16,185,129,.5); }
+    .game-signal.miss { box-shadow: 0 0 60px 16px rgba(239,68,68,.5); }
+
+    .reaction-badge {
+      display: inline-block; padding: 10px 28px; border-radius: 999px;
+      font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums;
+      margin-top: 16px; transition: background .3s, color .3s;
+    }
+    .round-pip { width: 12px; height: 12px; border-radius: 50%; background: var(--border); display: inline-block; margin: 3px; transition: background .3s, transform .3s; }
+    .round-pip.done    { background: var(--sci-green); transform: scale(1.1); }
+    .round-pip.current { background: var(--sci-blue); transform: scale(1.3); box-shadow: 0 0 8px var(--sci-blue); }
+
+    /* ── kids mode 彩帶 ── */
+    @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    .kids-bounce { animation: bounce .45s cubic-bezier(.34,1.5,.64,1); }
+    @keyframes wiggle { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+
+    /* ══ SCREEN: 結果 ══ */
+    .result-ring {
+      width:160px;height:160px;border-radius:50%;
+      border:8px solid var(--sci-green);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      margin:0 auto 24px;
+    }
+    .result-score { font-size:38px;font-weight:800;color:var(--sci-green); }
+    .result-unit  { font-size:13px;color:var(--muted); }
+
+    .rank-badge {
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 20px;border-radius:999px;font-weight:700;font-size:14px;
+    }
+
+    /* ══ SCREEN: 後台 ══ */
+    .stat-card { background:var(--surf2);border-radius:12px;padding:20px;text-align:center; }
+    .stat-value { font-size:2.2rem;font-weight:800;color:var(--sci-dark); }
+
+    /* ══ SCREEN: 裝置設定 ══ */
+    .ctrl-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px; }
+    @media(max-width:720px){ .ctrl-grid{grid-template-columns:1fr;} }
+    .sub-card { background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:20px; }
+    .sub-card-title { font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:7px; }
+    .sub-card-title::before { content:'';width:3px;height:13px;background:var(--sci-blue);border-radius:2px;display:block; }
+    .full-width { grid-column:1/-1; }
+
+    .value-number { font-size:56px;font-weight:800;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;transition:color .3s; }
+    .value-number.triggered { color:var(--sci-green); }
+
+    .bar-bg { height:10px;border-radius:999px;background:var(--border);overflow:visible;position:relative;margin-top:12px; }
+    .bar-fill { height:100%;border-radius:999px;background:linear-gradient(90deg,var(--sci-green),var(--sci-blue));transition:width .1s linear;width:0%; }
+    .threshold-marker { position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--sci-red);border-radius:1px; }
+    .threshold-marker::after { content:attr(data-label);position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--sci-red);white-space:nowrap; }
+    .bar-labels { display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px; }
+
+    .stats-row { display:flex;gap:14px;margin-top:16px;flex-wrap:wrap; }
+    .stat-item { flex:1;min-width:70px; }
+    .stat-lbl  { font-size:9px;color:var(--muted);margin-bottom:2px;letter-spacing:.7px;text-transform:uppercase; }
+    .stat-val  { font-size:19px;font-weight:800;font-variant-numeric:tabular-nums; }
+
+    .led-strip { display:flex;gap:5px;flex-wrap:wrap;justify-content:center;padding:10px 0; }
+    .led-cell  { width:33px;height:33px;border-radius:50%;background:var(--border);border:2px solid var(--border);transition:background .25s,box-shadow .25s; }
+    .led-cell.lit { border-color:transparent;box-shadow:0 0 10px 3px var(--glow,#0ea5e966); }
+
+    .c-btn { padding:8px 15px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--sci-dark);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px; }
+    .c-btn:hover { background:var(--border); }
+    .c-btn.primary { background:var(--sci-blue);border-color:var(--sci-blue);color:#fff; }
+    .c-btn.primary:hover { filter:brightness(1.1); }
+    .c-btn.danger  { background:var(--sci-red); border-color:var(--sci-red); color:#fff; }
+
+    .mode-tabs  { display:flex;background:var(--border);border-radius:8px;padding:3px;gap:3px;margin-bottom:14px; }
+    .mode-tab   { flex:1;text-align:center;padding:7px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;user-select:none; }
+    .mode-tab.active { background:var(--card);color:var(--sci-dark);box-shadow:0 2px 8px rgba(0,0,0,.06); }
+
+    .palette-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:6px; }
+    .palette-slot { display:flex;flex-direction:column;align-items:center;gap:4px; }
+    .palette-swatch-wrap { position:relative;width:100%;cursor:pointer; }
+    .palette-swatch { width:100%;height:44px;border-radius:8px;border:2px solid transparent;transition:transform .15s,box-shadow .15s,border-color .15s; }
+    .palette-swatch:hover { transform:scale(1.06); }
+    .palette-swatch.last-used { border-color:var(--sci-dark);box-shadow:0 0 0 3px rgba(0,0,0,.1); }
+    .palette-swatch-input { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+    .palette-slot-label { font-size:9px;color:var(--muted);font-variant-numeric:tabular-nums; }
+
+    .color-picker-row { display:flex;align-items:center;gap:12px;margin-top:10px; }
+    input[type=color] { width:42px;height:42px;border:none;background:none;cursor:pointer;border-radius:8px;overflow:hidden; }
+    .color-preview { width:42px;height:42px;border-radius:8px;border:2px solid var(--border);transition:background .2s; }
+
+    input[type=range] { -webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:var(--border);outline:none;cursor:pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--sci-blue);border:3px solid var(--card);box-shadow:0 2px 6px rgba(14,165,233,.4);cursor:pointer; }
+    .slider-row { margin-top:10px; }
+    .slider-row label { display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px; }
+    .slider-row label span { color:var(--sci-dark);font-weight:700; }
+
+    .threshold-box { background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:14px;margin-top:12px; }
+    .threshold-box-title { font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:12px; }
+    .threshold-input-row { display:flex;align-items:center;gap:8px;margin-bottom:10px; }
+    .threshold-number-input { flex:1;background:var(--surf2);border:2px solid var(--border);border-radius:8px;color:var(--sci-dark);font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;padding:8px 12px;outline:none;width:100%;transition:border-color .2s;-moz-appearance:textfield; }
+    .threshold-number-input::-webkit-inner-spin-button,.threshold-number-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+    .threshold-number-input:focus { border-color:var(--sci-blue); }
+    .btn-capture { padding:9px 11px;border-radius:8px;border:1.5px solid var(--sci-green);background:transparent;color:var(--sci-green);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0; }
+    .btn-capture:hover { background:var(--sci-green);color:#fff; }
+    .preset-wrap { display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;align-items:center; }
+    .preset-lbl { font-size:10px;color:var(--muted); }
+    .preset-btn { padding:4px 10px;border-radius:999px;border:1.5px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s; }
+    .preset-btn:hover { border-color:var(--sci-blue);color:var(--sci-dark); }
+    .preset-btn.active { border-color:var(--sci-blue);background:var(--sci-blue);color:#fff; }
+
+    .hit-log { display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent; }
+    .hit-entry { display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:12px;animation:slideIn .2s ease; }
+    @keyframes slideIn { from{opacity:0;transform:translateY(-4px)} }
+    .hit-swatch { width:15px;height:15px;border-radius:4px;flex-shrink:0; }
+    .hit-time { color:var(--muted);flex-shrink:0; }
+    .hit-val  { margin-left:auto;font-weight:700;color:var(--sci-green); }
+    .hit-empty { text-align:center;color:var(--muted);padding:20px;font-size:13px; }
+    .card-hrow { display:flex;justify-content:space-between;align-items:center;margin-bottom:14px; }
+    .card-hrow .sub-card-title { margin-bottom:0; }
+
+    /* 連線徽章 */
+    .status-badge { display:inline-flex;align-items:center;gap:7px;background:var(--surf2);border:1.5px solid var(--border);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600; }
+    .status-dot { width:9px;height:9px;border-radius:50%;background:#cbd5e1;transition:background .4s; }
+    .status-badge.connecting .status-dot { background:var(--sci-amber);animation:blink 1s infinite; }
+    .status-badge.connected  .status-dot { background:var(--sci-green);animation:blink 2.5s infinite; }
+    .status-badge.error      .status-dot { background:var(--sci-red); }
+    @keyframes blink{ 0%,100%{opacity:1}50%{opacity:.3} }
+
+    /* 漣漪 */
+    .ripple-overlay { position:fixed;inset:0;pointer-events:none;z-index:999; }
+    .ripple { position:absolute;border-radius:50%;transform:scale(0);animation:rippleAnim .6s ease-out forwards;opacity:.12; }
+    @keyframes rippleAnim{ to{transform:scale(8);opacity:0} }
+  </style>
 </head>
-
 <body>
-   <!-- 這裡是要放共用選單的地方 -->
-  <div id="header-container"></div>
 
-  <!-- 先載入 header 的 script（放在 container 之後）-->
-  <script>
-    // 這段會去抓 nav.html 的內容塞進來
-    fetch('nav.html')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('header-container').innerHTML = html;
-      })
-      .catch(error => {
-        console.error('載入選單失敗：', error);
-      });
-  </script>
+<div class="ripple-overlay" id="rippleOverlay"></div>
 
-  <div class="wrapper">
-      <h2 class="page-title">近期課程</h2>
+<!-- ══════════════════════════════════════════════
+     SCREEN 1 · 首頁 · 沉浸式模式選擇
+══════════════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+
+  <!-- Hero Header -->
+  <div class="rk-hero">
+    <div class="rk-brand">
+      <!-- 動態 SVG Logo -->
+      <div class="rk-logo-wrap">
+        <svg width="40" height="40" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- 外脈衝環 1 -->
+          <circle cx="28" cy="28" r="24" stroke="url(#rk-ring1)" stroke-width="1.5" opacity="0.7">
+            <animate attributeName="r" values="18;26;18" dur="2.2s" repeatCount="indefinite"
+              calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+            <animate attributeName="opacity" values="0.7;0.05;0.7" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <!-- 外脈衝環 2 -->
+          <circle cx="28" cy="28" r="20" stroke="url(#rk-ring2)" stroke-width="1" opacity="0.5">
+            <animate attributeName="r" values="14;22;14" dur="2.2s" begin="0.5s" repeatCount="indefinite"
+              calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+            <animate attributeName="opacity" values="0.5;0.05;0.5" dur="2.2s" begin="0.5s" repeatCount="indefinite"/>
+          </circle>
+          <!-- 閃電主體 -->
+          <path d="M32 6L16 28H27L22 50L42 24H31L35 6Z" fill="url(#rk-bolt)"/>
+          <!-- 閃爍光暈 -->
+          <path d="M32 6L16 28H27L22 50L42 24H31L35 6Z" fill="white" opacity="0">
+            <animate attributeName="opacity" values="0;0.45;0" dur="2.4s" repeatCount="indefinite"/>
+          </path>
+          <!-- 頂部亮點 -->
+          <circle cx="32" cy="9" r="3" fill="white" opacity="0.6">
+            <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <defs>
+            <linearGradient id="rk-bolt" x1="16" y1="6" x2="42" y2="50" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#38bdf8"/>
+              <stop offset="0.45" stop-color="#0ea5e9"/>
+              <stop offset="1" stop-color="#10b981"/>
+            </linearGradient>
+            <linearGradient id="rk-ring1" x1="4" y1="4" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#0ea5e9"/>
+              <stop offset="1" stop-color="#8b5cf6"/>
+            </linearGradient>
+            <linearGradient id="rk-ring2" x1="4" y1="28" x2="52" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#10b981"/>
+              <stop offset="1" stop-color="#0ea5e9"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <div class="rk-title">ReflexKit</div>
+        <div class="rk-subtitle">精準觸發・神經反應互動訓練平台</div>
+      </div>
+    </div>
+
+    <!-- 設定：輕量小按鈕（不與三模式等大） -->
+    <a class="rk-settings-btn" onclick="showScreen('settings')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      裝置設定
+    </a>
   </div>
 
-  <div class="news-contents wrapper">
-    <article>
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >觀音，點亮台灣</a></h2>
-        
-        <p class="post-date"> 永續<span>教育</span></p>
-        <p class="post-cat">類別：<a target="_blank" >永續教案</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAHAVTWFEbc/OylFnmmjbDVJ6K1IB_1z_g/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >國際永續教案分享</a></h2>
-        
-        <p class="post-date"> 01<span>26</span></p>
-        <p class="post-cat">類別：<a target="_blank" >研習分享</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAG94xfXCEQ/pcElPzKcf6Oh_PNB027i_Q/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >網頁設計研習</a></h2>
-        
-        <p class="post-date"> 教師<span>研習</span></p>
-        <p class="post-cat">類別：<a target="_blank" >研習分享</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAG6vxM7bqw/OSfudHkw8WMyk_antNrvJA/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-  
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >以 Design Thinking 探索 SDGs</a></h2>
-        
-        <p class="post-date"> 教案<span>分享</span></p>
-        <p class="post-cat">類別：<a target="_blank" >永續教育</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGyiMoAcGw/YQnfQbTU16KaRfgll5NNyw/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<p>學習單(A3):</><a href="https://drive.google.com/file/d/1xm3BB2UWHLbC2TSowU0xVAcVlV6Cb-zY/view?usp=sharing" target="_blank">連結</a>
-<br>
-<br>  
+  <!-- 三大沉浸式模式卡 -->
+  <div class="hero-cards-wrap">
 
-      
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >AI影片製作</a></h2>
-        
-        <p class="post-date"> 高二<span>暑輔</span></p>
-        <p class="post-cat">類別：<a target="_blank" >資訊教育</a></p>
-      </header>
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGrVBiZggc/fNyBgAD0C5ASGiUKguu38Q/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-  <br>
-<br> 
-
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >2025桃課趣-永續教案分享</a></h2>
-        
-        <p class="post-date"> 教案<span>分享</span></p>
-        <p class="post-cat">類別：<a target="_blank" >永續教育</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGpRZFYzT0/BOvN-BoAHoOQhhiS6oO2ww/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-<br>  
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >2025桃課趣-國際教案分享</a></h2>
-        
-        <p class="post-date"> 教案<span>分享</span></p>
-        <p class="post-cat">類別：<a target="_blank" >國際教育</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://drive.google.com/file/d/1Es0R-DXGwLkht0O7tOkY41JoUKMvNv4m/preview" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
-</div>
-<br>
-<br>  
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >桃園國際教育社群</a></h2>
-        
-        <p class="post-date"> 跨校<span>共備</span></p>
-        <p class="post-cat">類別：<a target="_blank" >國際教育</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGkFIUaGkE/3NagGLCebQ1LBR4RLNVUGg/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-<br>  
-
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >網頁xAI</a></h2>
-        
-        <p class="post-date">新竹 <span>實中</span></p>
-        <p class="post-cat">類別：<a target="_blank" >研習分享</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGhifqlQvc/vZiHpXi5JmpwRebpN7vNbQ/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<p>研習所需檔案:</><a href="https://drive.google.com/drive/folders/1Q93NbDrKfQNcEqE3Y5Sm2tvlLiwx9dCe?usp=drive_link" target="_blank">連結</a>
-<br>
-<br>  
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >我們身邊的國際移工</a></h2>
-        
-        <p class="post-date">國際 <span>教育</span></p>
-        <p class="post-cat">類別：<a target="_blank" >體驗課程</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGh8M_iSd8/2WNMrvQODn0THvks1_6rrg/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-<br>   
-
-
-  
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >Circular Economy </a></h2>
-        
-        <p class="post-date">校必 <span>高二</span></p>
-        <p class="post-cat">類別：<a target="_blank" >桃源觀新</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGmeZzqwDk/HKXa1RQ0UVxRCdRLyMpxOA/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-
-<br>
-<br>      
-
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >用你的專長點亮在地故事！ </a></h2>
-        
-        <p class="post-date">校必 <span>高二</span></p>
-        <p class="post-cat">類別：<a target="_blank" >桃源觀新</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGcF8jfsic/V63zfjlKhu9H7b1oU8LkCA/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<p >AI問答歷程：<a target="_blank" href="https://docs.google.com/spreadsheets/d/15g_mXorpwdWfZSD8F4yaXEKM3ewxXOdYxGAezf_eowE/edit?usp=sharing">連結</a></p>
-
-<br>
-
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >半導體課程回顧 </a></h2>
-        
-        <p class="post-date">113 <span>學年度</span></p>
-        <p class="post-cat">類別：<a target="_blank" >物理課程</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGXH5kxdiU/id4vHRtRUMfln7Gx-aXgew/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-<br>
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >AquaMakers</a></h2>
-        
-        <p class="post-date">113<span>學年度</span></p>
-        <p class="post-cat">類別：<a target="_blank" >遠哲盃三分鐘英語科學創新挑戰賽</a></p>
-      </header>
-    <iframe width="680" height="350" src="https://www.youtube.com/embed/6nrhvujpbWs?si=KOESE5dVxehseJCN" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-<br>
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >Hydrogen Harvesters</a></h2>
-        
-        <p class="post-date">113<span>學年度</span></p>
-        <p class="post-cat">類別：<a target="_blank" >遠哲盃三分鐘英語科學創新挑戰賽</a></p>
-      </header>
-      <iframe width="680" height="350" src="https://www.youtube.com/embed/haLICRgcxzQ?si=jdRUabXspY-a5j_L" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-      <br>
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >觀音綠智慧 </a></h2>
-        
-        <p class="post-date">永續 <span>教案</span></p>
-        <p class="post-cat">類別：<a target="_blank" >永續台灣創意教案</a></p>
-      </header>
-    
-<iframe src="https://drive.google.com/file/d/1MwqidhPch-b31BaOV3sjeB_3SpYV5_k0/preview" width="640" height="360" allow="autoplay"></iframe>
-<br>
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >專題實作修煉1-1</a></h2>
-        
-        <p class="post-date">校必 <span>高二</span></p>
-        <p class="post-cat">類別：<a target="_blank" >桃源觀新</a></p>
-      </header>
-
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAFxlRLVUI4/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-  
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >小論文經驗分享 </a></h2>
-        
-        <p class="post-date">自主 <span>學習</span></p>
-        <p class="post-cat">類別：<a target="_blank" >自主學習</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGREHif1tw/CL6d0cC9LmnWrdPE4Pvf1Q/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >VRxAIxSDGs</a></h2>
-        
-        <p class="post-date">國中 <span>食農</span></p>
-        <p class="post-cat">類別：<a target="_blank" >體驗課程</a></p>
-      </header>
-
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGQmXBztec/ceJjkKo4J90UWA5uwwaHUg/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<a href="https://docs.google.com/document/d/1vWicCbZy5Ay53ipH_MSQCZlJycL8XwOoOHhhBQG-2KA/edit?usp=sharing">提詞參考</a>
-<br>
-    
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >AI繪本 </a></h2>
-        
-        <p class="post-date">AI<span>創作</span></p>
-        <p class="post-cat">類別：<a target="_blank" >體驗課程</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGRfxPcFUM/jLiStGRBpa2B9141vnWhsA/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >AI繪本 </a></h2>
-        
-        <p class="post-date">AI <span>創作</span></p>
-        <p class="post-cat">類別：<a target="_blank" >體驗課程</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 50.0000%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGQhgpOPrs/Bh8Rqhdjwa3O7tZBce15rQ/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >The Future of Ponds </a></h2>
-        
-        <p class="post-date">永續 <span>課程</span></p>
-        <p class="post-cat">類別：<a target="_blank" >食農教育</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAGMQODYZZ0&#x2F;_dPMQQPkY2PXlhNVefDLHQ&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br>
-
-
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" >Sustainability of Ponds </a></h2>
-        
-        <p class="post-date">永續 <span>課程</span></p>
-        <p class="post-cat">類別：<a target="_blank" >食農教育</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAGKaRtSP-k&#x2F;qy4eO5JMIpcH7LnNBeWXvA&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-
-</div>
-<br>
-
-      
-<header class="post-info">
-        <h2  class="post-title" ><a target="_blank" href="https://guidephy.github.io/Ophysics">物理自學平台說明</a></h2>
-        
-        <p class="post-date">物理 <span>自學</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="physics.html">物理教學</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAF4tqIRPdU&#x2F;WVRTA_UvfGmM3RjhCKmD1Q&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-      
-<br>
-<header class="post-info">
-        <h2  class="post-title">科館解謎腳本競賽</h2>
-        
-        <p class="post-date">112 <span>學年度</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">比賽</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAF2Wi2pj7M&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-      
-<br><br>
-
-
-   <header class="post-info">
-        <h2  class="post-title">Google表單設計</h2>
-        
-        <p class="post-date">校必 <span>高二</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">桃源觀新</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAF20kSvF2s&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-<br><p>世界咖啡館簡報:</><a href="https://docs.google.com/spreadsheets/d/1Ixg_kYBTqRd0P48xaAapmRiNvH8V05DGjkso0ltzsZ4/edit?usp=sharing" target="_blank">連結</a>
-      
-<br><br>
-
-
-
-
-       <header class="post-info">
-        <h2  class="post-title">AR認識與遊戲體驗</h2>
-        
-        <p class="post-date">國中 <span>2</span></p>
-        <p class="post-cat">類別：<a target="_blank" href="">體驗課程</a></p>
-      </header>
-    
-<div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAFgagJS49g&#x2F;view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
-</div>
-
-
-
-<br><br> 
-      
-      
-     
-    </article>
-    
-    
-
-    <aside>
-      <h3 class="sub-title">類別</h3>
-      <ul class="sub-menu">
-         <li><a href="physics.html">物理學習</a></li>
-         <li><a href="program.html">程式語言</a></li>
-         <li><a href="exp.html">探究與實作</a></li>
-         <li><a href="https://books.i-yuida.com.tw/">台語電子書</a></li>
-         <li><a href="webLearning.html">0319網頁研習</a></li>
-        
-        
-        
-       
-      </ul>
-
-      <h3 class="sub-title">About Me</h3>
-      <p>
-       Guidephy學習教室提供物理及程式語言的學習分享，希望學生能透過這裡的學習資源，達到有效的學習。
-      </p>
-      
-       <h3 class="sub-title"><a href="https://ufile.io/">CONTACT</a></h3>
-      <p>
-       E-mail:<br>
-        ttnpgjqua26@gish.tyc.edu.tw
-      </p>
-      <img style="text-align:center;" src="images/guidephy-qrcode.png"  alt="guidephy-qrcode">
-      
-       <h3 class="sub-title">瀏覽人次</h3>
-      <br>
-   
-<img src="https://hitwebcounter.com/counter/counter.php?page=8081074&style=0003&nbdigits=5&type=page&initCount=0" title="Free Counter" Alt="web counter"   border="0" style="float: center;" /></a>             
-
-    </aside>
-
- 
-
-  </div><!-- /.news-contents -->
-
-  <footer>
-    <div class="wrapper">
-      <p><small>&copy; 觀音高中物理科 林仟弘老師</small></p>
+    <!-- 選手模式 -->
+    <div class="hero-card athlete" onclick="goMode('athlete')">
+      <div class="hero-banner">
+        <div class="hero-banner-tag">ATHLETE MODE</div>
+        <div class="hero-banner-icon">⚡</div>
+      </div>
+      <div class="hero-body">
+        <h3>選手模式</h3>
+        <p>毫秒級精確計時，挑戰個人神經反應極限。適合運動員、競技訓練及體能測試。</p>
+        <div class="hero-pills">
+          <span class="hero-pill">10輪測驗</span>
+          <span class="hero-pill">ms精準</span>
+          <span class="hero-pill">排名評級</span>
+        </div>
+        <button class="hero-cta">開始訓練 <i class="bi bi-arrow-right-short" style="font-size:18px;"></i></button>
+      </div>
     </div>
-  </footer>
 
+    <!-- 長輩模式 -->
+    <div class="hero-card elderly" onclick="goMode('elderly')">
+      <div class="hero-banner">
+        <div class="hero-banner-tag">SENIOR MODE</div>
+        <div class="hero-banner-icon">❤️</div>
+      </div>
+      <div class="hero-body">
+        <h3>長輩模式</h3>
+        <p>輕鬆節奏，放大顯示。促進神經活化與手眼協調，適合銀髮族健康維護。</p>
+        <div class="hero-pills">
+          <span class="hero-pill">5輪測驗</span>
+          <span class="hero-pill">大字顯示</span>
+          <span class="hero-pill">溫馨節奏</span>
+        </div>
+        <button class="hero-cta">開始體驗 <i class="bi bi-arrow-right-short" style="font-size:18px;"></i></button>
+      </div>
+    </div>
 
+    <!-- 兒童模式 -->
+    <div class="hero-card kids" onclick="goMode('kids')">
+      <div class="hero-banner">
+        <div class="hero-banner-tag">KIDS MODE</div>
+        <div class="hero-banner-icon">🌈</div>
+      </div>
+      <div class="hero-body">
+        <h3>兒童模式</h3>
+        <p>活潑彩色動畫、趣味音效回饋。邊玩邊訓練反應力，讓小朋友愛上挑戰！</p>
+        <div class="hero-pills">
+          <span class="hero-pill">8輪遊戲</span>
+          <span class="hero-pill">彩色燈光</span>
+          <span class="hero-pill">鼓勵語音</span>
+        </div>
+        <button class="hero-cta">開始遊戲 <i class="bi bi-arrow-right-short" style="font-size:18px;"></i></button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 底部狀態 + 說明 -->
+  <div class="rk-footer">
+    <div class="rk-footer-tip">
+      <i class="bi bi-info-circle me-1"></i>
+      敲擊壓電片觸發 WS2812 LED · 裝置 gbYbA
+    </div>
+    <div class="status-badge connecting" id="statusHome">
+      <div class="status-dot"></div><span id="statusHomeText">等待連線…</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2 · 角色選擇
+══════════════════════════════════════════════ -->
+<div id="screen-role" class="screen">
+<div class="main-card">
+  <a class="nav-back" onclick="showScreen('home')"><i class="bi bi-arrow-left"></i> 返回</a>
+  <h2 class="fw-bold text-center mb-2" id="roleModeTitle">模式</h2>
+  <p class="text-center text-muted mb-5" id="roleModeDesc">請選擇您的身份</p>
+  <div class="row g-4 justify-content-center">
+    <div class="col-md-5">
+      <div class="role-card" onclick="showScreen('setup')">
+        <i class="bi bi-person-fill" id="rolePlayerIcon" style="color:var(--sci-blue);"></i>
+        <h4 class="fw-bold" id="rolePlayerLabel">我是受測者</h4>
+        <p class="text-muted mt-2 mb-0" id="rolePlayerDesc">開始反應測驗</p>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="role-card" onclick="showScreen('admin-login')">
+        <i class="bi bi-shield-lock-fill" style="color:var(--sci-amber);font-size:40px;margin-bottom:14px;display:block;"></i>
+        <h4 class="fw-bold" id="roleAdminLabel">我是管理員</h4>
+        <p class="text-muted mt-2 mb-0" id="roleAdminDesc">登入查看數據</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 受測者設定
+══════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen">
+<div class="main-card" style="max-width:620px;">
+  <a class="nav-back" onclick="showScreen('role')"><i class="bi bi-arrow-left"></i> 返回</a>
+  <h3 class="fw-bold mb-1">實驗參數配置</h3>
+  <p class="text-muted mb-4" style="font-size:13px;">填寫完畢後開始測驗</p>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">受測者姓名</label>
+      <input type="text" id="p-name" class="form-control form-control-lg" placeholder="請輸入姓名">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label text-danger">連動管理員 ID <span class="text-muted fw-normal">(必填)</span></label>
+      <input type="text" id="p-admin-id" class="form-control form-control-lg border-danger" placeholder="管理員帳號 ID">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">測驗輪數</label>
+      <input type="number" id="p-rounds" class="form-control form-control-lg" value="5" min="1" max="20">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">訊號顏色模式</label>
+      <select id="p-color-mode" class="form-select form-select-lg">
+        <option value="palette">6色隨機（推薦）</option>
+        <option value="fixed-blue">固定藍色</option>
+        <option value="fixed-red">固定紅色</option>
+        <option value="fixed-green">固定綠色</option>
+      </select>
+    </div>
+  </div>
+  <div class="text-center mt-5">
+    <button class="btn btn-primary btn-lg px-5 py-3" onclick="startGame()" style="border-radius:12px;font-weight:700;font-size:16px;">
+      <i class="bi bi-play-circle-fill me-2"></i>開始測驗
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 遊戲主畫面
+══════════════════════════════════════════════ -->
+<div id="screen-game" class="screen">
+<div class="main-card" style="text-align:center;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <a class="nav-back mb-0" onclick="abortGame()"><i class="bi bi-x-circle"></i> 中止</a>
+    <div id="gameModeTag" class="badge rounded-pill" style="font-size:13px;padding:8px 16px;">選手模式</div>
+    <div class="status-badge connecting" id="statusGame" style="font-size:12px;">
+      <div class="status-dot"></div><span id="statusGameText">連線中</span>
+    </div>
+  </div>
+
+  <!-- 輪次指示點 -->
+  <div id="roundPips" class="mb-3"></div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">
+    第 <span id="roundCurrent">1</span> 輪 / 共 <span id="roundTotal">5</span> 輪
+  </div>
+
+  <!-- 主燈號 -->
+  <div class="game-signal mb-3" id="gameSignal">
+    <span id="gameSignalEmoji">●</span>
+  </div>
+
+  <!-- 反應時間顯示 -->
+  <div id="reactionBadge" class="reaction-badge" style="background:var(--surf2);color:var(--muted);font-size:18px;">— 等待開始 —</div>
+
+  <!-- 狀態文字 -->
+  <div id="gameStatusText" style="font-size:28px;font-weight:800;margin:16px 0;color:var(--sci-dark);">準備好了嗎？</div>
+
+  <!-- 本輪累計 -->
+  <div class="d-flex justify-content-center gap-4 mt-2 mb-4 flex-wrap">
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">平均反應</div><div id="runningAvg" style="font-size:22px;font-weight:800;color:var(--sci-blue);">—</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">最快</div><div id="runningBest" style="font-size:22px;font-weight:800;color:var(--sci-green);">—</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">擊打次數</div><div id="gameHitCount" style="font-size:22px;font-weight:800;color:var(--sci-amber);">0</div></div>
+  </div>
+
+  <button class="btn btn-primary btn-lg px-5 py-3" id="btnGameNext" onclick="nextRound()" style="border-radius:12px;font-weight:700;display:none;">
+    <i class="bi bi-arrow-right-circle-fill me-2"></i>下一輪
+  </button>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 結果頁
+══════════════════════════════════════════════ -->
+<div id="screen-results" class="screen">
+<div class="main-card" style="max-width:600px;text-align:center;">
+  <div id="resultsKidsAnim" style="font-size:48px;display:none;margin-bottom:8px;">🎉🌈⭐</div>
+  <h2 class="fw-bold mb-1" id="resultsTitle">測驗完成！</h2>
+  <p class="text-muted mb-4" id="resultsSubtitle">數據已記錄</p>
+
+  <div class="result-ring">
+    <div class="result-score" id="resultAvgMs">—</div>
+    <div class="result-unit">ms 平均</div>
+  </div>
+
+  <div id="resultRankBadge" class="mb-4"></div>
+
+  <div class="row g-3 text-center mb-4">
+    <div class="col-4"><div class="stat-card"><div style="font-size:11px;color:var(--muted);">最快</div><div style="font-size:24px;font-weight:800;color:var(--sci-green);" id="resultBest">—</div></div></div>
+    <div class="col-4"><div class="stat-card"><div style="font-size:11px;color:var(--muted);">最慢</div><div style="font-size:24px;font-weight:800;color:var(--sci-amber);" id="resultWorst">—</div></div></div>
+    <div class="col-4"><div class="stat-card"><div style="font-size:11px;color:var(--muted);">輪數</div><div style="font-size:24px;font-weight:800;" id="resultRounds">—</div></div></div>
+  </div>
+
+  <!-- 各輪詳細 -->
+  <div id="resultRoundList" class="text-start mb-4" style="max-height:180px;overflow-y:auto;"></div>
+
+  <div class="d-flex gap-3 justify-content-center flex-wrap">
+    <button class="btn btn-outline-secondary btn-lg px-4" onclick="showScreen('setup')" style="border-radius:10px;font-weight:600;">
+      <i class="bi bi-arrow-repeat me-2"></i>再玩一次
+    </button>
+    <button class="btn btn-primary btn-lg px-4" onclick="showScreen('home')" style="border-radius:10px;font-weight:600;">
+      <i class="bi bi-house-fill me-2"></i>回首頁
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 管理員登入
+══════════════════════════════════════════════ -->
+<div id="screen-admin-login" class="screen">
+<div class="main-card" style="max-width:480px;">
+  <a class="nav-back" onclick="showScreen('role')"><i class="bi bi-arrow-left"></i> 返回</a>
+  <div class="mx-auto">
+    <ul class="nav nav-pills nav-fill mb-4" style="background:var(--surf2);border-radius:10px;padding:4px;">
+      <li class="nav-item">
+        <button class="nav-link active" id="tabLoginBtn" onclick="switchAuthTab('login')" style="border-radius:8px;font-weight:600;">登入後台</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="tabRegBtn" onclick="switchAuthTab('reg')" style="border-radius:8px;font-weight:600;">首次註冊</button>
+      </li>
+    </ul>
+
+    <div id="login-box" class="p-4 border rounded-3 shadow-sm">
+      <h4 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2" style="color:var(--sci-amber);"></i>帳號驗證</h4>
+      <input type="text" id="l-acc" class="form-control mb-3" placeholder="管理員 ID">
+      <input type="password" id="l-pw" class="form-control mb-4" placeholder="密碼">
+      <button class="btn btn-dark w-100 py-2" onclick="realLogin()" style="border-radius:10px;font-weight:700;">登入查看數據</button>
+    </div>
+
+    <div id="reg-box" class="p-4 border rounded-3 shadow-sm" style="display:none;">
+      <h4 class="fw-bold mb-3"><i class="bi bi-person-plus me-2" style="color:var(--sci-green);"></i>管理員註冊</h4>
+      <input type="text"     id="r-email" class="form-control mb-2" placeholder="電子信箱（備用）">
+      <input type="text"     id="r-acc"   class="form-control mb-2" placeholder="設定管理員 ID（給受測者填）">
+      <input type="password" id="r-pw"    class="form-control mb-4" placeholder="設定密碼">
+      <button class="btn btn-success w-100 py-2" onclick="realRegister()" style="border-radius:10px;font-weight:700;">確認註冊</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 管理員後台
+══════════════════════════════════════════════ -->
+<div id="screen-backend" class="screen">
+<div class="main-card">
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-2">
+    <h2 class="fw-bold mb-0" style="color:var(--sci-blue);"><i class="bi bi-bar-chart-fill me-2"></i>數據監控後台</h2>
+    <div class="d-flex gap-2">
+      <span id="backendAdminLabel" class="badge bg-light text-dark border" style="font-size:13px;padding:8px 14px;border-radius:8px;"></span>
+      <button class="btn btn-sm btn-outline-danger" onclick="showScreen('home')" style="border-radius:8px;font-weight:600;">安全登出</button>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4 text-center">
+    <div class="col-md-3"><div class="stat-card"><div class="text-muted" style="font-size:13px;">受測人次</div><div class="stat-value" id="stat-count">0</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="text-muted" style="font-size:13px;">平均反應 (ms)</div><div class="stat-value" id="stat-avg">0</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="text-muted" style="font-size:13px;">最快紀錄 (ms)</div><div class="stat-value" style="color:var(--sci-green);" id="stat-best">—</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="text-muted" style="font-size:13px;">模式分布</div><div class="stat-value" style="font-size:1.4rem;" id="stat-modes">—</div></div></div>
+  </div>
+
+  <!-- 篩選列 -->
+  <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+    <select id="filterMode" class="form-select form-select-sm" style="width:160px;" onchange="loadBackendData()">
+      <option value="">全部模式</option>
+      <option value="athlete">選手模式</option>
+      <option value="elderly">長輩模式</option>
+      <option value="kids">兒童模式</option>
+    </select>
+    <button class="btn btn-sm btn-outline-danger ms-auto" onclick="clearAllData()" style="border-radius:8px;font-weight:600;"><i class="bi bi-trash3 me-1"></i>清除所有數據</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead style="background:var(--sci-dark);color:white;"><tr>
+        <th class="rounded-start ps-3">姓名</th><th>模式</th><th>平均反應</th><th>最佳</th><th>輪數</th><th class="rounded-end">時間</th>
+      </tr></thead>
+      <tbody id="backend-body"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 裝置設定 (原 index.html 控制面板)
+══════════════════════════════════════════════ -->
+<div id="screen-settings" class="screen">
+<div class="main-card">
+  <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
+    <a class="nav-back mb-0" onclick="showScreen('home')"><i class="bi bi-arrow-left"></i> 返回首頁</a>
+    <div class="status-badge connecting" id="statusSettings">
+      <div class="status-dot"></div><span id="statusSettingsText">連線中…</span>
+    </div>
+  </div>
+  <h4 class="fw-bold mb-0">裝置設定</h4>
+  <p style="font-size:13px;color:var(--muted);margin-top:4px;margin-bottom:0;">即時感測 · LED 控制 · 閾值調整</p>
+
+  <div class="ctrl-grid">
+    <!-- 感測器 -->
+    <div class="sub-card full-width">
+      <div class="sub-card-title">即時感測器讀數</div>
+      <div class="d-flex align-items-center gap-4 flex-wrap">
+        <div>
+          <div class="value-number" id="bigVal">—</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:5px;">電阻值（normalized）</div>
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <div class="bar-bg"><div class="bar-fill" id="barFill"></div><div class="threshold-marker" id="thresholdMarker" data-label="閾值"></div></div>
+          <div class="bar-labels"><span>0.000</span><span>1.000</span></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-lbl">擊打次數</div><div class="stat-val" style="color:var(--sci-red);" id="hitCount">0</div></div>
+        <div class="stat-item"><div class="stat-lbl">最低值</div><div class="stat-val" style="color:var(--sci-green);" id="minVal">—</div></div>
+        <div class="stat-item"><div class="stat-lbl">最高值</div><div class="stat-val" style="color:var(--sci-amber);" id="maxVal">—</div></div>
+        <div class="stat-item"><div class="stat-lbl">平均值</div><div class="stat-val" id="avgVal">—</div></div>
+        <div class="stat-item"><div class="stat-lbl">取樣率</div><div class="stat-val" style="color:var(--sci-blue);">50ms</div></div>
+      </div>
+    </div>
+
+    <!-- LED 預覽 -->
+    <div class="sub-card">
+      <div class="sub-card-title">LED 燈條預覽（16顆）</div>
+      <div class="led-strip" id="ledStrip"></div>
+      <div class="d-flex gap-2 flex-wrap mt-2">
+        <button class="c-btn danger" id="btnOff"><i class="bi bi-square-fill"></i> 熄滅</button>
+        <button class="c-btn" id="btnRandom"><i class="bi bi-shuffle"></i> 隨機</button>
+        <button class="c-btn primary" id="btnApply"><i class="bi bi-check-lg"></i> 套用</button>
+      </div>
+    </div>
+
+    <!-- 顏色 & 亮度 -->
+    <div class="sub-card">
+      <div class="sub-card-title">顏色模式 &amp; 亮度</div>
+      <div class="mode-tabs">
+        <div class="mode-tab active" id="tabRandom" onclick="setColorMode('random')">🎨 6色隨機</div>
+        <div class="mode-tab"        id="tabFixed"  onclick="setColorMode('fixed')">📌 固定顏色</div>
+      </div>
+      <div id="randomColorSection">
+        <div class="palette-grid" id="paletteGrid"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;">點色塊可更換顏色，每次敲擊不重複同色。</div>
+      </div>
+      <div id="fixedColorSection" style="display:none">
+        <div class="color-picker-row">
+          <input type="color" id="colorPicker" value="#0ea5e9">
+          <div class="color-preview" id="colorPreview" style="background:#0ea5e9"></div>
+          <div style="font-size:13px;color:var(--muted);">固定顏色：<br><strong id="colorHex">#0ea5e9</strong></div>
+        </div>
+      </div>
+      <div class="slider-row mt-3">
+        <label>亮度 <span id="brightnessVal">20</span> / 100</label>
+        <input type="range" id="brightnessSlider" min="1" max="100" value="20">
+      </div>
+      <div class="threshold-box">
+        <div class="threshold-box-title">觸發閾值設定</div>
+        <div class="threshold-input-row">
+          <input type="number" class="threshold-number-input" id="thresholdInput" value="0.154" min="0" max="1" step="0.001">
+          <button class="btn-capture" id="btnCapture">⬇ 抓最低值</button>
+        </div>
+        <div class="preset-wrap" id="presetBtns">
+          <span class="preset-lbl">快速：</span>
+          <button class="preset-btn" data-val="0.100">0.100</button>
+          <button class="preset-btn" data-val="0.120">0.120</button>
+          <button class="preset-btn active" data-val="0.154">0.154</button>
+          <button class="preset-btn" data-val="0.200">0.200</button>
+          <button class="preset-btn" data-val="0.300">0.300</button>
+          <button class="preset-btn" data-val="0.500">0.500</button>
+        </div>
+        <div class="slider-row">
+          <label>微調 <span id="thresholdVal">0.154</span></label>
+          <input type="range" id="thresholdSlider" min="0" max="1000" step="1" value="154">
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;">電阻值 <strong style="color:var(--sci-red);">低於此閾值</strong> 時觸發。敲擊後點「抓最低值」自動校準。</div>
+      </div>
+    </div>
+
+    <!-- 擊打歷史 -->
+    <div class="sub-card full-width">
+      <div class="card-hrow">
+        <div class="sub-card-title">擊打歷史紀錄</div>
+        <button class="c-btn" id="btnClearLog" style="font-size:11px;padding:5px 11px;"><i class="bi bi-trash3"></i> 清除</button>
+      </div>
+      <div class="hit-log" id="hitLog"><div class="hit-empty" id="hitEmpty">尚無記錄，請敲擊壓電片…</div></div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4" style="font-size:11px;color:var(--muted);">Device: gbYbA · WS2812 @ Pin 12 · Photocell @ A0</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     JavaScript
+══════════════════════════════════════════════ -->
+<script>
+/* ═══════════════════════════════════════
+   全域狀態
+═══════════════════════════════════════ */
+var ws2812, photocell;
+var threshold      = 0.154;
+var brightness     = 20;
+var colorMode      = 'random';
+var fixedColor     = '#0ea5e9';
+var currentLedColor = '#e2e8f0';
+var lastTriggered  = false;
+var currentScreen  = 'home';
+
+// 設定頁數據
+var settingsHitCount = 0;
+var settingsMinVal   = Infinity;
+var settingsMaxVal   = -Infinity;
+var settingsSumVal   = 0;
+var settingsSamples  = 0;
+
+// 遊戲狀態
+var game = {
+  mode: '',        // 'athlete'|'elderly'|'kids'
+  playerName: '',
+  adminId: '',
+  totalRounds: 5,
+  currentRound: 0,
+  reactions: [],   // ms per round
+  phase: 'idle',   // 'idle'|'countdown'|'waiting'|'lit'|'feedback'|'done'
+  litTime: null,
+  signalColor: '',
+  waitTimer: null,
+  countdownVal: 0,
+  countdownTimer: null
+};
+
+// 色盤
+var palette = ['#FF2020','#00CC55','#0080FF','#FFD000','#AA00FF','#00DDCC'];
+var lastPaletteIndex = -1;
+
+/* ═══════════════════════════════════════
+   畫面管理
+═══════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('screen-' + id).classList.add('active');
+  currentScreen = id;
+  syncAllStatus();
+}
+
+var modeConfig = {
+  athlete: { t:'選手模式',   desc:'精確計時反應訓練',   playerLabel:'我是運動員',    adminLabel:'我是教練／防護員', playerDesc:'開始計時測驗',     playerIcon:'bi-lightning-charge-fill', rounds:10, color:'var(--sci-blue)',   tagBg:'#0ea5e9' },
+  elderly:  { t:'長輩模式',  desc:'神經活化健康促進',    playerLabel:'我是受測長者',   adminLabel:'我是長照人員／醫護',playerDesc:'開始輕鬆測驗',    playerIcon:'bi-heart-pulse-fill',      rounds:5,  color:'var(--sci-amber)', tagBg:'#f59e0b' },
+  kids:     { t:'兒童模式',  desc:'邊玩邊訓練反應力',    playerLabel:'我是小朋友 😊', adminLabel:'我是家長／老師',   playerDesc:'按燈！GO GO GO！', playerIcon:'bi-star-fill',             rounds:8,  color:'var(--sci-green)', tagBg:'#10b981' }
+};
+
+function goMode(mode) {
+  game.mode = mode;
+  var cfg = modeConfig[mode];
+  document.getElementById('roleModeTitle').textContent = cfg.t;
+  document.getElementById('roleModeDesc').textContent  = cfg.desc;
+  document.getElementById('rolePlayerLabel').textContent = cfg.playerLabel;
+  document.getElementById('roleAdminLabel').textContent  = cfg.adminLabel;
+  document.getElementById('rolePlayerDesc').textContent  = cfg.playerDesc;
+  document.getElementById('rolePlayerIcon').className   = 'bi ' + cfg.playerIcon;
+  document.getElementById('rolePlayerIcon').style.color = cfg.color;
+  document.getElementById('rolePlayerIcon').style.fontSize = '40px';
+  document.getElementById('rolePlayerIcon').style.marginBottom = '14px';
+  document.getElementById('rolePlayerIcon').style.display = 'block';
+  document.getElementById('p-rounds').value = cfg.rounds;
+  showScreen('role');
+}
+
+/* ═══════════════════════════════════════
+   管理員 Auth（localStorage）
+═══════════════════════════════════════ */
+function switchAuthTab(tab) {
+  document.getElementById('login-box').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('reg-box').style.display   = tab==='reg'   ? 'block' : 'none';
+  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegBtn').classList.toggle('active',   tab==='reg');
+}
+
+function realRegister() {
+  var acc = document.getElementById('r-acc').value.trim();
+  var pw  = document.getElementById('r-pw').value;
+  if (!acc || !pw) return alert('請填寫完整資訊');
+  localStorage.setItem('USER_' + acc, pw);
+  alert('✅ 註冊成功！管理員 ID 為：' + acc);
+  switchAuthTab('login');
+}
+
+function realLogin() {
+  var acc = document.getElementById('l-acc').value.trim();
+  var pw  = document.getElementById('l-pw').value;
+  var saved = localStorage.getItem('USER_' + acc);
+  if (saved && saved === pw) {
+    document.getElementById('backendAdminLabel').textContent = '👤 ' + acc;
+    loadBackendData(acc);
+    showScreen('backend');
+  } else {
+    alert('帳號或密碼錯誤！');
+  }
+}
+
+function loadBackendData(adminId) {
+  var filterAdmin = adminId || document.getElementById('backendAdminLabel').textContent.replace('👤 ','').trim();
+  var filterMode  = document.getElementById('filterMode').value;
+  var records = JSON.parse(localStorage.getItem('TEST_RECORDS') || '[]');
+  var mine = records.filter(function(r){ return r.adminId === filterAdmin && (!filterMode || r.mode === filterMode); });
+  var tbody = document.getElementById('backend-body');
+  tbody.innerHTML = '';
+  var totalScore = 0, bestScore = Infinity, modeCount = {};
+  mine.forEach(function(r){
+    totalScore += r.score;
+    if(r.score < bestScore) bestScore = r.score;
+    modeCount[r.mode] = (modeCount[r.mode]||0) + 1;
+    var modeName = {athlete:'選手',elderly:'長輩',kids:'兒童'}[r.mode]||r.mode;
+    var rowColor = {athlete:'#eff6ff',elderly:'#fff7ed',kids:'#f0fdf4'}[r.mode]||'';
+    tbody.innerHTML += '<tr style="background:'+rowColor+'"><td class="ps-3 fw-bold">'+r.name+'</td><td>'+modeName+'</td><td class="fw-bold" style="color:var(--sci-blue);">'+r.score+'ms</td><td style="color:var(--sci-green);">'+(r.best||'—')+'ms</td><td>'+r.rounds+'</td><td style="color:var(--muted);">'+r.time+'</td></tr>';
+  });
+  document.getElementById('stat-count').textContent = mine.length;
+  document.getElementById('stat-avg').textContent   = mine.length ? Math.round(totalScore/mine.length) : 0;
+  document.getElementById('stat-best').textContent  = bestScore===Infinity ? '—' : bestScore;
+  var modeSummary = Object.entries(modeCount).map(function(e){ return ({athlete:'⚡',elderly:'❤️',kids:'⭐'}[e[0]]||'')+'×'+e[1]; }).join(' ');
+  document.getElementById('stat-modes').textContent = modeSummary || '—';
+}
+
+function clearAllData() {
+  if(confirm('確定要清除所有數據嗎？')) {
+    localStorage.removeItem('TEST_RECORDS');
+    loadBackendData();
+  }
+}
+
+/* ═══════════════════════════════════════
+   遊戲邏輯
+═══════════════════════════════════════ */
+var kidsMessages = ['棒棒棒！🌟','超快的！⚡','厲害！🎉','繼續加油！💪','哇！好快喔！🌈'];
+
+function startGame() {
+  var name  = document.getElementById('p-name').value.trim();
+  var aid   = document.getElementById('p-admin-id').value.trim();
+  var rounds = parseInt(document.getElementById('p-rounds').value) || 5;
+  if (!name) return alert('請輸入受測者姓名！');
+  if (!aid)  return alert('請輸入管理員 ID！');
+  if (!localStorage.getItem('USER_' + aid)) return alert('查無此管理員 ID，請確認教練/家長已完成註冊。');
+
+  game.playerName  = name;
+  game.adminId     = aid;
+  game.totalRounds = rounds;
+  game.currentRound = 0;
+  game.reactions   = [];
+  game.phase       = 'idle';
+
+  // 遊戲 UI 初始化
+  var cfg = modeConfig[game.mode];
+  var tag = document.getElementById('gameModeTag');
+  tag.textContent = cfg.t;
+  tag.style.background = cfg.tagBg;
+  tag.style.color = '#fff';
+
+  buildRoundPips();
+  document.getElementById('roundTotal').textContent = rounds;
+  document.getElementById('runningAvg').textContent = '—';
+  document.getElementById('runningBest').textContent = '—';
+  document.getElementById('gameHitCount').textContent = '0';
+  document.getElementById('btnGameNext').style.display = 'none';
+  document.getElementById('gameStatusText').textContent = '準備好了嗎？';
+  document.getElementById('reactionBadge').style.background = 'var(--surf2)';
+  document.getElementById('reactionBadge').style.color = 'var(--muted)';
+  document.getElementById('reactionBadge').textContent = '— 等待開始 —';
+  resetSignal();
+
+  showScreen('game');
+  setTimeout(nextRound, 800);
+}
+
+function buildRoundPips() {
+  var pips = document.getElementById('roundPips');
+  pips.innerHTML = '';
+  for(var i=0; i<game.totalRounds; i++){
+    var pip = document.createElement('span');
+    pip.className = 'round-pip';
+    pip.id = 'pip'+i;
+    pips.appendChild(pip);
+  }
+}
+
+function updatePips() {
+  for(var i=0; i<game.totalRounds; i++){
+    var pip = document.getElementById('pip'+i);
+    if(!pip) continue;
+    if(i < game.currentRound) pip.className = 'round-pip done';
+    else if(i === game.currentRound) pip.className = 'round-pip current';
+    else pip.className = 'round-pip';
+  }
+}
+
+function nextRound() {
+  if(game.currentRound >= game.totalRounds){ endGame(); return; }
+  document.getElementById('btnGameNext').style.display = 'none';
+  document.getElementById('roundCurrent').textContent = game.currentRound + 1;
+  updatePips();
+  game.phase = 'countdown';
+  runCountdown(3);
+}
+
+function runCountdown(n) {
+  game.countdownVal = n;
+  var statusEl = document.getElementById('gameStatusText');
+  var signalEl = document.getElementById('gameSignal');
+  if(n > 0){
+    statusEl.textContent = n + '…';
+    statusEl.style.color = 'var(--muted)';
+    signalEl.innerHTML = '<span style="font-size:52px;color:var(--muted);">'+n+'</span>';
+    game.countdownTimer = setTimeout(function(){ runCountdown(n-1); }, 900);
+  } else {
+    statusEl.textContent = game.mode==='kids' ? '眼睛看燈！👀' : '注意！';
+    statusEl.style.color = 'var(--sci-dark)';
+    signalEl.innerHTML = '<span style="font-size:52px;">●</span>';
+    game.phase = 'waiting';
+    // 隨機等待 0.8~2.5 秒後亮燈
+    var delay = 800 + Math.random() * 1700;
+    game.waitTimer = setTimeout(lightSignal, delay);
+  }
+}
+
+function lightSignal() {
+  if(game.phase !== 'waiting') return;
+  game.phase = 'lit';
+  game.litTime = Date.now();
+
+  // 選取訊號顏色
+  var colorModeSetting = document.getElementById('p-color-mode').value;
+  var c;
+  if(colorModeSetting === 'palette') c = colour_random();
+  else if(colorModeSetting === 'fixed-blue')  c = '#0080FF';
+  else if(colorModeSetting === 'fixed-red')   c = '#FF2020';
+  else if(colorModeSetting === 'fixed-green') c = '#00CC55';
+  else c = colour_random();
+  game.signalColor = c;
+
+  // 點亮 LED 實體
+  if(ws2812){ for(var i=0;i<16;i++) ws2812.setColor(i, c); }
+
+  // 點亮 UI 圓圈
+  var signalEl = document.getElementById('gameSignal');
+  signalEl.style.background = c;
+  signalEl.className = 'game-signal lit';
+  signalEl.style.setProperty('--signal-glow', c + '66');
+  signalEl.innerHTML = game.mode==='kids' ? '<span>👆</span>' : '';
+
+  var statusEl = document.getElementById('gameStatusText');
+  statusEl.textContent = game.mode==='kids' ? '按下去！🙌' : '現在！';
+  statusEl.style.color = c;
+
+  document.getElementById('reactionBadge').textContent = '等待敲擊…';
+  document.getElementById('reactionBadge').style.background = 'var(--surf2)';
+  document.getElementById('reactionBadge').style.color = 'var(--muted)';
+}
+
+// 當感測器偵測到敲擊，遊戲模式下呼叫
+function recordGameHit(val) {
+  if(game.phase !== 'lit') return;
+  var reactionMs = Date.now() - game.litTime;
+  game.phase = 'feedback';
+  game.reactions.push(reactionMs);
+  game.currentRound++;
+
+  // 關燈
+  if(ws2812){ for(var i=0;i<16;i++) ws2812.setColor(i,'#000000'); }
+  resetSignal();
+
+  // 顯示反應時間
+  var badge = document.getElementById('reactionBadge');
+  badge.textContent = reactionMs + ' ms';
+  badge.style.background = reactionMs < 250 ? '#dcfce7' : reactionMs < 400 ? '#fef9c3' : '#fee2e2';
+  badge.style.color = reactionMs < 250 ? 'var(--sci-green)' : reactionMs < 400 ? '#854d0e' : 'var(--sci-red)';
+
+  var statusEl = document.getElementById('gameStatusText');
+  if(game.mode==='kids'){
+    var msg = kidsMessages[Math.floor(Math.random()*kidsMessages.length)];
+    statusEl.textContent = msg;
+    statusEl.style.color = game.signalColor;
+    document.getElementById('gameSignal').classList.add('kids-bounce');
+    setTimeout(function(){ document.getElementById('gameSignal').classList.remove('kids-bounce'); },500);
+  } else {
+    statusEl.textContent = reactionMs < 200 ? '極快！' : reactionMs < 300 ? '很好！' : reactionMs < 500 ? '不錯！' : '再快一點！';
+    statusEl.style.color = 'var(--sci-dark)';
+  }
+
+  // 更新統計
+  document.getElementById('gameHitCount').textContent = game.reactions.length;
+  var avg = Math.round(game.reactions.reduce(function(a,b){return a+b;},0) / game.reactions.length);
+  var best = Math.min.apply(null, game.reactions);
+  document.getElementById('runningAvg').textContent  = avg + 'ms';
+  document.getElementById('runningBest').textContent = best + 'ms';
+  updatePips();
+
+  if(game.currentRound >= game.totalRounds){
+    setTimeout(endGame, 1200);
+  } else {
+    document.getElementById('btnGameNext').style.display = 'inline-flex';
+  }
+}
+
+function resetSignal() {
+  var signalEl = document.getElementById('gameSignal');
+  signalEl.style.background = 'var(--border)';
+  signalEl.className = 'game-signal';
+  signalEl.innerHTML = '<span style="font-size:52px;color:var(--muted);">●</span>';
+}
+
+function abortGame() {
+  if(game.waitTimer) clearTimeout(game.waitTimer);
+  if(game.countdownTimer) clearTimeout(game.countdownTimer);
+  if(ws2812){ for(var i=0;i<16;i++) ws2812.setColor(i,'#000000'); }
+  game.phase = 'idle';
+  showScreen('role');
+}
+
+function endGame() {
+  game.phase = 'done';
+  if(ws2812){ for(var i=0;i<16;i++) ws2812.setColor(i,'#000000'); }
+
+  var reactions = game.reactions;
+  if(!reactions.length){ showScreen('role'); return; }
+
+  var avg   = Math.round(reactions.reduce(function(a,b){return a+b;},0) / reactions.length);
+  var best  = Math.min.apply(null, reactions);
+  var worst = Math.max.apply(null, reactions);
+
+  // 儲存到 localStorage
+  var records = JSON.parse(localStorage.getItem('TEST_RECORDS')||'[]');
+  records.push({ adminId:game.adminId, name:game.playerName, mode:game.mode, score:avg, best:best, rounds:game.totalRounds, time:new Date().toLocaleString() });
+  localStorage.setItem('TEST_RECORDS', JSON.stringify(records));
+
+  // 顯示結果
+  document.getElementById('resultAvgMs').textContent = avg;
+  document.getElementById('resultBest').textContent  = best + 'ms';
+  document.getElementById('resultWorst').textContent = worst + 'ms';
+  document.getElementById('resultRounds').textContent = reactions.length;
+
+  // 等級徽章
+  var rankHtml, rankText;
+  if(avg < 200)      { rankHtml = '<span class="rank-badge" style="background:#fef9c3;color:#854d0e;">⚡ 閃電等級！</span>'; rankText = '閃電等級'; }
+  else if(avg < 300) { rankHtml = '<span class="rank-badge" style="background:#dcfce7;color:#166534;">🥇 優秀</span>'; rankText = '優秀'; }
+  else if(avg < 500) { rankHtml = '<span class="rank-badge" style="background:#eff6ff;color:#1e40af;">👍 良好</span>'; rankText = '良好'; }
+  else               { rankHtml = '<span class="rank-badge" style="background:var(--surf2);color:var(--muted);">💪 繼續練習</span>'; rankText = '繼續練習'; }
+  document.getElementById('resultRankBadge').innerHTML = rankHtml;
+
+  // 兒童彩帶
+  document.getElementById('resultsKidsAnim').style.display = game.mode==='kids' ? 'block' : 'none';
+  document.getElementById('resultsTitle').textContent   = game.mode==='kids' ? '你好棒棒喔！🎉' : '測驗完成！';
+  document.getElementById('resultsSubtitle').textContent = game.playerName + ' · ' + modeConfig[game.mode].t + ' · 數據已記錄';
+
+  // 各輪列表
+  var listHtml = '';
+  reactions.forEach(function(ms, i){
+    var color = ms < 250 ? 'var(--sci-green)' : ms < 400 ? 'var(--sci-amber)' : 'var(--sci-red)';
+    listHtml += '<div style="display:flex;justify-content:space-between;padding:7px 12px;background:var(--surf2);border-radius:8px;margin-bottom:6px;font-size:13px;">'
+      + '<span style="color:var(--muted);">第 '+(i+1)+' 輪</span>'
+      + '<span style="font-weight:700;color:'+color+';">'+ms+' ms</span></div>';
+  });
+  document.getElementById('resultRoundList').innerHTML = listHtml;
+
+  showScreen('results');
+}
+
+/* ═══════════════════════════════════════
+   設定頁功能
+═══════════════════════════════════════ */
+function colour_random() {
+  var available = palette.map(function(_,i){return i;}).filter(function(i){return i!==lastPaletteIndex;});
+  var pick = available[Math.floor(Math.random()*available.length)];
+  lastPaletteIndex = pick;
+  palette.forEach(function(_,i){
+    var sw = document.getElementById('swatch'+i);
+    if(sw) sw.classList.toggle('last-used', i===pick);
+  });
+  return palette[pick];
+}
+
+function buildPaletteUI() {
+  var grid = document.getElementById('paletteGrid');
+  grid.innerHTML = '';
+  palette.forEach(function(color, idx){
+    var slot = document.createElement('div'); slot.className='palette-slot';
+    var wrap = document.createElement('div'); wrap.className='palette-swatch-wrap';
+    var swatch = document.createElement('div');
+    swatch.className='palette-swatch'; swatch.id='swatch'+idx;
+    swatch.style.background=color; swatch.style.boxShadow='0 0 7px 2px '+color+'44';
+    var picker = document.createElement('input'); picker.type='color'; picker.className='palette-swatch-input'; picker.value=color;
+    picker.addEventListener('input',(function(i){ return function(){
+      palette[i]=this.value;
+      var sw=document.getElementById('swatch'+i);
+      sw.style.background=palette[i]; sw.style.boxShadow='0 0 7px 2px '+palette[i]+'44';
+      document.querySelector('#paletteGrid .palette-slot:nth-child('+(i+1)+') .palette-slot-label').textContent=palette[i].toUpperCase();
+    }; })(idx));
+    var label = document.createElement('div'); label.className='palette-slot-label'; label.textContent=color.toUpperCase();
+    wrap.appendChild(swatch); wrap.appendChild(picker);
+    slot.appendChild(wrap); slot.appendChild(label); grid.appendChild(slot);
+  });
+}
+
+function setLedUI(color) {
+  currentLedColor = color;
+  for(var i=0;i<16;i++){
+    var el=document.getElementById('led'+i);
+    if(!el) continue;
+    el.style.background=color; el.style.setProperty('--glow',color+'88'); el.classList.add('lit');
+  }
+}
+function clearLedUI() {
+  for(var i=0;i<16;i++){
+    var el=document.getElementById('led'+i);
+    if(!el) continue;
+    el.style.background='var(--border)'; el.classList.remove('lit');
+  }
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function nowStr(){ var d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
+function addHitLog(color,val){
+  var empty=document.getElementById('hitEmpty'); if(empty)empty.remove();
+  var entry=document.createElement('div'); entry.className='hit-entry';
+  entry.innerHTML='<div class="hit-swatch" style="background:'+color+'"></div><span class="hit-time">'+nowStr()+'</span><span>擊打 #'+settingsHitCount+'</span><span class="hit-val">'+val+'</span>';
+  var log=document.getElementById('hitLog'); log.insertBefore(entry,log.firstChild);
+  while(log.children.length>50) log.removeChild(log.lastChild);
+}
+function triggerRipple(color){
+  var overlay=document.getElementById('rippleOverlay');
+  var ripple=document.createElement('div'); ripple.className='ripple';
+  var size=Math.max(window.innerWidth,window.innerHeight);
+  ripple.style.cssText='width:'+size+'px;height:'+size+'px;top:'+(window.innerHeight/2-size/2)+'px;left:'+(window.innerWidth/2-size/2)+'px;background:'+(color||currentLedColor)+';';
+  overlay.appendChild(ripple);
+  setTimeout(function(){ overlay.removeChild(ripple); },700);
+}
+function updateThresholdMarker(){
+  document.getElementById('thresholdMarker').style.left=(threshold*100)+'%';
+}
+function applyThreshold(val){
+  val=Math.max(0,Math.min(1,parseFloat(val)||0));
+  threshold=parseFloat(val.toFixed(3));
+  document.getElementById('thresholdInput').value=threshold.toFixed(3);
+  document.getElementById('thresholdSlider').value=Math.round(threshold*1000);
+  document.getElementById('thresholdVal').textContent=threshold.toFixed(3);
+  document.querySelectorAll('#presetBtns .preset-btn').forEach(function(btn){
+    btn.classList.toggle('active',parseFloat(btn.dataset.val)===threshold);
+  });
+  updateThresholdMarker();
+}
+function setColorMode(mode){
+  colorMode=mode;
+  document.getElementById('tabRandom').classList.toggle('active',mode==='random');
+  document.getElementById('tabFixed').classList.toggle('active',mode==='fixed');
+  document.getElementById('randomColorSection').style.display=mode==='random'?'block':'none';
+  document.getElementById('fixedColorSection').style.display=mode==='fixed'?'block':'none';
+}
+
+/* ═══════════════════════════════════════
+   連線狀態同步
+═══════════════════════════════════════ */
+function syncAllStatus(){
+  var ids = ['statusHome','statusGame','statusSettings'];
+  var textIds = ['statusHomeText','statusGameText','statusSettingsText'];
+}
+function setStatus(state, text){
+  var badges = ['statusHome','statusGame','statusSettings'];
+  var texts  = ['statusHomeText','statusGameText','statusSettingsText'];
+  badges.forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    el.className='status-badge '+state;
+  });
+  texts.forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    el.textContent=text;
+  });
+}
+
+/* ═══════════════════════════════════════
+   事件綁定
+═══════════════════════════════════════ */
+// 建立 LED 格子
+var ledStripEl=document.getElementById('ledStrip');
+for(var li=0;li<16;li++){
+  var lcell=document.createElement('div'); lcell.className='led-cell'; lcell.id='led'+li;
+  ledStripEl.appendChild(lcell);
+}
+
+buildPaletteUI();
+updateThresholdMarker();
+
+document.getElementById('btnOff').onclick=function(){ if(!ws2812)return; for(var i=0;i<16;i++) ws2812.setColor(i,'#000000'); clearLedUI(); };
+document.getElementById('btnRandom').onclick=function(){ var c=colour_random(); if(ws2812) for(var i=0;i<16;i++) ws2812.setColor(i,c); setLedUI(c); };
+document.getElementById('btnApply').onclick=function(){ if(!ws2812)return; var c=colorMode==='fixed'?fixedColor:colour_random(); for(var i=0;i<16;i++) ws2812.setColor(i,c); setLedUI(c); };
+document.getElementById('btnClearLog').onclick=function(){ document.getElementById('hitLog').innerHTML='<div class="hit-empty" id="hitEmpty">尚無記錄…</div>'; };
+document.getElementById('colorPicker').oninput=function(){ fixedColor=this.value; document.getElementById('colorPreview').style.background=fixedColor; document.getElementById('colorHex').textContent=fixedColor; };
+document.getElementById('brightnessSlider').oninput=function(){ brightness=parseInt(this.value); document.getElementById('brightnessVal').textContent=brightness; if(ws2812) ws2812.brightness(brightness); };
+document.getElementById('thresholdInput').addEventListener('input',function(){ applyThreshold(this.value); });
+document.getElementById('thresholdInput').addEventListener('change',function(){ applyThreshold(this.value); });
+document.getElementById('thresholdSlider').oninput=function(){ applyThreshold(parseInt(this.value)/1000); };
+document.querySelectorAll('#presetBtns .preset-btn').forEach(function(btn){ btn.onclick=function(){ applyThreshold(parseFloat(this.dataset.val)); }; });
+document.getElementById('btnCapture').onclick=function(){
+  var btn=this;
+  if(settingsMinVal!==Infinity){ applyThreshold(Math.max(0,settingsMinVal+0.005)); btn.textContent='✓ 已設定！'; btn.style.background='var(--sci-green)'; btn.style.color='#fff'; setTimeout(function(){ btn.textContent='⬇ 抓最低值'; btn.style.background=''; btn.style.color=''; },1500); }
+  else { btn.textContent='尚無數據'; setTimeout(function(){ btn.textContent='⬇ 抓最低值'; },1200); }
+};
+
+/* ═══════════════════════════════════════
+   Webduino 主程式
+═══════════════════════════════════════ */
+setStatus('connecting','連線中…');
+
+boardReady({ board:'Smart', device:'gbYbA', transport:'mqtt', multi:true }, function(board){
+  setStatus('connected','已連線 · gbYbA');
+  board.samplingInterval = 50;
+  ws2812 = getWS2812(board, 12, 16);
+  ws2812.brightness(brightness);
+
+  photocell = getPhotocell(board, 0);
+  photocell.measure(function(val){
+    photocell.detectedVal = val;
+
+    // ─ 設定頁更新 ─
+    if(currentScreen==='settings'){
+      document.getElementById('bigVal').textContent = val.toFixed(3);
+      document.getElementById('bigVal').classList.toggle('triggered', val<threshold);
+      document.getElementById('barFill').style.width = Math.min(val*100,100)+'%';
+      settingsSamples++; settingsSumVal+=val;
+      if(val<settingsMinVal){ settingsMinVal=val; document.getElementById('minVal').textContent=val.toFixed(3); }
+      if(val>settingsMaxVal){ settingsMaxVal=val; document.getElementById('maxVal').textContent=val.toFixed(3); }
+      document.getElementById('avgVal').textContent=(settingsSumVal/settingsSamples).toFixed(3);
+    }
+
+    // ─ 敲擊偵測 ─
+    if(val < threshold){
+      if(!lastTriggered){
+        lastTriggered=true;
+
+        if(currentScreen==='game' && game.phase==='lit'){
+          // 遊戲模式：記錄反應時間
+          recordGameHit(val);
+
+        } else if(currentScreen==='settings'){
+          // 設定頁：正常 LED 顏色變換
+          settingsHitCount++;
+          document.getElementById('hitCount').textContent=settingsHitCount;
+          var c=colorMode==='fixed'?fixedColor:colour_random();
+          for(var i=0;i<=15;i++) ws2812.setColor(i,c);
+          setLedUI(c);
+          addHitLog(c,val.toFixed(3));
+          triggerRipple(c);
+        }
+      }
+    } else {
+      lastTriggered=false;
+    }
+  });
+});
+</script>
 </body>
 </html>
