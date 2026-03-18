@@ -325,19 +325,19 @@
       <input type="text" id="p-admin-id" class="form-control form-control-lg border-danger" placeholder="負責人帳號 ID">
     </div>
     
-    <!-- 科學訓練模式選擇 -->
+    <!-- 科學訓練計畫選擇 -->
     <div class="col-md-12 mt-2">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <label class="form-label fw-bold mb-0" style="font-size: 16px;">訓練菜單 (Training Protocol)</label>
+        <label class="form-label fw-bold mb-0" style="font-size: 16px;">訓練計畫 (Training Program)</label>
         <button class="btn btn-sm btn-outline-secondary" onclick="showModeInfoModal()" style="border-radius: 20px; font-size: 13px; font-weight: 600; padding: 4px 12px; transition: all 0.2s;">
-          <i class="bi bi-info-circle me-1"></i> 模式說明
+          <i class="bi bi-info-circle me-1"></i> 計畫說明
         </button>
       </div>
       
       <select id="p-game-mode" class="form-select form-select-lg shadow-sm" style="border-radius: 12px; cursor: pointer;"></select>
       
       <div class="form-text text-muted mt-2" style="font-size: 13px;">
-        選定的訓練模式將自動配置相對應的測試邏輯與自動輪轉機制。
+        選定的訓練計畫將自動配置相對應的科學訓練邏輯與自動輪轉機制。
       </div>
     </div>
   </div>
@@ -441,9 +441,9 @@
     <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">總測驗人次</div><div class="stat-value" id="stat-count">0</div></div></div>
     <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">群體平均 (ms)</div><div class="stat-value text-primary" id="stat-avg">0</div></div></div>
     <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">最快紀錄 (ms)</div><div class="stat-value text-success" id="stat-best">—</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">偏好模式</div><div class="stat-value text-warning" style="font-size:1.6rem;" id="stat-modes">—</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">偏好計畫</div><div class="stat-value text-warning" style="font-size:1.6rem;" id="stat-modes">—</div></div></div>
   </div>
-  <table class="table table-hover align-middle"><thead style="background:var(--sci-dark);color:white;"><tr><th>受測者</th><th>模式</th><th>平均反應</th><th>最佳成績</th><th>失誤/漏擊</th><th>測驗時間</th></tr></thead><tbody id="backend-body"></tbody></table>
+  <table class="table table-hover align-middle"><thead style="background:var(--sci-dark);color:white;"><tr><th>受測者</th><th>計畫</th><th>平均反應</th><th>最佳成績</th><th>失誤/漏擊</th><th>測驗時間</th></tr></thead><tbody id="backend-body"></tbody></table>
 </div></div>
 
 <!-- ══════════════════════════════════════════════
@@ -483,12 +483,12 @@
 </div></div>
 
 <!-- ══════════════════════════════════════════════
-     自訂彈出視窗 (Modal): 科學訓練模式說明
+     自訂彈出視窗 (Modal): 科學訓練計畫說明
 ══════════════════════════════════════════════ -->
 <div id="modal-mode-info" class="custom-modal-overlay">
   <div class="custom-modal-box">
     <div class="d-flex justify-content-between align-items-center mb-1 border-bottom pb-3">
-      <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-text me-2 text-primary"></i>科學訓練模式說明</h4>
+      <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-text me-2 text-primary"></i>科學訓練計畫說明</h4>
       <button type="button" class="btn-close" aria-label="Close" onclick="hideModeInfoModal()"></button>
     </div>
     <div class="mode-info-list" id="modal-info-content"></div>
@@ -521,7 +521,6 @@ var nodes = Array.from({ length: 6 }, (_, i) => ({
   minVal: Infinity, board: null, ws2812: null, photocell: null, connected: false, lastTriggered: false
 }));
 
-// 加入全自動回饋輪轉 Timer (feedbackTimer)
 var game = {
   mode: '', currentProtocolId: '', playerName: '', adminId: '',
   totalRounds: 5, currentRound: 0, reactions: [], totalErrors: 0,
@@ -531,31 +530,36 @@ var game = {
   waitTimer: null, countdownTimer: null, specialTimer: null, feedbackTimer: null
 };
 
-/* ─ 科學訓練協議定義 (含自動化邏輯說明) ─ */
+/* ─ 科學訓練計畫定義 (Protocols) ─ */
 const trainingProtocols = {
   athlete: {
     categoryName: '選手競技訓練',
     modes: [
-      { id: 'ath_srt', icon: '⚡', name: '簡單反應時間 (SRT)', desc: '場上隨機亮起 1 顆目標。擊打後自動產生下一顆。<strong>訓練目的：</strong>評估神經衝動傳導極限速度。', rounds: 10 },
-      { id: 'ath_rush', icon: '⏱️', name: '限時極限 (Time Attack)', desc: '燈光僅停留 1.2 秒！時間內未擊打即算漏擊，並強制自動進入下一輪。<strong>訓練目的：</strong>挑戰高壓時間下的動態視覺反應。', rounds: 15 },
-      { id: 'ath_gonogo', icon: '🧠', name: '選擇性抑制反應 (Go/No-Go)', desc: '主目標色與干擾色同時出現。擊打錯誤將扣分，自動輪轉。<strong>訓練目的：</strong>強化大腦決策、選擇性注意力與抑制能力。', rounds: 15 },
-      { id: 'ath_search', icon: '👁️', name: '視覺空間搜尋 (Visual Search)', desc: '6顆節點全亮，僅1顆為正確顏色。擊打後自動重新洗牌。<strong>訓練目的：</strong>優化周邊視野與複雜環境特徵提取能力。', rounds: 15 }
+      { id: 'ath_srt', icon: '⚡', name: '簡單反應 (SRT)', desc: '場上隨機亮起 1 顆目標。<strong>訓練目的：</strong>評估神經衝動傳導極限速度。', rounds: 10 },
+      { id: 'ath_rush', icon: '⏱️', name: '限時極限 (Time Attack)', desc: '燈光僅停留 1.2 秒！未擊打即算漏擊。<strong>訓練目的：</strong>挑戰高壓時間下的動態視覺反應。', rounds: 15 },
+      { id: 'ath_gonogo', icon: '🧠', name: '選擇性抑制 (Go/No-Go)', desc: '主目標與干擾色同時出現，擊打錯誤將扣分。<strong>訓練目的：</strong>強化大腦決策、選擇性注意力與抑制能力。', rounds: 15 },
+      { id: 'ath_search', icon: '👁️', name: '視覺空間搜尋 (Visual Search)', desc: '6顆節點全亮，僅1顆為正確顏色。<strong>訓練目的：</strong>優化周邊視野與複雜環境特徵提取能力。', rounds: 15 },
+      { id: 'ath_shift', icon: '🌪️', name: '動態位移 (Dynamic Shift)', desc: '目標絕對不重複於同一位置，強迫大範圍跑動。<strong>訓練目的：</strong>訓練敏捷步法轉換與空間定向能力。', rounds: 15 },
+      { id: 'ath_endurance', icon: '🏃', name: '疲勞耐受 (Endurance)', desc: '目標出現間隔極短，連續高頻測驗。<strong>訓練目的：</strong>考驗無氧狀態與高強度疲勞下的專注力維持。', rounds: 30 }
     ]
   },
   elderly: {
     categoryName: '樂齡認知活化',
     modes: [
-      { id: 'eld_basic', icon: '🟢', name: '基礎活化 (Basic Activation)', desc: '節奏溫和的單點亮燈。擊打後緩慢輪轉。<strong>訓練目的：</strong>適合高齡長者暖身，促進基礎手眼協調。', rounds: 5 },
-      { id: 'eld_color', icon: '🎨', name: '色彩辨識 (Color Discrimination)', desc: '同時出現目標色與警戒色。自動連續輪轉。<strong>訓練目的：</strong>預防認知退化，訓練對色彩的短期記憶與邏輯判斷。', rounds: 10 },
-      { id: 'eld_cross', icon: '🔄', name: '空間轉移 (Spatial Shift)', desc: '目標絕對不會在同一位置連續亮起。<strong>訓練目的：</strong>強迫肢體跨越中線進行大範圍位移，有助防跌。', rounds: 10 }
+      { id: 'eld_basic', icon: '🟢', name: '基礎活化 (Basic Activation)', desc: '節奏溫和的單點亮燈。<strong>訓練目的：</strong>適合高齡長者暖身，促進基礎手眼協調。', rounds: 5 },
+      { id: 'eld_color', icon: '🎨', name: '色彩辨識 (Color Discrimination)', desc: '同時出現目標色與干擾色。<strong>訓練目的：</strong>預防認知退化，訓練對色彩的短期記憶與邏輯判斷。', rounds: 10 },
+      { id: 'eld_cross', icon: '🔄', name: '空間轉移 (Spatial Shift)', desc: '目標不會在同一位置連續亮起。<strong>訓練目的：</strong>強迫肢體跨越中線進行大範圍位移，有助防跌。', rounds: 10 },
+      { id: 'eld_memory', icon: '🧩', name: '記憶配對 (Memory Match)', desc: '螢幕會顯示指定顏色，請找出陣列中相同顏色的燈。<strong>訓練目的：</strong>強化工作記憶 (Working Memory) 與視覺對應能力。', rounds: 10 }
     ]
   },
   kids: {
     categoryName: '兒童感覺統合',
     modes: [
-      { id: 'kid_mole', icon: '🐹', name: '打地鼠 (Whack-a-Mole)', desc: '目標燈光只停留 2 秒，沒打到就會自動消失並換下一個！<strong>訓練目的：</strong>激發兒童的瞬間爆發力與動態追蹤。', rounds: 15 },
-      { id: 'kid_treasure', icon: '🌈', name: '尋寶遊戲 (Treasure Hunt)', desc: '在眾多五顏六色的干擾燈中找出正確寶藏。連續闖關。<strong>訓練目的：</strong>訓練兒童的抗干擾能力與視覺專注力。', rounds: 10 },
-      { id: 'kid_freeze', icon: '❄️', name: '木頭人 (Red/Green Light)', desc: '綠燈快打，紅燈要停住不動 (2秒自動過關)！<strong>訓練目的：</strong>趣味化的衝動控制，學習「啟動」與「煞車」。', rounds: 10 }
+      { id: 'kid_mole', icon: '🐹', name: '打地鼠 (Whack-a-Mole)', desc: '目標燈光只停留 2 秒，沒打到就會自動消失！<strong>訓練目的：</strong>激發兒童的瞬間爆發力與動態追蹤。', rounds: 15 },
+      { id: 'kid_treasure', icon: '🌈', name: '尋寶遊戲 (Treasure Hunt)', desc: '在五顏六色的干擾燈中找出正確目標。<strong>訓練目的：</strong>訓練兒童的抗干擾能力與視覺專注力。', rounds: 10 },
+      { id: 'kid_freeze', icon: '❄️', name: '木頭人 (Red/Green Light)', desc: '綠燈快打，紅燈要停住不動 (2秒)！<strong>訓練目的：</strong>趣味化的衝動控制，學習「啟動」與「煞車」。', rounds: 10 },
+      { id: 'kid_match', icon: '🎨', name: '變色龍配對 (Color Match)', desc: '目標顏色每一關都會變！看螢幕顯示什麼顏色就打什麼顏色的燈。<strong>訓練目的：</strong>訓練色彩認知與視覺-動作整合。', rounds: 10 },
+      { id: 'kid_flash', icon: '⚡', name: '閃電俠 (Flash Speed)', desc: '超快節奏！燈光只停留 1 秒鐘！<strong>訓練目的：</strong>挑戰兒童的極限反應速度與手眼協調。', rounds: 15 }
     ]
   }
 };
@@ -749,12 +753,12 @@ function handleNodeTrigger(idx, val) {
   }
 }
 
-/* ─ 全自動遊戲啟動與迴圈邏輯 ─ */
+/* ─ 遊戲啟動與運作邏輯 ─ */
 var modeConfig = {
-  athlete: { t:'⚡ 選手模式', tagBg:'#0ea5e9', pName:'運動員姓名', pAdmin:'教練 ID', desc:'自動連續輪轉訓練，挑戰極限。' },
-  elderly: { t:'❤️ 樂齡模式', tagBg:'#f59e0b', pName:'樂齡學員姓名', pAdmin:'照護員 ID', desc:'自動溫和輪轉，進行輕鬆活化。' },
-  kids:    { t:'🌈 兒童模式', tagBg:'#10b981', pName:'小玩家暱稱', pAdmin:'家長・導師 ID', desc:'自動連續闖關，準備尋寶吧！' },
-  free:    { t:'♾️ 自由模式', tagBg:'#8b5cf6', pName:'', pAdmin:'', desc:'自動輪轉，專注於當下的訓練。' }
+  athlete: { t:'⚡ 選手模式', tagBg:'#0ea5e9', pName:'運動員姓名', pAdmin:'教練 ID', desc:'高強度科學體能訓練。' },
+  elderly: { t:'❤️ 樂齡模式', tagBg:'#f59e0b', pName:'樂齡學員姓名', pAdmin:'照護員 ID', desc:'輕鬆的認知與肢體活化。' },
+  kids:    { t:'🌈 兒童模式', tagBg:'#10b981', pName:'小玩家暱稱', pAdmin:'家長・導師 ID', desc:'趣味化的感覺統合挑戰。' },
+  free:    { t:'♾️ 自由模式', tagBg:'#8b5cf6', pName:'', pAdmin:'', desc:'無需記錄身份，自由選擇所有計畫進行訓練。' }
 };
 var kidsMessages = ['棒棒棒！🌟','超快的！⚡','厲害！🎉','繼續加油！💪','哇！好快喔！🌈'];
 
@@ -807,7 +811,6 @@ function startGame() {
   document.getElementById('simulator-panel').style.display = isSimMode ? 'flex' : 'none';
 
   showScreen('game'); 
-  // 進入遊戲後只進行一次 3-2-1 倒數，接著就全自動
   setTimeout(() => initialCountdown(3), 600);
 }
 
@@ -819,7 +822,6 @@ function updatePips() {
   }
 }
 
-// 僅在開局執行的倒數
 function initialCountdown(n) {
   if(n > 0){
     resetGameSignalUI(n + '…', 'var(--muted)', n, '— 準備 —');
@@ -829,7 +831,6 @@ function initialCountdown(n) {
   }
 }
 
-// 自動推進至下一顆燈
 function nextRound() {
   if(game.currentRound >= game.totalRounds) { endGame(); return; }
   
@@ -840,16 +841,14 @@ function nextRound() {
   resetGameSignalUI('注意！', 'var(--sci-dark)', '●', '等待目標亮起...');
   game.phase = 'waiting';
   
-  // 依據訓練模式調整生成間隔速度
   var delay = 800 + Math.random() * 1500; 
-  if (game.currentProtocolId === 'ath_rush') delay = 400 + Math.random() * 600; // 急限：生成極快
-  else if (game.currentProtocolId === 'kid_mole') delay = 500 + Math.random() * 1000; // 地鼠：生成快
-  else if (game.currentProtocolId === 'eld_basic') delay = 1500 + Math.random() * 1500; // 樂齡基礎：生成慢
+  if (['ath_rush', 'kid_flash'].includes(game.currentProtocolId)) delay = 400 + Math.random() * 600; 
+  else if (game.currentProtocolId === 'kid_mole') delay = 500 + Math.random() * 1000; 
+  else if (game.currentProtocolId === 'eld_basic') delay = 1500 + Math.random() * 1500; 
   
   game.waitTimer = setTimeout(lightSignal, delay);
 }
 
-// 處理超時/漏擊 (Time Attack)
 function handleMiss(customMsg) {
   if(game.phase !== 'lit') return;
   game.totalErrors++; game.phase = 'feedback'; turnOffAllLeds();
@@ -858,14 +857,12 @@ function handleMiss(customMsg) {
   document.getElementById('gameSignal').style.background = 'var(--sci-red)';
   document.getElementById('reactionBadge').textContent = '漏擊'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
   
-  // 記錄懲罰時間作為該次成績，以維持陣列長度對齊
-  let penaltyTime = game.currentProtocolId === 'ath_rush' ? 1200 : 2000;
+  let penaltyTime = ['ath_rush', 'kid_flash'].includes(game.currentProtocolId) ? 1200 : 2000;
   game.reactions.push(penaltyTime);
   game.currentRound++;
   updatePips();
   
-  // 自動推進
-  let feedbackDelay = (game.currentProtocolId === 'ath_rush' || game.currentProtocolId === 'kid_mole') ? 600 : 1000;
+  let feedbackDelay = ['ath_rush', 'kid_flash', 'kid_mole'].includes(game.currentProtocolId) ? 600 : 1000;
   game.feedbackTimer = setTimeout(nextRound, feedbackDelay);
 }
 
@@ -877,7 +874,7 @@ function handleNoGoSuccess() {
   document.getElementById('gameSignal').style.background = 'var(--sci-green)';
   document.getElementById('reactionBadge').textContent = '成功抑制'; document.getElementById('reactionBadge').style.background = '#dcfce7'; document.getElementById('reactionBadge').style.color = 'var(--sci-green)';
   
-  game.reactions.push(0); // 0 代表成功的抑制，不計入平均
+  game.reactions.push(0); 
   game.currentRound++;
   updatePips();
   
@@ -889,12 +886,22 @@ function lightSignal() {
   game.phase = 'lit'; game.litTime = Date.now(); game.roundPenalty = 0; game.isNoGo = false;
   if(game.specialTimer) clearTimeout(game.specialTimer);
 
-  let pId = game.currentProtocolId; game.targetColor = palette[0];
+  let pId = game.currentProtocolId; 
+  
+  // 決定主目標色 (記憶/變色龍模式需每次隨機)
+  if (['eld_memory', 'kid_match'].includes(pId)) {
+    game.targetColor = palette[Math.floor(Math.random() * palette.length)];
+  } else {
+    game.targetColor = palette[0];
+  }
+
   var connectedNodes = nodes.filter(n => n.connected && n.ws2812);
   
   if(connectedNodes.length > 0) {
     var targetNode = connectedNodes[Math.floor(Math.random() * connectedNodes.length)];
-    if (pId === 'eld_cross' && connectedNodes.length > 1) {
+    
+    // 動態位移/空間轉移 (強制不重複節點)
+    if (['eld_cross', 'ath_shift'].includes(pId) && connectedNodes.length > 1) {
       while(targetNode.index === game.lastNodeIndex) { targetNode = connectedNodes[Math.floor(Math.random() * connectedNodes.length)]; }
     }
     game.activeNodeIndex = targetNode.index; game.lastNodeIndex = targetNode.index;
@@ -915,25 +922,41 @@ function lightSignal() {
     for(var i=0; i<16; i++) targetNode.ws2812.setColor(i, game.targetColor);
     document.getElementById('gameTargetNode').textContent = `P${targetNode.index + 1}`;
 
-    // 干擾色處理
-    if(pId === 'ath_gonogo' || pId === 'kid_treasure' || pId === 'eld_color') {
-      connectedNodes.forEach(n => { if(n.index !== targetNode.index && Math.random() > 0.4) { let r = palette[Math.floor(Math.random()*5)+1]; for(var i=0; i<16; i++) n.ws2812.setColor(i, r); } });
-    } else if (pId === 'ath_search') {
-      connectedNodes.forEach(n => { if(n.index !== targetNode.index) { let r = palette[Math.floor(Math.random()*5)+1]; for(var i=0; i<16; i++) n.ws2812.setColor(i, r); } });
+    // 干擾色處理 (視覺搜尋/記憶配對 100% 其他節點亮，抑制 40% 亮)
+    if(['eld_memory', 'kid_match', 'ath_search'].includes(pId)) {
+      connectedNodes.forEach(n => { 
+        if(n.index !== targetNode.index) { 
+          let avail = palette.filter(c => c !== game.targetColor);
+          let r = avail[Math.floor(Math.random() * avail.length)]; 
+          for(var i=0; i<16; i++) n.ws2812.setColor(i, r); 
+        } 
+      });
+    } else if(['ath_gonogo', 'kid_treasure', 'eld_color'].includes(pId)) {
+      connectedNodes.forEach(n => { 
+        if(n.index !== targetNode.index && Math.random() > 0.4) { 
+          let avail = palette.filter(c => c !== game.targetColor);
+          let r = avail[Math.floor(Math.random() * avail.length)]; 
+          for(var i=0; i<16; i++) n.ws2812.setColor(i, r); 
+        } 
+      });
     }
 
-    // 限時挑戰處理
-    if (pId === 'ath_rush') { game.specialTimer = setTimeout(() => handleMiss('極限超時！'), 1200); }
+    // 限時挑戰 Timeout 設定
+    if (['ath_rush', 'kid_flash'].includes(pId)) { game.specialTimer = setTimeout(() => handleMiss('極限超時！'), 1000); }
     else if (pId === 'kid_mole') { game.specialTimer = setTimeout(() => handleMiss('地鼠跑了！'), 2000); }
     
   } else {
     game.activeNodeIndex = -1; document.getElementById('gameTargetNode').textContent = 'UI (未連線)';
   }
 
+  // UI 更新
   var signalEl = document.getElementById('gameSignal');
   signalEl.style.background = game.targetColor; signalEl.className = 'game-signal lit'; signalEl.style.setProperty('--signal-glow', game.targetColor + '66'); signalEl.innerHTML = '';
   
-  var statusText = game.mode==='kids' ? '快按發光的目標！🙌' : '擊打主目標節點！';
+  var statusText = '擊打主目標節點！';
+  if (['eld_memory', 'kid_match'].includes(pId)) statusText = '尋找相同顏色的燈！';
+  else if (game.mode === 'kids') statusText = '快按發光的目標！🙌';
+
   document.getElementById('gameStatusText').textContent = statusText; document.getElementById('gameStatusText').style.color = game.targetColor; document.getElementById('reactionBadge').textContent = '計時中…';
 
   if(game.activeNodeIndex === -1 && !isSimMode) { signalEl.onclick = function() { if(game.phase === 'lit') recordGameHit(0, true, -1); }; } else { signalEl.onclick = null; }
@@ -946,20 +969,18 @@ function recordGameHit(val, isCorrect, nodeIdx) {
   if(!isCorrect || game.isNoGo) {
     game.totalErrors++;
     
-    // 如果是木頭人亂動，直接算失敗換下一輪
     if (game.isNoGo) {
         game.phase = 'feedback'; turnOffAllLeds();
         document.getElementById('gameStatusText').textContent = '動到了！(失誤)'; document.getElementById('gameStatusText').style.color = 'var(--sci-red)';
         document.getElementById('gameSignal').style.background = 'var(--sci-red)';
         document.getElementById('reactionBadge').textContent = '衝動控制失敗'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
         
-        game.reactions.push(2000); // 失敗加時
+        game.reactions.push(2000); 
         game.currentRound++; updatePips();
         game.feedbackTimer = setTimeout(nextRound, 1000);
         return;
     }
 
-    // 干擾模式打錯：加時懲罰並要求繼續找 (不進入下一輪)
     game.roundPenalty += 500;
     let wrongNode = nodes[nodeIdx];
     if(wrongNode && wrongNode.ws2812) {
@@ -971,12 +992,13 @@ function recordGameHit(val, isCorrect, nodeIdx) {
     document.getElementById('reactionBadge').textContent = '失誤！繼續找！'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
     setTimeout(() => {
         if(game.phase === 'lit') {
-            document.getElementById('gameStatusText').textContent = '繼續找主目標！'; document.getElementById('gameStatusText').style.color = game.targetColor; document.getElementById('gameSignal').style.background = game.targetColor;
+            let pId = game.currentProtocolId;
+            let statusText = ['eld_memory', 'kid_match'].includes(pId) ? '尋找相同顏色的燈！' : '繼續找主目標！';
+            document.getElementById('gameStatusText').textContent = statusText; document.getElementById('gameStatusText').style.color = game.targetColor; document.getElementById('gameSignal').style.background = game.targetColor;
         }
     }, 600);
     
-    // 若為限時模式，恢復 Timer
-    if (game.currentProtocolId === 'ath_rush') { game.specialTimer = setTimeout(() => handleMiss('極限超時！'), 1200); }
+    if (['ath_rush', 'kid_flash'].includes(game.currentProtocolId)) { game.specialTimer = setTimeout(() => handleMiss('極限超時！'), 1000); }
     else if (game.currentProtocolId === 'kid_mole') { game.specialTimer = setTimeout(() => handleMiss('地鼠跑了！'), 2000); }
     return; 
   }
@@ -997,16 +1019,14 @@ function recordGameHit(val, isCorrect, nodeIdx) {
     statusEl.textContent = reactionMs < 200 ? '極快！' : reactionMs < 300 ? '很好！' : reactionMs < 500 ? '不錯！' : '再快一點！'; statusEl.style.color = 'var(--sci-dark)';
   }
 
-  // 計算平均時過濾掉 0 (NoGo Success)
-  let validReactions = game.reactions.filter(m => m > 0);
+  let validReactions = game.reactions.filter(m => m > 0); 
   var avg = validReactions.length ? Math.round(validReactions.reduce((a,b)=>a+b,0) / validReactions.length) : 0; 
   var best = validReactions.length ? Math.min.apply(null, validReactions) : '—';
   
   document.getElementById('runningAvg').textContent = avg + 'ms'; document.getElementById('runningBest').textContent = best + 'ms';
   updatePips(); resetGameSignalUI(statusEl.textContent, statusEl.style.color, '●', badge.textContent, false);
 
-  // 自動推進
-  let feedbackDelay = (game.currentProtocolId === 'ath_rush' || game.currentProtocolId === 'kid_mole') ? 400 : 800;
+  let feedbackDelay = ['ath_rush', 'kid_flash', 'kid_mole'].includes(game.currentProtocolId) ? 400 : 800;
   game.feedbackTimer = setTimeout(nextRound, feedbackDelay);
 }
 
@@ -1029,39 +1049,39 @@ function abortGame() {
 /* ─ 動態生成科學訓練報告 ─ */
 function generateExpertReport(protocolId, avg, best, worst, errors, totalRounds) {
   const stability = worst - best;
-  let insights = [];
-  let advice = "";
+  let insights = []; let advice = "";
 
-  if (avg === 0) { // 極端情況防護
+  if (avg === 0) {
       insights.push('<li><strong>⚠️ 數據不足：</strong>本次測驗有效反應次數過少，無法產生完整報告。</li>');
   } else {
       if (avg <= 250) insights.push('<li><strong>⚡ 極速神經傳導：</strong>平均反應極快，中樞神經處於高度活化狀態，具備頂尖的視覺-動作反射水準。</li>');
       else if (avg <= 400) insights.push('<li><strong>🏃 優良視覺動作整合：</strong>落在健康成人的優良區間，大腦處理視覺訊號並轉化為動作的效率良好。</li>');
-      else insights.push('<li><strong>🔋 神經徵召較緩：</strong>整體啟動時間偏長。可能是尚未充分熱身，或大腦正在處理較複雜的視覺干擾。</li>');
+      else insights.push('<li><strong>🔋 神經徵召較緩：</strong>整體啟動時間偏長。可能是尚未充分熱身，或大腦正在處理較複雜的認知判斷。</li>');
 
       if (stability <= 120) insights.push('<li><strong>🎯 高度專注維持：</strong>最快與最慢落差極小 (' + stability + 'ms)，顯示注意力高度集中，未出現神經疲勞或分心。</li>');
-      else if (stability >= 300) insights.push('<li><strong>⚠️ 專注力波動：</strong>落差達 ' + stability + 'ms。大腦在連續刺激中可能出現短暫的「認知不反應期 (Attentional Blink)」。</li>');
+      else if (stability >= 300) insights.push('<li><strong>⚠️ 專注力波動：</strong>落差達 ' + stability + 'ms。大腦在連續刺激中可能出現短暫的「認知不反應期」。</li>');
       else insights.push('<li><strong>⚖️ 表現穩定：</strong>整體反應時間落差在合理範圍內，神經放電頻率維持平穩。</li>');
 
-      let hasDistractor = ['ath_gonogo', 'ath_search', 'eld_color', 'kid_treasure', 'kid_freeze'].includes(protocolId);
-      if (hasDistractor && errors === 0) {
-          insights.push('<li><strong>🛡️ 完美衝動控制：</strong>在強大干擾下達成 0 失誤，大腦前額葉的「選擇性抑制 (Response Inhibition)」能力出色。</li>');
-      } else if (errors > 0) {
-          insights.push('<li><strong>🚨 出現決策失誤：</strong>共 ' + errors + ' 次失誤/漏擊。在追求速度時犧牲了準確性，出現明顯的「速度-準確度權衡 (Speed-Accuracy Trade-off)」現象。</li>');
-      }
+      let hasDistractor = ['ath_gonogo', 'ath_search', 'eld_color', 'eld_memory', 'kid_treasure', 'kid_freeze', 'kid_match'].includes(protocolId);
+      if (hasDistractor && errors === 0) insights.push('<li><strong>🛡️ 完美衝動控制：</strong>在強大干擾下達成 0 失誤，大腦前額葉的「選擇性抑制 (Response Inhibition)」能力出色。</li>');
+      else if (errors > 0) insights.push('<li><strong>🚨 出現決策失誤：</strong>共 ' + errors + ' 次失誤/漏擊。在追求速度時犧牲了準確性，出現明顯的「速度-準確度權衡」現象。</li>');
   }
 
   switch(protocolId) {
-      case 'ath_srt': advice = "SRT (簡單反應) 測驗純粹反射。建議下次測驗前進行動態視力與快速墊步暖身，進一步縮短肌肉啟動的遲滯期。"; break;
+      case 'ath_srt': advice = "SRT 測驗純粹反射。建議下次測驗前進行動態視力與快速墊步暖身，進一步縮短肌肉啟動的遲滯期。"; break;
       case 'ath_rush': advice = errors > 0 ? "急限模式考驗極限反應，漏擊代表神經處理速度已達極限。建議增加動態視覺訓練來強化。" : "極限反應力驚人！所有的短暫目標都能被你完美捕捉。"; break;
-      case 'ath_gonogo': advice = errors > 0 ? "大腦的「煞車」機制略慢於「油門」。建議下次放慢 10% 的預期節奏，強化看清再出手的決策正確率。" : "完美的決策與行動平衡！下次可嘗試拉大設備間距，增加腳步移動的難度。"; break;
-      case 'ath_search': advice = "視覺搜尋考驗眼球快速跳視能力。建議訓練時頭部保持穩定，學習用「周邊視野 (Peripheral Vision)」去捕捉目標。"; break;
-      case 'eld_basic': advice = "基礎活化表現良好！持之以恆的規律練習，是維持神經突觸活躍、延緩認知退化的最佳處方。"; break;
-      case 'eld_color': advice = errors > 0 ? "在多色彩中尋找目標較耗費腦力。建議訓練時可在心中默唸目標顏色，幫助大腦短期記憶鎖定。" : "色彩辨識邏輯極佳！您的大腦皮層對於視覺特徵的篩選能力非常健康。"; break;
-      case 'eld_cross': advice = "大跨度的空間轉移能有效鍛鍊平衡感與本體感覺。建議確保場地空曠，並鼓勵使用非慣用手進行跨越中線的擊打。"; break;
-      case 'kid_mole': advice = errors > 0 ? "追蹤移動目標需要高度專注。可鼓勵孩子在擊打時伴隨口部發聲(如喊'中')，有助於感覺統合的連結。" : "敏捷度非常優秀！地鼠完全逃不過你的手掌心！"; break;
-      case 'kid_treasure': advice = errors > 0 ? "五顏六色的燈光容易分散注意力。引導孩子深呼吸，像尋寶獵人一樣只盯著目標，過濾掉不重要的訊息。" : "出色的抗干擾能力！孩子的視覺專注力已經能有效忽略不相干的刺激。"; break;
-      case 'kid_freeze': advice = errors > 0 ? "煞車訓練對孩子較困難。可透過反覆練習「停看聽」來增強自我調節與情緒控制力。" : "自我控制力非常棒！能在興奮狀態下瞬間煞車，對過動/衝動的抑制有極大幫助。"; break;
+      case 'ath_gonogo': advice = errors > 0 ? "大腦的「煞車」機制略慢於「油門」。建議下次放慢 10% 的預期節奏，強化看清再出手的正確率。" : "完美的決策與行動平衡！下次可嘗試拉大設備間距增加難度。"; break;
+      case 'ath_search': advice = "視覺搜尋考驗眼球跳視能力。建議訓練時頭部保持穩定，學習用「周邊視野 (Peripheral Vision)」去捕捉目標。"; break;
+      case 'ath_shift': advice = "動態位移強迫身體大範圍變向。建議注意核心肌群穩定與重心壓低，以提升變向效率。"; break;
+      case 'eld_basic': advice = "基礎活化表現良好！持之以恆的練習是維持神經突觸活躍、延緩認知退化的最佳處方。"; break;
+      case 'eld_color': advice = errors > 0 ? "多色彩尋找較耗費腦力。建議訓練時在心中默唸目標顏色，幫助大腦短期記憶鎖定。" : "色彩辨識邏輯極佳！您的大腦皮層對視覺特徵的篩選能力非常健康。"; break;
+      case 'eld_cross': advice = "大跨度的空間轉移能有效鍛鍊平衡與本體感覺。建議確保場地空曠，並鼓勵使用非慣用手擊打。"; break;
+      case 'eld_memory': advice = errors > 0 ? "記憶配對出現失誤，代表工作記憶受到干擾。建議觀察目標後，反覆默唸該顏色再尋找。" : "記憶與視覺對應能力非常出色！大腦在提取短期記憶並執行動作的迴路十分健康。"; break;
+      case 'kid_mole': advice = errors > 0 ? "追蹤移動目標需要高度專注。可鼓勵孩子擊打時伴隨發聲(如喊'中')，有助感覺統合連結。" : "敏捷度非常優秀！地鼠完全逃不過你的手掌心！"; break;
+      case 'kid_treasure': advice = errors > 0 ? "五顏六色的燈光易分散注意。引導孩子深呼吸，像尋寶獵人一樣只盯著目標，過濾掉不重要的訊息。" : "出色的抗干擾能力！孩子的視覺專注力已經能有效忽略不相干刺激。"; break;
+      case 'kid_freeze': advice = errors > 0 ? "煞車對孩子較困難。可透過反覆練習「停看聽」來增強自我調節與情緒控制力。" : "自我控制力非常棒！能在興奮狀態下瞬間煞車，對衝動抑制有極大幫助。"; break;
+      case 'kid_match': advice = errors > 0 ? "配對遊戲需要孩子同時注意螢幕與實體燈光。建議家長在旁可口頭提示顏色，輔助建立連結。" : "色彩認知與反應完美結合！孩子展現了極佳的感覺統合與視覺記憶力。"; break;
+      case 'kid_flash': advice = errors > 0 ? "閃電俠節奏極快，漏擊是正常的挑戰過程。持續練習可以大幅提升孩子的瞬間專注力。" : "超凡的反射神經！孩子的動態視覺捕捉能力已經超越同齡水準。"; break;
       default: advice = "穩定的反應力是各項運動的基礎。持續進行多樣化的感官訓練，將有助於提升整體神經網絡效率。";
   }
 
@@ -1074,7 +1094,7 @@ function endGame() {
   var reactions = game.reactions;
   if(!reactions.length){ showScreen('main-menu'); return; }
 
-  let validReactions = reactions.filter(m => m > 0); // 排除 0 (NoGo成功) 計算平均
+  let validReactions = reactions.filter(m => m > 0); 
   var avg = validReactions.length ? Math.round(validReactions.reduce((a,b)=>a+b,0) / validReactions.length) : 0;
   var best = validReactions.length ? Math.min.apply(null, validReactions) : 0;
   var worst = validReactions.length ? Math.max.apply(null, validReactions) : 0;
@@ -1108,7 +1128,7 @@ function endGame() {
       listHtml += `<div style="display:flex;justify-content:space-between;padding:7px 12px;background:#dcfce7;border-radius:8px;margin-bottom:6px;font-size:13px;"><span style="color:var(--sci-green);font-weight:600;">第 ${i+1} 次</span><span style="font-weight:800;color:var(--sci-green);">成功抑制</span></div>`;
     } else {
       var color = ms < 250 ? 'var(--sci-green)' : ms < 400 ? 'var(--sci-amber)' : 'var(--sci-red)';
-      let text = (ms >= 1200 && (game.currentProtocolId==='ath_rush' || game.currentProtocolId==='kid_mole')) ? '漏擊 (超時)' : `${ms} ms`;
+      let text = (ms >= 1000 && ['ath_rush', 'kid_mole', 'kid_flash'].includes(game.currentProtocolId)) ? '漏擊 (超時)' : `${ms} ms`;
       listHtml += `<div style="display:flex;justify-content:space-between;padding:7px 12px;background:var(--surf2);border-radius:8px;margin-bottom:6px;font-size:13px;"><span style="color:var(--muted);">第 ${i+1} 次</span><span style="font-weight:700;color:${color};">${text}</span></div>`;
     }
   });
@@ -1168,7 +1188,7 @@ function loadBackendData(adminId) {
 
 /* ─ 初始化啟動 ─ */
 window.onload = function() {
-  initSimulator(); // 載入模擬器設定
+  initSimulator(); 
   renderPaletteUI();
   renderNodeGrid();
   setTimeout(connectAllNodes, 500);
