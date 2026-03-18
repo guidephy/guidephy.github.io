@@ -177,21 +177,69 @@
 
             <!-- 網頁三劍客互動演示區 -->
             <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 mb-8">
-                <h4 class="font-bold text-center mb-4 text-slate-700 flex items-center justify-center gap-2">
+                <h4 class="font-bold text-center mb-6 text-slate-700 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     網頁進化演示 (點擊體驗)
                 </h4>
-                <div class="flex flex-wrap justify-center gap-2 mb-6">
-                    <button onclick="setDemoLayer(1)" class="px-4 py-2 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-lg font-bold transition-colors">1. 純 HTML</button>
-                    <button onclick="setDemoLayer(2)" class="px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-bold transition-colors">2. 穿上 CSS</button>
-                    <button onclick="setDemoLayer(3)" class="px-4 py-2 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-lg font-bold transition-colors">3. 注入 JS 靈魂</button>
+                <div class="flex flex-wrap justify-center gap-2 mb-2">
+                    <button onclick="setDemoLayer(1)" class="px-5 py-2.5 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-sm">1. 純 HTML</button>
+                    <button onclick="setDemoLayer(2)" class="px-5 py-2.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-sm">2. 穿上 CSS</button>
+                    <button onclick="setDemoLayer(3)" class="px-5 py-2.5 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-sm">3. 注入 JS 靈魂</button>
                 </div>
-                <!-- 演示區塊 -->
-                <div id="demo-area" class="w-full max-w-sm mx-auto p-4 bg-white border border-slate-300 min-h-[150px] transition-all duration-700 ease-in-out">
-                    <h3 id="demo-title" style="font-size:16px; margin-bottom: 8px;">我的教學網站</h3>
-                    <p id="demo-text" style="font-size:14px;">這是一段文字，目前看起來非常樸素。</p>
-                    <button id="demo-btn" style="display:inline-block; margin-top:10px;">點擊這裡</button>
-                    <p id="demo-result" style="display:none; color:red; margin-top:10px; font-size:14px;">點擊沒有反應，因為沒有 JS！</p>
+                
+                <!-- 演示與程式碼對照區塊 (專業 UI 設計) -->
+                <div class="w-full max-w-2xl mx-auto flex flex-col gap-5 mt-8">
+                    
+                    <!-- 上方：視覺演示區 (模擬瀏覽器) -->
+                    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col transition-all duration-300">
+                        <!-- 模擬瀏覽器標題列 -->
+                        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 flex items-center">
+                            <div class="flex gap-1.5 w-16">
+                                <div class="w-3 h-3 rounded-full bg-rose-400 shadow-inner"></div>
+                                <div class="w-3 h-3 rounded-full bg-amber-400 shadow-inner"></div>
+                                <div class="w-3 h-3 rounded-full bg-emerald-400 shadow-inner"></div>
+                            </div>
+                            <div class="flex-grow text-center">
+                                <span class="bg-white px-4 py-1 rounded-md text-[10px] text-slate-400 font-mono border border-slate-200 shadow-sm flex items-center justify-center max-w-[200px] mx-auto gap-2">
+                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                                    preview.html
+                                </span>
+                            </div>
+                            <div class="w-16"></div> <!-- 為了平衡排版 -->
+                        </div>
+                        <!-- 網頁內容區 -->
+                        <div class="p-8 bg-slate-50 flex items-center justify-center min-h-[260px] relative overflow-hidden">
+                            <!-- 背景網格裝飾 -->
+                            <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 20px 20px;"></div>
+                            
+                            <div id="demo-area" class="relative z-10 w-full max-w-md mx-auto p-4 bg-white border border-slate-300 min-h-[150px] transition-all duration-700 ease-in-out">
+                                <h3 id="demo-title" style="font-size:16px; margin-bottom: 8px;">我的教學網站</h3>
+                                <p id="demo-text" style="font-size:14px;">這是一段文字，目前看起來非常樸素。</p>
+                                <button id="demo-btn" style="display:inline-block; margin-top:10px;">點擊這裡</button>
+                                <p id="demo-result" style="display:none; color:red; margin-top:10px; font-size:14px;">點擊沒有反應，因為沒有 JS！</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 下方：程式碼檢視區 (模擬編輯器) -->
+                    <div class="bg-slate-800 rounded-xl shadow-xl flex flex-col min-h-[180px] border border-slate-700 overflow-hidden">
+                        <!-- 模擬編輯器標題列 -->
+                        <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-700 flex justify-between items-center">
+                            <span id="code-title" class="font-bold text-orange-400 flex items-center gap-2 text-xs tracking-wide">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                HTML 原始碼 (負責骨架)
+                            </span>
+                            <div class="flex gap-1.5 opacity-40">
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
+                            </div>
+                        </div>
+                        <div class="p-5 overflow-x-auto bg-slate-800/95 flex-grow">
+                            <pre id="demo-code" class="text-[13px] font-mono text-slate-300 whitespace-pre-wrap leading-relaxed">&lt;h3&gt;我的教學網站&lt;/h3&gt;
+&lt;p&gt;這是一段文字，目前看起來非常樸素。&lt;/p&gt;
+&lt;button&gt;點擊這裡&lt;/button&gt;</pre>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -283,27 +331,51 @@
                 </svg>
             </div>
 
-            <!-- 複製指令區塊 -->
-            <div class="bg-indigo-50 p-6 rounded-2xl relative border border-indigo-100 mb-8 shadow-inner">
+            <!-- 複製指令區塊 1 -->
+            <div class="bg-indigo-50 p-6 rounded-2xl relative border border-indigo-100 mb-6 shadow-inner">
                 <div class="text-xs text-indigo-500 mb-3 uppercase tracking-widest font-bold flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    複製咒語 (Prompt)
+                    範本一：個人網站首頁
                 </div>
-                <div id="prompt-content" class="text-sm leading-relaxed text-slate-700 mb-6 font-medium whitespace-pre-wrap bg-white/60 p-5 rounded-xl border border-indigo-100/50 h-72 overflow-y-auto shadow-sm"># Persona (角色)
-你是一位資深前端工程師與 UI/UX 設計師，非常擅長教育類網站的體驗設計。你的程式碼乾淨、具備現代感，且非常注重排版的美感、動態svg動畫與響應式設計。
+                <div id="prompt-content-1" class="text-sm leading-relaxed text-slate-700 mb-6 font-medium whitespace-pre-wrap bg-white/60 p-5 rounded-xl border border-indigo-100/50 h-64 overflow-y-auto shadow-sm"># Persona (角色)
+你是一位資深前端工程師與 UI/UX 設計師，非常擅長教育類網站的體驗設計。你的程式碼乾淨、具備現代感，且非常注重排版的美感、動態 SVG 動畫與響應式設計。
 
 # Task (任務)
 請幫我撰寫一個「個人教學網站」的首頁程式碼。
 
 # Context (背景)
-1、 網站左上角是網頁標題：【請更改為你的網頁標題】
-2、右上角導覽列選單：【請填入有哪些選單，例如：關於我、物理課程、網頁課程、聯絡方式】
-3、下面是我之後放的教學內容區
+1、網站左上角是網頁標題：<span class="text-rose-600 font-bold bg-rose-100 px-1 rounded">【請更改為你的網頁標題】</span>
+2、右上角導覽列選單：<span class="text-rose-600 font-bold bg-rose-100 px-1 rounded">【請填入有哪些選單，例如：關於我、物理課程、網頁課程、聯絡方式】</span>
+3、下方留空作為我之後放置教學內容的區塊
 
 # Format (格式)
 1、響應式設計 (RWD)
 2、完整輸出：直接給我完整包含 HTML、CSS 與 JavaScript、可以直接執行的最終版本程式碼。</div>
-                <button onclick="copyPrompt()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-indigo-500/30">複製指令</button>
+                <button onclick="copyPrompt('prompt-content-1', this)" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-indigo-500/30">複製指令</button>
+            </div>
+
+            <!-- 複製指令區塊 2 -->
+            <div class="bg-indigo-50 p-6 rounded-2xl relative border border-indigo-100 mb-8 shadow-inner">
+                <div class="text-xs text-indigo-500 mb-3 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    範本二：互動式教學頁面
+                </div>
+                <div id="prompt-content-2" class="text-sm leading-relaxed text-slate-700 mb-6 font-medium whitespace-pre-wrap bg-white/60 p-5 rounded-xl border border-indigo-100/50 h-64 overflow-y-auto shadow-sm"># Persona (角色)
+你是一位資深前端工程師與「數位教育設計師」，非常擅長將抽象的概念轉化為具象的互動實驗。你的程式碼乾淨、具備現代感，且非常注重互動的美感、動態 SVG 動畫與響應式設計。
+
+# Task (任務)
+請幫我撰寫一個關於「<span class="text-rose-600 font-bold bg-rose-100 px-1 rounded">【填入單元或概念名稱】</span>」的沉浸式互動網頁教材程式碼。
+
+# Context (背景)
+1、整體視覺：使用沉浸式的淺色調背景，排版乾淨俐落。
+2、互動元件：教學核心的互動元件請務必使用動態 SVG 動畫呈現。
+3、控制面板：在畫面角落提供滑桿 (Slider) 或按鈕，允許學生點擊、拖曳物件或調整相關參數，用以進行探究學習。
+4、說明區塊：在畫面下方加入一個乾淨的小區塊，簡要說明此實驗的步驟與背後原理。
+
+# Format (格式)
+1、響應式設計 (RWD)
+2、完整輸出：直接給我完整包含 HTML、CSS 與 JavaScript、可以直接執行的最終版本程式碼。</div>
+                <button onclick="copyPrompt('prompt-content-2', this)" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-indigo-500/30">複製指令</button>
                 
                 <!-- 新增：三大 AI 工具動態連結 -->
                 <div class="mt-8 pt-6 border-t border-indigo-200">
@@ -527,7 +599,8 @@
     </main>
 
     <!-- 老師控制台 (URL 需帶 ?role=teach) -->
-    <div id="admin-panel" class="hidden fixed bottom-6 right-6 bg-white border border-slate-200 shadow-2xl rounded-3xl p-6 w-72 z-50">
+    <!-- 修改：為了不擋住 AI 教師，將面板移至左下角 left-6 -->
+    <div id="admin-panel" class="hidden fixed bottom-6 left-6 bg-white border border-slate-200 shadow-2xl rounded-3xl p-6 w-72 z-50">
         <h4 class="font-black text-slate-800 mb-4 flex items-center gap-2">🛡️ 老師控場面板</h4>
         <div class="space-y-2">
             <button onclick="setGASStep(1)" class="admin-btn w-full py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold">重置 1</button>
@@ -537,6 +610,48 @@
             <button onclick="setGASStep(5)" class="admin-btn w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">解鎖 5：延伸</button>
         </div>
         <div id="admin-status" class="text-[10px] text-center mt-4 text-slate-400 font-bold uppercase tracking-widest">已成功連線至試算表</div>
+    </div>
+
+    <!-- 新增：AI 教師懸浮按鈕 (第5單元解鎖後才顯示) -->
+    <button id="ai-teacher-btn" onclick="toggleChat()" class="hidden fixed bottom-6 right-6 z-40 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-5 py-3 shadow-2xl flex items-center gap-2 transform transition-all hover:scale-105 group border-2 border-indigo-400">
+        <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        <span class="font-bold">AI 助教</span>
+    </button>
+
+    <!-- 新增：AI 聊天視窗 -->
+    <div id="ai-chat-window" class="hidden fixed bottom-24 right-6 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right" style="height: 500px; max-height: 80vh;">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-sky-500 p-4 text-white flex justify-between items-center shadow-md z-10">
+            <div class="flex items-center gap-2">
+                <span class="bg-white/20 p-1.5 rounded-lg text-lg">🤖</span>
+                <div>
+                    <h3 class="font-bold text-sm tracking-wide">Felo AI 助教</h3>
+                    <p class="text-[10px] text-indigo-100">隨時為你解答網頁問題</p>
+                </div>
+            </div>
+            <button onclick="toggleChat()" class="text-white hover:bg-white/20 p-1.5 rounded-md transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-4">
+            <!-- Initial Greeting -->
+            <div class="flex gap-2 text-sm">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-lg">🤖</div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 text-slate-700 leading-relaxed">
+                    你好！我是 AI 助教。<br>恭喜你解鎖了第 5 關！關於網頁開發、HTML、CSS 或 JavaScript，有什麼我可以幫你的嗎？
+                </div>
+            </div>
+        </div>
+        <!-- Input Area -->
+        <div class="p-3 bg-white border-t border-slate-100 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+            <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="輸入問題..." class="flex-1 bg-slate-100 text-sm rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all border border-transparent focus:border-indigo-300" required autocomplete="off">
+                <button type="submit" class="bg-indigo-600 text-white rounded-xl px-4 py-2 hover:bg-indigo-700 transition-colors flex items-center justify-center shadow-md">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                </button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -562,6 +677,8 @@
             const text = document.getElementById('demo-text');
             const btn = document.getElementById('demo-btn');
             const res = document.getElementById('demo-result');
+            const codeTitle = document.getElementById('code-title');
+            const codeViewer = document.getElementById('demo-code');
 
             // 清除 JS 動態加入的行內樣式，確保切換時恢復預設
             area.style.background = '';
@@ -574,7 +691,7 @@
 
             if(layer === 1) { 
                 // HTML Only
-                area.className = "w-full max-w-sm mx-auto p-4 bg-white border border-slate-300 min-h-[150px] transition-all duration-700 ease-in-out";
+                area.className = "relative z-10 w-full max-w-md mx-auto p-4 bg-white border border-slate-300 min-h-[150px] transition-all duration-700 ease-in-out";
                 title.style = "font-size:16px; margin-bottom: 8px; color: black;";
                 text.style = "font-size:14px; color: black;";
                 text.innerText = "這是一段文字，目前看起來非常樸素。";
@@ -584,9 +701,15 @@
                     res.style.color = 'red';
                     res.innerText = '點擊沒有反應，因為沒有 JS！';
                 };
+                
+                // 更新程式碼區塊
+                codeTitle.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> HTML 原始碼 (負責骨架)';
+                codeTitle.className = "font-bold text-orange-400 flex items-center gap-2 text-xs tracking-wide";
+                codeViewer.innerText = `<h3>我的教學網站</h3>\n<p>這是一段文字，目前看起來非常樸素。</p>\n<button>點擊這裡</button>`;
+
             } else if(layer === 2) { 
                 // HTML + CSS
-                area.className = "w-full max-w-sm mx-auto p-6 bg-gradient-to-br from-sky-400 to-indigo-500 rounded-2xl shadow-xl min-h-[150px] transition-all duration-700 ease-in-out";
+                area.className = "relative z-10 w-full max-w-md mx-auto p-6 bg-gradient-to-br from-sky-400 to-indigo-500 rounded-2xl shadow-xl min-h-[150px] transition-all duration-700 ease-in-out";
                 title.style = "font-size:24px; font-weight:bold; color:white; margin-bottom:12px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);";
                 text.style = "font-size:15px; color:rgba(255,255,255,0.95); line-height:1.5;";
                 text.innerText = "穿上了 CSS 的衣服，排版和顏色瞬間變專業了！";
@@ -595,14 +718,25 @@
                 btn.onclick = function(e) {
                     e.preventDefault(); 
                 };
+                
+                // 更新程式碼區塊
+                codeTitle.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg> CSS 原始碼 (負責美觀)';
+                codeTitle.className = "font-bold text-blue-400 flex items-center gap-2 text-xs tracking-wide";
+                codeViewer.innerText = `/* 替標籤穿上華麗的衣服 */\n#demo-area {\n  background: linear-gradient(to right, #38bdf8, #6366f1);\n  border-radius: 1rem;\n  padding: 1.5rem;\n  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);\n}\n\nbutton {\n  background: white;\n  color: #4f46e5;\n  border-radius: 12px;\n  padding: 10px 20px;\n}`;
+
             } else if(layer === 3) { 
                 // HTML + CSS + JS
-                area.className = "w-full max-w-sm mx-auto p-6 bg-gradient-to-br from-sky-400 to-indigo-500 rounded-2xl shadow-xl min-h-[150px] transform scale-105 transition-all duration-700 ease-in-out ring-4 ring-yellow-400 ring-opacity-50 relative overflow-hidden";
+                area.className = "relative z-10 w-full max-w-md mx-auto p-6 bg-gradient-to-br from-sky-400 to-indigo-500 rounded-2xl shadow-xl min-h-[150px] transform scale-[1.02] transition-all duration-700 ease-in-out ring-4 ring-yellow-400 ring-opacity-50 overflow-hidden";
                 title.style = "font-size:24px; font-weight:bold; color:white; margin-bottom:12px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);";
                 text.style = "font-size:15px; color:rgba(255,255,255,0.95); line-height:1.5;";
                 text.innerText = "加入 JS 靈魂後，這個網站終於活起來了！";
                 btn.style = "display:inline-block; margin-top:16px; padding:10px 20px; background:#fde047; color:#854d0e; border-radius:12px; font-weight:bold; border:none; cursor:pointer; box-shadow: 0 4px 15px rgba(253, 224, 71, 0.4); transition: transform 0.1s;";
                 btn.innerText = "點擊這裡";
+                
+                // 更新程式碼區塊
+                codeTitle.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> JavaScript 原始碼 (負責互動)';
+                codeTitle.className = "font-bold text-yellow-400 flex items-center gap-2 text-xs tracking-wide";
+                codeViewer.innerText = `// 監聽按鈕點擊事件，賦予靈魂\nconst btn = document.querySelector('button');\n\nbtn.addEventListener('click', function() {\n  // 1. 執行按鈕縮放動畫\n  playClickAnimation();\n  \n  // 2. 隨機更換版面主題\n  changeRandomTheme();\n  \n  // 3. 顯示自訂動態彈出視窗\n  showCustomAlert('改變版面！');\n});`;
                 
                 // 主題池，每次點擊隨機抽取
                 const themes = [
@@ -696,13 +830,181 @@
             const progress = (Math.max(1, Math.min(step, 5)) / 5) * 100;
             document.getElementById('progress-bar').style.width = `${progress}%`;
             document.getElementById('status-text').innerText = `目前進度：第 ${step} 單元`;
+
+            // 處理 AI 教師按鈕的顯示邏輯 (第 5 單元解鎖才顯示)
+            const aiTeacherBtn = document.getElementById('ai-teacher-btn');
+            const aiChatWindow = document.getElementById('ai-chat-window');
+            if (aiTeacherBtn) {
+                if (step >= 5) {
+                    aiTeacherBtn.classList.remove('hidden');
+                } else {
+                    aiTeacherBtn.classList.add('hidden');
+                    // 若尚未解鎖，確保聊天視窗是關閉的
+                    if (aiChatWindow && !aiChatWindow.classList.contains('hidden')) {
+                        toggleChat();
+                    }
+                }
+            }
         }
 
-        function copyPrompt() {
-            const text = document.getElementById('prompt-content').innerText;
+        // 修改：支援多個 prompt 的複製功能與按鈕回饋
+        function copyPrompt(elementId, btnElement) {
+            const text = document.getElementById(elementId).innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert('已複製指令！');
+                const originalText = btnElement.innerText;
+                btnElement.innerText = '已複製！';
+                btnElement.classList.replace('bg-indigo-600', 'bg-emerald-500');
+                btnElement.classList.replace('hover:bg-indigo-700', 'hover:bg-emerald-600');
+                
+                setTimeout(() => {
+                    btnElement.innerText = originalText;
+                    btnElement.classList.replace('bg-emerald-500', 'bg-indigo-600');
+                    btnElement.classList.replace('hover:bg-emerald-600', 'hover:bg-indigo-700');
+                }, 2000);
             });
+        }
+
+        // ==========================================
+        // Felo AI 聊天機器人串接邏輯
+        // ==========================================
+        const FELO_API_KEY = "fk-FbloTLXQq7eF2tuxdoeU5anckLDrVJQtMXL2xzU8pKqqPsID";
+        let isChatOpen = false;
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('ai-chat-window');
+            isChatOpen = !isChatOpen;
+            if (isChatOpen) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('flex');
+                setTimeout(() => document.getElementById('chat-input').focus(), 100);
+            } else {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('flex');
+            }
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const query = input.value.trim();
+            if (!query) return;
+
+            input.value = '';
+            appendMessage('user', query);
+            const loadingId = appendLoading();
+
+            try {
+                const targetUrl = "https://openapi.felo.ai/v2/chat";
+                // 使用另一組備用代理伺服器
+                const proxyUrl = "https://thingproxy.freeboard.io/fetch/" + targetUrl;
+
+                let response;
+                try {
+                    // 策略一：先嘗試直接連線
+                    response = await fetch(targetUrl, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer " + FELO_API_KEY,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ query: query })
+                    });
+                } catch (directErr) {
+                    // 策略二：如果直接連線失敗（CORS 阻擋），改用跨域代理伺服器
+                    console.log("直接連線被阻擋，改用代理伺服器連線...");
+                    response = await fetch(proxyUrl, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer " + FELO_API_KEY,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ query: query })
+                    });
+                }
+
+                if (!response.ok) {
+                    throw new Error(`伺服器回應錯誤碼: ${response.status}`);
+                }
+
+                const data = await response.json();
+                removeLoading(loadingId);
+
+                if (data.status === "ok") {
+                    let reply = data.data.answer;
+                    
+                    // 加上參考來源 (如果有)
+                    if (data.data.resources && data.data.resources.length > 0) {
+                        reply += '<br><br><div class="border-t border-slate-200/50 pt-2 mt-2"><span class="text-[11px] font-bold text-indigo-500">🔍 參考來源：</span><ul class="text-[11px] text-slate-500 list-disc pl-4 mt-1 space-y-1">';
+                        data.data.resources.forEach(r => {
+                            reply += `<li><a href="${r.link}" target="_blank" class="hover:text-indigo-600 hover:underline break-all">${r.title}</a></li>`;
+                        });
+                        reply += '</ul></div>';
+                    }
+                    appendMessage('bot', reply);
+                } else {
+                    appendMessage('bot', `<span class="text-rose-500">API 回應異常：${data.message || '未知錯誤'}</span>`);
+                }
+            } catch (error) {
+                removeLoading(loadingId);
+                
+                // 智慧診斷：判斷是否為本地檔案執行
+                const isLocal = window.location.protocol === 'file:';
+                let errorHtml = `<span class="text-rose-600 font-bold">連線失敗！</span><br><span class="text-rose-500 text-xs">詳細錯誤：${error.message}</span>`;
+                
+                if (isLocal) {
+                    errorHtml += `<br><br><span class="text-xs text-slate-600 bg-slate-200 p-2 rounded block leading-relaxed">⚠️ <b>診斷提示：</b><br>您目前是直接在電腦中點擊開啟檔案 (網址為 file:/// 開頭)。<br>大部分瀏覽器和跨域代理會因為安全機制，阻擋本地檔案去呼叫外部 API。<br><br>💡 <b>解決方案：</b>在完成「第 4 關」將網頁上傳到 <b>GitHub Pages</b> 後，在真實的網址上測試，AI 就能順利連線囉！</span>`;
+                } else {
+                    errorHtml += `<br><br><span class="text-xs text-slate-600 bg-slate-200 p-2 rounded block leading-relaxed">⚠️ <b>診斷提示：</b><br>跨域代理伺服器目前可能不穩定，或是 Felo 阻擋了前端的直接呼叫。<br><br>💡 <b>最佳實踐：</b>在正式的網頁開發中，建議將呼叫 AI 的程式碼寫在您的 <b>Google Apps Script (GAS)</b> 裡當作中繼站，再由網頁去呼叫 GAS，這樣最安全且絕對不會有 CORS 阻擋問題！</span>`;
+                }
+
+                appendMessage('bot', errorHtml);
+                console.error("AI 串接失敗詳細資訊:", error);
+            }
+        }
+
+        function appendMessage(role, text) {
+            const chatMessages = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = "flex gap-2 text-sm " + (role === 'user' ? "flex-row-reverse" : "");
+            
+            let avatar = role === 'user' ? `<div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 text-lg">🧑‍💻</div>` : `<div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-lg">🤖</div>`;
+            let bubbleColor = role === 'user' ? "bg-indigo-600 text-white rounded-tr-none" : "bg-white border border-slate-100 text-slate-700 rounded-tl-none";
+
+            // 將換行符號轉為 html <br> 以便顯示
+            const formattedText = text.replace(/\n/g, '<br>');
+
+            div.innerHTML = `
+                ${avatar}
+                <div class="${bubbleColor} p-3 rounded-2xl shadow-sm overflow-hidden" style="word-break: break-word;">
+                    ${formattedText}
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // 自動捲動到底部
+        }
+
+        function appendLoading() {
+            const chatMessages = document.getElementById('chat-messages');
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = "flex gap-2 text-sm";
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-lg">🤖</div>
+                <div class="bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 text-slate-700 flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-indigo-300 rounded-full animate-bounce"></span>
+                    <span class="w-2 h-2 bg-indigo-300 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
+                    <span class="w-2 h-2 bg-indigo-300 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        }
+
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
         }
 
         setInterval(fetchStep, 3000);
