@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網頁製作實作課</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f9ff; color: #1e293b; scroll-behavior: smooth; }
+        .section-card { display: none; transform: scale(0.95); opacity: 0; transition: all 0.5s ease; }
+        .section-card.active { display: block; transform: scale(1); opacity: 1; }
+        .lock-card { background: white; border: 2px dashed #cbd5e1; border-radius: 2rem; padding: 4rem 2rem; text-align: center; }
+        .admin-btn { transition: transform 0.2s; }
+        .admin-btn:active { transform: scale(0.9); }
+        .gradient-text { background: linear-gradient(135deg, #0ea5e9, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* 新增：動態背景與沈浸式樣式 */
+        .bg-shapes { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none; }
+        .shape { position: absolute; filter: blur(80px); opacity: 0.5; animation: float 15s infinite ease-in-out alternate; }
+        .shape-1 { width: 50vw; height: 50vw; background: #bae6fd; border-radius: 50%; top: -10%; left: -10%; animation-delay: 0s; }
+        .shape-2 { width: 60vw; height: 60vw; background: #d1fae5; border-radius: 50%; bottom: -20%; right: -10%; animation-delay: -5s; }
+        .shape-3 { width: 40vw; height: 40vw; background: #e0e7ff; border-radius: 50%; top: 30%; left: 50%; animation-delay: -10s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }
+        
+        /* 新增：卡片玻璃擬物化與懸浮動畫 */
+        .section-card { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.7); backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85); }
+        .section-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); }
+
+        /* 新增：標題圖示專屬動態效果 */
+        .anim-float { animation: float-up-down 3s ease-in-out infinite; }
+        .anim-wiggle { animation: wiggle-icon 2.5s ease-in-out infinite; }
+        .anim-pulse-scale { animation: pulse-scale 2s ease-in-out infinite; }
+        @keyframes float-up-down { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes wiggle-icon { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+        @keyframes pulse-scale { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+        /* 新增：聊天室專屬圖示動畫 */
+        @keyframes fly-away {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            40% { transform: translate(30px, -10px) scale(0.5); opacity: 0; }
+            41% { transform: translate(-30px, 10px) scale(0.5); opacity: 0; }
+            100% { transform: translate(0, 0) scale(1); opacity: 1; }
+        }
+        .anim-fly:active svg { animation: fly-away 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes user-nod {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .anim-user { animation: user-nod 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="pb-32 relative">
+
+    <!-- 動態背景 -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- 頂部進度條 -->
+    <div class="fixed top-0 left-0 w-full h-1.5 bg-slate-200 z-50">
+        <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-1000" style="width: 20%"></div>
+    </div>
+
+    <header class="py-12 px-4 text-center bg-white shadow-sm mb-12 relative overflow-hidden">
+        <h1 class="text-4xl font-black text-slate-800 mb-4 relative z-10"><span class="gradient-text">網頁：開啟無限可能</span></h1>
+        
+        <!-- 新增：動態 SVG 講師與時間資訊 -->
+        <div class="flex justify-center mb-6 relative z-10">
+            <style>
+                .badge-line { stroke-dasharray: 400; stroke-dashoffset: 400; animation: drawBadge 1s 0.2s forwards cubic-bezier(0.4, 0, 0.2, 1); }
+                .badge-text { opacity: 0; transform: translateY(10px); animation: fadeUpBadge 0.8s 0.6s forwards ease-out; }
+                .badge-icon { opacity: 0; transform: scale(0); transform-origin: center; animation: popIcon 0.5s 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                @keyframes drawBadge { to { stroke-dashoffset: 0; } }
+                @keyframes fadeUpBadge { to { opacity: 1; transform: translateY(0); } }
+                @keyframes popIcon { to { opacity: 1; transform: scale(1); } }
+            </style>
+            <svg class="w-full max-w-lg h-12" viewBox="0 0 500 48">
+                <!-- 裝飾底線 -->
+                <path class="badge-line" d="M 50 40 L 450 40" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.3"/>
+                <path class="badge-line" d="M 180 40 L 320 40" stroke="#0ea5e9" stroke-width="4" stroke-linecap="round" fill="none" />
+                
+                <!-- 裝飾小圓點 -->
+                <circle class="badge-icon" cx="170" cy="40" r="4" fill="#0ea5e9" />
+                <circle class="badge-icon" cx="330" cy="40" r="4" fill="#0ea5e9" />
+
+                <!-- 資訊文字 -->
+                <text class="badge-text" x="250" y="28" font-family="'Noto Sans TC', sans-serif" font-weight="bold" text-anchor="middle">
+                    <tspan fill="#0ea5e9" font-size="18">觀音高中 物理科 林仟弘</tspan>
+                </text>
+            </svg>
+        </div>
+
+        <p id="status-text" class="text-slate-500 text-sm flex items-center justify-center gap-2 relative z-10">
+            <span class="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+            準備就緒，等待課程解鎖...
+        </p>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 space-y-12">
+
+        <!-- 1. 課程開場 (永遠開啟) -->
+        <section id="step-1" class="section-card active bg-white p-8 rounded-3xl shadow-lg border border-white">
+            <div class="flex items-center gap-4 mb-6 text-sky-600">
+                <div class="p-3 bg-sky-100 rounded-2xl shadow-inner">
+                    <svg class="w-8 h-8 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168 0.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332 0.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332 0.477-4.5 1.253"></path></svg>
+                </div>
+                <h2 class="text-3xl font-bold">1. 課程開場</h2>
+            </div>
+            
+            <div class="space-y-6">
+                <p class="text-xl text-slate-700 leading-relaxed font-medium">
+                    歡迎來到這場<span class="text-sky-600 font-bold">零基礎快速上手</span>的數位工作坊！
+                </p>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    請放輕鬆學習，等待內容慢慢解鎖。在這裡，我們將打破艱澀程式語言的藩籬，帶領你高效率生成專屬的個人網頁！
+                </p>
+                <div class="p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700 relative overflow-hidden shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2 relative z-10">
+                        <svg class="w-6 h-6 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+                        今日終極目標
+                    </h3>
+                    
+                    <!-- SVG 動態條列清單 -->
+                    <style>
+                        .goal-text { opacity: 0; transform: translateX(20px); animation: slideIn 0.8s forwards; }
+                        .check-path { stroke-dasharray: 50; stroke-dashoffset: 50; animation: drawCheck 0.6s forwards ease-out; }
+                        .delay-1 { animation-delay: 0.5s; }
+                        .delay-2 { animation-delay: 1.5s; }
+                        .delay-3 { animation-delay: 2.5s; }
+                        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+                        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+                    </style>
+                    <svg class="w-full h-[140px] relative z-10 mt-2" viewBox="0 0 400 140" preserveAspectRatio="xMidYMid meet">
+                        <!-- 項目 1 -->
+                        <g transform="translate(10, 20)">
+                            <circle cx="15" cy="15" r="12" fill="#047857" class="goal-text delay-1"/>
+                            <path class="check-path delay-1" d="M9 15l4 4 8-8" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <text x="40" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="#f8fafc" class="goal-text delay-1">建立專屬個人教學網站</text>
+                        </g>
+                        <!-- 項目 2 -->
+                        <g transform="translate(10, 65)">
+                            <circle cx="15" cy="15" r="12" fill="#047857" class="goal-text delay-2"/>
+                            <path class="check-path delay-2" d="M9 15l4 4 8-8" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <text x="40" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="#f8fafc" class="goal-text delay-2">掌握 AI 輔助生成程式碼</text>
+                        </g>
+                        <!-- 項目 3 -->
+                        <g transform="translate(10, 110)">
+                            <circle cx="15" cy="15" r="12" fill="#047857" class="goal-text delay-3"/>
+                            <path class="check-path delay-3" d="M9 15l4 4 8-8" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <text x="40" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="#fde047" class="goal-text delay-3">完成雲端部署，讓全世界看見！</text>
+                        </g>
+                    </svg>
+                    <!-- 裝飾背景圈圈 -->
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-500 opacity-20 rounded-full blur-2xl"></div>
+                </div>
+                
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-between p-5 bg-white/60 rounded-2xl border border-slate-200 hover:shadow-md transition-shadow backdrop-blur-sm">
+                    <div class="mb-4 sm:mb-0">
+                        <h4 class="font-bold text-slate-800 text-lg">👇 看看我們今天能做到什麼？</h4>
+                        <p class="text-sm text-slate-500">這是我利用相同概念建立的教學示範網站。</p>
+                    </div>
+                    <a href="https://guidephy.github.io/" target="_blank" class="flex-shrink-0 flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-sky-600 text-white font-bold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-sky-500/30">
+                        <span>前往 Guidephy 個人網站</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 網頁基本架構 -->
+        <div id="lock-2" class="lock-card">
+            <svg class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <p class="text-slate-400 font-medium italic">認識建構網頁的基本概念...</p>
+        </div>
+        <section id="step-2" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
+            <div class="flex items-center gap-4 mb-6 text-emerald-600">
+                <div class="p-3 bg-emerald-100 rounded-2xl shadow-inner">
+                    <svg class="w-8 h-8 anim-float" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <h2 class="text-3xl font-bold">2. 網頁的基本架構</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-8">
+                <div class="p-4 bg-orange-50 rounded-2xl border border-orange-100"><h3 class="font-bold text-orange-700">HTML (骨架)</h3><p class="text-xs text-slate-500 mt-1">放文字與圖片的地方</p></div>
+                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100"><h3 class="font-bold text-blue-700">CSS (化妝)</h3><p class="text-xs text-slate-500 mt-1">控制顏色與美觀排版</p></div>
+                <div class="p-4 bg-yellow-50 rounded-2xl border border-yellow-100"><h3 class="font-bold text-yellow-700">JS (靈魂)</h3><p class="text-xs text-slate-500 mt-1">按鈕功能與互動效果</p></div>
+            </div>
+
+            <!-- 網頁三劍客互動演示區 -->
+            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 mb-8">
+                <h4 class="font-bold text-center mb-6 text-slate-700 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    網頁進化演示 (點擊體驗)
+                </h4>
+                <div class="flex flex-wrap justify-center gap-2 mb-2">
+                    <button onclick="setDemoLayer(1)" class="px-5 py-2.5 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-sm">1. 純 HTML</button>
+                    <button onclick="setDemoLayer(2)" class="px-5 py-2.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-sm">2. 穿上 CSS</button>
+                    <button onclick="setDemoLayer(3)" class="px-5 py-2.5 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-xl font-bold transition-all transform hover:-translate-y-0.5 shadow-sm">3. 注入 JS 靈魂</button>
+                </div>
+                
+                <!-- 演示與程式碼對照區塊 (專業 UI 設計) -->
+                <div class="w-full max-w-2xl mx-auto flex flex-col gap-5 mt-8">
+                    
+                    <!-- 上方：視覺演示區 (模擬瀏覽器) -->
+                    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col transition-all duration-300">
+                        <!-- 模擬瀏覽器標題列 -->
+                        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 flex items-center">
+                            <div class="flex gap-1.5 w-16">
+                                <div class="w-3 h-3 rounded-full bg-rose-400 shadow-inner"></div>
+                                <div class="w-3 h-3 rounded-full bg-amber-400 shadow-inner"></div>
+                                <div class="w-3 h-3 rounded-full bg-emerald-400 shadow-inner"></div>
+                            </div>
+                            <div class="flex-grow text-center">
+                                <span class="bg-white px-4 py-1 rounded-md text-[10px] text-slate-400 font-mono border border-slate-200 shadow-sm flex items-center justify-center max-w-[200px] mx-auto gap-2">
+                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                                    preview.html
+                                </span>
+                            </div>
+                            <div class="w-16"></div> <!-- 為了平衡排版 -->
+                        </div>
+                        <!-- 網頁內容區 -->
+                        <div class="p-8 bg-slate-50 flex items-center justify-center min-h-[260px] relative overflow-hidden">
+                            <!-- 背景網格裝飾 -->
+                            <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 20px 20px;"></div>
+                            
+                            <div id="demo-area" class="relative z-10 w-full max-w-md mx-auto p-4 bg-white border border-slate-300 min-h-[150px] transition-all duration-700 ease-in-out">
+                                <h3 id="demo-title" style="font-size:16px; margin-bottom: 8px;">我的教學網站</h3>
+                                <p id="demo-text" style="font-size:14px;">這是一段文字，目前看起來非常樸素。</p>
+                                <button id="demo-btn" style="display:inline-block; margin-top:10px;">點擊這裡</button>
+                                <p id="demo-result" style="display:none; color:red; margin-top:10px; font-size:14px;">點擊沒有反應，因為沒有 JS！</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 下方：程式碼檢視區 (模擬編輯器) -->
+                    <div class="bg-slate-800 rounded-xl shadow-xl flex flex-col min-h-[180px] border border-slate-700 overflow-hidden">
+                        <!-- 模擬編輯器標題列 -->
+                        <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-700 flex justify-between items-center">
+                            <span id="code-title" class="font-bold text-orange-400 flex items-center gap-2 text-xs tracking-wide">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                HTML 原始碼 (負責骨架)
+                            </span>
+                            <div class="flex gap-1.5 opacity-40">
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
+                            </div>
+                        </div>
+                        <div class="p-5 overflow-x-auto bg-slate-800/95 flex-grow">
+                            <pre id="demo-code" class="text-[13px] font-mono text-slate-300 whitespace-pre-wrap leading-relaxed">&lt;h3&gt;我的教學網站&lt;/h3&gt;
+&lt;p&gt;這是一段文字，目前看起來非常樸素。&lt;/p&gt;
+&lt;button&gt;點擊這裡&lt;/button&gt;</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 嵌入 Canva 簡報 (移至此單元最後) -->
+            <div class="w-full transform hover:scale-[1.01] transition-transform duration-300 border-t border-slate-100 pt-8 mt-4">
+                <h4 class="font-bold text-center mb-4 text-slate-500">課程重點簡報回顧</h4>
+                <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 4px 12px 0 rgba(0,0,0,0.1); overflow: hidden; border-radius: 12px; will-change: transform;">
+                    <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
+                        src="https://www.canva.com/design/DAHD_wkqhEc/Mbn-l6JAtfIq-LhuK4WIYw/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                    </iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. AI 生成 -->
+        <div id="lock-3" class="lock-card">
+            <svg class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <p class="text-slate-400 font-medium italic">動手建立你的第一個網頁...</p>
+        </div>
+        <section id="step-3" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
+            <div class="flex items-center gap-4 mb-6 text-indigo-600">
+                <div class="p-3 bg-indigo-100 rounded-2xl shadow-inner">
+                    <svg class="w-8 h-8 anim-wiggle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                </div>
+                <h2 class="text-3xl font-bold">3. 建立第一個網頁</h2>
+            </div>
+
+            <!-- 動態 SVG 流程圖 -->
+            <div class="mb-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <h4 class="font-bold text-center mb-6 text-slate-700 flex items-center justify-center gap-2 text-lg">
+                    <svg class="w-6 h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
+                    網頁誕生四部曲
+                </h4>
+                <style>
+                    .flow-line { stroke-dasharray: 140; stroke-dashoffset: 140; fill: none; stroke: #c7d2fe; stroke-width: 4; stroke-linecap: round; }
+                    .flow-node { opacity: 0; transform-origin: center; }
+                    .flow-text { opacity: 0; }
+                    
+                    /* 動畫順序與延遲設定 */
+                    .step-1 .flow-node { animation: popNode 0.5s 0.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step-1 .flow-text { animation: fadeUp 0.5s 0.3s forwards ease-out; }
+                    .line-1 { animation: drawLine 0.6s 0.7s forwards ease-in-out; }
+                    
+                    .step-2 .flow-node { animation: popNode 0.5s 1.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step-2 .flow-text { animation: fadeUp 0.5s 1.4s forwards ease-out; }
+                    .line-2 { animation: drawLine 0.6s 1.8s forwards ease-in-out; }
+                    
+                    .step-3 .flow-node { animation: popNode 0.5s 2.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step-3 .flow-text { animation: fadeUp 0.5s 2.5s forwards ease-out; }
+                    .line-3 { animation: drawLine 0.6s 2.9s forwards ease-in-out; }
+                    
+                    .step-4 .flow-node { animation: popNode 0.5s 3.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step-4 .flow-text { animation: fadeUp 0.5s 3.6s forwards ease-out; }
+
+                    @keyframes popNode { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+                    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+                    @keyframes drawLine { to { stroke-dashoffset: 0; } }
+                </style>
+                <svg viewBox="0 0 600 120" class="w-full h-auto drop-shadow-sm">
+                    <!-- 連接線 -->
+                    <path class="flow-line line-1" d="M 90 40 L 210 40" />
+                    <path class="flow-line line-2" d="M 250 40 L 370 40" />
+                    <path class="flow-line line-3" d="M 410 40 L 530 40" />
+                    
+                    <!-- 節點 1 -->
+                    <g class="step-1" transform="translate(60, 40)">
+                        <circle class="flow-node" cx="0" cy="0" r="24" fill="#6366f1" />
+                        <text class="flow-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">1</text>
+                        <text class="flow-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">構思佈局草圖</text>
+                    </g>
+                    <!-- 節點 2 -->
+                    <g class="step-2" transform="translate(220, 40)">
+                        <circle class="flow-node" cx="0" cy="0" r="24" fill="#6366f1" />
+                        <text class="flow-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">2</text>
+                        <text class="flow-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">呼叫 AI 詠唱</text>
+                    </g>
+                    <!-- 節點 3 -->
+                    <g class="step-3" transform="translate(380, 40)">
+                        <circle class="flow-node" cx="0" cy="0" r="24" fill="#6366f1" />
+                        <text class="flow-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">3</text>
+                        <text class="flow-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">貼入編輯器預覽</text>
+                    </g>
+                    <!-- 節點 4 -->
+                    <g class="step-4" transform="translate(540, 40)">
+                        <circle class="flow-node" cx="0" cy="0" r="24" fill="#10b981" />
+                        <path class="flow-node" d="M-6-1 l4 4 l8-8" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        <text class="flow-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">測試與反覆修正</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- 複製指令區塊 1 -->
+            <div class="bg-indigo-50 p-6 rounded-2xl relative border border-indigo-100 mb-6 shadow-inner">
+                <div class="text-xs text-indigo-500 mb-3 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    範本一：個人網站首頁
+                </div>
+                <div id="prompt-content-1" class="text-sm leading-relaxed text-slate-700 mb-6 font-medium whitespace-pre-wrap bg-white/60 p-5 rounded-xl border border-indigo-100/50 h-64 overflow-y-auto shadow-sm"># Persona (角色)
+你是一位資深前端工程師與 UI/UX 設計師，非常擅長教育類網站的體驗設計。你的程式碼乾淨、具備現代感，且非常注重排版的美感、動態 SVG 動畫與響應式設計。
+
+# Task (任務)
+請幫我撰寫一個「個人教學網站」的首頁程式碼。
+
+# Context (背景)
+1、網站左上角是網頁標題：<span class="text-rose-600 font-bold bg-rose-100 px-1 rounded">【請更改為你的網頁標題】</span>
+2、右上角導覽列選單：<span class="text-rose-600 font-bold bg-rose-100 px-1 rounded">【請填入有哪些選單，例如：關於我、物理課程、網頁課程、聯絡方式】</span>
+3、下方留空作為我之後放置教學內容的區塊
+
+# Format (格式)
+1、響應式設計 (RWD)
+2、完整輸出：直接給我完整包含 HTML、CSS 與 JavaScript、可以直接執行的最終版本程式碼。</div>
+                <button onclick="copyPrompt('prompt-content-1', this)" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-indigo-500/30">複製指令</button>
+            </div>
+
+            <!-- 複製指令區塊 2 -->
+            <div class="bg-indigo-50 p-6 rounded-2xl relative border border-indigo-100 mb-8 shadow-inner">
+                <div class="text-xs text-indigo-500 mb-3 uppercase tracking-widest font-bold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    範本二：互動式教學頁面
+                </div>
+                <div id="prompt-content-2" class="text-sm leading-relaxed text-slate-700 mb-6 font-medium whitespace-pre-wrap bg-white/60 p-5 rounded-xl border border-indigo-100/50 h-64 overflow-y-auto shadow-sm"># Persona (角色)
+你是一位資深前端工程師與「數位教育設計師」，非常擅長將抽象的概念轉化為具象的互動實驗。你的程式碼乾淨、具備現代感，且非常注重互動的美感、動態 SVG 動畫與響應式設計。
+
+# Task (任務)
+請幫我撰寫一個關於「<span class="text-rose-600 font-bold bg-rose-100 px-1 rounded">【填入單元或概念名稱】</span>」的沉浸式互動網頁教材程式碼。
+
+# Context (背景)
+1、整體視覺：使用沉浸式的淺色調背景，排版乾淨俐落。
+2、互動元件：教學核心的互動元件請務必使用動態 SVG 動畫呈現。
+3、控制面板：在畫面角落提供滑桿 (Slider) 或按鈕，允許學生點擊、拖曳物件或調整相關參數，用以進行探究學習。
+4、說明區塊：在畫面下方加入一個乾淨的小區塊，簡要說明此實驗的步驟與背後原理。
+
+# Format (格式)
+1、響應式設計 (RWD)
+2、完整輸出：直接給我完整包含 HTML、CSS 與 JavaScript、可以直接執行的最終版本程式碼。</div>
+                <button onclick="copyPrompt('prompt-content-2', this)" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-indigo-500/30">複製指令</button>
+                
+                <!-- 新增：三大 AI 工具動態連結 -->
+                <div class="mt-8 pt-6 border-t border-indigo-200">
+                    <p class="text-center text-sm text-indigo-600 font-bold mb-4">✨ 選擇你的 AI 助手施展咒語：</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <!-- ChatGPT -->
+                        <a href="https://chatgpt.com/" target="_blank" class="group flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-400 transition-all duration-300 transform hover:-translate-y-1">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/OpenAI_logo_2025_%28symbol%29.svg/330px-OpenAI_logo_2025_%28symbol%29.svg.png" alt="ChatGPT" class="w-6 h-6 object-contain group-hover:rotate-180 transition-transform duration-700">
+                            <span class="font-bold text-slate-700 group-hover:text-emerald-600">ChatGPT</span>
+                        </a>
+                        <!-- Gemini -->
+                        <a href="https://gemini.google.com/" target="_blank" class="group flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-400 transition-all duration-300 transform hover:-translate-y-1">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Google_Gemini_icon_2025.svg/960px-Google_Gemini_icon_2025.svg.png" alt="Gemini" class="w-6 h-6 object-contain group-hover:scale-125 transition-transform duration-500">
+                            <span class="font-bold text-slate-700 group-hover:text-blue-600">Gemini</span>
+                        </a>
+                        <!-- Claude -->
+                        <a href="https://claude.ai/" target="_blank" class="group flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-500 transition-all duration-300 transform hover:-translate-y-1">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Claude_AI_symbol.svg/1280px-Claude_AI_symbol.svg.png?_=20250427183551" alt="Claude" class="w-6 h-6 object-contain group-hover:-translate-y-1 transition-transform duration-500">
+                            <span class="font-bold text-slate-700 group-hover:text-amber-600">Claude</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 新增：開啟線上編輯器區塊 -->
+            <div class="mb-10 p-6 bg-slate-800 rounded-2xl border border-slate-700 shadow-xl relative overflow-hidden group">
+                <!-- 背景動態 SVG 裝飾 -->
+                <svg class="absolute right-0 top-0 w-64 h-64 text-slate-700 opacity-30 group-hover:opacity-50 transition-all duration-700 group-hover:rotate-12 transform origin-center translate-x-1/4 -translate-y-1/4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                
+                <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h4 class="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                            <svg class="w-8 h-8 text-sky-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            開啟線上編輯器
+                        </h4>
+                        <p class="text-slate-300 text-sm">將生成的 HTML 程式碼貼入此處，立刻預覽你的專屬網頁！</p>
+                    </div>
+                    <a href="https://guidephy.github.io/HTMLTryit.html" target="_blank" class="flex-shrink-0 flex items-center gap-2 px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-sky-500/50">
+                        <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <span>前往測試</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 嵌入 Canva 簡報 -->
+            <div class="w-full transform hover:scale-[1.01] transition-transform duration-300 border-t border-slate-100 pt-8 mt-4">
+                <h4 class="font-bold text-center mb-4 text-slate-500">操作提示與範例解析</h4>
+                <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 4px 12px 0 rgba(0,0,0,0.1); overflow: hidden; border-radius: 12px; will-change: transform;">
+                    <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;" src="https://www.canva.com/design/DAHEABW2t5s/nOjx4TWp_QDKvSdqDAhf4A/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. GitHub 上傳 -->
+        <div id="lock-4" class="lock-card">
+            <svg class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            <p class="text-slate-400 font-medium italic">即將發布你的網頁到全世界...</p>
+        </div>
+        <section id="step-4" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
+            <div class="flex items-center gap-4 mb-8 text-slate-800">
+                <div class="p-3 bg-slate-100 rounded-2xl shadow-inner">
+                    <svg class="w-8 h-8 anim-float" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                </div>
+                <h2 class="text-3xl font-bold">4. 上架Github</h2>
+            </div>
+            
+            <!-- 動態 SVG 流程圖 -->
+            <div class="mb-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <h4 class="font-bold text-center mb-6 text-slate-700 flex items-center justify-center gap-2 text-lg">
+                    <!-- GitHub Icon -->
+                    <svg class="w-6 h-6 text-slate-700" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"></path></svg>
+                    GitHub 上架四部曲
+                </h4>
+                <style>
+                    .flow4-line { stroke-dasharray: 140; stroke-dashoffset: 140; fill: none; stroke: #cbd5e1; stroke-width: 4; stroke-linecap: round; }
+                    .flow4-node { opacity: 0; transform-origin: center; }
+                    .flow4-text { opacity: 0; }
+                    
+                    /* 動畫順序與延遲設定 */
+                    .step4-1 .flow4-node { animation: popNode 0.5s 0.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-1 .flow4-text { animation: fadeUp 0.5s 0.3s forwards ease-out; }
+                    .line4-1 { animation: drawLine 0.6s 0.7s forwards ease-in-out; }
+                    
+                    .step4-2 .flow4-node { animation: popNode 0.5s 1.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-2 .flow4-text { animation: fadeUp 0.5s 1.4s forwards ease-out; }
+                    .line4-2 { animation: drawLine 0.6s 1.8s forwards ease-in-out; }
+                    
+                    .step4-3 .flow4-node { animation: popNode 0.5s 2.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-3 .flow4-text { animation: fadeUp 0.5s 2.5s forwards ease-out; }
+                    .line4-3 { animation: drawLine 0.6s 2.9s forwards ease-in-out; }
+                    
+                    .step4-4 .flow4-node { animation: popNode 0.5s 3.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step4-4 .flow4-text { animation: fadeUp 0.5s 3.6s forwards ease-out; }
+                </style>
+                <svg viewBox="0 0 600 120" class="w-full h-auto drop-shadow-sm">
+                    <!-- 連接線 -->
+                    <path class="flow4-line line4-1" d="M 90 40 L 210 40" />
+                    <path class="flow4-line line4-2" d="M 250 40 L 370 40" />
+                    <path class="flow4-line line4-3" d="M 410 40 L 530 40" />
+                    
+                    <!-- 節點 1 -->
+                    <g class="step4-1" transform="translate(60, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#334155" />
+                        <text class="flow4-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">1</text>
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">申請帳號</text>
+                    </g>
+                    <!-- 節點 2 -->
+                    <g class="step4-2" transform="translate(220, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#334155" />
+                        <text class="flow4-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">2</text>
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">建立 Repository</text>
+                    </g>
+                    <!-- 節點 3 -->
+                    <g class="step4-3" transform="translate(380, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#334155" />
+                        <text class="flow4-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">3</text>
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">上傳網頁</text>
+                    </g>
+                    <!-- 節點 4 -->
+                    <g class="step4-4" transform="translate(540, 40)">
+                        <circle class="flow4-node" cx="0" cy="0" r="24" fill="#10b981" />
+                        <path class="flow4-node" d="M-6-1 l4 4 l8-8" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        <text class="flow4-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">設定發佈</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- 嵌入 Canva 簡報 -->
+            <div class="w-full transform hover:scale-[1.01] transition-transform duration-300 border-t border-slate-100 pt-8 mt-4">
+                <h4 class="font-bold text-center mb-4 text-slate-500">操作提示與範例解析</h4>
+                <div style="position: relative; width: 100%; height: 0; padding-top: 56.2500%; padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden; border-radius: 8px; will-change: transform;">
+                    <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;" src="https://www.canva.com/design/DAHEBo1ZKWg/vzZJSIabNEBhPCwmwHzoug/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 延伸挑戰 -->
+        <div id="lock-5" class="lock-card">
+            <svg class="w-12 h-12 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="text-slate-400 font-medium italic">學無止盡，看看還能做什麼？</p>
+        </div>
+        <section id="step-5" class="section-card bg-white p-8 rounded-3xl shadow-lg border border-white">
+            <div class="flex items-center gap-4 mb-8 text-emerald-800">
+                <div class="p-3 bg-emerald-100 rounded-2xl shadow-inner">
+                    <svg class="w-8 h-8 anim-pulse-scale" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <h2 class="text-3xl font-bold">5. 延伸挑戰與練習</h2>
+            </div>
+            
+            <!-- 動態 SVG 延伸挑戰流程 -->
+            <div class="mb-10 p-6 bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <h4 class="font-bold text-center mb-6 text-slate-700 flex items-center justify-center gap-2 text-lg">
+                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    能力進化藍圖
+                </h4>
+                <style>
+                    .flow5-line { stroke-dasharray: 140; stroke-dashoffset: 140; fill: none; stroke: #cbd5e1; stroke-width: 4; stroke-linecap: round; }
+                    .flow5-node { opacity: 0; transform-origin: center; }
+                    .flow5-text { opacity: 0; }
+                    
+                    .step5-1 .flow5-node { animation: popNode 0.5s 0.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step5-1 .flow5-text { animation: fadeUp 0.5s 0.3s forwards ease-out; }
+                    .line5-1 { animation: drawLine 0.6s 0.7s forwards ease-in-out; }
+                    
+                    .step5-2 .flow5-node { animation: popNode 0.5s 1.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step5-2 .flow5-text { animation: fadeUp 0.5s 1.4s forwards ease-out; }
+                    .line5-2 { animation: drawLine 0.6s 1.8s forwards ease-in-out; }
+                    
+                    .step5-3 .flow5-node { animation: popNode 0.5s 2.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    .step5-3 .flow5-text { animation: fadeUp 0.5s 2.5s forwards ease-out; }
+                </style>
+                <svg viewBox="0 0 600 120" class="w-full h-auto drop-shadow-sm">
+                    <!-- 連接線 -->
+                    <path class="flow5-line line5-1" d="M 140 40 L 260 40" />
+                    <path class="flow5-line line5-2" d="M 340 40 L 460 40" />
+                    
+                    <!-- 節點 1 -->
+                    <g class="step5-1" transform="translate(100, 40)">
+                        <circle class="flow5-node" cx="0" cy="0" r="24" fill="#f43f5e" />
+                        <text class="flow5-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">1</text>
+                        <text class="flow5-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">視覺升級</text>
+                    </g>
+                    <!-- 節點 2 -->
+                    <g class="step5-2" transform="translate(300, 40)">
+                        <circle class="flow5-node" cx="0" cy="0" r="24" fill="#10b981" />
+                        <text class="flow5-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">2</text>
+                        <text class="flow5-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">資料串接</text>
+                    </g>
+                    <!-- 節點 3 -->
+                    <g class="step5-3" transform="translate(500, 40)">
+                        <circle class="flow5-node" cx="0" cy="0" r="24" fill="#8b5cf6" />
+                        <text class="flow5-node" x="0" y="6" font-family="Arial" font-size="18" fill="white" text-anchor="middle" font-weight="bold">3</text>
+                        <text class="flow5-text" x="0" y="45" font-family="sans-serif" font-size="14" fill="#334155" text-anchor="middle" font-weight="bold">智能互動</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- 任務內容區塊 (全新配色) -->
+            <div class="space-y-4">
+                <div class="bg-rose-50 p-5 rounded-2xl shadow-sm border border-rose-100 hover:shadow-md transition-shadow">
+                    <h4 class="font-bold text-rose-700 mb-1 flex items-center gap-2">
+                        <span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-xs">視覺</span> 🖼️ Canva/Google 簡報嵌入
+                    </h4>
+                    <p class="text-sm text-rose-900/80 mt-2">將簡報「發佈到網路」並獲取 iframe 代碼，請 AI 幫你放入網頁中。</p>
+                </div>
+                <div class="bg-emerald-50 p-5 rounded-2xl shadow-sm border border-emerald-100 hover:shadow-md transition-shadow">
+                    <h4 class="font-bold text-emerald-700 mb-1 flex items-center gap-2">
+                        <span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-xs">資料</span> 📊 試算表作為資料庫
+                    </h4>
+                    <p class="text-sm text-emerald-900/80 mt-2">利用 GAS 讀寫試算表，做出簽到表或留言板功能。</p>
+                </div>
+                <div class="bg-violet-50 p-5 rounded-2xl shadow-sm border border-violet-100 hover:shadow-md transition-shadow">
+                    <h4 class="font-bold text-violet-700 mb-1 flex items-center gap-2">
+                        <span class="bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full text-xs">互動</span> 🤖 AI 聊天機器人
+                    </h4>
+                    <p class="text-sm text-violet-900/80 mt-2">串接 Felo AI 的免費 API，讓你的網頁會自動回答問題。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 老師控制台 (URL 需帶 ?role=teach) -->
+    <!-- 修改：為了不擋住 AI 教師，將面板移至左下角 left-6 -->
+    <div id="admin-panel" class="hidden fixed bottom-6 left-6 bg-white border border-slate-200 shadow-2xl rounded-3xl p-6 w-72 z-50">
+        <h4 class="font-black text-slate-800 mb-4 flex items-center gap-2">🛡️ 老師控場面板</h4>
+        <div class="space-y-2">
+            <button onclick="setGASStep(1)" class="admin-btn w-full py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold">重置 1</button>
+            <button onclick="setGASStep(2)" class="admin-btn w-full py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold">解鎖 2：結構</button>
+            <button onclick="setGASStep(3)" class="admin-btn w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold">解鎖 3：AI 生成</button>
+            <button onclick="setGASStep(4)" class="admin-btn w-full py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold">解鎖 4：GitHub</button>
+            <button onclick="setGASStep(5)" class="admin-btn w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">解鎖 5：延伸</button>
+        </div>
+        <div id="admin-status" class="text-[10px] text-center mt-4 text-slate-400 font-bold uppercase tracking-widest">已成功連線至試算表</div>
+    </div>
+
+    <!-- 新增：AI 教師懸浮按鈕 (第5單元解鎖後才顯示) -->
+    <button id="ai-teacher-btn" onclick="toggleChat()" class="hidden fixed bottom-6 right-6 z-40 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-5 py-3 shadow-2xl flex items-center gap-2 transform transition-all hover:scale-105 group border-2 border-indigo-400">
+        <svg class="w-6 h-6 anim-wiggle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h2v2H9V9zm4 0h2v2h-2V9z"></path>
+        </svg>
+        <span class="font-bold">AI 助教</span>
+    </button>
+
+    <!-- 新增：AI 聊天視窗 -->
+    <div id="ai-chat-window" class="hidden fixed bottom-24 right-6 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right" style="height: 500px; max-height: 80vh;">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-sky-500 p-4 text-white flex justify-between items-center shadow-md z-10">
+            <div class="flex items-center gap-2">
+                <div class="bg-white/20 p-1.5 rounded-lg text-white">
+                    <svg class="w-5 h-5 anim-pulse-scale" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h2v2H9V9zm4 0h2v2h-2V9z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm tracking-wide">AI 助教</h3>
+                    <p class="text-[10px] text-indigo-100">隨時為你解答網頁問題</p>
+                </div>
+            </div>
+            <button onclick="toggleChat()" class="text-white hover:bg-white/20 p-1.5 rounded-md transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-slate-50 space-y-4">
+            <!-- Initial Greeting -->
+            <div class="flex gap-2 text-sm">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-600">
+                    <svg class="w-5 h-5 anim-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h2v2H9V9zm4 0h2v2h-2V9z"></path>
+                    </svg>
+                </div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 text-slate-700 leading-relaxed">
+                    你好！我是 AI 助教。<br>恭喜你解鎖了第 5 關！關於網頁開發、HTML、CSS 或 JavaScript，有什麼我可以幫你的嗎？
+                </div>
+            </div>
+        </div>
+        <!-- Input Area -->
+        <div class="p-3 bg-white border-t border-slate-100 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+            <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="輸入問題..." class="flex-1 min-w-0 bg-slate-100 text-sm rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all border border-transparent focus:border-indigo-300" required autocomplete="off">
+                <button type="submit" class="group flex-shrink-0 w-12 h-[38px] bg-indigo-600 text-white rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-colors shadow-md overflow-hidden relative anim-fly">
+                    <svg class="w-5 h-5 transform transition-all duration-300 group-hover:scale-110 group-hover:-rotate-12 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 客製化提示視窗 (取代原生的 alert)
+        function showCustomAlert(msg) {
+            let alertBox = document.getElementById('custom-alert');
+            if (!alertBox) {
+                alertBox = document.createElement('div');
+                alertBox.id = 'custom-alert';
+                // 充滿現代感的置頂浮動視窗
+                alertBox.style = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:rgba(15, 23, 42, 0.9); color:white; padding:12px 32px; border-radius:9999px; z-index:9999; font-weight:bold; opacity:0; transition:opacity 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.2); font-size: 16px; pointer-events: none;";
+                document.body.appendChild(alertBox);
+            }
+            alertBox.innerText = msg;
+            alertBox.style.opacity = '1';
+            setTimeout(() => { alertBox.style.opacity = '0'; }, 1500);
+        }
+
+        // 互動演示邏輯
+        function setDemoLayer(layer) {
+            const area = document.getElementById('demo-area');
+            const title = document.getElementById('demo-title');
+            const text = document.getElementById('demo-text');
+            const btn = document.getElementById('demo-btn');
+            const res = document.getElementById('demo-result');
+            const codeTitle = document.getElementById('code-title');
+            const codeViewer = document.getElementById('demo-code');
+
+            // 清除 JS 動態加入的行內樣式，確保切換時恢復預設
+            area.style.background = '';
+            area.style.borderRadius = '';
+            area.style.textAlign = '';
+
+            res.style.display = 'none';
+            btn.innerText = '點擊這裡';
+            btn.onclick = null; // 重置點擊事件
+
+            if(layer === 1) { 
+                // HTML Only
+                area.className = "relative z-10 w-full max-w-md mx-auto p-4 bg-white border border-slate-300 min-h-[150px] transition-all duration-700 ease-in-out";
+                title.style = "font-size:16px; margin-bottom: 8px; color: black;";
+                text.style = "font-size:14px; color: black;";
+                text.innerText = "這是一段文字，目前看起來非常樸素。";
+                btn.style = "display:inline-block; margin-top:10px;";
+                btn.onclick = function() {
+                    res.style.display = 'block';
+                    res.style.color = 'red';
+                    res.innerText = '點擊沒有反應，因為沒有 JS！';
+                };
+                
+                // 更新程式碼區塊
+                codeTitle.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> HTML 原始碼 (負責骨架)';
+                codeTitle.className = "font-bold text-orange-400 flex items-center gap-2 text-xs tracking-wide";
+                codeViewer.innerText = `<h3>我的教學網站</h3>\n<p>這是一段文字，目前看起來非常樸素。</p>\n<button>點擊這裡</button>`;
+
+            } else if(layer === 2) { 
+                // HTML + CSS
+                area.className = "relative z-10 w-full max-w-md mx-auto p-6 bg-gradient-to-br from-sky-400 to-indigo-500 rounded-2xl shadow-xl min-h-[150px] transition-all duration-700 ease-in-out";
+                title.style = "font-size:24px; font-weight:bold; color:white; margin-bottom:12px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);";
+                text.style = "font-size:15px; color:rgba(255,255,255,0.95); line-height:1.5;";
+                text.innerText = "穿上了 CSS 的衣服，排版和顏色瞬間變專業了！";
+                btn.style = "display:inline-block; margin-top:16px; padding:10px 20px; background:white; color:#4f46e5; border-radius:12px; font-weight:bold; border:none; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;";
+                // 按鈕完全沒有反應，不會跳字
+                btn.onclick = function(e) {
+                    e.preventDefault(); 
+                };
+                
+                // 更新程式碼區塊
+                codeTitle.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg> CSS 原始碼 (負責美觀)';
+                codeTitle.className = "font-bold text-blue-400 flex items-center gap-2 text-xs tracking-wide";
+                codeViewer.innerText = `/* 替標籤穿上華麗的衣服 */\n#demo-area {\n  background: linear-gradient(to right, #38bdf8, #6366f1);\n  border-radius: 1rem;\n  padding: 1.5rem;\n  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);\n}\n\nbutton {\n  background: white;\n  color: #4f46e5;\n  border-radius: 12px;\n  padding: 10px 20px;\n}`;
+
+            } else if(layer === 3) { 
+                // HTML + CSS + JS
+                area.className = "relative z-10 w-full max-w-md mx-auto p-6 bg-gradient-to-br from-sky-400 to-indigo-500 rounded-2xl shadow-xl min-h-[150px] transform scale-[1.02] transition-all duration-700 ease-in-out ring-4 ring-yellow-400 ring-opacity-50 overflow-hidden";
+                title.style = "font-size:24px; font-weight:bold; color:white; margin-bottom:12px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);";
+                text.style = "font-size:15px; color:rgba(255,255,255,0.95); line-height:1.5;";
+                text.innerText = "加入 JS 靈魂後，這個網站終於活起來了！";
+                btn.style = "display:inline-block; margin-top:16px; padding:10px 20px; background:#fde047; color:#854d0e; border-radius:12px; font-weight:bold; border:none; cursor:pointer; box-shadow: 0 4px 15px rgba(253, 224, 71, 0.4); transition: transform 0.1s;";
+                btn.innerText = "點擊這裡";
+                
+                // 更新程式碼區塊
+                codeTitle.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> JavaScript 原始碼 (負責互動)';
+                codeTitle.className = "font-bold text-yellow-400 flex items-center gap-2 text-xs tracking-wide";
+                codeViewer.innerText = `// 監聽按鈕點擊事件，賦予靈魂\nconst btn = document.querySelector('button');\n\nbtn.addEventListener('click', function() {\n  // 1. 執行按鈕縮放動畫\n  playClickAnimation();\n  \n  // 2. 隨機更換版面主題\n  changeRandomTheme();\n  \n  // 3. 顯示自訂動態彈出視窗\n  showCustomAlert('改變版面！');\n});`;
+                
+                // 主題池，每次點擊隨機抽取
+                const themes = [
+                    { bg: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)", color: "#333", radius: "50px", align: "center", text: "🎉 派對模式：背景與圓角都改變了！" },
+                    { bg: "linear-gradient(to right, #4facfe 0%, #00f2fe 100%)", color: "white", radius: "0px", align: "left", text: "💧 海洋風格：清新的漸層與方正排版！" },
+                    { bg: "#1e293b", color: "#34d399", radius: "16px", align: "right", text: "💻 終端機風：像個真正的駭客！" },
+                    { bg: "linear-gradient(to top, #c471f5 0%, #fa71cd 100%)", color: "white", radius: "30px", align: "center", text: "🔮 魔法氣息：奇幻的樣式變化！" },
+                    { bg: "#fef08a", color: "#854d0e", radius: "8px", align: "left", text: "☀️ 陽光普照：活力滿滿的色彩配置！" }
+                ];
+
+                // 加入 JS 點擊隨機變化特效
+                btn.onclick = function() {
+                    btn.style.transform = "scale(0.95)";
+                    setTimeout(() => btn.style.transform = "scale(1)", 100);
+
+                    // 隨機抽取主題
+                    const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+
+                    // 應用動態變化
+                    area.style.background = randomTheme.bg;
+                    area.style.borderRadius = randomTheme.radius;
+                    area.style.textAlign = randomTheme.align;
+                    title.style.color = randomTheme.color;
+                    text.style.color = randomTheme.color;
+                    text.innerText = randomTheme.text;
+
+                    // 顯示客製化提示視窗
+                    showCustomAlert("改變版面！");
+                };
+            }
+        }
+        
+        // 預設給予純 HTML 點擊事件
+        document.getElementById('demo-btn').onclick = function() {
+            const res = document.getElementById('demo-result');
+            res.style.display = 'block';
+            res.innerText = '點擊沒有反應，因為沒有 JS！';
+        }
+
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbydztC4c3Bq_l5R7Za_2IpaMWGJaVSK5wTsD1uNE9wjgov8-EzGd4b2ie7hOhqoKwY/exec"; 
+
+        const urlParams = new URLSearchParams(window.location.search);
+        // 現在改為檢查 role=teach
+        const isAdmin = urlParams.get('role') === 'teach';
+        if (isAdmin) document.getElementById('admin-panel').classList.remove('hidden');
+
+        let lastStep = 1;
+
+        async function fetchStep() {
+            try {
+                const response = await fetch(GAS_URL);
+                const text = await response.text();
+                const step = parseInt(text);
+                if (!isNaN(step) && step !== lastStep) {
+                    updateUI(step);
+                    lastStep = step;
+                }
+            } catch (error) {
+                console.error("無法連接 GAS:", error);
+                document.getElementById('status-text').innerText = "連線失敗，請檢查權限";
+            }
+        }
+
+        async function setGASStep(step) {
+            const statusLabel = document.getElementById('admin-status');
+            statusLabel.innerText = "同步中...";
+            try {
+                await fetch(`${GAS_URL}?action=set&step=${step}`);
+                statusLabel.innerText = "更新成功！";
+                setTimeout(() => statusLabel.innerText = "已成功連線至試算表", 2000);
+            } catch (error) {
+                statusLabel.innerText = "更新失敗！";
+            }
+        }
+
+        function updateUI(step) {
+            for (let i = 2; i <= 5; i++) {
+                const section = document.getElementById(`step-${i}`);
+                const lock = document.getElementById(`lock-${i}`);
+                if (!section) continue;
+                
+                if (i <= step) {
+                    section.classList.add('active');
+                    if (lock) lock.style.display = 'none';
+                } else {
+                    section.classList.remove('active');
+                    if (lock) lock.style.display = 'block';
+                }
+            }
+            // 更新進度條 (共 5 關)
+            const progress = (Math.max(1, Math.min(step, 5)) / 5) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('status-text').innerText = `目前進度：第 ${step} 單元`;
+
+            // 處理 AI 教師按鈕的顯示邏輯 (第 5 單元解鎖才顯示)
+            const aiTeacherBtn = document.getElementById('ai-teacher-btn');
+            const aiChatWindow = document.getElementById('ai-chat-window');
+            if (aiTeacherBtn) {
+                if (step >= 5) {
+                    // 只有在聊天視窗未開啟的狀態下，才顯示懸浮按鈕
+                    if (!isChatOpen) {
+                        aiTeacherBtn.classList.remove('hidden');
+                    }
+                } else {
+                    aiTeacherBtn.classList.add('hidden');
+                    // 若尚未解鎖，確保聊天視窗是關閉的
+                    if (aiChatWindow && !aiChatWindow.classList.contains('hidden')) {
+                        toggleChat();
+                    }
+                }
+            }
+        }
+
+        // 修改：使用 document.execCommand('copy') 來修復 iFrame 中的剪貼簿權限問題
+        function copyPrompt(elementId, btnElement) {
+            const text = document.getElementById(elementId).innerText;
+            
+            // 建立一個暫時的 textarea 元素來執行複製
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                // 執行複製指令
+                document.execCommand('copy');
+                
+                // 複製成功的視覺回饋
+                const originalText = btnElement.innerText;
+                btnElement.innerText = '已複製！';
+                btnElement.classList.replace('bg-indigo-600', 'bg-emerald-500');
+                btnElement.classList.replace('hover:bg-indigo-700', 'hover:bg-emerald-600');
+                
+                setTimeout(() => {
+                    btnElement.innerText = originalText;
+                    btnElement.classList.replace('bg-emerald-500', 'bg-indigo-600');
+                    btnElement.classList.replace('hover:bg-emerald-600', 'hover:bg-indigo-700');
+                }, 2000);
+            } catch (err) {
+                console.error('複製失敗', err);
+                showCustomAlert('複製失敗，請手動複製！');
+            }
+            
+            // 移除暫時元素
+            document.body.removeChild(textArea);
+        }
+
+        // ==========================================
+        // Felo AI 聊天機器人串接邏輯 (GAS 代理 + 歷史紀錄版)
+        // ==========================================
+        let isChatOpen = false;
+        let chatHistory = []; // 新增：儲存對話紀錄，讓 AI 有記憶！
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('ai-chat-window');
+            const aiTeacherBtn = document.getElementById('ai-teacher-btn');
+            isChatOpen = !isChatOpen;
+            
+            if (isChatOpen) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('flex');
+                if (aiTeacherBtn) aiTeacherBtn.classList.add('hidden'); // 打開對話框時隱藏按鈕
+                setTimeout(() => document.getElementById('chat-input').focus(), 100);
+            } else {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('flex');
+                // 關閉對話框時，且進度已達第5單元，才重新顯示按鈕
+                if (aiTeacherBtn && lastStep >= 5) aiTeacherBtn.classList.remove('hidden'); 
+            }
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const query = input.value.trim();
+            if (!query) return;
+
+            input.value = '';
+            appendMessage('user', query);
+            const loadingId = appendLoading();
+
+            try {
+                // 向您自己的 GAS_URL 發送 POST 請求，並帶上對話紀錄
+                const response = await fetch(GAS_URL, {
+                    method: "POST",
+                    headers: {
+                        // 使用 text/plain 避免瀏覽器 CORS 預檢請求阻擋
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
+                    body: JSON.stringify({ 
+                        action: "chat", 
+                        query: query,
+                        history: chatHistory.slice(-6) // 只傳送最近 6 筆紀錄，避免超過 Payload 限制
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`伺服器回應錯誤碼: ${response.status}`);
+                }
+
+                const data = await response.json();
+                removeLoading(loadingId);
+
+                if (data.status === "ok") {
+                    let reply = data.data.answer;
+                    
+                    // 成功取得回覆後，將雙方的對話存入歷史紀錄
+                    chatHistory.push({ role: 'user', content: query });
+                    chatHistory.push({ role: 'assistant', content: reply });
+
+                    // 已移除附加參考來源的功能
+
+                    appendMessage('bot', reply);
+                } else {
+                    appendMessage('bot', `<span class="text-rose-500">API 回應異常：${data.message || '未知錯誤'}</span>`);
+                }
+            } catch (error) {
+                removeLoading(loadingId);
+                appendMessage('bot', '<span class="text-rose-500">哎呀！無法連線至您的 GAS 伺服器。<br>請確認您的 GAS 程式碼是否已貼上 <code>doPost</code> 並發布為<b>新版本</b>喔！</span>');
+                console.error("AI 串接失敗詳細資訊:", error);
+            }
+        }
+
+        function appendMessage(role, text) {
+            const chatMessages = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = "flex gap-2 text-sm " + (role === 'user' ? "flex-row-reverse" : "");
+            
+            let avatar = role === 'user' ? 
+                `<div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0 text-sky-300 shadow-sm border border-slate-700">
+                    <svg class="w-5 h-5 anim-user" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>` : 
+                `<div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-600">
+                    <svg class="w-5 h-5 anim-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h2v2H9V9zm4 0h2v2h-2V9z"></path>
+                    </svg>
+                </div>`;
+            
+            let bubbleColor = role === 'user' ? "bg-indigo-600 text-white rounded-tr-none" : "bg-white border border-slate-100 text-slate-700 rounded-tl-none";
+
+            // 將換行符號轉為 html <br> 以便顯示，並簡單處理 markdown 粗體 **
+            let formattedText = text.replace(/\n/g, '<br>');
+            formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-700">$1</strong>');
+
+            div.innerHTML = `
+                ${avatar}
+                <div class="${bubbleColor} p-3 rounded-2xl shadow-sm overflow-hidden" style="word-break: break-word;">
+                    ${formattedText}
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // 自動捲動到底部
+        }
+
+        function appendLoading() {
+            const chatMessages = document.getElementById('chat-messages');
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = "flex gap-2 text-sm";
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-600">
+                    <svg class="w-5 h-5 anim-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h2v2H9V9zm4 0h2v2h-2V9z"></path>
+                    </svg>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 text-slate-700 flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-indigo-300 rounded-full animate-bounce"></span>
+                    <span class="w-2 h-2 bg-indigo-300 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
+                    <span class="w-2 h-2 bg-indigo-300 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+                </div>
+            `;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        }
+
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        setInterval(fetchStep, 3000);
+        fetchStep();
+    </script>
+</body>
+</html>
