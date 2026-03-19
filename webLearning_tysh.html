@@ -77,17 +77,22 @@
                 @keyframes fadeUpBadge { to { opacity: 1; transform: translateY(0); } }
                 @keyframes popIcon { to { opacity: 1; transform: scale(1); } }
             </style>
-            <svg class="w-full max-w-lg h-12" viewBox="0 0 500 48">
-                <!-- 裝飾底線 -->
+            <svg class="w-full max-w-lg h-20" viewBox="0 0 500 80">
+                <!-- 裝飾底線 (置中) -->
                 <path class="badge-line" d="M 50 40 L 450 40" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.3"/>
-                <path class="badge-line" d="M 180 40 L 320 40" stroke="#0ea5e9" stroke-width="4" stroke-linecap="round" fill="none" />
+                <path class="badge-line" d="M 120 40 L 380 40" stroke="#0ea5e9" stroke-width="4" stroke-linecap="round" fill="none" />
                 
                 <!-- 裝飾小圓點 -->
-                <circle class="badge-icon" cx="170" cy="40" r="4" fill="#0ea5e9" />
-                <circle class="badge-icon" cx="330" cy="40" r="4" fill="#0ea5e9" />
+                <circle class="badge-icon" cx="110" cy="40" r="4" fill="#0ea5e9" />
+                <circle class="badge-icon" cx="390" cy="40" r="4" fill="#0ea5e9" />
 
-                <!-- 資訊文字 -->
-                <text class="badge-text" x="250" y="28" font-family="'Noto Sans TC', sans-serif" font-weight="bold" text-anchor="middle">
+                <!-- 資訊文字 (線的上方) -->
+                <text class="badge-text" x="250" y="30" font-family="'Noto Sans TC', sans-serif" font-weight="bold" text-anchor="middle">
+                    <tspan fill="#64748b" font-size="18" letter-spacing="2">20260319 @ 桃園高中</tspan>
+                </text>
+                
+                <!-- 資訊文字 (線的下方) -->
+                <text class="badge-text" x="250" y="68" font-family="'Noto Sans TC', sans-serif" font-weight="bold" text-anchor="middle">
                     <tspan fill="#0ea5e9" font-size="18">觀音高中 物理科 林仟弘</tspan>
                 </text>
             </svg>
