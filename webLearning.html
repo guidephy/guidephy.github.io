@@ -862,7 +862,10 @@
             const aiChatWindow = document.getElementById('ai-chat-window');
             if (aiTeacherBtn) {
                 if (step >= 5) {
-                    aiTeacherBtn.classList.remove('hidden');
+                    // 只有在聊天視窗未開啟的狀態下，才顯示懸浮按鈕
+                    if (!isChatOpen) {
+                        aiTeacherBtn.classList.remove('hidden');
+                    }
                 } else {
                     aiTeacherBtn.classList.add('hidden');
                     // 若尚未解鎖，確保聊天視窗是關閉的
@@ -919,14 +922,19 @@
 
         function toggleChat() {
             const chatWindow = document.getElementById('ai-chat-window');
+            const aiTeacherBtn = document.getElementById('ai-teacher-btn');
             isChatOpen = !isChatOpen;
+            
             if (isChatOpen) {
                 chatWindow.classList.remove('hidden');
                 chatWindow.classList.add('flex');
+                if (aiTeacherBtn) aiTeacherBtn.classList.add('hidden'); // 打開對話框時隱藏按鈕
                 setTimeout(() => document.getElementById('chat-input').focus(), 100);
             } else {
                 chatWindow.classList.add('hidden');
                 chatWindow.classList.remove('flex');
+                // 關閉對話框時，且進度已達第5單元，才重新顯示按鈕
+                if (aiTeacherBtn && lastStep >= 5) aiTeacherBtn.classList.remove('hidden'); 
             }
         }
 
