@@ -8,6 +8,9 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+  <!-- 🌟 引入 Chart.js 圖表套件 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <!-- Webduino -->
   <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js"></script>
   <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js"></script>
@@ -139,7 +142,7 @@
     .sim-pad:active { transform: scale(0.92); }
     @media(max-width: 600px){ .sim-pad { width: 60px; height: 60px; font-size: 14px; } }
 
-    /* ══ 結果與後台 ══ */
+    /* ══ 結果與報告區塊 ══ */
     .result-ring { width:160px;height:160px;border-radius:50%; border:8px solid var(--sci-green); display:flex;flex-direction:column;align-items:center;justify-content:center; margin:0 auto 24px; }
     .result-score { font-size:38px;font-weight:800;color:var(--sci-green); }
     .result-unit  { font-size:13px;color:var(--muted); }
@@ -147,7 +150,6 @@
     .stat-card { background:var(--surf2);border-radius:12px;padding:20px;text-align:center; }
     .stat-value { font-size:2.2rem;font-weight:800;color:var(--sci-dark); }
 
-    /* 訓練報告卡片 UI */
     .expert-report-card { background: #ffffff; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.04); }
     .expert-report-header { display: flex; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
     .expert-report-icon { width: 44px; height: 44px; border-radius: 12px; background: #eff6ff; color: #0ea5e9; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 14px; }
@@ -155,9 +157,17 @@
     .expert-insight-list { list-style: none; padding: 0; margin: 0 0 20px 0; }
     .expert-insight-list li { font-size: 14px; color: #475569; margin-bottom: 12px; line-height: 1.6; display: flex; gap: 8px; }
     .expert-insight-list li strong { color: #1e293b; font-weight: 700; }
-    .expert-advice-box { background: #f8fafc; border-left: 4px solid var(--sci-purple); padding: 16px; border-radius: 0 12px 12px 0; }
-    .expert-advice-label { font-size: 12px; font-weight: 800; color: var(--sci-purple); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .expert-advice-box { background: #f8fafc; border-left: 4px solid var(--sci-purple); padding: 16px; border-radius: 0 12px 12px 0; min-height: 80px;}
+    .expert-advice-label { font-size: 12px; font-weight: 800; color: var(--sci-purple); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;}
     .expert-advice-text { font-size: 14.5px; font-weight: 600; color: var(--sci-dark); line-height: 1.5; margin: 0; }
+
+    /* 🌟 後台戰績卡片 UI */
+    .b-card { background: var(--surf2); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; cursor: pointer; transition: all 0.2s; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .b-card:hover { border-color: var(--sci-blue); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(14,165,233,0.15); background: #fff; }
+    .b-avatar { width: 56px; height: 56px; border-radius: 50%; background: #e0f2fe; color: #0284c7; font-size: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .b-icon { width: 48px; height: 48px; border-radius: 12px; background: #fef3c7; color: #d97706; font-size: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .b-title { font-size: 18px; font-weight: 800; color: var(--sci-dark); margin-bottom: 6px; }
+    .b-stat { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 2px;}
 
     /* ════════════════════════════════════════════
        設定區網格 UI
@@ -229,6 +239,10 @@
     .info-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
     .info-desc strong { color: #334155; font-weight: 700; }
     .cat-divider { font-size: 12px; font-weight: 800; color: var(--sci-blue); text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; margin-bottom: -4px; padding-bottom: 4px; border-bottom: 1.5px dashed var(--border); }
+    
+    /* 載入動畫 */
+    .ai-spinner { animation: ai-spin 1s linear infinite; }
+    @keyframes ai-spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -282,7 +296,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
       <a class="nav-back mb-0" onclick="showScreen('main-menu')"><i class="bi bi-arrow-left"></i> 回首頁</a>
       <h4 class="fw-bold mb-0">選擇訓練模式</h4>
-      <div style="width: 70px;"></div> <!-- 平衡版面用 -->
+      <div style="width: 70px;"></div>
     </div>
 
     <div class="hero-cards-wrap mt-4">
@@ -315,7 +329,6 @@
   <p class="text-muted mb-4" style="font-size:13px;" id="setupDesc">請輸入實驗參數</p>
   
   <div class="row g-4">
-    <!-- 身分輸入區 -->
     <div class="col-md-6 player-info-col">
       <label class="form-label text-secondary" id="labelPlayerName">受測者姓名</label>
       <input type="text" id="p-name" class="form-control form-control-lg" placeholder="請輸入姓名/暱稱">
@@ -325,7 +338,6 @@
       <input type="text" id="p-admin-id" class="form-control form-control-lg border-danger" placeholder="負責人帳號 ID">
     </div>
     
-    <!-- 科學訓練計畫選擇 -->
     <div class="col-md-12 mt-2">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <label class="form-label fw-bold mb-0" style="font-size: 16px;">訓練計畫 (Training Program)</label>
@@ -364,7 +376,6 @@
 
   <div class="game-signal mb-3" id="gameSignal"><span id="gameSignalEmoji">●</span></div>
 
-  <!-- 🌟 虛擬陣列模擬器面板 (僅於 ?role=test 啟動時顯示) -->
   <div id="simulator-panel" class="sim-pad-wrap" style="display: none;"></div>
 
   <div id="reactionBadge" class="reaction-badge" style="background:var(--surf2);color:var(--muted);font-size:18px;">— 等待開始 —</div>
@@ -378,7 +389,7 @@
 </div></div>
 
 <!-- ══════════════════════════════════════════════
-     SCREEN: 結果頁 (含科學訓練報告)
+     SCREEN: 結果頁 (含科學訓練報告與動態圖表)
 ══════════════════════════════════════════════ -->
 <div id="screen-results" class="screen"><div class="main-card" style="max-width:640px;text-align:center;">
   <div id="resultsKidsAnim" style="font-size:48px;display:none;margin-bottom:8px;">🎉🌈⭐</div>
@@ -394,22 +405,37 @@
     <div class="col-4"><div class="stat-card"><div style="font-size:11px;color:var(--muted);">失誤/漏擊</div><div style="font-size:20px;font-weight:800;color:var(--sci-red);" id="resultErrors">0</div></div></div>
   </div>
 
+  <!-- 🌟 AI 科學訓練分析報告 -->
   <div id="expertReportCard" class="expert-report-card text-start">
     <div class="expert-report-header">
-      <div class="expert-report-icon"><i class="bi bi-clipboard2-data-fill"></i></div>
+      <div class="expert-report-icon"><i class="bi bi-robot"></i></div>
       <div>
-        <h5 class="expert-report-title">科學訓練分析報告</h5>
-        <div style="font-size:12px; color:var(--muted); margin-top:2px;">基於本次游玩數據自動生成</div>
+        <h5 class="expert-report-title">AI 科學分析報告</h5>
+        <div style="font-size:12px; color:var(--muted); margin-top:2px;">結合基礎特徵與雲端 AI 深度見解</div>
       </div>
     </div>
     <ul id="reportInsights" class="expert-insight-list"></ul>
     <div class="expert-advice-box">
-      <div class="expert-advice-label">專家建議 (Recommendation)</div>
+      <div class="expert-advice-label">運動科學專家建議</div>
       <p id="reportAdvice" class="expert-advice-text"></p>
     </div>
   </div>
 
-  <div style="font-size:12px; font-weight:700; color:var(--muted); text-align:left; margin-bottom:8px; padding-left:4px;">單次打擊歷程 (毫秒)</div>
+  <!-- 🌟 歷次訓練趨勢圖表 (若有多次紀錄才顯示) -->
+  <div id="trendChartContainer" class="expert-report-card text-start" style="display:none;">
+    <div class="expert-report-header" style="border-bottom:none; margin-bottom:0; padding-bottom:8px;">
+      <div class="expert-report-icon" style="background: #f0fdf4; color: #10b981;"><i class="bi bi-graph-up-arrow"></i></div>
+      <div>
+        <h5 class="expert-report-title">歷次成長趨勢</h5>
+        <div style="font-size:12px; color:var(--muted); margin-top:2px;">相同菜單下的反應時間變化</div>
+      </div>
+    </div>
+    <div style="position: relative; height: 220px; width: 100%;">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <div style="font-size:12px; font-weight:700; color:var(--muted); text-align:left; margin-bottom:8px; padding-left:4px;">本次單擊歷程 (毫秒)</div>
   <div id="resultRoundList" class="text-start mb-4" style="max-height:160px;overflow-y:auto;"></div>
   
   <div class="d-flex gap-3 justify-content-center flex-wrap">
@@ -419,31 +445,37 @@
 </div></div>
 
 <!-- ══════════════════════════════════════════════
-     SCREEN: 管理員登入 / 戰績中心
+     SCREEN: 管理員登入 / 戰績中心 (全新階層架構)
 ══════════════════════════════════════════════ -->
 <div id="screen-admin-login" class="screen"><div class="main-card" style="max-width:480px;">
   <a class="nav-back" onclick="showScreen('main-menu')"><i class="bi bi-arrow-left"></i> 返回首頁</a>
   <h3 class="fw-bold mb-4 text-center">🏆 戰績中心登入</h3>
   <ul class="nav nav-pills nav-fill mb-4" style="background:var(--surf2);border-radius:10px;padding:4px;">
-    <li class="nav-item"><button class="nav-link active" id="tabLoginBtn" onclick="switchAuthTab('login')">登入查詢</button></li>
-    <li class="nav-item"><button class="nav-link" id="tabRegBtn" onclick="switchAuthTab('reg')">註冊帳號</button></li>
+    <li class="nav-item"><button class="nav-link active" id="tabLoginBtn" onclick="switchAuthTab('login')">教練登入</button></li>
+    <li class="nav-item"><button class="nav-link" id="tabRegBtn" onclick="switchAuthTab('reg')">管理員註冊</button></li>
   </ul>
-  <div id="login-box" class="p-4 border rounded-3"><input type="text" id="l-acc" class="form-control form-control-lg mb-3" placeholder="管理者 ID (如教練/照護員)"><input type="password" id="l-pw" class="form-control form-control-lg mb-4" placeholder="密碼"><button class="btn btn-dark btn-lg w-100 fw-bold" onclick="realLogin()">登入</button></div>
+  <div id="login-box" class="p-4 border rounded-3"><input type="text" id="l-acc" class="form-control form-control-lg mb-3" placeholder="管理者 ID (如教練/照護員)"><input type="password" id="l-pw" class="form-control form-control-lg mb-4" placeholder="密碼"><button class="btn btn-dark btn-lg w-100 fw-bold" onclick="realLogin()">登入查詢</button></div>
   <div id="reg-box" class="p-4 border rounded-3" style="display:none;"><input type="text" id="r-acc" class="form-control form-control-lg mb-3" placeholder="設定管理者 ID"><input type="password" id="r-pw" class="form-control form-control-lg mb-4" placeholder="設定密碼"><button class="btn btn-success btn-lg w-100 fw-bold" onclick="realRegister()">確認註冊</button></div>
 </div></div>
 
+<!-- 🌟 全新階層式戰績後台 -->
 <div id="screen-backend" class="screen"><div class="main-card">
   <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-2">
-    <h2 class="fw-bold mb-0" style="color:var(--sci-dark);"><i class="bi bi-trophy-fill text-warning me-2"></i>戰績中心</h2>
-    <div class="d-flex gap-2 align-items-center"><span id="backendAdminLabel" class="badge bg-light text-dark border p-2" style="font-size: 14px;"></span><button class="btn btn-sm btn-outline-danger fw-bold" onclick="showScreen('main-menu')">登出</button></div>
+    <div>
+      <h2 class="fw-bold mb-0" style="color:var(--sci-dark);"><i class="bi bi-trophy-fill text-warning me-2"></i>戰績中心</h2>
+      <div id="backendBreadcrumb" class="text-muted mt-2 fw-bold" style="font-size: 14px;">學員列表</div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <button id="btnBackBackend" class="btn btn-sm btn-outline-secondary fw-bold" style="display:none;" onclick="goBackendBack()"><i class="bi bi-arrow-left"></i> 返回上層</button>
+      <span id="backendAdminLabel" class="badge bg-light text-dark border p-2" style="font-size: 14px;"></span>
+      <button class="btn btn-sm btn-outline-danger fw-bold" onclick="showScreen('main-menu')">登出</button>
+    </div>
   </div>
-  <div class="row g-3 mb-4 text-center">
-    <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">總測驗人次</div><div class="stat-value" id="stat-count">0</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">群體平均 (ms)</div><div class="stat-value text-primary" id="stat-avg">0</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">最快紀錄 (ms)</div><div class="stat-value text-success" id="stat-best">—</div></div></div>
-    <div class="col-md-3"><div class="stat-card"><div class="text-muted fw-bold">偏好計畫</div><div class="stat-value text-warning" style="font-size:1.6rem;" id="stat-modes">—</div></div></div>
+  
+  <!-- 動態渲染區域：會根據點擊切換 1.學員卡片牆 -> 2.菜單卡片牆 -> 3.圖表與清單 -->
+  <div id="backendContentArea" style="min-height: 400px; position: relative;">
+    <div class="text-center text-muted py-5"><div class="spinner-border text-primary mb-3" role="status"></div><br>正在從雲端載入戰績資料...</div>
   </div>
-  <table class="table table-hover align-middle"><thead style="background:var(--sci-dark);color:white;"><tr><th>受測者</th><th>計畫</th><th>平均反應</th><th>最佳成績</th><th>失誤/漏擊</th><th>測驗時間</th></tr></thead><tbody id="backend-body"></tbody></table>
 </div></div>
 
 <!-- ══════════════════════════════════════════════
@@ -454,7 +486,7 @@
     <a class="nav-back mb-0" onclick="showScreen('main-menu')"><i class="bi bi-arrow-left"></i> 返回首頁</a>
     <div class="d-flex gap-2 align-items-center">
       <div class="status-badge connecting" id="statusSettings"><div class="status-dot"></div><span id="statusSettingsText">初始化…</span></div>
-      <button class="btn btn-sm btn-dark fw-bold" onclick="connectAllNodes()"><i class="bi bi-hdd-network"></i> 一鍵連線全部裝置</button>
+      <button class="btn btn-sm btn-dark fw-bold" onclick="connectAllNodes()"><i class="bi bi-hdd-network"></i> 一鍵連線</button>
     </div>
   </div>
   <h4 class="fw-bold mb-0">裝置陣列設定 (6 Nodes)</h4>
@@ -462,29 +494,22 @@
 
   <div class="sub-card full-width mb-3" style="border-left: 4px solid var(--sci-blue);">
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <div class="sub-card-title mb-0">通用視覺配置 (Colors & Brightness)</div>
+      <div class="sub-card-title mb-0">通用視覺配置</div>
       <button class="c-btn primary btn-sm" onclick="testAllLeds()"><i class="bi bi-magic"></i> 全體閃爍測試</button>
     </div>
-    
     <div class="d-flex flex-wrap gap-4 align-items-start mt-3">
       <div style="flex:1; min-width: 150px; max-width: 200px;">
         <label style="font-size:12px; font-weight:600; color:var(--muted); display:block; margin-bottom:8px;">亮度 <span id="brightnessVal">20</span>%</label>
         <input type="range" id="brightnessSlider" min="1" max="100" value="20" class="w-100">
-        <p style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5;">點擊右側色塊即可直接選擇您想要的顏色。</p>
       </div>
-      <div style="flex:3; min-width: 300px;">
-        <div class="palette-grid" id="paletteGrid"></div>
-      </div>
+      <div style="flex:3; min-width: 300px;"><div class="palette-grid" id="paletteGrid"></div></div>
     </div>
   </div>
-
-  <div class="sub-card-title mt-4 mb-2"><i class="bi bi-grid-3x2-gap-fill me-2"></i>節點獨立感測與校準 (Per-Node Calibration)</div>
+  <div class="sub-card-title mt-4 mb-2"><i class="bi bi-grid-3x2-gap-fill me-2"></i>節點獨立校準</div>
   <div class="nodes-grid" id="nodesContainer"></div>
 </div></div>
 
-<!-- ══════════════════════════════════════════════
-     自訂彈出視窗 (Modal): 科學訓練計畫說明
-══════════════════════════════════════════════ -->
+<!-- 模式說明 Modal -->
 <div id="modal-mode-info" class="custom-modal-overlay">
   <div class="custom-modal-box">
     <div class="d-flex justify-content-between align-items-center mb-1 border-bottom pb-3">
@@ -492,31 +517,24 @@
       <button type="button" class="btn-close" aria-label="Close" onclick="hideModeInfoModal()"></button>
     </div>
     <div class="mode-info-list" id="modal-info-content"></div>
-    <div class="text-center mt-4 pt-3 border-top">
-       <button class="btn btn-dark px-5 py-2 fw-bold" style="border-radius: 12px; font-size: 15px;" onclick="hideModeInfoModal()">我知道了</button>
-    </div>
+    <div class="text-center mt-4 pt-3 border-top"><button class="btn btn-dark px-5 py-2 fw-bold" style="border-radius: 12px; font-size: 15px;" onclick="hideModeInfoModal()">我知道了</button></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     JavaScript 核心邏輯
-══════════════════════════════════════════════ -->
 <script>
 /* ─ 全局狀態與變數 ─ */
 var currentScreen = 'main-menu';
 var globalBrightness = 20;
+const GAS_AI_URL = "https://script.google.com/macros/s/AKfycbyf-ESWnK2QbuXkcgemyFBpT1HolRebD3riEJAKGapqN4T48F7QWVQvzBioyUyUQW1d/exec"; 
 
-// 🌟 解析 URL 是否為模擬模式 (?role=test)
 const urlParams = new URLSearchParams(window.location.search);
 const isSimMode = urlParams.get('role') === 'test';
 
-// 自訂 6 色色盤
 var defaultPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 var palette = JSON.parse(localStorage.getItem('RK_PALETTE')) || defaultPalette;
 
 var nodes = Array.from({ length: 6 }, (_, i) => ({
-  index: i,
-  deviceId: localStorage.getItem(`NODE_ID_${i}`) || '',
+  index: i, deviceId: localStorage.getItem(`NODE_ID_${i}`) || '',
   threshold: parseFloat(localStorage.getItem(`NODE_TH_${i}`)) || 0.154,
   minVal: Infinity, board: null, ws2812: null, photocell: null, connected: false, lastTriggered: false
 }));
@@ -530,670 +548,463 @@ var game = {
   waitTimer: null, countdownTimer: null, specialTimer: null, feedbackTimer: null
 };
 
-/* ─ 科學訓練計畫定義 (Protocols) ─ */
+/* ─ 戰績中心全局變數 ─ */
+let globalBackendRecords = [];
+let backendCurrentView = 'students'; // 'students', 'modes', 'history'
+let backendCurrentStudent = '';
+let backendCurrentMode = '';
+
+/* ─ 科學訓練計畫定義 ─ */
 const trainingProtocols = {
   athlete: {
     categoryName: '選手競技訓練',
     modes: [
-      { id: 'ath_srt', icon: '⚡', name: '簡單反應 (SRT)', desc: '場上隨機亮起 1 顆目標。<strong>訓練目的：</strong>評估神經衝動傳導極限速度。', rounds: 10 },
-      { id: 'ath_rush', icon: '⏱️', name: '限時極限 (Time Attack)', desc: '燈光僅停留 1.2 秒！未擊打即算漏擊。<strong>訓練目的：</strong>挑戰高壓時間下的動態視覺反應。', rounds: 15 },
-      { id: 'ath_gonogo', icon: '🧠', name: '選擇性抑制 (Go/No-Go)', desc: '主目標與干擾色同時出現，擊打錯誤將扣分。<strong>訓練目的：</strong>強化大腦決策、選擇性注意力與抑制能力。', rounds: 15 },
-      { id: 'ath_search', icon: '👁️', name: '視覺空間搜尋 (Visual Search)', desc: '6顆節點全亮，僅1顆為正確顏色。<strong>訓練目的：</strong>優化周邊視野與複雜環境特徵提取能力。', rounds: 15 },
-      { id: 'ath_shift', icon: '🌪️', name: '動態位移 (Dynamic Shift)', desc: '目標絕對不重複於同一位置，強迫大範圍跑動。<strong>訓練目的：</strong>訓練敏捷步法轉換與空間定向能力。', rounds: 15 },
-      { id: 'ath_endurance', icon: '🏃', name: '疲勞耐受 (Endurance)', desc: '目標出現間隔極短，連續高頻測驗。<strong>訓練目的：</strong>考驗無氧狀態與高強度疲勞下的專注力維持。', rounds: 30 }
+      { id: 'ath_srt', icon: '⚡', name: '簡單反應 (SRT)', desc: '場上隨機亮起 1 顆目標。評估神經衝動傳導極限速度。', rounds: 10 },
+      { id: 'ath_rush', icon: '⏱️', name: '限時極限 (Time Attack)', desc: '燈光僅停留 1.2 秒！未擊打即算漏擊。挑戰高壓動態視覺。', rounds: 15 },
+      { id: 'ath_gonogo', icon: '🧠', name: '選擇性抑制 (Go/No-Go)', desc: '主目標與干擾色同時出現，擊打錯誤將扣分。強化大腦決策與抑制。', rounds: 15 },
+      { id: 'ath_search', icon: '👁️', name: '視覺空間搜尋', desc: '6顆節點全亮，僅1顆為正確顏色。優化周邊視野與環境提取。', rounds: 15 },
+      { id: 'ath_shift', icon: '🌪️', name: '動態位移 (Dynamic Shift)', desc: '目標絕對不重複於同一位置。訓練敏捷步法轉換與空間定向。', rounds: 15 }
     ]
   },
   elderly: {
     categoryName: '樂齡認知活化',
     modes: [
-      { id: 'eld_basic', icon: '🟢', name: '基礎活化 (Basic Activation)', desc: '節奏溫和的單點亮燈。<strong>訓練目的：</strong>適合高齡長者暖身，促進基礎手眼協調。', rounds: 5 },
-      { id: 'eld_color', icon: '🎨', name: '色彩辨識 (Color Discrimination)', desc: '同時出現目標色與干擾色。<strong>訓練目的：</strong>預防認知退化，訓練對色彩的短期記憶與邏輯判斷。', rounds: 10 },
-      { id: 'eld_cross', icon: '🔄', name: '空間轉移 (Spatial Shift)', desc: '目標不會在同一位置連續亮起。<strong>訓練目的：</strong>強迫肢體跨越中線進行大範圍位移，有助防跌。', rounds: 10 },
-      { id: 'eld_memory', icon: '🧩', name: '記憶配對 (Memory Match)', desc: '螢幕會顯示指定顏色，請找出陣列中相同顏色的燈。<strong>訓練目的：</strong>強化工作記憶 (Working Memory) 與視覺對應能力。', rounds: 10 }
+      { id: 'eld_basic', icon: '🟢', name: '基礎活化 (Basic)', desc: '節奏溫和的單點亮燈。適合高齡長者暖身，促進手眼協調。', rounds: 5 },
+      { id: 'eld_color', icon: '🎨', name: '色彩辨識 (Color)', desc: '同時出現目標色與干擾色。預防認知退化，訓練短期記憶。', rounds: 10 },
+      { id: 'eld_cross', icon: '🔄', name: '空間轉移 (Spatial)', desc: '目標不會在同一位置連續亮起。強迫肢體跨越中線，有助防跌。', rounds: 10 },
+      { id: 'eld_memory', icon: '🧩', name: '記憶配對 (Memory)', desc: '螢幕顯示指定顏色，找出陣列中相同顏色的燈。強化工作記憶。', rounds: 10 }
     ]
   },
   kids: {
     categoryName: '兒童感覺統合',
     modes: [
-      { id: 'kid_mole', icon: '🐹', name: '打地鼠 (Whack-a-Mole)', desc: '目標燈光只停留 2 秒，沒打到就會自動消失！<strong>訓練目的：</strong>激發兒童的瞬間爆發力與動態追蹤。', rounds: 15 },
-      { id: 'kid_treasure', icon: '🌈', name: '尋寶遊戲 (Treasure Hunt)', desc: '在五顏六色的干擾燈中找出正確目標。<strong>訓練目的：</strong>訓練兒童的抗干擾能力與視覺專注力。', rounds: 10 },
-      { id: 'kid_freeze', icon: '❄️', name: '木頭人 (Red/Green Light)', desc: '綠燈快打，紅燈要停住不動 (2秒)！<strong>訓練目的：</strong>趣味化的衝動控制，學習「啟動」與「煞車」。', rounds: 10 },
-      { id: 'kid_match', icon: '🎨', name: '變色龍配對 (Color Match)', desc: '目標顏色每一關都會變！看螢幕顯示什麼顏色就打什麼顏色的燈。<strong>訓練目的：</strong>訓練色彩認知與視覺-動作整合。', rounds: 10 },
-      { id: 'kid_flash', icon: '⚡', name: '閃電俠 (Flash Speed)', desc: '超快節奏！燈光只停留 1 秒鐘！<strong>訓練目的：</strong>挑戰兒童的極限反應速度與手眼協調。', rounds: 15 }
+      { id: 'kid_mole', icon: '🐹', name: '打地鼠 (Whack-a-Mole)', desc: '目標燈光只停留 2 秒！激發兒童瞬間爆發力與動態追蹤。', rounds: 15 },
+      { id: 'kid_treasure', icon: '🌈', name: '尋寶遊戲 (Treasure)', desc: '在五顏六色干擾燈中找出正確目標。訓練兒童抗干擾能力。', rounds: 10 },
+      { id: 'kid_freeze', icon: '❄️', name: '木頭人 (Red/Green)', desc: '綠燈快打，紅燈要停住不動！趣味化的衝動控制與煞車學習。', rounds: 10 },
+      { id: 'kid_match', icon: '🎨', name: '變色龍配對 (Match)', desc: '看螢幕顯示什麼顏色就打什麼顏色。訓練色彩認知與視覺動作。', rounds: 10 }
     ]
   }
 };
-
-/* ─ 模擬器初始化邏輯 ─ */
-function initSimulator() {
-  if (!isSimMode) return;
-  document.getElementById('statusHomeText').textContent = '虛擬陣列模擬器已啟動';
-  document.getElementById('statusHome').classList.replace('connecting', 'connected');
-
-  let simPanel = document.getElementById('simulator-panel');
-  simPanel.innerHTML = nodes.map(n => `<div class="sim-pad" id="sim-pad-${n.index}" onclick="simHit(${n.index})">P${n.index+1}</div>`).join('');
-  
-  nodes.forEach((n, idx) => {
-    n.connected = true;
-    n.ws2812 = {
-      brightness: function(val) {},
-      setColor: function(ledIdx, color) {
-        if (ledIdx === 0) { 
-          let pad = document.getElementById('sim-pad-' + idx);
-          if (pad) {
-            if (color === '#000000') {
-              pad.style.backgroundColor = 'var(--surf2)';
-              pad.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
-              pad.style.color = 'var(--muted)';
-              pad.style.border = '3px solid var(--border)';
-            } else {
-              pad.style.backgroundColor = color;
-              pad.style.boxShadow = '0 0 24px ' + color + '99';
-              pad.style.color = '#fff';
-              pad.style.border = '3px solid ' + color;
-            }
-          }
-        }
-      }
-    };
-  });
-}
-
-function simHit(idx) {
-  if(currentScreen !== 'game' || game.phase !== 'lit') return;
-  let isCorrect = (game.activeNodeIndex === idx);
-  recordGameHit(0, isCorrect, idx); 
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
-  currentScreen = id;
-}
-
-function showModeInfoModal() {
-  const container = document.getElementById('modal-info-content');
-  container.innerHTML = '';
-  const renderCategory = (catData) => {
-    let html = `<div class="cat-divider">${catData.categoryName}</div>`;
-    catData.modes.forEach(m => {
-      html += `<div class="info-card"><div class="info-icon">${m.icon}</div><div class="info-content"><div class="info-title">${m.name}</div><div class="info-desc">${m.desc}<br><small class="text-primary fw-bold mt-1 d-block">自動輪次：${m.rounds} 次</small></div></div></div>`;
-    });
-    return html;
-  };
-  if (game.mode === 'free') {
-    container.innerHTML += renderCategory(trainingProtocols.athlete) + renderCategory(trainingProtocols.elderly) + renderCategory(trainingProtocols.kids);
-  } else { container.innerHTML = renderCategory(trainingProtocols[game.mode]); }
-  document.getElementById('modal-mode-info').classList.add('show');
-}
-function hideModeInfoModal() { document.getElementById('modal-mode-info').classList.remove('show'); }
-
-function populateDropdown(selectedMode) {
-  const selectEl = document.getElementById('p-game-mode'); selectEl.innerHTML = '';
-  const addOptions = (catData) => catData.modes.map(m => `<option value="${m.id}">${m.icon} ${m.name}</option>`).join('');
-  if (selectedMode === 'free') {
-    selectEl.innerHTML += `<optgroup label="${trainingProtocols.athlete.categoryName}">${addOptions(trainingProtocols.athlete)}</optgroup>`;
-    selectEl.innerHTML += `<optgroup label="${trainingProtocols.elderly.categoryName}">${addOptions(trainingProtocols.elderly)}</optgroup>`;
-    selectEl.innerHTML += `<optgroup label="${trainingProtocols.kids.categoryName}">${addOptions(trainingProtocols.kids)}</optgroup>`;
-  } else { selectEl.innerHTML = addOptions(trainingProtocols[selectedMode]); }
-}
-
-function renderPaletteUI() {
-  document.getElementById('paletteGrid').innerHTML = palette.map((c, i) => `
-    <div class="palette-item">
-      <div class="palette-swatch-wrap ${i===0 ? 'target-color' : ''}" style="background:${c}; box-shadow:0 0 10px ${c}66;">
-        <input type="color" class="swatch-input" value="${c}" onchange="updatePaletteColor(${i}, this.value)">
-      </div>
-      <div class="palette-label ${i===0 ? 'target' : ''}">${i===0 ? '🎯 主目標' : `干擾色 ${i}`}</div>
-    </div>`).join('');
-}
-function updatePaletteColor(index, newColor) { palette[index] = newColor; localStorage.setItem('RK_PALETTE', JSON.stringify(palette)); renderPaletteUI(); }
-
-function renderNodeGrid() {
-  const container = document.getElementById('nodesContainer'); container.innerHTML = '';
-  nodes.forEach(node => {
-    container.innerHTML += `
-      <div class="node-card" id="nodeCard_${node.index}">
-        <div class="node-header">
-          <div class="node-id-group"><span class="node-tag">P${node.index + 1}</span><input type="text" class="dev-input" id="devInput_${node.index}" value="${node.deviceId}" placeholder="Device ID" onchange="saveNodeConfig(${node.index})"></div>
-          <div class="status-dot" id="statusDot_${node.index}" style="background: var(--sci-red);"></div>
-        </div>
-        <div class="node-monitor">
-          <div class="node-val" id="valDisplay_${node.index}">—</div>
-          <div class="mini-bar-bg"><div class="mini-bar-fill" id="barFill_${node.index}"></div><div class="mini-threshold" id="thMarker_${node.index}" style="left: ${node.threshold * 100}%"></div></div>
-        </div>
-        <div class="node-controls">
-          <input type="number" class="th-input" id="thInput_${node.index}" value="${node.threshold}" step="0.001" onchange="saveNodeConfig(${node.index})">
-          <button class="btn-micro-capture" id="btnCap_${node.index}" onclick="captureNodeMin(${node.index})">抓取底值</button>
-        </div>
-      </div>`;
-  });
-}
-
-function saveNodeConfig(idx) {
-  var idVal = document.getElementById(`devInput_${idx}`).value.trim();
-  var thVal = parseFloat(document.getElementById(`thInput_${idx}`).value) || 0.154;
-  nodes[idx].deviceId = idVal; nodes[idx].threshold = thVal;
-  localStorage.setItem(`NODE_ID_${idx}`, idVal); localStorage.setItem(`NODE_TH_${idx}`, thVal);
-  document.getElementById(`thMarker_${idx}`).style.left = (thVal * 100) + '%';
-}
-
-function captureNodeMin(idx) {
-  var node = nodes[idx]; var btn = document.getElementById(`btnCap_${idx}`);
-  if(node.minVal !== Infinity) {
-    var newTh = Math.max(0, node.minVal + 0.005).toFixed(3);
-    document.getElementById(`thInput_${idx}`).value = newTh; saveNodeConfig(idx);
-    btn.textContent = '✓ 已校準'; btn.style.background = 'var(--sci-green)'; btn.style.color = '#fff';
-    setTimeout(() => { btn.textContent = '抓取底值'; btn.style.background = ''; btn.style.color = ''; }, 1500);
-  } else { btn.textContent = '無數據'; setTimeout(() => { btn.textContent = '抓取底值'; }, 1200); }
-}
-
-document.getElementById('brightnessSlider').oninput = function(){ 
-  globalBrightness = parseInt(this.value); document.getElementById('brightnessVal').textContent = globalBrightness;
-  nodes.forEach(n => { if(n.connected && n.ws2812) n.ws2812.brightness(globalBrightness); });
-};
-
-function updateGlobalStatus() {
-  if (isSimMode) return; 
-  var count = nodes.filter(n => n.connected).length;
-  var text = count > 0 ? `已連線 ${count}/6 節點` : '等待陣列連線…';
-  var state = count > 0 ? 'connected' : 'connecting';
-  ['statusHome', 'statusGame', 'statusSettings'].forEach(id => {
-    var el = document.getElementById(id);
-    if(el) { el.className = `status-badge ${state}`; el.querySelector('span').textContent = text; }
-  });
-}
-
-function connectAllNodes() {
-  if (isSimMode) return; 
-
-  nodes.forEach(node => {
-    if(!node.deviceId || node.connected) return;
-    (function(idx) {
-      boardReady({ board: 'Smart', device: nodes[idx].deviceId, transport: 'mqtt', multi: true }, function(board) {
-        var n = nodes[idx]; n.board = board; n.connected = true; board.samplingInterval = 50;
-        n.ws2812 = getWS2812(board, 12, 16); n.ws2812.brightness(globalBrightness);
-        for(var i=0;i<16;i++) n.ws2812.setColor(i, '#000000');
-        var dot = document.getElementById(`statusDot_${idx}`); if(dot) dot.style.background = 'var(--sci-green)';
-        updateGlobalStatus();
-        n.photocell = getPhotocell(board, 0);
-        n.photocell.measure(function(val) {
-          if(currentScreen === 'settings') {
-            var valEl = document.getElementById(`valDisplay_${idx}`); var barEl = document.getElementById(`barFill_${idx}`);
-            if(valEl) valEl.textContent = val.toFixed(3); if(barEl) barEl.style.width = Math.min(val*100, 100) + '%';
-            if(val < n.minVal) n.minVal = val;
-          }
-          if(val < n.threshold) {
-            if(!n.lastTriggered) { n.lastTriggered = true; handleNodeTrigger(idx, val); }
-          } else { n.lastTriggered = false; }
-        });
-      });
-    })(node.index);
-  });
-}
-
-function testAllLeds() {
-  var randomC = palette[Math.floor(Math.random() * palette.length)];
-  nodes.forEach(n => {
-    if(n.connected && n.ws2812) {
-      for(var i=0;i<16;i++) n.ws2812.setColor(i, randomC);
-      setTimeout(() => { for(var i=0;i<16;i++) n.ws2812.setColor(i, '#000000'); }, 800);
-    }
-  });
-}
-
-function handleNodeTrigger(idx, val) {
-  var node = nodes[idx];
-  if(currentScreen === 'settings') {
-    var card = document.getElementById(`nodeCard_${idx}`);
-    if(card) { card.classList.add('triggered'); setTimeout(() => card.classList.remove('triggered'), 300); }
-    if(node.ws2812) { for(var i=0;i<16;i++) node.ws2812.setColor(i, palette[0]); setTimeout(() => { for(var i=0;i<16;i++) node.ws2812.setColor(i, '#000000'); }, 300); }
-  } else if (currentScreen === 'game' && game.phase === 'lit') {
-    if(game.activeNodeIndex === idx) recordGameHit(val, true, idx); else recordGameHit(val, false, idx); 
-  }
-}
-
-/* ─ 遊戲啟動與運作邏輯 ─ */
 var modeConfig = {
   athlete: { t:'⚡ 選手模式', tagBg:'#0ea5e9', pName:'運動員姓名', pAdmin:'教練 ID', desc:'高強度科學體能訓練。' },
   elderly: { t:'❤️ 樂齡模式', tagBg:'#f59e0b', pName:'樂齡學員姓名', pAdmin:'照護員 ID', desc:'輕鬆的認知與肢體活化。' },
   kids:    { t:'🌈 兒童模式', tagBg:'#10b981', pName:'小玩家暱稱', pAdmin:'家長・導師 ID', desc:'趣味化的感覺統合挑戰。' },
-  free:    { t:'♾️ 自由模式', tagBg:'#8b5cf6', pName:'', pAdmin:'', desc:'無需記錄身份，自由選擇所有計畫進行訓練。' }
+  free:    { t:'♾️ 自由模式', tagBg:'#8b5cf6', pName:'', pAdmin:'', desc:'無需記錄身份，自由選擇計畫訓練。' }
 };
-var kidsMessages = ['棒棒棒！🌟','超快的！⚡','厲害！🎉','繼續加油！💪','哇！好快喔！🌈'];
 
+/* ─ 共用 UI 與硬體邏輯 ─ */
+function initSimulator() {
+  if (!isSimMode) return;
+  document.getElementById('statusHomeText').textContent = '虛擬陣列模擬器已啟動';
+  document.getElementById('statusHome').classList.replace('connecting', 'connected');
+  let simPanel = document.getElementById('simulator-panel');
+  simPanel.innerHTML = nodes.map(n => `<div class="sim-pad" id="sim-pad-${n.index}" onclick="simHit(${n.index})">P${n.index+1}</div>`).join('');
+  nodes.forEach((n, idx) => { n.connected = true; n.ws2812 = { brightness: function(){}, setColor: function(ledIdx, color) { if(ledIdx===0){ let pad = document.getElementById('sim-pad-'+idx); if(pad){ pad.style.backgroundColor = color==='#000000'?'var(--surf2)':color; pad.style.color = color==='#000000'?'var(--muted)':'#fff'; pad.style.borderColor = color==='#000000'?'var(--border)':color; } } } }; });
+}
+function simHit(idx) { if(currentScreen === 'game' && game.phase === 'lit') recordGameHit(0, game.activeNodeIndex === idx, idx); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('screen-' + id).classList.add('active'); currentScreen = id; }
+function showModeInfoModal() {
+  const container = document.getElementById('modal-info-content'); container.innerHTML = '';
+  const renderCategory = (catData) => { let html = `<div class="cat-divider">${catData.categoryName}</div>`; catData.modes.forEach(m => { html += `<div class="info-card"><div class="info-icon">${m.icon}</div><div class="info-content"><div class="info-title">${m.name}</div><div class="info-desc">${m.desc}</div></div></div>`; }); return html; };
+  if (game.mode === 'free') { container.innerHTML += renderCategory(trainingProtocols.athlete) + renderCategory(trainingProtocols.elderly) + renderCategory(trainingProtocols.kids); } else { container.innerHTML = renderCategory(trainingProtocols[game.mode]); }
+  document.getElementById('modal-mode-info').classList.add('show');
+}
+function hideModeInfoModal() { document.getElementById('modal-mode-info').classList.remove('show'); }
+function populateDropdown(mode) {
+  const sel = document.getElementById('p-game-mode'); sel.innerHTML = '';
+  const addOpt = (cat) => cat.modes.map(m => `<option value="${m.id}">${m.icon} ${m.name}</option>`).join('');
+  if(mode === 'free') { sel.innerHTML += `<optgroup label="競技">${addOpt(trainingProtocols.athlete)}</optgroup><optgroup label="樂齡">${addOpt(trainingProtocols.elderly)}</optgroup><optgroup label="兒童">${addOpt(trainingProtocols.kids)}</optgroup>`; } else { sel.innerHTML = addOpt(trainingProtocols[mode]); }
+}
+function renderPaletteUI() { document.getElementById('paletteGrid').innerHTML = palette.map((c, i) => `<div class="palette-item"><div class="palette-swatch-wrap ${i===0?'target-color':''}" style="background:${c};"><input type="color" class="swatch-input" value="${c}" onchange="updatePaletteColor(${i}, this.value)"></div><div class="palette-label">${i===0?'🎯 主目標':`干擾 ${i}`}</div></div>`).join(''); }
+function updatePaletteColor(index, newColor) { palette[index] = newColor; localStorage.setItem('RK_PALETTE', JSON.stringify(palette)); renderPaletteUI(); }
+function renderNodeGrid() {
+  document.getElementById('nodesContainer').innerHTML = nodes.map(n => `<div class="node-card" id="nodeCard_${n.index}"><div class="node-header"><div class="node-id-group"><span class="node-tag">P${n.index+1}</span><input type="text" class="dev-input" id="devInput_${n.index}" value="${n.deviceId}" onchange="saveNodeConfig(${n.index})"></div><div class="status-dot" id="statusDot_${n.index}" style="background:var(--sci-red);"></div></div><div class="node-monitor"><div class="node-val" id="valDisplay_${n.index}">—</div><div class="mini-bar-bg"><div class="mini-bar-fill" id="barFill_${n.index}"></div><div class="mini-threshold" id="thMarker_${n.index}" style="left:${n.threshold*100}%"></div></div></div><div class="node-controls"><input type="number" class="th-input" id="thInput_${n.index}" value="${n.threshold}" step="0.001" onchange="saveNodeConfig(${n.index})"><button class="btn-micro-capture" id="btnCap_${n.index}" onclick="captureNodeMin(${n.index})">抓底值</button></div></div>`).join('');
+}
+function saveNodeConfig(idx) { let idVal = document.getElementById(`devInput_${idx}`).value.trim(), thVal = parseFloat(document.getElementById(`thInput_${idx}`).value)||0.154; nodes[idx].deviceId = idVal; nodes[idx].threshold = thVal; localStorage.setItem(`NODE_ID_${idx}`, idVal); localStorage.setItem(`NODE_TH_${idx}`, thVal); document.getElementById(`thMarker_${idx}`).style.left = (thVal*100)+'%'; }
+function captureNodeMin(idx) { let n = nodes[idx], btn = document.getElementById(`btnCap_${idx}`); if(n.minVal !== Infinity){ let nt = Math.max(0, n.minVal+0.005).toFixed(3); document.getElementById(`thInput_${idx}`).value = nt; saveNodeConfig(idx); btn.textContent='✓'; btn.style.background='var(--sci-green)'; btn.style.color='#fff'; setTimeout(()=>{btn.textContent='抓底值';btn.style.background='';btn.style.color='';},1500); } else { btn.textContent='無數據'; setTimeout(()=>btn.textContent='抓底值',1200); } }
+document.getElementById('brightnessSlider').oninput = function(){ globalBrightness = parseInt(this.value); document.getElementById('brightnessVal').textContent = globalBrightness; nodes.forEach(n => { if(n.connected && n.ws2812) n.ws2812.brightness(globalBrightness); }); };
+function updateGlobalStatus() { if (isSimMode) return; let count = nodes.filter(n => n.connected).length; let text = count>0?`已連線 ${count}/6 節點`:'等待陣列連線…'; let state = count>0?'connected':'connecting'; ['statusHome', 'statusGame', 'statusSettings'].forEach(id => { let el=document.getElementById(id); if(el){ el.className=`status-badge ${state}`; el.querySelector('span').textContent=text; } }); }
+function connectAllNodes() {
+  if(isSimMode) return;
+  nodes.forEach(n => {
+    if(!n.deviceId || n.connected) return;
+    boardReady({ board: 'Smart', device: n.deviceId, transport: 'mqtt', multi: true }, function(board) {
+      n.board = board; n.connected = true; board.samplingInterval = 50; n.ws2812 = getWS2812(board, 12, 16); n.ws2812.brightness(globalBrightness); for(let i=0;i<16;i++) n.ws2812.setColor(i, '#000000');
+      let dot = document.getElementById(`statusDot_${n.index}`); if(dot) dot.style.background = 'var(--sci-green)'; updateGlobalStatus();
+      n.photocell = getPhotocell(board, 0);
+      n.photocell.measure(function(val) {
+        if(currentScreen === 'settings') { let vEl=document.getElementById(`valDisplay_${n.index}`), bEl=document.getElementById(`barFill_${n.index}`); if(vEl) vEl.textContent=val.toFixed(3); if(bEl) bEl.style.width=Math.min(val*100,100)+'%'; if(val<n.minVal) n.minVal=val; }
+        if(val < n.threshold) { if(!n.lastTriggered){ n.lastTriggered=true; handleNodeTrigger(n.index, val); } } else { n.lastTriggered=false; }
+      });
+    });
+  });
+}
+function testAllLeds() { let rc = palette[Math.floor(Math.random()*palette.length)]; nodes.forEach(n => { if(n.connected && n.ws2812) { for(let i=0;i<16;i++) n.ws2812.setColor(i, rc); setTimeout(()=>{for(let i=0;i<16;i++) n.ws2812.setColor(i, '#000000');}, 800); } }); }
+function handleNodeTrigger(idx, val) {
+  if(currentScreen === 'settings') { let c=document.getElementById(`nodeCard_${idx}`); if(c){ c.classList.add('triggered'); setTimeout(()=>c.classList.remove('triggered'),300); } if(nodes[idx].ws2812){ for(let i=0;i<16;i++) nodes[idx].ws2812.setColor(i,palette[0]); setTimeout(()=>{for(let i=0;i<16;i++) nodes[idx].ws2812.setColor(i,'#000000');},300); } }
+  else if (currentScreen === 'game' && game.phase === 'lit') { recordGameHit(val, game.activeNodeIndex === idx, idx); }
+}
+
+/* ─ 遊戲啟動與運作邏輯 ─ */
 function goMode(mode) {
-  game.mode = mode; var cfg = modeConfig[mode];
-  document.getElementById('setupTitle').textContent = cfg.t;
-  document.getElementById('setupDesc').textContent = cfg.desc;
-  
-  var infoFields = document.querySelectorAll('.player-info-col');
-  if (mode === 'free') {
-    infoFields.forEach(el => el.style.display = 'none');
-  } else {
-    infoFields.forEach(el => el.style.display = 'block');
-    document.getElementById('labelPlayerName').textContent = cfg.pName;
-    document.getElementById('labelAdminId').textContent = '連動管理員 ID'; 
-    document.getElementById('p-admin-id').placeholder = cfg.pAdmin; 
-  }
+  game.mode = mode; let cfg = modeConfig[mode];
+  document.getElementById('setupTitle').textContent = cfg.t; document.getElementById('setupDesc').textContent = cfg.desc;
+  let infoFields = document.querySelectorAll('.player-info-col');
+  if(mode === 'free') { infoFields.forEach(el => el.style.display = 'none'); } else { infoFields.forEach(el => el.style.display = 'block'); document.getElementById('labelPlayerName').textContent = cfg.pName; document.getElementById('p-admin-id').placeholder = cfg.pAdmin; }
   populateDropdown(mode); showScreen('setup');
 }
-
 function startGame() {
-  var name = document.getElementById('p-name').value.trim();
-  var adminId = document.getElementById('p-admin-id').value.trim();
-  
-  if(game.mode !== 'free') {
-    if(!name) return alert('請輸入' + modeConfig[game.mode].pName + '！');
-    if(!adminId) return alert('請輸入' + modeConfig[game.mode].pAdmin + '！');
-  }
-  
+  let name = document.getElementById('p-name').value.trim(), adminId = document.getElementById('p-admin-id').value.trim();
+  if(game.mode !== 'free') { if(!name) return alert('請輸入姓名！'); if(!adminId) return alert('請輸入管理員ID！'); }
   game.currentProtocolId = document.getElementById('p-game-mode').value;
-  let selectedProtocolObj = null;
-  Object.values(trainingProtocols).forEach(cat => { cat.modes.forEach(m => { if(m.id === game.currentProtocolId) selectedProtocolObj = m; }); });
-
-  game.playerName = (game.mode === 'free') ? '自由玩家' : name;
-  game.adminId = (game.mode === 'free') ? 'FREE_MODE' : adminId;
-  game.totalRounds = selectedProtocolObj ? selectedProtocolObj.rounds : 10;
+  let protoObj = null; Object.values(trainingProtocols).forEach(cat => { cat.modes.forEach(m => { if(m.id === game.currentProtocolId) protoObj = m; }); });
+  game.playerName = (game.mode === 'free') ? '自由玩家' : name; game.adminId = (game.mode === 'free') ? 'FREE' : adminId; game.totalRounds = protoObj ? protoObj.rounds : 10;
   game.currentRound = 0; game.reactions = []; game.totalErrors = 0; game.phase = 'idle'; game.lastNodeIndex = -1;
-
-  var tag = document.getElementById('gameModeTag');
-  tag.textContent = modeConfig[game.mode].t; tag.style.background = modeConfig[game.mode].tagBg; tag.style.color = '#fff';
-
+  document.getElementById('gameModeTag').textContent = modeConfig[game.mode].t; document.getElementById('gameModeTag').style.background = modeConfig[game.mode].tagBg;
   document.getElementById('roundPips').innerHTML = game.totalRounds <= 15 ? Array.from({length:game.totalRounds}).map((_,i) => `<span class="round-pip" id="pip${i}"></span>`).join('') : '';
-  document.getElementById('roundTotal').textContent = game.totalRounds;
-  document.getElementById('runningAvg').textContent = '—'; document.getElementById('runningBest').textContent = '—'; document.getElementById('gameTargetNode').textContent = '—';
-  
-  resetGameSignalUI('準備好了嗎？', 'var(--sci-dark)', '●', '— 等待開始 —');
-  turnOffAllLeds(); 
-  
-  document.getElementById('gameSignal').style.display = isSimMode ? 'none' : 'flex';
-  document.getElementById('simulator-panel').style.display = isSimMode ? 'flex' : 'none';
-
-  showScreen('game'); 
-  setTimeout(() => initialCountdown(3), 600);
+  document.getElementById('roundTotal').textContent = game.totalRounds; document.getElementById('runningAvg').textContent = '—'; document.getElementById('runningBest').textContent = '—';
+  resetGameSignalUI('準備好了嗎？', 'var(--sci-dark)', '●', '— 等待開始 —'); turnOffAllLeds();
+  document.getElementById('gameSignal').style.display = isSimMode ? 'none' : 'flex'; document.getElementById('simulator-panel').style.display = isSimMode ? 'flex' : 'none';
+  showScreen('game'); setTimeout(() => initialCountdown(3), 600);
 }
-
-function updatePips() {
-  if (game.totalRounds > 15) return; 
-  for(var i=0; i<game.totalRounds; i++){
-    var pip = document.getElementById('pip'+i);
-    if(pip) pip.className = 'round-pip ' + (i < game.currentRound ? 'done' : (i === game.currentRound ? 'current' : ''));
-  }
-}
-
-function initialCountdown(n) {
-  if(n > 0){
-    resetGameSignalUI(n + '…', 'var(--muted)', n, '— 準備 —');
-    game.countdownTimer = setTimeout(() => initialCountdown(n-1), 900);
-  } else {
-    nextRound();
-  }
-}
-
+function updatePips() { if(game.totalRounds > 15) return; for(let i=0; i<game.totalRounds; i++){ let p=document.getElementById('pip'+i); if(p) p.className='round-pip '+(i<game.currentRound?'done':(i===game.currentRound?'current':'')); } }
+function initialCountdown(n) { if(n>0){ resetGameSignalUI(n+'…', 'var(--muted)', n, '— 準備 —'); game.countdownTimer = setTimeout(()=>initialCountdown(n-1), 900); } else nextRound(); }
 function nextRound() {
-  if(game.currentRound >= game.totalRounds) { endGame(); return; }
-  
-  document.getElementById('roundCurrent').textContent = game.currentRound + 1;
-  document.getElementById('gameTargetNode').textContent = '—';
-  updatePips(); 
-  
-  resetGameSignalUI('注意！', 'var(--sci-dark)', '●', '等待目標亮起...');
-  game.phase = 'waiting';
-  
-  var delay = 800 + Math.random() * 1500; 
-  if (['ath_rush', 'kid_flash'].includes(game.currentProtocolId)) delay = 400 + Math.random() * 600; 
-  else if (game.currentProtocolId === 'kid_mole') delay = 500 + Math.random() * 1000; 
-  else if (game.currentProtocolId === 'eld_basic') delay = 1500 + Math.random() * 1500; 
-  
+  if(game.currentRound >= game.totalRounds) return endGame();
+  document.getElementById('roundCurrent').textContent = game.currentRound + 1; updatePips();
+  resetGameSignalUI('注意！', 'var(--sci-dark)', '●', '等待目標亮起...'); game.phase = 'waiting';
+  let delay = 800 + Math.random()*1500;
+  if(['ath_rush', 'kid_flash'].includes(game.currentProtocolId)) delay = 400 + Math.random()*600;
+  else if(game.currentProtocolId === 'kid_mole') delay = 500 + Math.random()*1000;
   game.waitTimer = setTimeout(lightSignal, delay);
 }
-
-function handleMiss(customMsg) {
-  if(game.phase !== 'lit') return;
-  game.totalErrors++; game.phase = 'feedback'; turnOffAllLeds();
-  
-  document.getElementById('gameStatusText').textContent = customMsg || '太慢了！(Miss)'; document.getElementById('gameStatusText').style.color = 'var(--sci-red)';
-  document.getElementById('gameSignal').style.background = 'var(--sci-red)';
-  document.getElementById('reactionBadge').textContent = '漏擊'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
-  
-  let penaltyTime = ['ath_rush', 'kid_flash'].includes(game.currentProtocolId) ? 1200 : 2000;
-  game.reactions.push(penaltyTime);
-  game.currentRound++;
-  updatePips();
-  
-  let feedbackDelay = ['ath_rush', 'kid_flash', 'kid_mole'].includes(game.currentProtocolId) ? 600 : 1000;
-  game.feedbackTimer = setTimeout(nextRound, feedbackDelay);
+function handleMiss(msg) {
+  if(game.phase !== 'lit') return; game.totalErrors++; game.phase = 'feedback'; turnOffAllLeds();
+  document.getElementById('gameStatusText').textContent = msg||'太慢了！(Miss)'; document.getElementById('gameStatusText').style.color = 'var(--sci-red)';
+  document.getElementById('gameSignal').style.background = 'var(--sci-red)'; document.getElementById('reactionBadge').textContent = '漏擊'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
+  game.reactions.push(['ath_rush','kid_flash'].includes(game.currentProtocolId)?1200:2000); game.currentRound++; updatePips();
+  game.feedbackTimer = setTimeout(nextRound, 800);
 }
-
 function handleNoGoSuccess() {
-  if(game.phase !== 'lit') return;
-  game.phase = 'feedback'; turnOffAllLeds();
-  
+  if(game.phase !== 'lit') return; game.phase = 'feedback'; turnOffAllLeds();
   document.getElementById('gameStatusText').textContent = '定力很好！'; document.getElementById('gameStatusText').style.color = 'var(--sci-green)';
-  document.getElementById('gameSignal').style.background = 'var(--sci-green)';
-  document.getElementById('reactionBadge').textContent = '成功抑制'; document.getElementById('reactionBadge').style.background = '#dcfce7'; document.getElementById('reactionBadge').style.color = 'var(--sci-green)';
-  
-  game.reactions.push(0); 
-  game.currentRound++;
-  updatePips();
-  
-  game.feedbackTimer = setTimeout(nextRound, 1000);
+  document.getElementById('gameSignal').style.background = 'var(--sci-green)'; document.getElementById('reactionBadge').textContent = '成功抑制';
+  game.reactions.push(0); game.currentRound++; updatePips(); game.feedbackTimer = setTimeout(nextRound, 1000);
 }
-
 function lightSignal() {
-  if(game.phase !== 'waiting') return;
-  game.phase = 'lit'; game.litTime = Date.now(); game.roundPenalty = 0; game.isNoGo = false;
-  if(game.specialTimer) clearTimeout(game.specialTimer);
-
-  let pId = game.currentProtocolId; 
-  
-  // 決定主目標色 (記憶/變色龍模式需每次隨機)
-  if (['eld_memory', 'kid_match'].includes(pId)) {
-    game.targetColor = palette[Math.floor(Math.random() * palette.length)];
-  } else {
-    game.targetColor = palette[0];
-  }
-
-  var connectedNodes = nodes.filter(n => n.connected && n.ws2812);
-  
-  if(connectedNodes.length > 0) {
-    var targetNode = connectedNodes[Math.floor(Math.random() * connectedNodes.length)];
-    
-    // 動態位移/空間轉移 (強制不重複節點)
-    if (['eld_cross', 'ath_shift'].includes(pId) && connectedNodes.length > 1) {
-      while(targetNode.index === game.lastNodeIndex) { targetNode = connectedNodes[Math.floor(Math.random() * connectedNodes.length)]; }
+  if(game.phase !== 'waiting') return; game.phase = 'lit'; game.litTime = Date.now(); game.roundPenalty = 0; game.isNoGo = false; if(game.specialTimer) clearTimeout(game.specialTimer);
+  let pId = game.currentProtocolId; game.targetColor = ['eld_memory','kid_match'].includes(pId) ? palette[Math.floor(Math.random()*palette.length)] : palette[0];
+  let cNodes = nodes.filter(n => n.connected && n.ws2812);
+  if(cNodes.length > 0) {
+    let tNode = cNodes[Math.floor(Math.random()*cNodes.length)];
+    if(['eld_cross','ath_shift'].includes(pId) && cNodes.length>1) { while(tNode.index === game.lastNodeIndex) tNode = cNodes[Math.floor(Math.random()*cNodes.length)]; }
+    game.activeNodeIndex = tNode.index; game.lastNodeIndex = tNode.index;
+    if(pId === 'kid_freeze' && Math.random()>0.6) {
+      game.isNoGo = true; for(let i=0;i<16;i++) tNode.ws2812.setColor(i,'#FF0000');
+      document.getElementById('gameTargetNode').textContent = `P${tNode.index+1} (停)`; document.getElementById('gameSignal').style.background = '#FF0000'; document.getElementById('gameStatusText').textContent = '木頭人！'; document.getElementById('gameStatusText').style.color = '#FF0000';
+      game.specialTimer = setTimeout(handleNoGoSuccess, 2000); return;
     }
-    game.activeNodeIndex = targetNode.index; game.lastNodeIndex = targetNode.index;
-
-    // 木頭人 No-Go
-    if (pId === 'kid_freeze' && Math.random() > 0.6) {
-      game.isNoGo = true;
-      for(var i=0; i<16; i++) targetNode.ws2812.setColor(i, '#FF0000');
-      document.getElementById('gameTargetNode').textContent = `P${targetNode.index + 1} (停)`;
-      var signalEl = document.getElementById('gameSignal');
-      signalEl.style.background = '#FF0000'; signalEl.className = 'game-signal lit'; signalEl.style.setProperty('--signal-glow', '#FF000066');
-      document.getElementById('gameStatusText').textContent = '木頭人！(勿按)'; document.getElementById('gameStatusText').style.color = '#FF0000';
-      document.getElementById('reactionBadge').textContent = '保持不動...';
-      game.specialTimer = setTimeout(handleNoGoSuccess, 2000); return; 
+    for(let i=0;i<16;i++) tNode.ws2812.setColor(i, game.targetColor); document.getElementById('gameTargetNode').textContent = `P${tNode.index+1}`;
+    if(['eld_memory','kid_match','ath_search'].includes(pId) || (['ath_gonogo','kid_treasure','eld_color'].includes(pId) && Math.random()>0.4)) {
+      cNodes.forEach(n => { if(n.index !== tNode.index) { let av=palette.filter(c=>c!==game.targetColor); let rc=av[Math.floor(Math.random()*av.length)]; for(let i=0;i<16;i++) n.ws2812.setColor(i,rc); } });
     }
-
-    // 正常 GO
-    for(var i=0; i<16; i++) targetNode.ws2812.setColor(i, game.targetColor);
-    document.getElementById('gameTargetNode').textContent = `P${targetNode.index + 1}`;
-
-    // 干擾色處理 (視覺搜尋/記憶配對 100% 其他節點亮，抑制 40% 亮)
-    if(['eld_memory', 'kid_match', 'ath_search'].includes(pId)) {
-      connectedNodes.forEach(n => { 
-        if(n.index !== targetNode.index) { 
-          let avail = palette.filter(c => c !== game.targetColor);
-          let r = avail[Math.floor(Math.random() * avail.length)]; 
-          for(var i=0; i<16; i++) n.ws2812.setColor(i, r); 
-        } 
-      });
-    } else if(['ath_gonogo', 'kid_treasure', 'eld_color'].includes(pId)) {
-      connectedNodes.forEach(n => { 
-        if(n.index !== targetNode.index && Math.random() > 0.4) { 
-          let avail = palette.filter(c => c !== game.targetColor);
-          let r = avail[Math.floor(Math.random() * avail.length)]; 
-          for(var i=0; i<16; i++) n.ws2812.setColor(i, r); 
-        } 
-      });
-    }
-
-    // 限時挑戰 Timeout 設定
-    if (['ath_rush', 'kid_flash'].includes(pId)) { game.specialTimer = setTimeout(() => handleMiss('極限超時！'), 1000); }
-    else if (pId === 'kid_mole') { game.specialTimer = setTimeout(() => handleMiss('地鼠跑了！'), 2000); }
-    
-  } else {
-    game.activeNodeIndex = -1; document.getElementById('gameTargetNode').textContent = 'UI (未連線)';
-  }
-
-  // UI 更新
-  var signalEl = document.getElementById('gameSignal');
-  signalEl.style.background = game.targetColor; signalEl.className = 'game-signal lit'; signalEl.style.setProperty('--signal-glow', game.targetColor + '66'); signalEl.innerHTML = '';
+    if(['ath_rush','kid_flash'].includes(pId)) game.specialTimer = setTimeout(()=>handleMiss('極限超時！'), 1000); else if(pId==='kid_mole') game.specialTimer = setTimeout(()=>handleMiss('地鼠跑了！'), 2000);
+  } else { game.activeNodeIndex = -1; document.getElementById('gameTargetNode').textContent = 'UI'; }
   
-  var statusText = '擊打主目標節點！';
-  if (['eld_memory', 'kid_match'].includes(pId)) statusText = '尋找相同顏色的燈！';
-  else if (game.mode === 'kids') statusText = '快按發光的目標！🙌';
-
-  document.getElementById('gameStatusText').textContent = statusText; document.getElementById('gameStatusText').style.color = game.targetColor; document.getElementById('reactionBadge').textContent = '計時中…';
-
-  if(game.activeNodeIndex === -1 && !isSimMode) { signalEl.onclick = function() { if(game.phase === 'lit') recordGameHit(0, true, -1); }; } else { signalEl.onclick = null; }
+  let sEl = document.getElementById('gameSignal'); sEl.style.background = game.targetColor; sEl.className = 'game-signal lit'; sEl.style.setProperty('--signal-glow', game.targetColor+'66'); sEl.innerHTML = '';
+  document.getElementById('gameStatusText').textContent = ['eld_memory','kid_match'].includes(pId)?'尋找相同顏色的燈！':'快打發光的目標！'; document.getElementById('gameStatusText').style.color = game.targetColor; document.getElementById('reactionBadge').textContent = '計時中…';
+  if(game.activeNodeIndex === -1 && !isSimMode) sEl.onclick = function(){ if(game.phase==='lit') recordGameHit(0,true,-1); }; else sEl.onclick = null;
 }
-
 function recordGameHit(val, isCorrect, nodeIdx) {
-  if(game.phase !== 'lit') return;
-  if(game.specialTimer) clearTimeout(game.specialTimer);
-
+  if(game.phase !== 'lit') return; if(game.specialTimer) clearTimeout(game.specialTimer);
   if(!isCorrect || game.isNoGo) {
     game.totalErrors++;
-    
-    if (game.isNoGo) {
-        game.phase = 'feedback'; turnOffAllLeds();
-        document.getElementById('gameStatusText').textContent = '動到了！(失誤)'; document.getElementById('gameStatusText').style.color = 'var(--sci-red)';
-        document.getElementById('gameSignal').style.background = 'var(--sci-red)';
-        document.getElementById('reactionBadge').textContent = '衝動控制失敗'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
-        
-        game.reactions.push(2000); 
-        game.currentRound++; updatePips();
-        game.feedbackTimer = setTimeout(nextRound, 1000);
-        return;
-    }
-
+    if(game.isNoGo) { game.phase='feedback'; turnOffAllLeds(); document.getElementById('gameStatusText').textContent='動到了！(失誤)'; document.getElementById('gameStatusText').style.color='var(--sci-red)'; document.getElementById('gameSignal').style.background='var(--sci-red)'; game.reactions.push(2000); game.currentRound++; updatePips(); game.feedbackTimer = setTimeout(nextRound, 1000); return; }
     game.roundPenalty += 500;
-    let wrongNode = nodes[nodeIdx];
-    if(wrongNode && wrongNode.ws2812) {
-       for(let i=0; i<16; i++) wrongNode.ws2812.setColor(i, '#FF0000');
-       setTimeout(() => { if(game.phase === 'lit') { for(let i=0; i<16; i++) wrongNode.ws2812.setColor(i, '#000000'); } }, 200);
+    if(nodeIdx >= 0 && nodes[nodeIdx].ws2812) { for(let i=0;i<16;i++) nodes[nodeIdx].ws2812.setColor(i,'#FF0000'); setTimeout(()=>{if(game.phase==='lit') for(let i=0;i<16;i++) nodes[nodeIdx].ws2812.setColor(i,'#000000');}, 200); }
+    document.getElementById('gameStatusText').textContent='按錯了！+500ms'; document.getElementById('gameStatusText').style.color='var(--sci-red)'; document.getElementById('gameSignal').style.background='var(--sci-red)';
+    setTimeout(()=>{ if(game.phase==='lit'){ document.getElementById('gameStatusText').textContent='繼續找主目標！'; document.getElementById('gameStatusText').style.color=game.targetColor; document.getElementById('gameSignal').style.background=game.targetColor; } }, 600);
+    if(['ath_rush','kid_flash'].includes(game.currentProtocolId)) game.specialTimer=setTimeout(()=>handleMiss('極限超時！'), 1000);
+    return;
+  }
+  let rMs = Date.now() - game.litTime + game.roundPenalty; game.phase = 'feedback'; game.reactions.push(rMs); game.currentRound++; turnOffAllLeds();
+  let b = document.getElementById('reactionBadge'); b.textContent = rMs+' ms'; b.style.background = rMs<250?'#dcfce7':rMs<400?'#fef9c3':'#fee2e2'; b.style.color = rMs<250?'var(--sci-green)':rMs<400?'#854d0e':'var(--sci-red)';
+  let st = document.getElementById('gameStatusText'); st.textContent = rMs<200?'極快！':rMs<300?'很好！':rMs<500?'不錯！':'再快一點！'; st.style.color = 'var(--sci-dark)';
+  let valRs = game.reactions.filter(m=>m>0); let avg = valRs.length?Math.round(valRs.reduce((a,b)=>a+b,0)/valRs.length):0;
+  document.getElementById('runningAvg').textContent = avg+'ms'; document.getElementById('runningBest').textContent = valRs.length?Math.min(...valRs)+'ms':'—';
+  updatePips(); resetGameSignalUI(st.textContent, st.style.color, '●', b.textContent, false);
+  game.feedbackTimer = setTimeout(nextRound, ['ath_rush','kid_flash','kid_mole'].includes(game.currentProtocolId)?400:800);
+}
+function resetGameSignalUI(sTxt, sCol, emo, bTxt, rBg=true) { let s=document.getElementById('gameSignal'); s.style.background='var(--border)'; s.className='game-signal'; s.innerHTML=`<span style="font-size:52px;color:var(--muted);">${emo}</span>`; document.getElementById('gameStatusText').textContent=sTxt; document.getElementById('gameStatusText').style.color=sCol; let b=document.getElementById('reactionBadge'); b.textContent=bTxt; if(rBg){b.style.background='var(--surf2)'; b.style.color='var(--muted)';} }
+function turnOffAllLeds() { nodes.forEach(n=>{if(n.connected && n.ws2812) for(let i=0;i<16;i++) n.ws2812.setColor(i,'#000000');}); }
+function abortGame() { clearTimeout(game.waitTimer); clearTimeout(game.countdownTimer); clearTimeout(game.specialTimer); clearTimeout(game.feedbackTimer); turnOffAllLeds(); game.phase='idle'; showScreen('main-menu'); }
+
+/* ─ 動態圖表繪製共用函式 ─ */
+function renderChart(canvasId, dataRecords) {
+  let ctx = document.getElementById(canvasId).getContext('2d');
+  if (window[canvasId + 'Instance']) window[canvasId + 'Instance'].destroy();
+  
+  let labels = dataRecords.map((_, i) => `第 ${i+1} 次`);
+  let dataAvg = dataRecords.map(r => r.score);
+  let dataBest = dataRecords.map(r => r.best);
+
+  window[canvasId + 'Instance'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: '平均反應 (ms)', data: dataAvg, borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', borderWidth: 3, tension: 0.3, fill: true, pointRadius: 4, pointBackgroundColor: '#fff' },
+        { label: '最快極限 (ms)', data: dataBest, borderColor: '#10b981', borderWidth: 2, borderDash: [5, 5], tension: 0.3, fill: false, pointRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { font: { family: "'Segoe UI', sans-serif", weight: 'bold' } } }, tooltip: { mode: 'index', intersect: false } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: false, title: { display: true, text: '反應時間 (ms)' } } },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false }
     }
-
-    document.getElementById('gameStatusText').textContent = '按錯了！+500ms'; document.getElementById('gameStatusText').style.color = 'var(--sci-red)'; document.getElementById('gameSignal').style.background = 'var(--sci-red)';
-    document.getElementById('reactionBadge').textContent = '失誤！繼續找！'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
-    setTimeout(() => {
-        if(game.phase === 'lit') {
-            let pId = game.currentProtocolId;
-            let statusText = ['eld_memory', 'kid_match'].includes(pId) ? '尋找相同顏色的燈！' : '繼續找主目標！';
-            document.getElementById('gameStatusText').textContent = statusText; document.getElementById('gameStatusText').style.color = game.targetColor; document.getElementById('gameSignal').style.background = game.targetColor;
-        }
-    }, 600);
-    
-    if (['ath_rush', 'kid_flash'].includes(game.currentProtocolId)) { game.specialTimer = setTimeout(() => handleMiss('極限超時！'), 1000); }
-    else if (game.currentProtocolId === 'kid_mole') { game.specialTimer = setTimeout(() => handleMiss('地鼠跑了！'), 2000); }
-    return; 
-  }
-
-  // ✅ 正確擊打
-  var reactionMs = Date.now() - game.litTime + game.roundPenalty;
-  game.phase = 'feedback'; game.reactions.push(reactionMs); game.currentRound++; turnOffAllLeds();
-  
-  var badge = document.getElementById('reactionBadge'); badge.textContent = reactionMs + ' ms';
-  badge.style.background = reactionMs < 250 ? '#dcfce7' : reactionMs < 400 ? '#fef9c3' : '#fee2e2';
-  badge.style.color = reactionMs < 250 ? 'var(--sci-green)' : reactionMs < 400 ? '#854d0e' : 'var(--sci-red)';
-
-  var statusEl = document.getElementById('gameStatusText');
-  if(game.mode==='kids'){
-    statusEl.textContent = kidsMessages[Math.floor(Math.random()*kidsMessages.length)]; statusEl.style.color = game.targetColor;
-    document.getElementById('gameSignal').classList.add('kids-bounce'); setTimeout(() => document.getElementById('gameSignal').classList.remove('kids-bounce'), 500);
-  } else {
-    statusEl.textContent = reactionMs < 200 ? '極快！' : reactionMs < 300 ? '很好！' : reactionMs < 500 ? '不錯！' : '再快一點！'; statusEl.style.color = 'var(--sci-dark)';
-  }
-
-  let validReactions = game.reactions.filter(m => m > 0); 
-  var avg = validReactions.length ? Math.round(validReactions.reduce((a,b)=>a+b,0) / validReactions.length) : 0; 
-  var best = validReactions.length ? Math.min.apply(null, validReactions) : '—';
-  
-  document.getElementById('runningAvg').textContent = avg + 'ms'; document.getElementById('runningBest').textContent = best + 'ms';
-  updatePips(); resetGameSignalUI(statusEl.textContent, statusEl.style.color, '●', badge.textContent, false);
-
-  let feedbackDelay = ['ath_rush', 'kid_flash', 'kid_mole'].includes(game.currentProtocolId) ? 400 : 800;
-  game.feedbackTimer = setTimeout(nextRound, feedbackDelay);
+  });
 }
 
-function resetGameSignalUI(statusText, statusColor, emoji, badgeText, resetBadgeBg = true) {
-  var signalEl = document.getElementById('gameSignal');
-  signalEl.style.background = 'var(--border)'; signalEl.className = 'game-signal'; signalEl.innerHTML = `<span style="font-size:52px;color:var(--muted);">${emoji}</span>`;
-  document.getElementById('gameStatusText').textContent = statusText; document.getElementById('gameStatusText').style.color = statusColor;
-  var badge = document.getElementById('reactionBadge'); badge.textContent = badgeText;
-  if(resetBadgeBg) { badge.style.background = 'var(--surf2)'; badge.style.color = 'var(--muted)'; }
-}
-
-function turnOffAllLeds() { nodes.forEach(n => { if(n.connected && n.ws2812) { for(var i=0;i<16;i++) n.ws2812.setColor(i, '#000000'); } }); }
-
-function abortGame() {
-  if(game.waitTimer) clearTimeout(game.waitTimer); if(game.countdownTimer) clearTimeout(game.countdownTimer); 
-  if(game.specialTimer) clearTimeout(game.specialTimer); if(game.feedbackTimer) clearTimeout(game.feedbackTimer);
-  turnOffAllLeds(); game.phase = 'idle'; showScreen('main-menu');
-}
-
-/* ─ 動態生成科學訓練報告 ─ */
-function generateExpertReport(protocolId, avg, best, worst, errors, totalRounds) {
-  const stability = worst - best;
-  let insights = []; let advice = "";
-
-  if (avg === 0) {
-      insights.push('<li><strong>⚠️ 數據不足：</strong>本次測驗有效反應次數過少，無法產生完整報告。</li>');
-  } else {
-      if (avg <= 250) insights.push('<li><strong>⚡ 極速神經傳導：</strong>平均反應極快，中樞神經處於高度活化狀態，具備頂尖的視覺-動作反射水準。</li>');
-      else if (avg <= 400) insights.push('<li><strong>🏃 優良視覺動作整合：</strong>落在健康成人的優良區間，大腦處理視覺訊號並轉化為動作的效率良好。</li>');
-      else insights.push('<li><strong>🔋 神經徵召較緩：</strong>整體啟動時間偏長。可能是尚未充分熱身，或大腦正在處理較複雜的認知判斷。</li>');
-
-      if (stability <= 120) insights.push('<li><strong>🎯 高度專注維持：</strong>最快與最慢落差極小 (' + stability + 'ms)，顯示注意力高度集中，未出現神經疲勞或分心。</li>');
-      else if (stability >= 300) insights.push('<li><strong>⚠️ 專注力波動：</strong>落差達 ' + stability + 'ms。大腦在連續刺激中可能出現短暫的「認知不反應期」。</li>');
-      else insights.push('<li><strong>⚖️ 表現穩定：</strong>整體反應時間落差在合理範圍內，神經放電頻率維持平穩。</li>');
-
-      let hasDistractor = ['ath_gonogo', 'ath_search', 'eld_color', 'eld_memory', 'kid_treasure', 'kid_freeze', 'kid_match'].includes(protocolId);
-      if (hasDistractor && errors === 0) insights.push('<li><strong>🛡️ 完美衝動控制：</strong>在強大干擾下達成 0 失誤，大腦前額葉的「選擇性抑制 (Response Inhibition)」能力出色。</li>');
-      else if (errors > 0) insights.push('<li><strong>🚨 出現決策失誤：</strong>共 ' + errors + ' 次失誤/漏擊。在追求速度時犧牲了準確性，出現明顯的「速度-準確度權衡」現象。</li>');
+/* ─ 結果處理與 AI 分析 ─ */
+async function generateExpertReport(protocolId, avg, best, worst, errors, totalRounds) {
+  let insights = []; let adviceBox = document.getElementById('reportAdvice');
+  if (avg === 0) { insights.push('<li><strong>⚠️ 數據不足：</strong>有效次數過少。</li>'); } else {
+    insights.push(`<li><strong>⚡ 神經傳導狀態：</strong>${avg<=250?'極度優異':avg<=400?'標準良好':'待加強活化'} (${avg}ms)</li>`);
+    let stab = worst-best; insights.push(`<li><strong>🎯 專注穩定度：</strong>${stab<=120?'極高':stab>=300?'低 (波動大)':'中等'} (落差 ${stab}ms)</li>`);
+    if(errors>0) insights.push(`<li><strong>🚨 決策失誤：</strong>${errors}次。建議放慢節奏強化正確率。</li>`);
   }
-
-  switch(protocolId) {
-      case 'ath_srt': advice = "SRT 測驗純粹反射。建議下次測驗前進行動態視力與快速墊步暖身，進一步縮短肌肉啟動的遲滯期。"; break;
-      case 'ath_rush': advice = errors > 0 ? "急限模式考驗極限反應，漏擊代表神經處理速度已達極限。建議增加動態視覺訓練來強化。" : "極限反應力驚人！所有的短暫目標都能被你完美捕捉。"; break;
-      case 'ath_gonogo': advice = errors > 0 ? "大腦的「煞車」機制略慢於「油門」。建議下次放慢 10% 的預期節奏，強化看清再出手的正確率。" : "完美的決策與行動平衡！下次可嘗試拉大設備間距增加難度。"; break;
-      case 'ath_search': advice = "視覺搜尋考驗眼球跳視能力。建議訓練時頭部保持穩定，學習用「周邊視野 (Peripheral Vision)」去捕捉目標。"; break;
-      case 'ath_shift': advice = "動態位移強迫身體大範圍變向。建議注意核心肌群穩定與重心壓低，以提升變向效率。"; break;
-      case 'eld_basic': advice = "基礎活化表現良好！持之以恆的練習是維持神經突觸活躍、延緩認知退化的最佳處方。"; break;
-      case 'eld_color': advice = errors > 0 ? "多色彩尋找較耗費腦力。建議訓練時在心中默唸目標顏色，幫助大腦短期記憶鎖定。" : "色彩辨識邏輯極佳！您的大腦皮層對視覺特徵的篩選能力非常健康。"; break;
-      case 'eld_cross': advice = "大跨度的空間轉移能有效鍛鍊平衡與本體感覺。建議確保場地空曠，並鼓勵使用非慣用手擊打。"; break;
-      case 'eld_memory': advice = errors > 0 ? "記憶配對出現失誤，代表工作記憶受到干擾。建議觀察目標後，反覆默唸該顏色再尋找。" : "記憶與視覺對應能力非常出色！大腦在提取短期記憶並執行動作的迴路十分健康。"; break;
-      case 'kid_mole': advice = errors > 0 ? "追蹤移動目標需要高度專注。可鼓勵孩子擊打時伴隨發聲(如喊'中')，有助感覺統合連結。" : "敏捷度非常優秀！地鼠完全逃不過你的手掌心！"; break;
-      case 'kid_treasure': advice = errors > 0 ? "五顏六色的燈光易分散注意。引導孩子深呼吸，像尋寶獵人一樣只盯著目標，過濾掉不重要的訊息。" : "出色的抗干擾能力！孩子的視覺專注力已經能有效忽略不相干刺激。"; break;
-      case 'kid_freeze': advice = errors > 0 ? "煞車對孩子較困難。可透過反覆練習「停看聽」來增強自我調節與情緒控制力。" : "自我控制力非常棒！能在興奮狀態下瞬間煞車，對衝動抑制有極大幫助。"; break;
-      case 'kid_match': advice = errors > 0 ? "配對遊戲需要孩子同時注意螢幕與實體燈光。建議家長在旁可口頭提示顏色，輔助建立連結。" : "色彩認知與反應完美結合！孩子展現了極佳的感覺統合與視覺記憶力。"; break;
-      case 'kid_flash': advice = errors > 0 ? "閃電俠節奏極快，漏擊是正常的挑戰過程。持續練習可以大幅提升孩子的瞬間專注力。" : "超凡的反射神經！孩子的動態視覺捕捉能力已經超越同齡水準。"; break;
-      default: advice = "穩定的反應力是各項運動的基礎。持續進行多樣化的感官訓練，將有助於提升整體神經網絡效率。";
-  }
-
   document.getElementById('reportInsights').innerHTML = insights.join('');
-  document.getElementById('reportAdvice').innerHTML = advice;
+  adviceBox.innerHTML = `<div class="d-flex align-items-center gap-2" style="color:var(--sci-purple);"><div class="spinner-border spinner-border-sm"></div> AI 正在深度分析中...</div>`;
+  if(avg > 0) {
+    try {
+      let mName = "未知"; Object.values(trainingProtocols).forEach(c=>c.modes.forEach(m=>{if(m.id===protocolId) mName=m.name;}));
+      let query = `這是一筆 ReflexKit 紀錄：\n項目：「${mName}」\n總回合：${totalRounds}\n平均：${avg}ms\n最快：${best}ms\n失誤：${errors}\n請給出專家分析。`;
+      const res = await fetch(GAS_AI_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "chat", query: query }) });
+      if(!res.ok) throw new Error("HTTP 錯誤");
+      const data = await res.json();
+      if(data.status==="ok" && data.data && data.data.answer) adviceBox.innerHTML = data.data.answer.replace(/\n/g, '<br>');
+      else throw new Error(data.message || "未知錯誤");
+    } catch (e) { adviceBox.innerHTML = `<span class="text-danger fw-bold">⚠️ AI 報告生成失敗：<br>${e.message}</span>`; }
+  } else { adviceBox.innerHTML = "有效打擊次數不足。"; }
 }
 
 function endGame() {
   game.phase = 'done'; turnOffAllLeds();
-  var reactions = game.reactions;
-  if(!reactions.length){ showScreen('main-menu'); return; }
+  if(!game.reactions.length){ showScreen('main-menu'); return; }
 
-  let validReactions = reactions.filter(m => m > 0); 
-  var avg = validReactions.length ? Math.round(validReactions.reduce((a,b)=>a+b,0) / validReactions.length) : 0;
-  var best = validReactions.length ? Math.min.apply(null, validReactions) : 0;
-  var worst = validReactions.length ? Math.max.apply(null, validReactions) : 0;
-
-  var records = JSON.parse(localStorage.getItem('TEST_RECORDS')||'[]');
-  var selectEl = document.getElementById('p-game-mode');
-  var playModeText = selectEl.options[selectEl.selectedIndex].text.split(' (')[0]; 
+  let valRs = game.reactions.filter(m => m > 0); 
+  let avg = valRs.length ? Math.round(valRs.reduce((a,b)=>a+b,0)/valRs.length) : 0;
+  let best = valRs.length ? Math.min(...valRs) : 0; let worst = valRs.length ? Math.max(...valRs) : 0;
+  let selEl = document.getElementById('p-game-mode'); let mText = selEl.options[selEl.selectedIndex].text.split(' (')[0]; 
   
-  records.push({ adminId:game.adminId, name:game.playerName, mode:game.mode, detailMode:playModeText, score:avg, best:best, rounds:game.totalRounds, errors:game.totalErrors, time:new Date().toLocaleString() });
-  localStorage.setItem('TEST_RECORDS', JSON.stringify(records));
+  let newRec = { adminId:game.adminId, name:game.playerName, mode:game.mode, detailMode:mText, score:avg, best:best, errors:game.totalErrors, time:new Date().toLocaleString() };
+  let localRecs = JSON.parse(localStorage.getItem('TEST_RECORDS')||'[]');
+  localRecs.push(newRec); localStorage.setItem('TEST_RECORDS', JSON.stringify(localRecs));
 
-  document.getElementById('resultAvgMs').textContent = avg;
-  document.getElementById('resultBest').textContent = best > 0 ? best + 'ms' : '—';
-  document.getElementById('resultWorst').textContent = worst > 0 ? worst + 'ms' : '—';
-  document.getElementById('resultErrors').textContent = game.totalErrors;
+  if (game.mode !== 'free') fetch(GAS_AI_URL, { method: 'POST', headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "saveRecord", data: newRec }) }).catch(e=>console.error('儲存失敗',e));
 
-  var rankHtml;
-  if(avg > 0 && avg < 250)      rankHtml = '<span class="rank-badge" style="background:#fef9c3;color:#854d0e;">⚡ 閃電等級！</span>';
-  else if(avg >= 250 && avg < 350) rankHtml = '<span class="rank-badge" style="background:#dcfce7;color:#166534;">🥇 優秀</span>';
-  else if(avg >= 350 && avg < 500) rankHtml = '<span class="rank-badge" style="background:#eff6ff;color:#1e40af;">👍 良好</span>';
-  else               rankHtml = '<span class="rank-badge" style="background:var(--surf2);color:var(--muted);">💪 繼續練習</span>';
-  document.getElementById('resultRankBadge').innerHTML = rankHtml;
-  document.getElementById('resultsKidsAnim').style.display = game.mode==='kids' ? 'block' : 'none';
-  document.getElementById('resultsTitle').textContent = game.mode==='kids' ? '你好棒棒喔！🎉' : '測驗完成！';
+  document.getElementById('resultAvgMs').textContent = avg; document.getElementById('resultBest').textContent = best>0?best+'ms':'—'; document.getElementById('resultWorst').textContent = worst>0?worst+'ms':'—'; document.getElementById('resultErrors').textContent = game.totalErrors;
+  let rHtml = avg<250?'<span class="rank-badge" style="background:#fef9c3;color:#854d0e;">⚡ 閃電等級！</span>' : avg<350?'<span class="rank-badge" style="background:#dcfce7;color:#166534;">🥇 優秀</span>' : avg<500?'<span class="rank-badge" style="background:#eff6ff;color:#1e40af;">👍 良好</span>' : '<span class="rank-badge" style="background:var(--surf2);color:var(--muted);">💪 繼續練習</span>';
+  document.getElementById('resultRankBadge').innerHTML = rHtml;
+  
+  // 📈 即時繪製歷史趨勢圖 (過濾該選手同菜單的紀錄)
+  let pHistory = localRecs.filter(r => r.name === game.playerName && r.detailMode === mText);
+  let chartBox = document.getElementById('trendChartContainer');
+  if (pHistory.length >= 2) {
+    chartBox.style.display = 'block';
+    setTimeout(() => renderChart('trendChart', pHistory), 300); // 延遲繪製以確保 Canvas 尺寸正確
+  } else {
+    chartBox.style.display = 'none';
+  }
 
   generateExpertReport(game.currentProtocolId, avg, best, worst, game.totalErrors, game.totalRounds);
-
-  var listHtml = '';
-  reactions.forEach((ms, i) => {
-    if (ms === 0) {
-      listHtml += `<div style="display:flex;justify-content:space-between;padding:7px 12px;background:#dcfce7;border-radius:8px;margin-bottom:6px;font-size:13px;"><span style="color:var(--sci-green);font-weight:600;">第 ${i+1} 次</span><span style="font-weight:800;color:var(--sci-green);">成功抑制</span></div>`;
-    } else {
-      var color = ms < 250 ? 'var(--sci-green)' : ms < 400 ? 'var(--sci-amber)' : 'var(--sci-red)';
-      let text = (ms >= 1000 && ['ath_rush', 'kid_mole', 'kid_flash'].includes(game.currentProtocolId)) ? '漏擊 (超時)' : `${ms} ms`;
-      listHtml += `<div style="display:flex;justify-content:space-between;padding:7px 12px;background:var(--surf2);border-radius:8px;margin-bottom:6px;font-size:13px;"><span style="color:var(--muted);">第 ${i+1} 次</span><span style="font-weight:700;color:${color};">${text}</span></div>`;
-    }
-  });
-  document.getElementById('resultRoundList').innerHTML = listHtml;
+  document.getElementById('resultRoundList').innerHTML = game.reactions.map((ms,i)=>ms===0?`<div class="d-flex justify-content-between p-2 mb-1 rounded bg-success bg-opacity-10 text-success fw-bold" style="font-size:13px;"><span>第 ${i+1} 次</span><span>成功抑制</span></div>`:`<div class="d-flex justify-content-between p-2 mb-1 rounded bg-light" style="font-size:13px;"><span class="text-muted">第 ${i+1} 次</span><span class="fw-bold ${ms<250?'text-success':ms<400?'text-warning':'text-danger'}">${ms>=1000&&['ath_rush','kid_flash'].includes(game.currentProtocolId)?'超時':ms+' ms'}</span></div>`).join('');
   showScreen('results');
 }
 
-/* ─ 戰績後台 ─ */
+/* ─ 戰績後台 全新階層式邏輯 ─ */
 function switchAuthTab(tab) {
-  document.getElementById('login-box').style.display = tab==='login' ? 'block' : 'none';
-  document.getElementById('reg-box').style.display   = tab==='reg'   ? 'block' : 'none';
-  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login');
-  document.getElementById('tabRegBtn').classList.toggle('active',   tab==='reg');
+  document.getElementById('login-box').style.display = tab==='login'?'block':'none'; document.getElementById('reg-box').style.display = tab==='reg'?'block':'none';
+  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login'); document.getElementById('tabRegBtn').classList.toggle('active', tab==='reg');
 }
-function realRegister() {
-  var acc = document.getElementById('r-acc').value.trim();
-  var pw  = document.getElementById('r-pw').value;
-  if (!acc || !pw) return alert('請填寫完整資訊');
-  localStorage.setItem('USER_' + acc, pw); alert('✅ 註冊成功！'); switchAuthTab('login');
+async function realRegister() {
+  let acc = document.getElementById('r-acc').value.trim(), pw = document.getElementById('r-pw').value, btn = document.querySelector('#reg-box button');
+  if (!acc || !pw) return alert('請完整填寫！');
+  let oTxt = btn.textContent; btn.textContent = "雲端註冊中..."; btn.disabled = true;
+  try {
+    let res = await fetch(GAS_AI_URL, { method: 'POST', headers:{"Content-Type":"text/plain"}, body: JSON.stringify({ action: 'register', adminId: acc, password: pw }) });
+    let data = await res.json(); if(data.status==='ok'){ alert('✅ 註冊成功！請登入'); switchAuthTab('login'); } else alert(data.message);
+  } catch(e) { alert("連線錯誤"); } finally { btn.textContent = oTxt; btn.disabled = false; }
 }
-function realLogin() {
-  var acc = document.getElementById('l-acc').value.trim();
-  var pw  = document.getElementById('l-pw').value;
-  if (localStorage.getItem('USER_' + acc) === pw) {
-    document.getElementById('backendAdminLabel').textContent = '👤 ' + acc;
-    loadBackendData(acc); showScreen('backend');
-  } else { alert('帳號或密碼錯誤！'); }
+async function realLogin() {
+  let acc = document.getElementById('l-acc').value.trim(), pw = document.getElementById('l-pw').value, btn = document.querySelector('#login-box button');
+  if (!acc || !pw) return alert('請完整填寫！');
+  let oTxt = btn.textContent; btn.textContent = "登入驗證中..."; btn.disabled = true;
+  try {
+    let res = await fetch(GAS_AI_URL, { method: 'POST', headers:{"Content-Type":"text/plain"}, body: JSON.stringify({ action: 'login', adminId: acc, password: pw }) });
+    let data = await res.json();
+    if(data.status === 'ok') {
+      document.getElementById('backendAdminLabel').textContent = '👤 ' + acc;
+      showScreen('backend'); loadBackendData(acc);
+    } else alert(data.message);
+  } catch(e) { alert("連線錯誤"); } finally { btn.textContent = oTxt; btn.disabled = false; }
 }
-function loadBackendData(adminId) {
-  var filterAdmin = adminId || document.getElementById('backendAdminLabel').textContent.replace('👤 ','').trim();
-  var records = JSON.parse(localStorage.getItem('TEST_RECORDS') || '[]').filter(r => r.adminId === filterAdmin);
-  var tbody = document.getElementById('backend-body'); tbody.innerHTML = '';
-  var totalScore = 0, bestScore = Infinity, modeCount = {};
-  
-  if (records.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">目前沒有任何紀錄</td></tr>';
-  } else {
-    records.reverse().forEach(r => {
-      totalScore += r.score; if(r.score < bestScore) bestScore = r.score;
-      modeCount[r.mode] = (modeCount[r.mode]||0) + 1;
-      let displayMode = modeConfig[r.mode] ? modeConfig[r.mode].t.split(' ')[1] : r.mode;
-      tbody.innerHTML += `<tr><td class="fw-bold">${r.name}</td><td>${displayMode}<br><span class="text-muted" style="font-size:11px;">${r.detailMode||''}</span></td><td class="fw-bold text-primary">${r.score}ms</td><td class="text-success">${r.best||'—'}ms</td><td class="text-danger">${r.errors||0}</td><td class="text-muted" style="font-size:12px;">${r.time}</td></tr>`;
+
+async function loadBackendData(adminId) {
+  let box = document.getElementById('backendContentArea');
+  box.innerHTML = '<div class="text-center text-muted py-5"><div class="spinner-border text-primary mb-3" role="status"></div><br>正在從雲端載入戰績資料...</div>';
+  try {
+    let res = await fetch(GAS_AI_URL, { method: 'POST', headers:{"Content-Type":"text/plain"}, body: JSON.stringify({ action: 'getRecords', adminId: adminId }) });
+    let json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message);
+    
+    // 【關鍵修正 1】強制將試算表傳來的「數字型態」轉換為「文字」，徹底解決比對失敗的問題
+    globalBackendRecords = json.data.map(r => {
+      let dMode = r.detailMode;
+      // 容錯處理：若為舊資料缺少 detailMode，給予預設值
+      if (!dMode || dMode === 'undefined' || !isNaN(dMode)) {
+         dMode = modeConfig[r.mode] ? modeConfig[r.mode].t.split(' ')[1] : (r.mode || '綜合訓練');
+      }
+      return {
+        ...r,
+        name: String(r.name || '未知學員').trim(),
+        detailMode: String(dMode).trim(),
+        time: String(r.time || '未記錄時間')
+      };
     });
+    
+    renderBackendStudents(); // 進入第一層
+  } catch(e) { box.innerHTML = `<div class="text-center text-danger py-5">⚠️ 無法取得雲端戰績：${e.message}</div>`; }
+}
+
+// UI 導航按鈕
+function goBackendBack() {
+  if (backendCurrentView === 'history') renderBackendModes();
+  else if (backendCurrentView === 'modes') renderBackendStudents();
+}
+
+// 第一層：學員列表 (Cards)
+function renderBackendStudents() {
+  backendCurrentView = 'students';
+  document.getElementById('backendBreadcrumb').innerHTML = `學員列表 (共 ${globalBackendRecords.length} 筆總紀錄)`;
+  document.getElementById('btnBackBackend').style.display = 'none';
+  let box = document.getElementById('backendContentArea');
+  
+  if (globalBackendRecords.length === 0) {
+    box.innerHTML = '<div class="text-center text-muted py-5">您的帳號目前沒有任何學員紀錄。</div>'; return;
+  }
+
+  // 群組學員
+  let students = {};
+  globalBackendRecords.forEach(r => {
+    if (!students[r.name]) students[r.name] = { count: 0, lastTime: r.time };
+    students[r.name].count++;
+    students[r.name].lastTime = r.time; // 假設資料順序是舊到新
+  });
+
+  let html = `<div class="row g-4 mt-2">`;
+  for (let name in students) {
+    // 【關鍵修正 2】加入跳脫字元，防止姓名內含特殊符號 (如單引號) 破壞 HTML 結構
+    let safeName = name.replace(/'/g, "\\'");
+    html += `
+      <div class="col-md-4 col-sm-6">
+        <div class="b-card" onclick="viewStudent('${safeName}')">
+          <div class="b-avatar">👤</div>
+          <div class="b-title">${name}</div>
+          <div class="b-stat">累計訓練：<span class="text-primary fw-bold">${students[name].count}</span> 局</div>
+          <div class="text-muted mt-2" style="font-size:11px;">最後訓練：${students[name].lastTime.split(' ')[0]}</div>
+        </div>
+      </div>`;
+  }
+  html += `</div>`;
+  box.innerHTML = html;
+}
+window.viewStudent = function(name) { backendCurrentStudent = name; renderBackendModes(); };
+
+// 第二層：該學員的訓練菜單列表
+function renderBackendModes() {
+  backendCurrentView = 'modes';
+  document.getElementById('backendBreadcrumb').innerHTML = `學員列表 / <span class="text-primary">${backendCurrentStudent}</span> 的訓練菜單`;
+  document.getElementById('btnBackBackend').style.display = 'inline-flex';
+  
+  let pRecords = globalBackendRecords.filter(r => r.name === backendCurrentStudent);
+  let modes = {};
+  pRecords.forEach(r => {
+    if (!modes[r.detailMode]) modes[r.detailMode] = { count: 0, best: Infinity };
+    modes[r.detailMode].count++;
+    if (r.best > 0 && r.best < modes[r.detailMode].best) modes[r.detailMode].best = r.best;
+  });
+
+  let html = `<div class="row g-4 mt-2">`;
+  for (let mName in modes) {
+    let bst = modes[mName].best === Infinity ? '—' : modes[mName].best;
+    // 【關鍵修正 2】同樣為菜單名稱加入跳脫字元
+    let safeMName = mName.replace(/'/g, "\\'");
+    html += `
+      <div class="col-md-4 col-sm-6">
+        <div class="b-card" onclick="viewMode('${safeMName}')">
+          <div class="b-icon">📊</div>
+          <div class="b-title">${mName}</div>
+          <div class="b-stat">訓練局數：<span class="text-primary fw-bold">${modes[mName].count}</span></div>
+          <div class="b-stat">歷史極限：<span class="text-success fw-bold">${bst} ms</span></div>
+        </div>
+      </div>`;
+  }
+  html += `</div>`;
+  
+  // 【關鍵修正 3】如果真的異常沒有抓到菜單，顯示友善提示而非空轉
+  if (Object.keys(modes).length === 0) {
+     html = '<div class="text-center text-muted py-5">查無此學員的菜單資料。</div>';
   }
   
-  document.getElementById('stat-count').textContent = records.length;
-  document.getElementById('stat-avg').textContent = records.length ? Math.round(totalScore/records.length) : 0;
-  document.getElementById('stat-best').textContent = bestScore===Infinity ? '—' : bestScore;
+  document.getElementById('backendContentArea').innerHTML = html;
+}
+window.viewMode = function(modeName) { backendCurrentMode = modeName; renderBackendHistory(); };
+
+// 第三層：該學員、該菜單的歷史圖表與明細
+function renderBackendHistory() {
+  backendCurrentView = 'history';
+  document.getElementById('backendBreadcrumb').innerHTML = `學員列表 / ${backendCurrentStudent} / <span class="text-primary">${backendCurrentMode}</span> 訓練分析`;
+  document.getElementById('btnBackBackend').style.display = 'inline-flex';
   
-  let favoriteMode = '—';
-  let maxCount = 0;
-  for (const [mode, count] of Object.entries(modeCount)) {
-    if (count > maxCount) { maxCount = count; favoriteMode = modeConfig[mode] ? modeConfig[mode].t : mode; }
-  }
-  document.getElementById('stat-modes').textContent = favoriteMode.split(' ')[0] || '—'; 
+  let targetRecords = globalBackendRecords.filter(r => r.name === backendCurrentStudent && r.detailMode === backendCurrentMode);
+  
+  let html = `
+    <div class="expert-report-card mt-4 mb-4 text-start">
+      <div class="expert-report-header" style="border-bottom:none; margin-bottom:0; padding-bottom:12px;">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-graph-up-arrow text-primary me-2"></i>歷次反應力成長趨勢 (共 ${targetRecords.length} 次)</h5>
+      </div>
+      <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="backendHistoryChart"></canvas>
+      </div>
+    </div>
+    
+    <h6 class="fw-bold text-muted mb-3"><i class="bi bi-list-ul me-2"></i>原始數據明細</h6>
+    <div class="table-responsive bg-white rounded-3 border">
+      <table class="table table-hover align-middle mb-0 text-center">
+        <thead class="table-light"><tr><th>局數</th><th>訓練時間</th><th>平均 (ms)</th><th>最佳 (ms)</th><th>失誤</th></tr></thead>
+        <tbody>`;
+  
+  targetRecords.forEach((r, idx) => {
+    html += `<tr>
+      <td class="text-muted fw-bold">#${idx+1}</td>
+      <td style="font-size:13px;">${r.time}</td>
+      <td class="text-primary fw-bold">${r.score}</td>
+      <td class="text-success">${r.best||'—'}</td>
+      <td class="${r.errors>0?'text-danger fw-bold':''}">${r.errors}</td>
+    </tr>`;
+  });
+  
+  html += `</tbody></table></div>`;
+  document.getElementById('backendContentArea').innerHTML = html;
+  
+  // 延遲繪製圖表以確保 Canvas 已存在於 DOM
+  setTimeout(() => renderChart('backendHistoryChart', targetRecords), 100);
 }
 
 /* ─ 初始化啟動 ─ */
-window.onload = function() {
-  initSimulator(); 
-  renderPaletteUI();
-  renderNodeGrid();
-  setTimeout(connectAllNodes, 500);
-};
-
+window.onload = function() { initSimulator(); renderPaletteUI(); renderNodeGrid(); setTimeout(connectAllNodes, 500); };
 </script>
 </body>
 </html>
