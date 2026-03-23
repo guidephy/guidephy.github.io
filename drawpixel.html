@@ -86,11 +86,11 @@
             <p class="text-slate-400 text-xs mb-8 tracking-[0.3em] uppercase">Symmetry & Layering</p>
 
             <div class="color-palette" id="palette">
-                <!-- 基於 IMG_7048 的色彩分階 -->
-                <div class="swatch" style="background-color: #fdf2f8;" data-color="#fdf2f8" title="中心 (極淺粉)"></div>
+                <!-- 更新後的調色盤：淡藍與翠綠 -->
+                <div class="swatch" style="background-color: #bae6fd;" data-color="#bae6fd" title="裝飾 (淡藍)"></div>
                 <div class="swatch" style="background-color: #fce7f3;" data-color="#fce7f3" title="中心 (淺粉)"></div>
                 <div class="swatch active" style="background-color: #f472b6;" data-color="#f472b6" title="主瓣 (中粉)"></div>
-                <div class="swatch" style="background-color: #be185d;" data-color="#be185d" title="外瓣 (深紅)"></div>
+                <div class="swatch" style="background-color: #10b981;" data-color="#10b981" title="外瓣 (翠綠)"></div>
                 <div class="swatch" style="background-color: #ffffff; border: 1px solid #e2e8f0;" data-color="#ffffff" title="橡皮擦"></div>
             </div>
 
@@ -117,7 +117,7 @@
         let isMouseDown = false;
         const COLS = 25;
         const ROWS = 15;
-        const CENTER = 12; // 25格的中間點是 index 12
+        const CENTER = 12;
 
         function init() {
             grid.innerHTML = '';
@@ -149,51 +149,50 @@
             // 背景清空
             document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = '#ffffff');
             
-            const LP2 = '#fdf2f8'; // 極淺粉
-            const LP1 = '#fce7f3'; // 淺粉
+            const LB = '#bae6fd';  // 淡藍 (取代原本最左邊的極淺粉)
+            const LP = '#fce7f3';  // 淺粉
             const MP = '#f472b6';  // 中粉
-            const DP = '#be185d';  // 深紅
+            const GR = '#10b981';  // 翠綠 (取代原本最深的粉紅)
 
-            // --- 1. 後排尖端 (最深色花瓣，位於背景) ---
-            sym(1, 0, DP); 
-            sym(2, 0, DP); sym(2, 1, DP);
-            sym(1, 4, DP); // 左右次高尖端
-            sym(2, 4, DP); sym(2, 5, DP);
-            sym(3, 8, DP); // 左右最外尖端
-            sym(4, 8, DP); sym(4, 9, DP);
+            // --- 1. 後排尖端 (綠色) ---
+            sym(1, 0, GR); 
+            sym(2, 0, GR); sym(2, 1, GR);
+            sym(1, 4, GR); 
+            sym(2, 4, GR); sym(2, 5, GR);
+            sym(3, 8, GR); 
+            sym(4, 8, GR); sym(4, 9, GR);
 
             // --- 2. 中層花瓣 (中粉色) ---
-            sym(2, 0, MP); // 覆蓋部分深色
+            sym(2, 0, MP);
             sym(3, 0, MP); sym(3, 1, MP);
             sym(4, 0, MP); sym(4, 1, MP); sym(4, 2, MP);
             
-            // 側向延伸瓣
             sym(3, 4, MP); sym(4, 4, MP); sym(4, 5, MP);
             sym(5, 4, MP); sym(5, 5, MP); sym(5, 6, MP);
             sym(6, 7, MP); sym(6, 8, MP); sym(6, 9, MP); sym(6, 10, MP);
             for(let c=2; c<=11; c++) sym(7, c, MP);
             for(let c=4; c<=12; c++) sym(8, c, MP);
 
-            // --- 3. 最前方核心花瓣 (淺粉色，V型結構) ---
-            sym(1, 0, LP1); // 頂尖
-            sym(2, 0, LP1);
-            sym(3, 0, LP2); sym(3, 1, LP1);
-            sym(4, 0, LP2); sym(4, 1, LP1);
-            sym(5, 0, LP2); sym(5, 1, LP1); sym(5, 2, LP1);
-            sym(6, 0, LP2); sym(6, 1, LP1); sym(6, 2, LP1); sym(6, 3, LP1);
-            for(let c=0; c<=4; c++) sym(7, c, LP1);
-            for(let c=0; c<=3; c++) sym(8, c, LP1);
+            // --- 3. 最前方核心花瓣 (淺粉與淡藍裝飾) ---
+            sym(1, 0, LP); 
+            sym(2, 0, LP);
+            sym(3, 0, LB); sym(3, 1, LP);
+            sym(4, 0, LB); sym(4, 1, LP);
+            sym(5, 0, LB); sym(5, 1, LP); sym(5, 2, LP);
+            sym(6, 0, LB); sym(6, 1, LP); sym(6, 2, LP); sym(6, 3, LP);
+            for(let c=0; c<=4; c++) sym(7, c, LP);
+            for(let c=0; c<=3; c++) sym(8, c, LP);
 
-            // --- 4. 底部銜接處 (Deep Pink) ---
-            sym(9, 0, DP); sym(9, 1, DP); sym(9, 2, DP);
-            sym(10, 0, DP); sym(10, 1, DP);
+            // --- 4. 底部銜接處 (綠色) ---
+            sym(9, 0, GR); sym(9, 1, GR); sym(9, 2, GR);
+            sym(10, 0, GR); sym(10, 1, GR);
 
-            // --- 5. 向下彎曲的特徵底瓣 (Deep Pink) ---
-            sym(10, 3, DP); sym(10, 4, DP);
-            sym(11, 4, DP); sym(11, 5, DP); sym(11, 6, DP);
-            sym(12, 6, DP); sym(12, 7, DP); sym(12, 8, DP);
-            sym(13, 8, DP); sym(13, 9, DP); sym(13, 10, DP);
-            sym(14, 10, DP); sym(14, 11, DP);
+            // --- 5. 向下彎曲的特徵底瓣 (綠色) ---
+            sym(10, 3, GR); sym(10, 4, GR);
+            sym(11, 4, GR); sym(11, 5, GR); sym(11, 6, GR);
+            sym(12, 6, GR); sym(12, 7, GR); sym(12, 8, GR);
+            sym(13, 8, GR); sym(13, 9, GR); sym(13, 10, GR);
+            sym(14, 10, GR); sym(14, 11, GR);
         }
 
         palette.addEventListener('click', (e) => {
