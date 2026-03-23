@@ -23,7 +23,7 @@
         }
         .canvas-card {
             background: white;
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: 2rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.7);
@@ -67,7 +67,6 @@
         .swatch.active {
             border-color: #475569;
             transform: translateY(-4px) scale(1.1);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         @media (max-width: 800px) {
             .grid-container { 
@@ -82,26 +81,25 @@
 
     <div class="canvas-card">
         <div class="flex flex-col items-center">
-            <h1 class="text-2xl font-black text-slate-800 mb-1">Vector Lotus Pixel Art</h1>
-            <p class="text-slate-400 text-xs mb-8 tracking-[0.3em] uppercase">Symmetry & Layering</p>
+            <h1 class="text-2xl font-black text-slate-800 mb-1">蓮花像素繪圖板</h1>
+            <p class="text-slate-400 text-xs mb-8 tracking-[0.3em] uppercase">25 x 15 依截圖高度還原</p>
 
             <div class="color-palette" id="palette">
-                <!-- 更新後的調色盤：淡藍與翠綠 -->
-                <div class="swatch" style="background-color: #bae6fd;" data-color="#bae6fd" title="裝飾 (淡藍)"></div>
+                <div class="swatch active" style="background-color: #bae6fd;" data-color="#bae6fd" title="背景 (天空藍)"></div>
                 <div class="swatch" style="background-color: #fce7f3;" data-color="#fce7f3" title="中心 (淺粉)"></div>
-                <div class="swatch active" style="background-color: #f472b6;" data-color="#f472b6" title="主瓣 (中粉)"></div>
-                <div class="swatch" style="background-color: #10b981;" data-color="#10b981" title="外瓣 (翠綠)"></div>
-                <div class="swatch" style="background-color: #ffffff; border: 1px solid #e2e8f0;" data-color="#ffffff" title="橡皮擦"></div>
+                <div class="swatch" style="background-color: #f472b6;" data-color="#f472b6" title="輪廓 (中粉)"></div>
+                <div class="swatch" style="background-color: #52b788;" data-color="#52b788" title="蓮葉 (翠綠)"></div>
+                <div class="swatch" style="background-color: #ffffff; border: 1px solid #e2e8f0;" data-color="#ffffff" title="亮部 (白色)"></div>
             </div>
 
             <div class="grid-container" id="grid"></div>
 
-            <div class="mt-8 flex gap-4 w-full">
-                <button id="renderBtn" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95 text-lg">
-                    渲染對稱分層蓮花
+            <div class="mt-8 flex flex-col gap-4 w-full">
+                <button id="renderBtn" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95 text-xl tracking-widest">
+                    蓮花
                 </button>
-                <button id="clearBtn" class="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all">
-                    清空
+                <button id="clearBtn" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all text-sm">
+                    清空畫布
                 </button>
             </div>
         </div>
@@ -113,7 +111,7 @@
         const renderBtn = document.getElementById('renderBtn');
         const clearBtn = document.getElementById('clearBtn');
         
-        let currentColor = '#f472b6';
+        let currentColor = '#bae6fd';
         let isMouseDown = false;
         const COLS = 25;
         const ROWS = 15;
@@ -125,13 +123,17 @@
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.id = `c-${i}`;
-                cell.addEventListener('mousedown', () => { isMouseDown = true; cell.style.backgroundColor = currentColor; });
-                cell.addEventListener('mouseenter', () => { if (isMouseDown) cell.style.backgroundColor = currentColor; });
+                cell.addEventListener('mousedown', () => { isMouseDown = true; paint(cell); });
+                cell.addEventListener('mouseenter', () => { if (isMouseDown) paint(cell); });
                 grid.appendChild(cell);
             }
         }
 
         window.addEventListener('mouseup', () => isMouseDown = false);
+
+        function paint(el) {
+            el.style.backgroundColor = currentColor;
+        }
 
         function setPx(r, c, color) {
             if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
@@ -146,53 +148,80 @@
         }
 
         function drawLotus() {
-            // 背景清空
-            document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = '#ffffff');
+            const BG = '#bae6fd'; // 背景
+            const LP = '#fce7f3'; // 淺粉
+            const MP = '#f472b6'; // 中粉
+            const GR = '#52b788'; // 截圖中的綠色
+            const WT = '#ffffff'; // 白色
+
+            // 1. 背景初始化
+            document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = BG);
+
+            // --- 2. 依照截圖 2:07 點位還原 ---
             
-            const LB = '#bae6fd';  // 淡藍 (取代原本最左邊的極淺粉)
-            const LP = '#fce7f3';  // 淺粉
-            const MP = '#f472b6';  // 中粉
-            const GR = '#10b981';  // 翠綠 (取代原本最深的粉紅)
+            // Row 1
+            sym(1, 0, MP);
 
-            // --- 1. 後排尖端 (綠色) ---
-            sym(1, 0, GR); 
-            sym(2, 0, GR); sym(2, 1, GR);
-            sym(1, 4, GR); 
-            sym(2, 4, GR); sym(2, 5, GR);
-            sym(3, 8, GR); 
-            sym(4, 8, GR); sym(4, 9, GR);
+            // Row 2
+            sym(2, 0, WT); sym(2, 1, MP);
 
-            // --- 2. 中層花瓣 (中粉色) ---
-            sym(2, 0, MP);
-            sym(3, 0, MP); sym(3, 1, MP);
-            sym(4, 0, MP); sym(4, 1, MP); sym(4, 2, MP);
+            // Row 3
+            sym(3, 0, LP); sym(3, 1, WT); sym(3, 2, MP); 
+            sym(3, 4, MP); sym(3, 8, MP);
+
+            // Row 4
+            sym(4, 0, WT); sym(4, 1, LP); sym(4, 2, LP); sym(4, 3, MP);
+            sym(4, 4, WT); sym(4, 5, MP); 
+            sym(4, 7, MP); sym(4, 8, WT); sym(4, 9, MP);
+
+            // Row 5
+            sym(5, 0, MP); sym(5, 1, LP); sym(5, 2, LP);
+            sym(5, 4, LP); sym(5, 5, LP); sym(5, 6, MP);
+            sym(5, 7, LP); sym(5, 8, LP); sym(5, 10, MP);
+            sym(5, 12, MP); // 最邊緣瓣尖
+
+            // Row 6
+            sym(6, 0, LP); sym(6, 1, LP); sym(6, 2, LP); sym(6, 3, LP); sym(6, 4, LP);
+            sym(6, 5, MP); sym(6, 6, LP); sym(6, 7, MP);
+            sym(6, 8, LP); sym(6, 9, MP); sym(6, 10, LP); sym(6, 11, MP);
+            sym(6, 12, WT); // 截圖中外瓣的白色點
+
+            // Row 7
+            sym(7, 0, LP); sym(7, 1, LP); sym(7, 2, LP); sym(7, 3, LP);
+            sym(7, 5, MP); sym(7, 6, LP); sym(7, 7, MP);
+            sym(7, 9, LP); sym(7, 10, LP); sym(7, 11, LP); sym(7, 12, MP);
+
+            // Row 8
+            sym(8, 0, LP); sym(8, 1, LP); sym(8, 2, LP); 
+            sym(8, 4, MP); sym(8, 5, LP); sym(8, 6, MP);
+            sym(8, 8, LP); sym(8, 9, LP); sym(8, 10, MP); sym(8, 11, LP); sym(8, 12, MP);
+
+            // Row 9
+            sym(9, 0, LP); sym(9, 1, LP); sym(9, 2, MP);
+            sym(9, 4, LP); sym(9, 5, LP); sym(9, 6, MP);
+            sym(9, 8, LP); sym(9, 9, MP); sym(9, 10, LP); sym(9, 11, MP); sym(9, 12, WT);
+
+            // Row 10
+            sym(10, 0, MP); sym(10, 1, MP); sym(10, 2, MP); sym(10, 3, MP);
+            sym(10, 5, MP); sym(10, 6, LP); sym(10, 7, LP); sym(10, 8, MP);
+            sym(10, 10, MP); sym(10, 11, MP); sym(10, 12, MP);
+
+            // --- 3. 綠色底座還原 ---
             
-            sym(3, 4, MP); sym(4, 4, MP); sym(4, 5, MP);
-            sym(5, 4, MP); sym(5, 5, MP); sym(5, 6, MP);
-            sym(6, 7, MP); sym(6, 8, MP); sym(6, 9, MP); sym(6, 10, MP);
-            for(let c=2; c<=11; c++) sym(7, c, MP);
-            for(let c=4; c<=12; c++) sym(8, c, MP);
+            // Row 11
+            for(let c=2; c<=8; c++) sym(11, c, GR);
+            sym(11, 0, MP); sym(11, 1, MP);
+            sym(11, 4, GR); // 修正覆蓋
+            sym(11, 5, LP); sym(11, 6, LP);
+            sym(11, 10, GR); sym(11, 11, GR); sym(11, 12, GR);
 
-            // --- 3. 最前方核心花瓣 (淺粉與淡藍裝飾) ---
-            sym(1, 0, LP); 
-            sym(2, 0, LP);
-            sym(3, 0, LB); sym(3, 1, LP);
-            sym(4, 0, LB); sym(4, 1, LP);
-            sym(5, 0, LB); sym(5, 1, LP); sym(5, 2, LP);
-            sym(6, 0, LB); sym(6, 1, LP); sym(6, 2, LP); sym(6, 3, LP);
-            for(let c=0; c<=4; c++) sym(7, c, LP);
-            for(let c=0; c<=3; c++) sym(8, c, LP);
+            // Row 12 (綠色長條帶粉紅點)
+            for(let c=0; c<=12; c++) sym(12, c, GR);
+            sym(12, 5, MP); sym(12, 6, MP); sym(12, 7, MP); // 葉子中間的粉紅
+            sym(12, 0, GR); // 確保邊緣是綠
 
-            // --- 4. 底部銜接處 (綠色) ---
-            sym(9, 0, GR); sym(9, 1, GR); sym(9, 2, GR);
-            sym(10, 0, GR); sym(10, 1, GR);
-
-            // --- 5. 向下彎曲的特徵底瓣 (綠色) ---
-            sym(10, 3, GR); sym(10, 4, GR);
-            sym(11, 4, GR); sym(11, 5, GR); sym(11, 6, GR);
-            sym(12, 6, GR); sym(12, 7, GR); sym(12, 8, GR);
-            sym(13, 8, GR); sym(13, 9, GR); sym(13, 10, GR);
-            sym(14, 10, GR); sym(14, 11, GR);
+            // Row 13 (最底層綠色)
+            for(let c=1; c<=11; c++) sym(13, c, GR);
         }
 
         palette.addEventListener('click', (e) => {
