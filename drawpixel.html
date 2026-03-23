@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25x15 蓮花像素設計板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --grid-bg: #ffffff;
+            --border-color: #cbd5e1;
+        }
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .canvas-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(25, 24px);
+            grid-template-rows: repeat(15, 24px);
+            gap: 1px;
+            background-color: var(--border-color);
+            border: 2px solid var(--border-color);
+            user-select: none;
+        }
+        .cell {
+            background-color: var(--grid-bg);
+            width: 24px;
+            height: 24px;
+            cursor: crosshair;
+            transition: background-color 0.1s;
+        }
+        .cell:hover {
+            filter: brightness(0.97);
+        }
+        .color-palette {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 2rem;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 1.25rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .swatch {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .swatch.active {
+            border-color: #475569;
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 800px) {
+            .grid-container { 
+                grid-template-columns: repeat(25, 14px); 
+                grid-template-rows: repeat(15, 14px); 
+            }
+            .cell { width: 14px; height: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="canvas-card">
+        <div class="flex flex-col items-center">
+            <h1 class="text-2xl font-black text-slate-800 mb-1">Vector Lotus Pixel Art</h1>
+            <p class="text-slate-400 text-xs mb-8 tracking-[0.3em] uppercase">Symmetry & Layering</p>
+
+            <div class="color-palette" id="palette">
+                <!-- 基於 IMG_7048 的色彩分階 -->
+                <div class="swatch" style="background-color: #fdf2f8;" data-color="#fdf2f8" title="中心 (極淺粉)"></div>
+                <div class="swatch" style="background-color: #fce7f3;" data-color="#fce7f3" title="中心 (淺粉)"></div>
+                <div class="swatch active" style="background-color: #f472b6;" data-color="#f472b6" title="主瓣 (中粉)"></div>
+                <div class="swatch" style="background-color: #be185d;" data-color="#be185d" title="外瓣 (深紅)"></div>
+                <div class="swatch" style="background-color: #ffffff; border: 1px solid #e2e8f0;" data-color="#ffffff" title="橡皮擦"></div>
+            </div>
+
+            <div class="grid-container" id="grid"></div>
+
+            <div class="mt-8 flex gap-4 w-full">
+                <button id="renderBtn" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95 text-lg">
+                    渲染對稱分層蓮花
+                </button>
+                <button id="clearBtn" class="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all">
+                    清空
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const palette = document.getElementById('palette');
+        const renderBtn = document.getElementById('renderBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        
+        let currentColor = '#f472b6';
+        let isMouseDown = false;
+        const COLS = 25;
+        const ROWS = 15;
+        const CENTER = 12; // 25格的中間點是 index 12
+
+        function init() {
+            grid.innerHTML = '';
+            for (let i = 0; i < COLS * ROWS; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `c-${i}`;
+                cell.addEventListener('mousedown', () => { isMouseDown = true; cell.style.backgroundColor = currentColor; });
+                cell.addEventListener('mouseenter', () => { if (isMouseDown) cell.style.backgroundColor = currentColor; });
+                grid.appendChild(cell);
+            }
+        }
+
+        window.addEventListener('mouseup', () => isMouseDown = false);
+
+        function setPx(r, c, color) {
+            if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                const el = document.getElementById(`c-${r * COLS + c}`);
+                if (el) el.style.backgroundColor = color;
+            }
+        }
+
+        function sym(r, offset, color) {
+            setPx(r, CENTER + offset, color);
+            setPx(r, CENTER - offset, color);
+        }
+
+        function drawLotus() {
+            // 背景清空
+            document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = '#ffffff');
+            
+            const LP2 = '#fdf2f8'; // 極淺粉
+            const LP1 = '#fce7f3'; // 淺粉
+            const MP = '#f472b6';  // 中粉
+            const DP = '#be185d';  // 深紅
+
+            // --- 1. 後排尖端 (最深色花瓣，位於背景) ---
+            sym(1, 0, DP); 
+            sym(2, 0, DP); sym(2, 1, DP);
+            sym(1, 4, DP); // 左右次高尖端
+            sym(2, 4, DP); sym(2, 5, DP);
+            sym(3, 8, DP); // 左右最外尖端
+            sym(4, 8, DP); sym(4, 9, DP);
+
+            // --- 2. 中層花瓣 (中粉色) ---
+            sym(2, 0, MP); // 覆蓋部分深色
+            sym(3, 0, MP); sym(3, 1, MP);
+            sym(4, 0, MP); sym(4, 1, MP); sym(4, 2, MP);
+            
+            // 側向延伸瓣
+            sym(3, 4, MP); sym(4, 4, MP); sym(4, 5, MP);
+            sym(5, 4, MP); sym(5, 5, MP); sym(5, 6, MP);
+            sym(6, 7, MP); sym(6, 8, MP); sym(6, 9, MP); sym(6, 10, MP);
+            for(let c=2; c<=11; c++) sym(7, c, MP);
+            for(let c=4; c<=12; c++) sym(8, c, MP);
+
+            // --- 3. 最前方核心花瓣 (淺粉色，V型結構) ---
+            sym(1, 0, LP1); // 頂尖
+            sym(2, 0, LP1);
+            sym(3, 0, LP2); sym(3, 1, LP1);
+            sym(4, 0, LP2); sym(4, 1, LP1);
+            sym(5, 0, LP2); sym(5, 1, LP1); sym(5, 2, LP1);
+            sym(6, 0, LP2); sym(6, 1, LP1); sym(6, 2, LP1); sym(6, 3, LP1);
+            for(let c=0; c<=4; c++) sym(7, c, LP1);
+            for(let c=0; c<=3; c++) sym(8, c, LP1);
+
+            // --- 4. 底部銜接處 (Deep Pink) ---
+            sym(9, 0, DP); sym(9, 1, DP); sym(9, 2, DP);
+            sym(10, 0, DP); sym(10, 1, DP);
+
+            // --- 5. 向下彎曲的特徵底瓣 (Deep Pink) ---
+            sym(10, 3, DP); sym(10, 4, DP);
+            sym(11, 4, DP); sym(11, 5, DP); sym(11, 6, DP);
+            sym(12, 6, DP); sym(12, 7, DP); sym(12, 8, DP);
+            sym(13, 8, DP); sym(13, 9, DP); sym(13, 10, DP);
+            sym(14, 10, DP); sym(14, 11, DP);
+        }
+
+        palette.addEventListener('click', (e) => {
+            if (e.target.dataset.color) {
+                currentColor = e.target.dataset.color;
+                document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+        });
+
+        renderBtn.addEventListener('click', drawLotus);
+        clearBtn.addEventListener('click', () => init());
+        grid.addEventListener('dragstart', (e) => e.preventDefault());
+
+        init();
+    </script>
+</body>
+</html>
