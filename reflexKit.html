@@ -505,6 +505,18 @@
       <div style="flex:3; min-width: 300px;"><div class="palette-grid" id="paletteGrid"></div></div>
     </div>
   </div>
+
+  <div class="sub-card full-width mb-3" style="border-left: 4px solid var(--sci-amber);">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="sub-card-title mb-0">感測器靈敏度配置 (全域)</div>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-3 mt-2">
+      <label style="font-size:12px; font-weight:600; color:var(--muted); white-space: nowrap;">動態閥值偏移量 (+)</label>
+      <input type="number" id="globalThresholdInput" value="0.001" step="0.0001" min="0.0001" max="0.05" class="form-control form-control-sm" style="width: 100px; font-weight: 800; text-align: center; border-color: var(--sci-amber); color: var(--sci-amber);">
+      <span style="font-size:12px; color:var(--muted);">數值將加上最新的 5 秒平均值作為觸發閥值。調高會變遲鈍，調低會更靈敏。</span>
+    </div>
+  </div>
+
   <div class="sub-card-title mt-4 mb-2"><i class="bi bi-grid-3x2-gap-fill me-2"></i>節點獨立校準</div>
   <div class="nodes-grid" id="nodesContainer"></div>
 </div></div>
@@ -525,6 +537,7 @@
 /* ─ 全局狀態與變數 ─ */
 var currentScreen = 'main-menu';
 var globalBrightness = 20;
+var globalThresholdOffset = parseFloat(localStorage.getItem('RK_TH_OFFSET')) || 0.001;
 const GAS_AI_URL = "https://script.google.com/macros/s/AKfycbyf-ESWnK2QbuXkcgemyFBpT1HolRebD3riEJAKGapqN4T48F7QWVQvzBioyUyUQW1d/exec"; 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -594,6 +607,15 @@ var modeConfig = {
 
 /* ─ 共用 UI 與硬體邏輯 ─ */
 function initSimulator() {
+  let thInput = document.getElementById('globalThresholdInput');
+  if (thInput) {
+    thInput.value = globalThresholdOffset;
+    thInput.oninput = function() {
+      globalThresholdOffset = parseFloat(this.value) || 0.001;
+      localStorage.setItem('RK_TH_OFFSET', globalThresholdOffset);
+    };
+  }
+
   if (!isSimMode) return;
   document.getElementById('statusHomeText').textContent = '虛擬陣列模擬器已啟動';
   document.getElementById('statusHome').classList.replace('connecting', 'connected');
@@ -609,7 +631,7 @@ function initSimulator() {
       n.valHistory.push(val);
       if (n.valHistory.length > 100) n.valHistory.shift();
       let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
-      n.threshold = avg + 0.0005;
+      n.threshold = avg + globalThresholdOffset;
 
       let vEl = document.getElementById(`valDisplay_${n.index}`);
       let bEl = document.getElementById(`barFill_${n.index}`);
@@ -658,7 +680,7 @@ function connectAllNodes() {
         if (n.valHistory.length > 100) n.valHistory.shift(); 
         
         let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
-        n.threshold = avg + 0.0005;
+        n.threshold = avg + globalThresholdOffset;
 
         // 🌟 2. 徹底拔除畫面限制：只要 6 個節點一抓到數值，強制即時更新所有 UI
         let vEl = document.getElementById(`valDisplay_${n.index}`);
