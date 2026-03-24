@@ -196,13 +196,10 @@
     .node-card.triggered .node-val { color: var(--sci-green); }
     .mini-bar-bg { height: 8px; background: var(--border); border-radius: 4px; position: relative; overflow: hidden; }
     .mini-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--sci-green), var(--sci-blue)); border-radius: 4px; transition: width 0.1s linear; }
-    .mini-threshold { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--sci-red); z-index: 2; }
+    .mini-threshold { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--sci-red); z-index: 2; transition: left 0.1s; }
 
     .node-controls { display: flex; gap: 6px; align-items: stretch; margin-top: 12px; }
-    .th-input { width: 50%; background: var(--surf2); border: 1.5px solid var(--border); border-radius: 6px; text-align: center; font-weight: 800; font-size: 14px; color: var(--sci-dark); outline: none; }
-    .th-input:focus { border-color: var(--sci-blue); }
-    .btn-micro-capture { flex: 1; background: transparent; border: 1.5px solid var(--sci-green); color: var(--sci-green); font-size: 12px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: 0.2s; padding: 6px 0; }
-    .btn-micro-capture:hover { background: var(--sci-green); color: #fff; }
+    .th-display { flex: 1; background: var(--surf2); border: 1.5px dashed var(--border); border-radius: 6px; text-align: center; font-weight: 800; font-size: 14px; color: var(--sci-dark); padding: 6px 0; }
 
     .c-btn { padding:8px 15px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--sci-dark);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px; }
     .c-btn:hover { background:var(--border); }
@@ -537,7 +534,7 @@ var palette = JSON.parse(localStorage.getItem('RK_PALETTE')) || defaultPalette;
 
 var nodes = Array.from({ length: 6 }, (_, i) => ({
   index: i, deviceId: localStorage.getItem(`NODE_ID_${i}`) || '',
-  threshold: parseFloat(localStorage.getItem(`NODE_TH_${i}`)) || 0.154,
+  threshold: 0, valHistory: [],
   minVal: Infinity, board: null, ws2812: null, photocell: null, connected: false, lastTriggered: false
 }));
 
@@ -620,10 +617,9 @@ function populateDropdown(mode) {
 function renderPaletteUI() { document.getElementById('paletteGrid').innerHTML = palette.map((c, i) => `<div class="palette-item"><div class="palette-swatch-wrap ${i===0?'target-color':''}" style="background:${c};"><input type="color" class="swatch-input" value="${c}" onchange="updatePaletteColor(${i}, this.value)"></div><div class="palette-label">${i===0?'🎯 主目標':`干擾 ${i}`}</div></div>`).join(''); }
 function updatePaletteColor(index, newColor) { palette[index] = newColor; localStorage.setItem('RK_PALETTE', JSON.stringify(palette)); renderPaletteUI(); }
 function renderNodeGrid() {
-  document.getElementById('nodesContainer').innerHTML = nodes.map(n => `<div class="node-card" id="nodeCard_${n.index}"><div class="node-header"><div class="node-id-group"><span class="node-tag">P${n.index+1}</span><input type="text" class="dev-input" id="devInput_${n.index}" value="${n.deviceId}" onchange="saveNodeConfig(${n.index})"></div><div class="status-dot" id="statusDot_${n.index}" style="background:var(--sci-red);"></div></div><div class="node-monitor"><div class="node-val" id="valDisplay_${n.index}">—</div><div class="mini-bar-bg"><div class="mini-bar-fill" id="barFill_${n.index}"></div><div class="mini-threshold" id="thMarker_${n.index}" style="left:${n.threshold*100}%"></div></div></div><div class="node-controls"><input type="number" class="th-input" id="thInput_${n.index}" value="${n.threshold}" step="0.001" onchange="saveNodeConfig(${n.index})"><button class="btn-micro-capture" id="btnCap_${n.index}" onclick="captureNodeMin(${n.index})">抓底值</button></div></div>`).join('');
+  document.getElementById('nodesContainer').innerHTML = nodes.map(n => `<div class="node-card" id="nodeCard_${n.index}"><div class="node-header"><div class="node-id-group"><span class="node-tag">P${n.index+1}</span><input type="text" class="dev-input" id="devInput_${n.index}" value="${n.deviceId}" onchange="saveNodeConfig(${n.index})"></div><div class="status-dot" id="statusDot_${n.index}" style="background:var(--sci-red);"></div></div><div class="node-monitor"><div class="node-val" id="valDisplay_${n.index}">—</div><div class="mini-bar-bg"><div class="mini-bar-fill" id="barFill_${n.index}"></div><div class="mini-threshold" id="thMarker_${n.index}" style="left:${n.threshold*100}%"></div></div></div><div class="node-controls"><div class="th-display" id="thDisplay_${n.index}">閥值: 自動校準中</div></div></div>`).join('');
 }
-function saveNodeConfig(idx) { let idVal = document.getElementById(`devInput_${idx}`).value.trim(), thVal = parseFloat(document.getElementById(`thInput_${idx}`).value)||0.154; nodes[idx].deviceId = idVal; nodes[idx].threshold = thVal; localStorage.setItem(`NODE_ID_${idx}`, idVal); localStorage.setItem(`NODE_TH_${idx}`, thVal); document.getElementById(`thMarker_${idx}`).style.left = (thVal*100)+'%'; }
-function captureNodeMin(idx) { let n = nodes[idx], btn = document.getElementById(`btnCap_${idx}`); if(n.minVal !== Infinity){ let nt = Math.max(0, n.minVal+0.005).toFixed(3); document.getElementById(`thInput_${idx}`).value = nt; saveNodeConfig(idx); btn.textContent='✓'; btn.style.background='var(--sci-green)'; btn.style.color='#fff'; setTimeout(()=>{btn.textContent='抓底值';btn.style.background='';btn.style.color='';},1500); } else { btn.textContent='無數據'; setTimeout(()=>btn.textContent='抓底值',1200); } }
+function saveNodeConfig(idx) { let idVal = document.getElementById(`devInput_${idx}`).value.trim(); nodes[idx].deviceId = idVal; localStorage.setItem(`NODE_ID_${idx}`, idVal); }
 document.getElementById('brightnessSlider').oninput = function(){ globalBrightness = parseInt(this.value); document.getElementById('brightnessVal').textContent = globalBrightness; nodes.forEach(n => { if(n.connected && n.ws2812) n.ws2812.brightness(globalBrightness); }); };
 function updateGlobalStatus() { if (isSimMode) return; let count = nodes.filter(n => n.connected).length; let text = count>0?`已連線 ${count}/6 節點`:'等待陣列連線…'; let state = count>0?'connected':'connecting'; ['statusHome', 'statusGame', 'statusSettings'].forEach(id => { let el=document.getElementById(id); if(el){ el.className=`status-badge ${state}`; el.querySelector('span').textContent=text; } }); }
 function connectAllNodes() {
@@ -635,8 +631,29 @@ function connectAllNodes() {
       let dot = document.getElementById(`statusDot_${n.index}`); if(dot) dot.style.background = 'var(--sci-green)'; updateGlobalStatus();
       n.photocell = getPhotocell(board, 0);
       n.photocell.measure(function(val) {
-        if(currentScreen === 'settings') { let vEl=document.getElementById(`valDisplay_${n.index}`), bEl=document.getElementById(`barFill_${n.index}`); if(vEl) vEl.textContent=val.toFixed(3); if(bEl) bEl.style.width=Math.min(val*100,100)+'%'; if(val<n.minVal) n.minVal=val; }
-        if(val < n.threshold) { if(!n.lastTriggered){ n.lastTriggered=true; handleNodeTrigger(n.index, val); } } else { n.lastTriggered=false; }
+        // 🌟 動態 5 秒平均值計算 (每 50ms 測量一次，100 次即 5 秒)
+        n.valHistory.push(val);
+        if (n.valHistory.length > 100) n.valHistory.shift();
+        let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
+        
+        // 依要求：平均值 + 0.0005 作為動態閥值
+        n.threshold = avg + 0.0005;
+
+        if(currentScreen === 'settings') { 
+          let vEl=document.getElementById(`valDisplay_${n.index}`), 
+              bEl=document.getElementById(`barFill_${n.index}`),
+              tEl=document.getElementById(`thDisplay_${n.index}`),
+              mEl=document.getElementById(`thMarker_${n.index}`);
+          if(vEl) vEl.textContent=val.toFixed(4); 
+          if(bEl) bEl.style.width=Math.min(val*100,100)+'%'; 
+          if(tEl) tEl.textContent=`閥值: ${n.threshold.toFixed(4)}`;
+          if(mEl) mEl.style.left=(n.threshold*100)+'%';
+        }
+        if(val < n.threshold) { 
+          if(!n.lastTriggered){ n.lastTriggered=true; handleNodeTrigger(n.index, val); } 
+        } else { 
+          n.lastTriggered=false; 
+        }
       });
     });
   });
