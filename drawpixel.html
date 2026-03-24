@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>25x15 蓮花像素設計板</title>
+    <title>35x21 寫實蓮花像素設計板</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -28,39 +28,38 @@
             border-radius: 2rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.7);
-            max-width: 95vw;
+            max-width: 98vw;
         }
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(25, 24px);
-            grid-template-rows: repeat(15, 24px);
+            grid-template-columns: repeat(35, 18px);
+            grid-template-rows: repeat(21, 18px);
             gap: 1px;
             background-color: var(--border-color);
             border: 2px solid var(--border-color);
             user-select: none;
         }
         .cell {
+            width: 18px;
+            height: 18px;
             background-color: var(--grid-bg);
-            width: 24px;
-            height: 24px;
             cursor: crosshair;
             transition: background-color 0.1s;
         }
-        .cell:hover {
-            filter: brightness(0.97);
-        }
+        .cell:hover { filter: brightness(0.97); }
         .color-palette {
             display: flex;
-            gap: 14px;
-            margin-bottom: 2rem;
-            padding: 12px;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding: 10px;
             background: #f8fafc;
             border-radius: 1.25rem;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            justify-content: center;
         }
         .swatch {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
             cursor: pointer;
             border: 3px solid transparent;
@@ -73,21 +72,20 @@
         .save-slot {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            padding: 10px;
+            padding: 8px;
             border-radius: 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            min-width: 100px;
+            gap: 6px;
+            min-width: 90px;
             align-items: center;
         }
-        @media (max-width: 800px) {
+        @media (max-width: 1000px) {
             .grid-container { 
-                grid-template-columns: repeat(25, 14px); 
-                grid-template-rows: repeat(15, 14px); 
+                grid-template-columns: repeat(35, 12px); 
+                grid-template-rows: repeat(21, 12px); 
             }
-            .cell { width: 14px; height: 14px; }
-            .canvas-card { padding: 1rem; }
+            .cell { width: 12px; height: 12px; }
         }
     </style>
 </head>
@@ -95,40 +93,34 @@
 
     <div class="canvas-card">
         <div class="flex flex-col items-center">
-            <h1 class="text-2xl font-black text-slate-800 mb-1">蓮花像素繪圖板</h1>
-            <p class="text-slate-400 text-xs mb-8 tracking-[0.3em] uppercase">25 x 15 高度還原與存檔功能</p>
+            <h1 class="text-2xl font-black text-slate-800 mb-1">極致飽滿蓮花設計板</h1>
+            <p class="text-slate-400 text-xs mb-6 tracking-[0.3em] uppercase">35 x 21 實心填充與厚實瓣層</p>
 
-            <!-- 調色盤 -->
             <div class="color-palette" id="palette">
-                <div class="swatch active" style="background-color: #bae6fd;" data-color="#bae6fd" title="背景 (天空藍)"></div>
-                <div class="swatch" style="background-color: #fce7f3;" data-color="#fce7f3" title="中心 (淺粉)"></div>
-                <div class="swatch" style="background-color: #f472b6;" data-color="#f472b6" title="輪廓 (中粉)"></div>
-                <div class="swatch" style="background-color: #52b788;" data-color="#52b788" title="蓮葉 (翠綠)"></div>
-                <div class="swatch" style="background-color: #ffffff; border: 1px solid #e2e8f0;" data-color="#ffffff" title="亮部 (白色)"></div>
+                <div class="swatch active" style="background-color: #bae6fd;" data-color="#bae6fd" title="背景"></div>
+                <div class="swatch" style="background-color: #f472b6;" data-color="#f472b6" title="花瓣紅"></div>
+                <div class="swatch" style="background-color: #ffffff; border: 1px solid #ddd;" data-color="#ffffff" title="花瓣白"></div>
+                <div class="swatch" style="background-color: #facc15;" data-color="#facc15" title="蓮蓬"></div>
+                <div class="swatch" style="background-color: #10b981;" data-color="#10b981" title="葉與莖"></div>
             </div>
 
-            <!-- 畫布區域 -->
             <div class="overflow-x-auto pb-4 w-full flex justify-center">
                 <div class="grid-container" id="grid"></div>
             </div>
 
-            <!-- 功能按鈕 -->
-            <div class="mt-8 flex flex-col gap-6 w-full">
+            <div class="mt-6 flex flex-col gap-6 w-full">
                 <div class="flex gap-4">
                     <button id="renderBtn" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95 text-xl tracking-widest">
-                        蓮花
+                        渲染飽滿蓮花
                     </button>
                     <button id="clearBtn" class="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all text-sm">
-                        清空畫布
+                        清空
                     </button>
                 </div>
 
-                <!-- 存檔管理區 -->
                 <div class="border-t border-slate-100 pt-6">
-                    <h3 class="text-sm font-bold text-slate-500 mb-4 text-center">存檔管理 (最多 5 格)</h3>
-                    <div class="flex flex-wrap justify-center gap-3" id="saveManager">
-                        <!-- 存檔位置將由 JS 生成 -->
-                    </div>
+                    <h3 class="text-sm font-bold text-slate-500 mb-4 text-center">存檔管理</h3>
+                    <div class="flex flex-wrap justify-center gap-3" id="saveManager"></div>
                 </div>
             </div>
         </div>
@@ -143,12 +135,10 @@
         
         let currentColor = '#bae6fd';
         let isMouseDown = false;
-        const COLS = 25;
-        const ROWS = 15;
-        const CENTER = 12;
+        const COLS = 35;
+        const ROWS = 21;
+        const CENTER = 17;
 
-        // 存檔資料 (暫存於記憶體，重新整理網頁會消失)
-        // 提示：如果需要永久儲存，可以將其存入 localStorage
         let saves = [null, null, null, null, null];
 
         function init() {
@@ -182,87 +172,106 @@
             setPx(r, CENTER - offset, color);
         }
 
-        function drawLotus() {
-            const BG = '#bae6fd', LP = '#fce7f3', MP = '#f472b6', GR = '#52b788', WT = '#ffffff';
-            document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = BG);
-
-            sym(1, 0, MP);
-            sym(2, 0, WT); sym(2, 1, MP);
-            sym(3, 0, LP); sym(3, 1, WT); sym(3, 2, MP); sym(3, 4, MP); sym(3, 8, MP);
-            sym(4, 0, WT); sym(4, 1, LP); sym(4, 2, LP); sym(4, 3, MP); sym(4, 4, WT); sym(4, 5, MP); sym(4, 7, MP); sym(4, 8, WT); sym(4, 9, MP);
-            sym(5, 0, MP); sym(5, 1, LP); sym(5, 2, LP); sym(5, 4, LP); sym(5, 5, LP); sym(5, 6, MP); sym(5, 7, LP); sym(5, 8, LP); sym(5, 10, MP); sym(5, 12, MP);
-            sym(6, 0, LP); sym(6, 1, LP); sym(6, 2, LP); sym(6, 3, LP); sym(6, 4, LP); sym(6, 5, MP); sym(6, 6, LP); sym(6, 7, MP); sym(6, 8, LP); sym(6, 9, MP); sym(6, 10, LP); sym(6, 11, MP); sym(6, 12, WT);
-            sym(7, 0, LP); sym(7, 1, LP); sym(7, 2, LP); sym(7, 3, LP); sym(7, 5, MP); sym(7, 6, LP); sym(7, 7, MP); sym(7, 9, LP); sym(7, 10, LP); sym(7, 11, LP); sym(7, 12, MP);
-            sym(8, 0, LP); sym(8, 1, LP); sym(8, 2, LP); sym(8, 4, MP); sym(8, 5, LP); sym(8, 6, MP); sym(8, 8, LP); sym(8, 9, LP); sym(8, 10, MP); sym(8, 11, LP); sym(8, 12, MP);
-            sym(9, 0, LP); sym(9, 1, LP); sym(9, 2, MP); sym(9, 4, LP); sym(9, 5, LP); sym(9, 6, MP); sym(9, 8, LP); sym(9, 9, MP); sym(9, 10, LP); sym(9, 11, MP); sym(9, 12, WT);
-            sym(10, 0, MP); sym(10, 1, MP); sym(10, 2, MP); sym(10, 3, MP); sym(10, 5, MP); sym(10, 6, LP); sym(10, 7, LP); sym(10, 8, MP); sym(10, 10, MP); sym(10, 11, MP); sym(10, 12, MP);
-            for(let c=2; c<=8; c++) sym(11, c, GR);
-            sym(11, 0, MP); sym(11, 1, MP); sym(11, 4, GR); sym(11, 5, LP); sym(11, 6, LP); sym(11, 10, GR); sym(11, 11, GR); sym(11, 12, GR);
-            for(let c=0; c<=12; c++) sym(12, c, GR);
-            sym(12, 5, MP); sym(12, 6, MP); sym(12, 7, MP); sym(12, 0, GR);
-            for(let c=1; c<=11; c++) sym(13, c, GR);
+        function fillSym(r, start, end, color) {
+            for(let o = start; o <= end; o++) {
+                sym(r, o, color);
+            }
         }
 
-        // --- 存檔相關功能 ---
+        function drawLotus() {
+            const BG = '#bae6fd', PK = '#f472b6', WT = '#ffffff', YL = '#facc15', GR = '#10b981';
+            // 1. 全域清空為背景藍
+            document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = BG);
+
+            // 2. 蓮莖 (穩固基底)
+            for(let r=12; r<=18; r++) {
+                fillSym(r, 0, 1, GR);
+            }
+
+            // 3. 蓮蓬 (核心高度)
+            fillSym(7, 0, 1, YL);
+            fillSym(8, 0, 2, YL);
+            fillSym(9, 0, 2, GR);
+
+            // 4. 正中心花瓣 (最飽滿的主體)
+            sym(1, 0, PK);
+            sym(2, 0, WT); sym(2, 1, PK);
+            fillSym(3, 0, 1, WT); sym(3, 2, PK);
+            fillSym(4, 0, 2, WT); sym(4, 3, PK);
+            fillSym(5, 0, 4, WT); sym(5, 5, PK);
+            fillSym(6, 0, 4, WT); sym(6, 5, PK);
+            fillSym(7, 0, 5, WT); sym(7, 6, PK);
+            fillSym(8, 0, 5, WT); sym(8, 6, PK);
+            fillSym(9, 0, 5, WT); sym(9, 6, PK);
+
+            // 5. 第一層側瓣 (無縫銜接)
+            sym(3, 6, PK);
+            fillSym(4, 4, 6, WT); sym(4, 7, PK);
+            fillSym(5, 5, 8, WT); sym(5, 9, PK);
+            fillSym(6, 6, 10, WT); sym(6, 11, PK);
+            fillSym(7, 7, 11, WT); sym(7, 12, PK);
+            fillSym(8, 7, 11, WT); sym(8, 12, PK);
+            fillSym(9, 7, 10, WT); sym(9, 11, PK);
+
+            // 6. 第二層大外瓣 (極致擴張)
+            sym(6, 14, PK);
+            fillSym(7, 12, 15, WT); sym(7, 16, PK);
+            fillSym(8, 11, 16, WT); sym(8, 17, PK);
+            fillSym(9, 10, 17, WT); sym(9, 18, PK);
+            fillSym(10, 9, 17, WT); sym(10, 18, PK);
+            fillSym(11, 10, 16, WT); sym(11, 17, PK);
+            fillSym(12, 12, 15, WT); sym(12, 16, PK);
+
+            // 7. 底部支撐瓣 (加厚填充，不留藍塊)
+            fillSym(10, 0, 8, PK);
+            fillSym(11, 0, 9, PK);
+            fillSym(12, 0, 11, PK);
+            fillSym(13, 0, 8, PK);
+
+            // 8. 巨大蓮葉 (波浪曲線)
+            fillSym(16, 10, 15, GR);
+            fillSym(17, 6, 17, GR);
+            fillSym(18, 3, 18, GR);
+            fillSym(19, 0, 16, GR);
+            fillSym(20, 5, 12, GR);
+            
+            // 葉心微調
+            setPx(18, CENTER, BG);
+            setPx(18, CENTER+1, BG);
+        }
 
         function renderSaveSlots() {
             saveManager.innerHTML = '';
             saves.forEach((data, index) => {
                 const slot = document.createElement('div');
                 slot.className = 'save-slot';
-                
-                const label = document.createElement('span');
-                label.className = 'text-[10px] font-bold text-slate-400 uppercase';
-                label.textContent = `插槽 ${index + 1}`;
-                
-                const status = document.createElement('span');
-                status.className = `text-[10px] ${data ? 'text-pink-500 font-bold' : 'text-slate-300'}`;
-                status.textContent = data ? '● 已存檔' : '○ 空白';
-
-                const btnGroup = document.createElement('div');
-                btnGroup.className = 'flex gap-1';
-
-                const saveBtn = document.createElement('button');
-                saveBtn.className = 'text-[10px] bg-slate-200 hover:bg-pink-100 px-2 py-1 rounded transition-colors font-bold';
-                saveBtn.textContent = '存入';
-                saveBtn.onclick = () => saveToSlot(index);
-
-                const loadBtn = document.createElement('button');
-                loadBtn.className = `text-[10px] px-2 py-1 rounded transition-colors font-bold ${data ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}`;
-                loadBtn.textContent = '讀取';
-                loadBtn.disabled = !data;
-                loadBtn.onclick = () => data && loadFromSlot(index);
-
-                btnGroup.appendChild(saveBtn);
-                btnGroup.appendChild(loadBtn);
-                
-                slot.appendChild(label);
-                slot.appendChild(status);
-                slot.appendChild(btnGroup);
+                slot.innerHTML = `
+                    <span class="text-[10px] font-bold text-slate-400">插槽 ${index + 1}</span>
+                    <span class="text-[10px] ${data ? 'text-pink-500 font-bold' : 'text-slate-300'}">${data ? '● 已存' : '○ 空'}</span>
+                    <div class="flex gap-1">
+                        <button onclick="saveToSlot(${index})" class="text-[10px] bg-slate-200 hover:bg-pink-100 px-2 py-1 rounded font-bold">存入</button>
+                        <button onclick="loadFromSlot(${index})" class="text-[10px] px-2 py-1 rounded font-bold ${data ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-300'}" ${!data ? 'disabled' : ''}>讀取</button>
+                    </div>
+                `;
                 saveManager.appendChild(slot);
             });
         }
 
-        function saveToSlot(index) {
+        window.saveToSlot = (index) => {
             const currentData = [];
             document.querySelectorAll('.cell').forEach(cell => {
                 currentData.push(cell.style.backgroundColor || 'rgb(255, 255, 255)');
             });
             saves[index] = currentData;
             renderSaveSlots();
-            // 小提示：可以使用自定義 Modal 代替 alert，這裡先用簡單邏輯
-            console.log(`已存檔至插槽 ${index + 1}`);
-        }
+        };
 
-        function loadFromSlot(index) {
+        window.loadFromSlot = (index) => {
             const data = saves[index];
             if (!data) return;
             const cells = document.querySelectorAll('.cell');
-            data.forEach((color, i) => {
-                cells[i].style.backgroundColor = color;
-            });
-            console.log(`已從插槽 ${index + 1} 讀取`);
-        }
+            data.forEach((color, i) => { if (cells[i]) cells[i].style.backgroundColor = color; });
+        };
 
         palette.addEventListener('click', (e) => {
             if (e.target.dataset.color) {
@@ -276,8 +285,8 @@
         clearBtn.addEventListener('click', () => {
             document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = '#ffffff');
         });
+        
         grid.addEventListener('dragstart', (e) => e.preventDefault());
-
         init();
     </script>
 </body>
