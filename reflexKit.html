@@ -485,6 +485,7 @@
     <a class="nav-back mb-0" onclick="showScreen('main-menu')"><i class="bi bi-arrow-left"></i> 返回首頁</a>
     <div class="d-flex gap-2 align-items-center">
       <div class="status-badge connecting" id="statusSettings"><div class="status-dot"></div><span id="statusSettingsText">初始化…</span></div>
+      <button class="btn btn-sm btn-outline-danger fw-bold" onclick="turnOffAllLeds()"><i class="bi bi-power"></i> 強制熄燈</button>
       <button class="btn btn-sm btn-dark fw-bold" onclick="connectAllNodes()"><i class="bi bi-hdd-network"></i> 一鍵連線</button>
     </div>
   </div>
@@ -658,7 +659,18 @@ function connectAllNodes() {
     });
   });
 }
-function testAllLeds() { let rc = palette[Math.floor(Math.random()*palette.length)]; nodes.forEach(n => { if(n.connected && n.ws2812) { for(let i=0;i<16;i++) n.ws2812.setColor(i, rc); setTimeout(()=>{for(let i=0;i<16;i++) n.ws2812.setColor(i, '#000000');}, 800); } }); }
+
+// 🌟 加入訊號延遲防塞車，確保測試燈光能確實熄滅
+function testAllLeds() { 
+  let rc = palette[Math.floor(Math.random()*palette.length)]; 
+  nodes.forEach((n, idx) => { 
+    if(n.connected && n.ws2812) { 
+      setTimeout(() => { for(let i=0;i<16;i++) n.ws2812.setColor(i, rc); }, idx * 40);
+      setTimeout(() => { for(let i=0;i<16;i++) n.ws2812.setColor(i, '#000000'); }, 800 + (idx * 40)); 
+    } 
+  }); 
+}
+
 function handleNodeTrigger(idx, val) {
   if(currentScreen === 'settings') { let c=document.getElementById(`nodeCard_${idx}`); if(c){ c.classList.add('triggered'); setTimeout(()=>c.classList.remove('triggered'),300); } if(nodes[idx].ws2812){ for(let i=0;i<16;i++) nodes[idx].ws2812.setColor(i,palette[0]); setTimeout(()=>{for(let i=0;i<16;i++) nodes[idx].ws2812.setColor(i,'#000000');},300); } }
   else if (currentScreen === 'game' && game.phase === 'lit') { recordGameHit(val, game.activeNodeIndex === idx, idx); }
@@ -755,7 +767,18 @@ function recordGameHit(val, isCorrect, nodeIdx) {
   game.feedbackTimer = setTimeout(nextRound, ['ath_rush','kid_flash','kid_mole'].includes(game.currentProtocolId)?400:800);
 }
 function resetGameSignalUI(sTxt, sCol, emo, bTxt, rBg=true) { let s=document.getElementById('gameSignal'); s.style.background='var(--border)'; s.className='game-signal'; s.innerHTML=`<span style="font-size:52px;color:var(--muted);">${emo}</span>`; document.getElementById('gameStatusText').textContent=sTxt; document.getElementById('gameStatusText').style.color=sCol; let b=document.getElementById('reactionBadge'); b.textContent=bTxt; if(rBg){b.style.background='var(--surf2)'; b.style.color='var(--muted)';} }
-function turnOffAllLeds() { nodes.forEach(n=>{if(n.connected && n.ws2812) for(let i=0;i<16;i++) n.ws2812.setColor(i,'#000000');}); }
+
+// 🌟 強化版熄燈函式：加入微小延遲，防止瞬間發送過多 MQTT 訊號導致漏封包 (燈卡住不滅)
+function turnOffAllLeds() { 
+  nodes.forEach((n, idx) => {
+    if(n.connected && n.ws2812) {
+      setTimeout(() => {
+        for(let i=0; i<16; i++) n.ws2812.setColor(i, '#000000');
+      }, idx * 40); // 每個節點錯開 40 毫秒傳送
+    }
+  }); 
+}
+
 function abortGame() { clearTimeout(game.waitTimer); clearTimeout(game.countdownTimer); clearTimeout(game.specialTimer); clearTimeout(game.feedbackTimer); turnOffAllLeds(); game.phase='idle'; showScreen('main-menu'); }
 
 /* ─ 動態圖表繪製共用函式 ─ */
