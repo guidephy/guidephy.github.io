@@ -599,7 +599,28 @@ function initSimulator() {
   document.getElementById('statusHome').classList.replace('connecting', 'connected');
   let simPanel = document.getElementById('simulator-panel');
   simPanel.innerHTML = nodes.map(n => `<div class="sim-pad" id="sim-pad-${n.index}" onclick="simHit(${n.index})">P${n.index+1}</div>`).join('');
-  nodes.forEach((n, idx) => { n.connected = true; n.ws2812 = { brightness: function(){}, setColor: function(ledIdx, color) { if(ledIdx===0){ let pad = document.getElementById('sim-pad-'+idx); if(pad){ pad.style.backgroundColor = color==='#000000'?'var(--surf2)':color; pad.style.color = color==='#000000'?'var(--muted)':'#fff'; pad.style.borderColor = color==='#000000'?'var(--border)':color; } } } }; });
+  nodes.forEach((n, idx) => { 
+    n.connected = true; 
+    n.ws2812 = { brightness: function(){}, setColor: function(ledIdx, color) { if(ledIdx===0){ let pad = document.getElementById('sim-pad-'+idx); if(pad){ pad.style.backgroundColor = color==='#000000'?'var(--surf2)':color; pad.style.color = color==='#000000'?'var(--muted)':'#fff'; pad.style.borderColor = color==='#000000'?'var(--border)':color; } } } }; 
+    
+    // 🌟 讓模擬器產生微小的浮動數值，方便您測試時能看見 6 個節點同時動態更新
+    setInterval(() => {
+      let val = 0.1500 + (Math.random() - 0.5) * 0.002;
+      n.valHistory.push(val);
+      if (n.valHistory.length > 100) n.valHistory.shift();
+      let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
+      n.threshold = avg + 0.0005;
+
+      let vEl = document.getElementById(`valDisplay_${n.index}`);
+      let bEl = document.getElementById(`barFill_${n.index}`);
+      let tEl = document.getElementById(`thDisplay_${n.index}`);
+      let mEl = document.getElementById(`thMarker_${n.index}`);
+      if(vEl) vEl.textContent = val.toFixed(4); 
+      if(bEl) bEl.style.width = Math.min(val*100, 100) + '%'; 
+      if(tEl) tEl.textContent = `閥值: ${n.threshold.toFixed(4)}`;
+      if(mEl) mEl.style.left = (n.threshold*100) + '%';
+    }, 50);
+  });
 }
 function simHit(idx) { if(currentScreen === 'game' && game.phase === 'lit') recordGameHit(0, game.activeNodeIndex === idx, idx); }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('screen-' + id).classList.add('active'); currentScreen = id; }
@@ -632,24 +653,24 @@ function connectAllNodes() {
       let dot = document.getElementById(`statusDot_${n.index}`); if(dot) dot.style.background = 'var(--sci-green)'; updateGlobalStatus();
       n.photocell = getPhotocell(board, 0);
       n.photocell.measure(function(val) {
-        // 🌟 動態 5 秒平均值計算 (每 50ms 測量一次，100 次即 5 秒)
+        // 🌟 1. 持續滾動更新：確保陣列始終保留最新的 100 筆 (相當於 5 秒)
         n.valHistory.push(val);
-        if (n.valHistory.length > 100) n.valHistory.shift();
-        let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
+        if (n.valHistory.length > 100) n.valHistory.shift(); 
         
-        // 依要求：平均值 + 0.0005 作為動態閥值
+        let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
         n.threshold = avg + 0.0005;
 
-        if(currentScreen === 'settings') { 
-          let vEl=document.getElementById(`valDisplay_${n.index}`), 
-              bEl=document.getElementById(`barFill_${n.index}`),
-              tEl=document.getElementById(`thDisplay_${n.index}`),
-              mEl=document.getElementById(`thMarker_${n.index}`);
-          if(vEl) vEl.textContent=val.toFixed(4); 
-          if(bEl) bEl.style.width=Math.min(val*100,100)+'%'; 
-          if(tEl) tEl.textContent=`閥值: ${n.threshold.toFixed(4)}`;
-          if(mEl) mEl.style.left=(n.threshold*100)+'%';
-        }
+        // 🌟 2. 徹底拔除畫面限制：只要 6 個節點一抓到數值，強制即時更新所有 UI
+        let vEl = document.getElementById(`valDisplay_${n.index}`);
+        let bEl = document.getElementById(`barFill_${n.index}`);
+        let tEl = document.getElementById(`thDisplay_${n.index}`);
+        let mEl = document.getElementById(`thMarker_${n.index}`);
+        
+        if(vEl) vEl.textContent = val.toFixed(4); 
+        if(bEl) bEl.style.width = Math.min(val*100, 100) + '%'; 
+        if(tEl) tEl.textContent = `閥值: ${n.threshold.toFixed(4)}`;
+        if(mEl) mEl.style.left = (n.threshold*100) + '%';
+        
         if(val < n.threshold) { 
           if(!n.lastTriggered){ n.lastTriggered=true; handleNodeTrigger(n.index, val); } 
         } else { 
