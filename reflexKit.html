@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ReflexKit · 神經反應互動訓練平台</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <!-- 🌟 引入 Chart.js 圖表套件 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Webduino -->
+  <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js"></script>
+  <script src="https://blocklypro.webduino.io/node_modules/webduino-module-ws2812/WS2812.js"></script>
+  <script src="https://blocklypro.webduino.io/node_modules/webduino-module-ws2812/WS2812-blockly.js"></script>
+
+  <style>
+    /* ══ 全域 ══ */
+    :root {
+      --sci-dark:  #1e293b;
+      --sci-blue:  #0ea5e9;
+      --sci-green: #10b981;
+      --sci-amber: #f59e0b;
+      --sci-red:   #ef4444;
+      --sci-purple:#8b5cf6;
+      --bg:    #f8fafc;
+      --card:  #ffffff;
+      --muted: #64748b;
+      --border:#e2e8f0;
+      --surf2: #f1f5f9;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 0 0 80px;
+      color: var(--sci-dark);
+      background: #f0f9ff;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(14,165,233,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(16,185,129,.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(139,92,246,.04) 0%, transparent 70%);
+      min-height: 100vh;
+    }
+
+    .main-card { background: var(--card); border-radius: 24px; max-width: 1040px; margin: 24px auto; padding: 40px 36px; box-shadow: 0 8px 48px rgba(0,0,0,.07); }
+    @media(max-width:600px){ .main-card{ margin:12px; padding:24px 16px; border-radius:20px; } }
+
+    .screen { display:none; }
+    .screen.active { display:block; animation: fadeIn .4s cubic-bezier(.16,1,.3,1); }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+    .nav-back { display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;margin-bottom:28px;text-decoration:none;transition:color .2s; }
+    .nav-back:hover{ color:var(--sci-blue); }
+
+    /* ══ 大廳 UI (Main Menu) ══ */
+    .menu-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center; }
+    .rk-logo-wrap-lg { width: 96px; height: 96px; margin: 0 auto 20px; background: linear-gradient(135deg, rgba(14,165,233,.12), rgba(16,185,129,.12)); border: 2px solid rgba(14,165,233,.2); border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(14,165,233,.15); }
+    .rk-title-lg { font-size: 48px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; background: linear-gradient(135deg, #0c4a6e, #0ea5e9 50%, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+    .rk-subtitle-lg { font-size: 16px; color: var(--muted); font-weight: 600; letter-spacing: 1px; margin-bottom: 48px; }
+
+    .menu-buttons { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 320px; }
+    .btn-main-menu { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 18px 24px; border-radius: 16px; font-size: 18px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; text-decoration: none; }
+    
+    .btn-start { background: linear-gradient(135deg, var(--sci-blue), #2563eb); color: #fff; box-shadow: 0 10px 24px rgba(14,165,233,0.3); }
+    .btn-start:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(14,165,233,0.4); color: #fff; filter: brightness(1.1); }
+    
+    .btn-record { background: var(--card); color: #334155; border-color: #cbd5e1; }
+    .btn-record:hover { background: #1e293b; color: #fff; border-color: #1e293b; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(30,41,59,0.15); }
+    
+    .btn-settings-menu { background: var(--card); color: #0284c7; border-color: #bae6fd; }
+    .btn-settings-menu:hover { background: #f0f9ff; border-color: #0ea5e9; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(14,165,233,0.15); }
+
+    /* ── 極簡模式卡片設計 (2x2 網格) ── */
+    .hero-cards-wrap { max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    @media(max-width: 600px){ .hero-cards-wrap { grid-template-columns: 1fr; max-width: 400px; } }
+
+    .mod-card { 
+      background: #ffffff; border: 1px solid var(--border); border-radius: 24px; padding: 40px 24px; 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      gap: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02); 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; position: relative; overflow: hidden; 
+    }
+    
+    .mod-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; transition: height 0.2s; }
+    .mod-card.athlete::before { background: #3b82f6; }
+    .mod-card.elderly::before { background: #f97316; }
+    .mod-card.kids::before    { background: #10b981; }
+    .mod-card.free::before    { background: #8b5cf6; }
+
+    .mod-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03); border-color: #cbd5e1; }
+
+    .mod-icon-wrap { 
+      width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; 
+      font-size: 32px; margin-bottom: 4px; transition: transform 0.3s;
+    }
+    .mod-card.athlete .mod-icon-wrap { background: #eff6ff; color: #3b82f6; }
+    .mod-card.elderly .mod-icon-wrap { background: #fff7ed; color: #f97316; }
+    .mod-card.kids .mod-icon-wrap    { background: #f0fdf4; color: #10b981; }
+    .mod-card.free .mod-icon-wrap    { background: #f3e8ff; color: #8b5cf6; }
+    
+    .mod-card:hover .mod-icon-wrap { transform: scale(1.1); }
+    .mod-title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+
+    .rk-footer { max-width: 1040px; margin: 28px auto 0; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+    .status-badge { display:inline-flex;align-items:center;gap:7px;background:var(--surf2);border:1.5px solid var(--border);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600; }
+    .status-dot { width:9px;height:9px;border-radius:50%;background:#cbd5e1;transition:background .4s; }
+    .status-badge.connecting .status-dot { background:var(--sci-amber);animation:blink 1s infinite; }
+    .status-badge.connected  .status-dot { background:var(--sci-green);animation:blink 2.5s infinite; }
+    .status-badge.error      .status-dot { background:var(--sci-red); }
+    @keyframes blink{ 0%,100%{opacity:1}50%{opacity:.3} }
+
+    /* ══ 表單與元件 ══ */
+    .form-label { font-weight:600;font-size:14px; }
+    optgroup { font-weight: 700; color: var(--sci-dark); font-style: normal; }
+    option { font-weight: 500; color: #333; padding: 4px; }
+
+    /* ══ 遊戲畫面 ══ */
+    #screen-game .main-card { background: linear-gradient(160deg, #f8fafc 0%, #f0f9ff 100%); }
+    .game-signal { width: 220px; height: 220px; border-radius: 50%; margin: 0 auto; background: var(--border); transition: background .15s, box-shadow .4s cubic-bezier(.34,1.4,.64,1); display: flex; align-items: center; justify-content: center; font-size: 60px; position: relative; }
+    .game-signal::before { content: ''; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--border); transition: border-color .3s, opacity .3s; opacity: 0; }
+    .game-signal.lit::before { opacity: 1; border-color: currentColor; animation: signalRing 1s ease-out infinite; }
+    @keyframes signalRing { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(1.25);opacity:0} }
+    .game-signal.lit  { box-shadow: 0 0 80px 24px var(--signal-glow, rgba(14,165,233,.4)), 0 0 32px 8px var(--signal-glow, rgba(14,165,233,.2)); }
+
+    .reaction-badge { display: inline-block; padding: 10px 28px; border-radius: 999px; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 16px; transition: background .3s, color .3s; }
+    .round-pip { width: 12px; height: 12px; border-radius: 50%; background: var(--border); display: inline-block; margin: 3px; transition: background .3s, transform .3s; }
+    .round-pip.done    { background: var(--sci-green); transform: scale(1.1); }
+    .round-pip.current { background: var(--sci-blue); transform: scale(1.3); box-shadow: 0 0 8px var(--sci-blue); }
+    .kids-bounce { animation: bounce .45s cubic-bezier(.34,1.5,.64,1); }
+    @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+    /* ══ 模擬器 UI ══ */
+    .sim-pad-wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 24px; }
+    .sim-pad { width: 72px; height: 72px; border-radius: 50%; background: var(--surf2); border: 3px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: var(--muted); cursor: pointer; transition: all 0.15s; user-select: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .sim-pad:active { transform: scale(0.92); }
+    @media(max-width: 600px){ .sim-pad { width: 60px; height: 60px; font-size: 14px; } }
+
+    /* ══ 結果與報告區塊 ══ */
+    .result-ring { width:160px;height:160px;border-radius:50%; border:8px solid var(--sci-green); display:flex;flex-direction:column;align-items:center;justify-content:center; margin:0 auto 24px; }
+    .result-score { font-size:38px;font-weight:800;color:var(--sci-green); }
+    .result-unit  { font-size:13px;color:var(--muted); }
+    .rank-badge { display:inline-flex;align-items:center;gap:8px; padding:8px 20px;border-radius:999px;font-weight:700;font-size:14px; }
+    .stat-card { background:var(--surf2);border-radius:12px;padding:20px;text-align:center; }
+    .stat-value { font-size:2.2rem;font-weight:800;color:var(--sci-dark); }
+
+    .expert-report-card { background: #ffffff; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.04); }
+    .expert-report-header { display: flex; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .expert-report-icon { width: 44px; height: 44px; border-radius: 12px; background: #eff6ff; color: #0ea5e9; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 14px; }
+    .expert-report-title { font-weight: 800; color: var(--sci-dark); font-size: 18px; margin: 0; letter-spacing: -0.3px; }
+    .expert-insight-list { list-style: none; padding: 0; margin: 0 0 20px 0; }
+    .expert-insight-list li { font-size: 14px; color: #475569; margin-bottom: 12px; line-height: 1.6; display: flex; gap: 8px; }
+    .expert-insight-list li strong { color: #1e293b; font-weight: 700; }
+    .expert-advice-box { background: #f8fafc; border-left: 4px solid var(--sci-purple); padding: 16px; border-radius: 0 12px 12px 0; min-height: 80px;}
+    .expert-advice-label { font-size: 12px; font-weight: 800; color: var(--sci-purple); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;}
+    .expert-advice-text { font-size: 14.5px; font-weight: 600; color: var(--sci-dark); line-height: 1.5; margin: 0; }
+
+    /* 🌟 後台戰績卡片 UI */
+    .b-card { background: var(--surf2); border: 1.5px solid var(--border); border-radius: 16px; padding: 20px; cursor: pointer; transition: all 0.2s; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .b-card:hover { border-color: var(--sci-blue); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(14,165,233,0.15); background: #fff; }
+    .b-avatar { width: 56px; height: 56px; border-radius: 50%; background: #e0f2fe; color: #0284c7; font-size: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .b-icon { width: 48px; height: 48px; border-radius: 12px; background: #fef3c7; color: #d97706; font-size: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .b-title { font-size: 18px; font-weight: 800; color: var(--sci-dark); margin-bottom: 6px; }
+    .b-stat { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 2px;}
+
+    /* ════════════════════════════════════════════
+       設定區網格 UI
+    ═════════════════════════════════════════════ */
+    .sub-card { background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:20px; }
+    .sub-card-title { font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:7px; }
+    .full-width { grid-column:1/-1; }
+    
+    .nodes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+    @media(max-width: 900px) { .nodes-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media(max-width: 600px) { .nodes-grid { grid-template-columns: 1fr; } }
+
+    .node-card { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px; transition: all 0.2s; position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .node-card.triggered { border-color: var(--sci-green); background: #f0fdf4; box-shadow: 0 4px 16px rgba(16,185,129,0.2); transform: scale(1.02); }
+    
+    .node-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .node-id-group { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .node-tag { font-size: 11px; font-weight: 800; color: #fff; background: var(--sci-dark); padding: 4px 8px; border-radius: 6px; flex-shrink: 0; }
+    
+    .dev-input { flex: 1; border: 1.5px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 13px; font-family: monospace; font-weight: 600; outline: none; background: var(--surf2); }
+    .dev-input:focus { border-color: var(--sci-blue); background: var(--card); }
+    
+    .node-monitor { margin: 12px 0; }
+    .node-val { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; margin-bottom: 6px; color: var(--sci-dark); transition: color 0.1s;}
+    .node-card.triggered .node-val { color: var(--sci-green); }
+    .mini-bar-bg { height: 8px; background: var(--border); border-radius: 4px; position: relative; overflow: hidden; }
+    .mini-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--sci-green), var(--sci-blue)); border-radius: 4px; transition: width 0.1s linear; }
+    .mini-threshold { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--sci-red); z-index: 2; transition: left 0.1s; }
+
+    .node-controls { display: flex; gap: 6px; align-items: stretch; margin-top: 12px; }
+    .th-display { flex: 1; background: var(--surf2); border: 1.5px dashed var(--border); border-radius: 6px; text-align: center; font-weight: 800; font-size: 14px; color: var(--sci-dark); padding: 6px 0; }
+
+    .c-btn { padding:8px 15px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--sci-dark);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px; }
+    .c-btn:hover { background:var(--border); }
+    .c-btn.primary { background:var(--sci-blue);border-color:var(--sci-blue);color:#fff; }
+    .c-btn.primary:hover { filter:brightness(1.1); }
+    
+    input[type=range] { -webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:var(--border);outline:none;cursor:pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--sci-blue);border:3px solid var(--card);box-shadow:0 2px 6px rgba(14,165,233,.4);cursor:pointer; }
+
+    /* 色盤 */
+    .palette-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:12px; }
+    .palette-item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .palette-swatch-wrap { position:relative; width:100%; height:42px; border-radius:8px; overflow:hidden; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.1); border: 2.5px solid transparent; transition:transform 0.15s; }
+    .palette-swatch-wrap:hover { transform:scale(1.08); }
+    .palette-swatch-wrap.target-color { border-color: var(--sci-dark); }
+    input[type="color"].swatch-input { position:absolute; inset:-10px; width:200%; height:200%; opacity:0; cursor:pointer; }
+    .palette-label { font-size:11px; font-weight:700; color:var(--muted); text-align: center; }
+    .palette-label.target { color:var(--sci-blue); }
+
+    /* ══ 模式說明 Modal ══ */
+    .custom-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .custom-modal-overlay.show { opacity: 1; visibility: visible; }
+    .custom-modal-box { background: #fff; border-radius: 24px; padding: 32px; width: 100%; max-width: 640px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 85vh; display: flex; flex-direction: column; }
+    .custom-modal-overlay.show .custom-modal-box { transform: translateY(0); }
+    
+    .mode-info-list { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; overflow-y: auto; padding-right: 8px; flex-grow: 1; }
+    .mode-info-list::-webkit-scrollbar { width: 6px; }
+    .mode-info-list::-webkit-scrollbar-track { background: var(--surf2); border-radius: 8px; }
+    .mode-info-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+
+    .info-card { display: flex; gap: 16px; background: var(--surf2); padding: 20px; border-radius: 16px; border: 1px solid var(--border); transition: all 0.2s; }
+    .info-card:hover { border-color: #cbd5e1; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .info-icon { font-size: 24px; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: #fff; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); flex-shrink: 0; }
+    .info-content { flex: 1; }
+    .info-title { font-weight: 800; color: var(--sci-dark); font-size: 16px; margin-bottom: 6px; letter-spacing: -0.3px; }
+    .info-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+    .info-desc strong { color: #334155; font-weight: 700; }
+    .cat-divider { font-size: 12px; font-weight: 800; color: var(--sci-blue); text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; margin-bottom: -4px; padding-bottom: 4px; border-bottom: 1.5px dashed var(--border); }
+    
+    /* 載入動畫 */
+    .ai-spinner { animation: ai-spin 1s linear infinite; }
+    @keyframes ai-spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 1 · 遊戲大廳 (Main Menu)
+══════════════════════════════════════════════ -->
+<div id="screen-main-menu" class="screen active">
+  <div class="menu-wrap">
+    <div class="rk-logo-wrap-lg">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="28" r="24" stroke="url(#rk-ring-lg)" stroke-width="2" opacity="0.7">
+          <animate attributeName="r" values="18;26;18" dur="2.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+          <animate attributeName="opacity" values="0.7;0.05;0.7" dur="2.2s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M32 6L16 28H27L22 50L42 24H31L35 6Z" fill="url(#rk-bolt-lg)"/>
+        <defs>
+          <linearGradient id="rk-bolt-lg" x1="16" y1="6" x2="42" y2="50" gradientUnits="userSpaceOnUse"><stop stop-color="#38bdf8"/><stop offset="0.45" stop-color="#0ea5e9"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+          <linearGradient id="rk-ring-lg" x1="4" y1="4" x2="52" y2="52" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="rk-title-lg">ReflexKit</div>
+    <div class="rk-subtitle-lg">多節點神經反應訓練系統</div>
+
+    <div class="menu-buttons">
+      <a class="btn-main-menu btn-start" onclick="showScreen('mode-select')">
+        <i class="bi bi-play-fill" style="font-size: 24px; line-height: 1;"></i> 開始訓練
+      </a>
+      <a class="btn-main-menu btn-record" onclick="showScreen('admin-login')">
+        <i class="bi bi-trophy-fill"></i> 戰績中心
+      </a>
+      <a class="btn-main-menu btn-settings-menu" onclick="showScreen('settings')">
+        <i class="bi bi-sliders"></i> 系統設定
+      </a>
+    </div>
+  </div>
+
+  <div class="rk-footer" style="margin-top: auto;">
+    <div class="status-badge connecting" id="statusHome">
+      <div class="status-dot"></div><span id="statusHomeText">等待陣列連線…</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2 · 模式選擇 (Mode Select)
+══════════════════════════════════════════════ -->
+<div id="screen-mode-select" class="screen">
+  <div class="main-card" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+      <a class="nav-back mb-0" onclick="showScreen('main-menu')"><i class="bi bi-arrow-left"></i> 回首頁</a>
+      <h4 class="fw-bold mb-0">選擇訓練模式</h4>
+      <div style="width: 70px;"></div>
+    </div>
+
+    <div class="hero-cards-wrap mt-4">
+      <div class="mod-card athlete" onclick="goMode('athlete')">
+        <div class="mod-icon-wrap"><i class="bi bi-lightning-charge-fill"></i></div>
+        <h3 class="mod-title">選手模式</h3>
+      </div>
+      <div class="mod-card elderly" onclick="goMode('elderly')">
+        <div class="mod-icon-wrap"><i class="bi bi-heart-pulse-fill"></i></div>
+        <h3 class="mod-title">樂齡模式</h3>
+      </div>
+      <div class="mod-card kids" onclick="goMode('kids')">
+        <div class="mod-icon-wrap"><i class="bi bi-star-fill"></i></div>
+        <h3 class="mod-title">兒童模式</h3>
+      </div>
+      <div class="mod-card free" onclick="goMode('free')">
+        <div class="mod-icon-wrap"><i class="bi bi-infinity"></i></div>
+        <h3 class="mod-title">自由模式</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 受測者設定 (專業情境與科學模式選擇)
+══════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen"><div class="main-card" style="max-width:620px;">
+  <a class="nav-back" onclick="showScreen('mode-select')"><i class="bi bi-arrow-left"></i> 返回選擇模式</a>
+  <h3 class="fw-bold mb-1" id="setupTitle"></h3>
+  <p class="text-muted mb-4" style="font-size:13px;" id="setupDesc">請輸入實驗參數</p>
+  
+  <div class="row g-4">
+    <!-- 標準受測者資訊 (自由模式會隱藏) -->
+    <div class="col-md-6 player-info-col">
+      <label class="form-label text-secondary" id="labelPlayerName">受測者姓名</label>
+      <input type="text" id="p-name" class="form-control form-control-lg" placeholder="請輸入姓名/暱稱">
+    </div>
+    <div class="col-md-6 player-info-col">
+      <label class="form-label text-danger" id="labelAdminId">連動管理員 ID</label>
+      <input type="text" id="p-admin-id" class="form-control form-control-lg border-danger" placeholder="負責人帳號 ID">
+    </div>
+    
+    <!-- 標準訓練計畫選單 (一般模式使用) -->
+    <div class="col-md-12 mt-2" id="setup-standard-area">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="form-label fw-bold mb-0" style="font-size: 16px;">訓練計畫 (Training Program)</label>
+        <button class="btn btn-sm btn-outline-secondary" onclick="showModeInfoModal()" style="border-radius: 20px; font-size: 13px; font-weight: 600; padding: 4px 12px; transition: all 0.2s;">
+          <i class="bi bi-info-circle me-1"></i> 計畫說明
+        </button>
+      </div>
+      <select id="p-game-mode" class="form-select form-select-lg shadow-sm" style="border-radius: 12px; cursor: pointer;"></select>
+      <div class="form-text text-muted mt-2" style="font-size: 13px;">選定的訓練計畫將自動配置相對應的科學訓練邏輯與自動輪轉機制。</div>
+    </div>
+
+    <!-- 🌟 全新：自訂自由參數面板 (自由模式專用) -->
+    <div class="col-md-12 mt-2" id="setup-free-area" style="display:none;">
+      <label class="form-label fw-bold mb-2" style="font-size: 16px; color: var(--sci-purple);"><i class="bi bi-sliders me-2"></i>自訂自由參數 (Free Mode Config)</label>
+      <div class="row g-3 p-3 rounded-3" style="background: var(--surf2); border: 1px solid var(--border);">
+         <div class="col-sm-6">
+            <label class="form-label text-muted" style="font-size:13px; font-weight:700;">總回合數</label>
+            <select id="fm-rounds" class="form-select shadow-sm" style="border-radius: 10px;">
+               <option value="10">10 次 (熱身)</option>
+               <option value="20" selected>20 次 (標準)</option>
+               <option value="30">30 次 (進階)</option>
+               <option value="50">50 次 (耐力極限)</option>
+            </select>
+         </div>
+         <div class="col-sm-6">
+            <label class="form-label text-muted" style="font-size:13px; font-weight:700;">出題燈光邏輯</label>
+            <select id="fm-lights" class="form-select shadow-sm" style="border-radius: 10px;">
+               <option value="single">純淨模式 (僅亮單一主目標)</option>
+               <option value="distract">干擾模式 (同時亮出多顆錯誤顏色)</option>
+               <option value="memory">記憶配對 (隨機顏色，需看螢幕提示)</option>
+            </select>
+         </div>
+         <div class="col-sm-6">
+            <label class="form-label text-muted" style="font-size:13px; font-weight:700;">單次停留時間限制</label>
+            <select id="fm-timeout" class="form-select shadow-sm" style="border-radius: 10px;">
+               <option value="0">無限制 (直到擊中為止)</option>
+               <option value="5000">5 秒 (長距離跑動)</option>
+               <option value="3000">3 秒 (中距離移動)</option>
+               <option value="2000">2 秒 (短距/基礎)</option>
+               <option value="1200">1.2 秒 (高壓極限挑戰)</option>
+            </select>
+         </div>
+         <div class="col-sm-6">
+            <label class="form-label text-muted" style="font-size:13px; font-weight:700;">陣列啟用節點數</label>
+            <select id="fm-nodes" class="form-select shadow-sm" style="border-radius: 10px;">
+               <option value="6">6 節點 (全域開放)</option>
+               <option value="5">5 節點</option>
+               <option value="4">4 節點</option>
+               <option value="3">3 節點 (半區縮小)</option>
+               <option value="2">2 節點 (基礎折返)</option>
+               <option value="1">1 節點 (單點連續)</option>
+            </select>
+         </div>
+      </div>
+    </div>
+
+  </div>
+  
+  <div class="text-center mt-5">
+    <button class="btn btn-primary btn-lg px-5 py-3 shadow" onclick="startGame()" style="border-radius:12px;font-weight:700;font-size:16px;">
+      <i class="bi bi-play-circle-fill me-2"></i>開始測試
+    </button>
+  </div>
+</div></div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 遊戲主畫面
+══════════════════════════════════════════════ -->
+<div id="screen-game" class="screen"><div class="main-card" style="text-align:center;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <a class="nav-back mb-0" onclick="abortGame()"><i class="bi bi-x-circle"></i> 中止測驗</a>
+    <div id="gameModeTag" class="badge rounded-pill" style="font-size:13px;padding:8px 16px;">選手模式</div>
+    <div class="status-badge connecting" id="statusGame" style="font-size:12px;"><div class="status-dot"></div><span id="statusGameText">連線中</span></div>
+  </div>
+
+  <div id="roundPips" class="mb-3"></div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">第 <span id="roundCurrent">1</span> 次 / 共 <span id="roundTotal">10</span> 次</div>
+
+  <div class="game-signal mb-3" id="gameSignal"><span id="gameSignalEmoji">●</span></div>
+
+  <div id="simulator-panel" class="sim-pad-wrap" style="display: none;"></div>
+
+  <div id="reactionBadge" class="reaction-badge" style="background:var(--surf2);color:var(--muted);font-size:18px;">— 等待開始 —</div>
+  <div id="gameStatusText" style="font-size:28px;font-weight:800;margin:16px 0;color:var(--sci-dark);">準備好了嗎？</div>
+
+  <div class="d-flex justify-content-center gap-4 mt-2 mb-4 flex-wrap">
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">平均反應</div><div id="runningAvg" style="font-size:22px;font-weight:800;color:var(--sci-blue);">—</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">最快</div><div id="runningBest" style="font-size:22px;font-weight:800;color:var(--sci-green);">—</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">目標節點</div><div id="gameTargetNode" style="font-size:22px;font-weight:800;color:var(--sci-amber);">—</div></div>
+  </div>
+</div></div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 結果頁 (含科學訓練報告與動態圖表)
+══════════════════════════════════════════════ -->
+<div id="screen-results" class="screen"><div class="main-card" style="max-width:640px;text-align:center;">
+  <div id="resultsKidsAnim" style="font-size:48px;display:none;margin-bottom:8px;">🎉🌈⭐</div>
+  <h2 class="fw-bold mb-1" id="resultsTitle">測驗完成！</h2>
+  <p class="text-muted mb-4" id="resultsSubtitle">數據已記錄</p>
+  
+  <div class="result-ring"><div class="result-score" id="resultAvgMs">—</div><div class="result-unit">ms 平均</div></div>
+  <div id="resultRankBadge" class="mb-4"></div>
+  
+  <div class="row g-3 text-center mb-4">
+    <div class="col-4"><div class="stat-card"><div style="font-size:11px;color:var(--muted);">最快</div><div style="font-size:20px;font-weight:800;color:var(--sci-green);" id="resultBest">—</div></div></div>
+    <div class="col-4"><div class="stat-card"><div style="font-size:11px;color:var(--muted);">最慢</div><div style="font-size:20px;font-weight:800;color:var(--sci-amber);" id="resultWorst">—</div></div></div>
+    <div class="col-4"><div class="stat-card"><div style="font-size:11px;color:var(--muted);">失誤/漏擊</div><div style="font-size:20px;font-weight:800;color:var(--sci-red);" id="resultErrors">0</div></div></div>
+  </div>
+
+  <!-- 🌟 AI 科學訓練分析報告 -->
+  <div id="expertReportCard" class="expert-report-card text-start">
+    <div class="expert-report-header">
+      <div class="expert-report-icon"><i class="bi bi-robot"></i></div>
+      <div>
+        <h5 class="expert-report-title">AI 科學分析報告</h5>
+        <div style="font-size:12px; color:var(--muted); margin-top:2px;">結合基礎特徵與雲端 AI 深度見解</div>
+      </div>
+    </div>
+    <ul id="reportInsights" class="expert-insight-list"></ul>
+    <div class="expert-advice-box">
+      <div class="expert-advice-label">運動科學專家建議</div>
+      <p id="reportAdvice" class="expert-advice-text"></p>
+    </div>
+  </div>
+
+  <!-- 🌟 歷次訓練趨勢圖表 (若有多次紀錄才顯示) -->
+  <div id="trendChartContainer" class="expert-report-card text-start" style="display:none;">
+    <div class="expert-report-header" style="border-bottom:none; margin-bottom:0; padding-bottom:8px;">
+      <div class="expert-report-icon" style="background: #f0fdf4; color: #10b981;"><i class="bi bi-graph-up-arrow"></i></div>
+      <div>
+        <h5 class="expert-report-title">歷次成長趨勢</h5>
+        <div style="font-size:12px; color:var(--muted); margin-top:2px;">相同菜單下的反應時間變化</div>
+      </div>
+    </div>
+    <div style="position: relative; height: 220px; width: 100%;">
+      <canvas id="trendChart"></canvas>
+    </div>
+  </div>
+
+  <div style="font-size:12px; font-weight:700; color:var(--muted); text-align:left; margin-bottom:8px; padding-left:4px;">本次單擊歷程 (毫秒)</div>
+  <div id="resultRoundList" class="text-start mb-4" style="max-height:160px;overflow-y:auto;"></div>
+  
+  <div class="d-flex gap-3 justify-content-center flex-wrap">
+    <button class="btn btn-outline-secondary btn-lg px-4" onclick="showScreen('setup')" style="border-radius:10px;font-weight:600;"><i class="bi bi-arrow-repeat me-2"></i>再測一次</button>
+    <button class="btn btn-primary btn-lg px-4" onclick="showScreen('main-menu')" style="border-radius:10px;font-weight:600;"><i class="bi bi-house-fill me-2"></i>回首頁</button>
+  </div>
+</div></div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 管理員登入 / 戰績中心 (全新階層架構)
+══════════════════════════════════════════════ -->
+<div id="screen-admin-login" class="screen"><div class="main-card" style="max-width:480px;">
+  <a class="nav-back" onclick="showScreen('main-menu')"><i class="bi bi-arrow-left"></i> 返回首頁</a>
+  <h3 class="fw-bold mb-4 text-center">🏆 戰績中心登入</h3>
+  <ul class="nav nav-pills nav-fill mb-4" style="background:var(--surf2);border-radius:10px;padding:4px;">
+    <li class="nav-item"><button class="nav-link active" id="tabLoginBtn" onclick="switchAuthTab('login')">教練登入</button></li>
+    <li class="nav-item"><button class="nav-link" id="tabRegBtn" onclick="switchAuthTab('reg')">管理員註冊</button></li>
+  </ul>
+  <div id="login-box" class="p-4 border rounded-3"><input type="text" id="l-acc" class="form-control form-control-lg mb-3" placeholder="管理者 ID (如教練/照護員)"><input type="password" id="l-pw" class="form-control form-control-lg mb-4" placeholder="密碼"><button class="btn btn-dark btn-lg w-100 fw-bold" onclick="realLogin()">登入查詢</button></div>
+  <div id="reg-box" class="p-4 border rounded-3" style="display:none;"><input type="text" id="r-acc" class="form-control form-control-lg mb-3" placeholder="設定管理者 ID"><input type="password" id="r-pw" class="form-control form-control-lg mb-4" placeholder="設定密碼"><button class="btn btn-success btn-lg w-100 fw-bold" onclick="realRegister()">確認註冊</button></div>
+</div></div>
+
+<!-- 🌟 全新階層式戰績後台 -->
+<div id="screen-backend" class="screen"><div class="main-card">
+  <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-0" style="color:var(--sci-dark);"><i class="bi bi-trophy-fill text-warning me-2"></i>戰績中心</h2>
+      <div id="backendBreadcrumb" class="text-muted mt-2 fw-bold" style="font-size: 14px;">學員列表</div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <button id="btnBackBackend" class="btn btn-sm btn-outline-secondary fw-bold" style="display:none;" onclick="goBackendBack()"><i class="bi bi-arrow-left"></i> 返回上層</button>
+      <span id="backendAdminLabel" class="badge bg-light text-dark border p-2" style="font-size: 14px;"></span>
+      <button class="btn btn-sm btn-outline-danger fw-bold" onclick="showScreen('main-menu')">登出</button>
+    </div>
+  </div>
+  
+  <!-- 動態渲染區域：會根據點擊切換 1.學員卡片牆 -> 2.菜單卡片牆 -> 3.圖表與清單 -->
+  <div id="backendContentArea" style="min-height: 400px; position: relative;">
+    <div class="text-center text-muted py-5"><div class="spinner-border text-primary mb-3" role="status"></div><br>正在從雲端載入戰績資料...</div>
+  </div>
+</div></div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 6 節點陣列設定 (Settings)
+══════════════════════════════════════════════ -->
+<div id="screen-settings" class="screen"><div class="main-card">
+  <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2">
+    <a class="nav-back mb-0" onclick="showScreen('main-menu')"><i class="bi bi-arrow-left"></i> 返回首頁</a>
+    <div class="d-flex gap-2 align-items-center">
+      <div class="status-badge connecting" id="statusSettings"><div class="status-dot"></div><span id="statusSettingsText">初始化…</span></div>
+      <button class="btn btn-sm btn-outline-danger fw-bold" onclick="turnOffAllLeds()"><i class="bi bi-power"></i> 強制熄燈</button>
+      <button class="btn btn-sm btn-dark fw-bold" onclick="connectAllNodes()"><i class="bi bi-hdd-network"></i> 一鍵連線</button>
+    </div>
+  </div>
+  <h4 class="fw-bold mb-0">裝置陣列設定 (6 Nodes)</h4>
+  <p style="font-size:13px;color:var(--muted);margin-top:4px;margin-bottom:16px;">全局燈光設定與各節點獨立校準</p>
+
+  <div class="sub-card full-width mb-3" style="border-left: 4px solid var(--sci-blue);">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="sub-card-title mb-0">通用視覺配置</div>
+      <button class="c-btn primary btn-sm" onclick="testAllLeds()"><i class="bi bi-magic"></i> 全體閃爍測試</button>
+    </div>
+    <div class="d-flex flex-wrap gap-4 align-items-start mt-3">
+      <div style="flex:1; min-width: 150px; max-width: 200px;">
+        <label style="font-size:12px; font-weight:600; color:var(--muted); display:block; margin-bottom:8px;">亮度 <span id="brightnessVal">20</span>%</label>
+        <input type="range" id="brightnessSlider" min="1" max="100" value="20" class="w-100">
+      </div>
+      <div style="flex:3; min-width: 300px;"><div class="palette-grid" id="paletteGrid"></div></div>
+    </div>
+  </div>
+
+  <div class="sub-card full-width mb-3" style="border-left: 4px solid var(--sci-amber);">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="sub-card-title mb-0">感測器靈敏度配置 (全域)</div>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-3 mt-2">
+      <label style="font-size:12px; font-weight:600; color:var(--muted); white-space: nowrap;">動態閥值偏移量 (+)</label>
+      <input type="number" id="globalThresholdInput" value="0.001" step="0.0001" min="0.0001" max="0.05" class="form-control form-control-sm" style="width: 100px; font-weight: 800; text-align: center; border-color: var(--sci-amber); color: var(--sci-amber);">
+      <span style="font-size:12px; color:var(--muted);">數值將加上最新的 5 秒平均值作為觸發閥值。調高會變遲鈍，調低會更靈敏。</span>
+    </div>
+  </div>
+
+  <div class="sub-card-title mt-4 mb-2"><i class="bi bi-grid-3x2-gap-fill me-2"></i>節點獨立校準</div>
+  <div class="nodes-grid" id="nodesContainer"></div>
+</div></div>
+
+<!-- 模式說明 Modal -->
+<div id="modal-mode-info" class="custom-modal-overlay">
+  <div class="custom-modal-box">
+    <div class="d-flex justify-content-between align-items-center mb-1 border-bottom pb-3">
+      <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-text me-2 text-primary"></i>科學訓練計畫說明</h4>
+      <button type="button" class="btn-close" aria-label="Close" onclick="hideModeInfoModal()"></button>
+    </div>
+    <div class="mode-info-list" id="modal-info-content"></div>
+    <div class="text-center mt-4 pt-3 border-top"><button class="btn btn-dark px-5 py-2 fw-bold" style="border-radius: 12px; font-size: 15px;" onclick="hideModeInfoModal()">我知道了</button></div>
+  </div>
+</div>
+
+<script>
+/* ─ 全局時間格式化函數 (確保後台顯示格式一致不跑版) ─ */
+function getNowStr() {
+  let d = new Date();
+  let p = n => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
+/* ─ 全局狀態與變數 ─ */
+var currentScreen = 'main-menu';
+var globalBrightness = 20;
+var globalThresholdOffset = parseFloat(localStorage.getItem('RK_TH_OFFSET')) || 0.001;
+const GAS_AI_URL = "https://script.google.com/macros/s/AKfycbyf-ESWnK2QbuXkcgemyFBpT1HolRebD3riEJAKGapqN4T48F7QWVQvzBioyUyUQW1d/exec"; 
+
+const urlParams = new URLSearchParams(window.location.search);
+const isSimMode = urlParams.get('role') === 'test';
+
+var defaultPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+var palette = JSON.parse(localStorage.getItem('RK_PALETTE')) || defaultPalette;
+
+var nodes = Array.from({ length: 6 }, (_, i) => ({
+  index: i, deviceId: localStorage.getItem(`NODE_ID_${i}`) || '',
+  threshold: 0, valHistory: [],
+  minVal: Infinity, board: null, ws2812: null, photocell: null, connected: false, lastTriggered: false
+}));
+
+var game = {
+  mode: '', currentProtocolId: '', playerName: '', adminId: '',
+  totalRounds: 5, currentRound: 0, reactions: [], totalErrors: 0,
+  phase: 'idle', litTime: null, targetColor: '',
+  activeNodeIndex: -1, lastNodeIndex: -1, 
+  isNoGo: false, roundPenalty: 0, 
+  waitTimer: null, countdownTimer: null, specialTimer: null, feedbackTimer: null,
+  freeLightMode: 'single', freeTimeout: 0, freeNodeLimit: 6 // 自訂自由參數
+};
+
+/* ─ 戰績中心全局變數 ─ */
+let globalBackendRecords = [];
+let backendCurrentView = 'students'; 
+let backendCurrentStudent = '';
+let backendCurrentMode = '';
+
+/* ─ 科學訓練計畫定義 ─ */
+const trainingProtocols = {
+  athlete: {
+    categoryName: '選手競技訓練',
+    modes: [
+      { id: 'ath_srt', icon: '⚡', name: '簡單反應 (SRT)', desc: '場上隨機亮起 1 顆目標。評估神經衝動傳導極限速度。', rounds: 10 },
+      { id: 'ath_rush', icon: '⏱️', name: '限時極限 (Time Attack)', desc: '燈光僅停留 1.2 秒！未擊打即算漏擊。挑戰高壓動態視覺。', rounds: 15 },
+      { id: 'ath_gonogo', icon: '🧠', name: '選擇性抑制 (Go/No-Go)', desc: '主目標與干擾色同時出現，擊打錯誤將扣分。強化大腦決策與抑制。', rounds: 15 },
+      { id: 'ath_search', icon: '👁️', name: '視覺空間搜尋', desc: '6顆節點全亮，僅1顆為正確顏色。優化周邊視野與環境提取。', rounds: 15 },
+      { id: 'ath_shift', icon: '🌪️', name: '動態位移 (Dynamic Shift)', desc: '目標絕對不重複於同一位置。訓練敏捷步法轉換與空間定向。', rounds: 15 }
+    ]
+  },
+  elderly: {
+    categoryName: '樂齡認知活化',
+    modes: [
+      { id: 'eld_basic', icon: '🟢', name: '基礎活化 (Basic)', desc: '節奏溫和的單點亮燈。適合高齡長者暖身，促進手眼協調。', rounds: 5 },
+      { id: 'eld_color', icon: '🎨', name: '色彩辨識 (Color)', desc: '同時出現目標色與干擾色。預防認知退化，訓練短期記憶。', rounds: 10 },
+      { id: 'eld_cross', icon: '🔄', name: '空間轉移 (Spatial)', desc: '目標不會在同一位置連續亮起。強迫肢體跨越中線，有助防跌。', rounds: 10 },
+      { id: 'eld_memory', icon: '🧩', name: '記憶配對 (Memory)', desc: '螢幕顯示指定顏色，找出陣列中相同顏色的燈。強化工作記憶。', rounds: 10 }
+    ]
+  },
+  kids: {
+    categoryName: '兒童感覺統合',
+    modes: [
+      { id: 'kid_mole', icon: '🐹', name: '打地鼠 (Whack-a-Mole)', desc: '目標燈光只停留 2 秒！激發兒童瞬間爆發力與動態追蹤。', rounds: 15 },
+      { id: 'kid_treasure', icon: '🌈', name: '尋寶遊戲 (Treasure)', desc: '在五顏六色干擾燈中找出正確目標。訓練兒童抗干擾能力。', rounds: 10 },
+      { id: 'kid_freeze', icon: '❄️', name: '木頭人 (Red/Green)', desc: '綠燈快打，紅燈要停住不動！趣味化的衝動控制與煞車學習。', rounds: 10 },
+      { id: 'kid_match', icon: '🎨', name: '變色龍配對 (Match)', desc: '看螢幕顯示什麼顏色就打什麼顏色。訓練色彩認知與視覺動作。', rounds: 10 }
+    ]
+  }
+};
+var modeConfig = {
+  athlete: { t:'⚡ 選手模式', tagBg:'#0ea5e9', pName:'運動員姓名', pAdmin:'教練 ID', desc:'高強度科學體能訓練。' },
+  elderly: { t:'❤️ 樂齡模式', tagBg:'#f59e0b', pName:'樂齡學員姓名', pAdmin:'照護員 ID', desc:'輕鬆的認知與肢體活化。' },
+  kids:    { t:'🌈 兒童模式', tagBg:'#10b981', pName:'小玩家暱稱', pAdmin:'家長・導師 ID', desc:'趣味化的感覺統合挑戰。' },
+  free:    { t:'♾️ 自由模式', tagBg:'#8b5cf6', pName:'', pAdmin:'', desc:'完全自由，由您自訂訓練參數。' }
+};
+
+/* ─ 共用 UI 與硬體邏輯 ─ */
+function initSimulator() {
+  let thInput = document.getElementById('globalThresholdInput');
+  if (thInput) {
+    thInput.value = globalThresholdOffset;
+    thInput.oninput = function() {
+      globalThresholdOffset = parseFloat(this.value) || 0.001;
+      localStorage.setItem('RK_TH_OFFSET', globalThresholdOffset);
+    };
+  }
+
+  if (!isSimMode) return;
+  document.getElementById('statusHomeText').textContent = '虛擬陣列模擬器已啟動';
+  document.getElementById('statusHome').classList.replace('connecting', 'connected');
+  let simPanel = document.getElementById('simulator-panel');
+  simPanel.innerHTML = nodes.map(n => `<div class="sim-pad" id="sim-pad-${n.index}" onclick="simHit(${n.index})">P${n.index+1}</div>`).join('');
+  nodes.forEach((n, idx) => { 
+    n.connected = true; 
+    n.ws2812 = { brightness: function(){}, setColor: function(ledIdx, color) { if(ledIdx===0){ let pad = document.getElementById('sim-pad-'+idx); if(pad){ pad.style.backgroundColor = color==='#000000'?'var(--surf2)':color; pad.style.color = color==='#000000'?'var(--muted)':'#fff'; pad.style.borderColor = color==='#000000'?'var(--border)':color; } } } }; 
+    
+    setInterval(() => {
+      let val = 0.1500 + (Math.random() - 0.5) * 0.002;
+      n.valHistory.push(val);
+      if (n.valHistory.length > 100) n.valHistory.shift();
+      let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
+      n.threshold = avg + globalThresholdOffset;
+
+      let vEl = document.getElementById(`valDisplay_${n.index}`);
+      let bEl = document.getElementById(`barFill_${n.index}`);
+      let tEl = document.getElementById(`thDisplay_${n.index}`);
+      let mEl = document.getElementById(`thMarker_${n.index}`);
+      if(vEl) vEl.textContent = val.toFixed(4); 
+      if(bEl) bEl.style.width = Math.min(val*100, 100) + '%'; 
+      if(tEl) tEl.textContent = `閥值: ${n.threshold.toFixed(4)}`;
+      if(mEl) mEl.style.left = (n.threshold*100) + '%';
+    }, 50);
+  });
+}
+function simHit(idx) { if(currentScreen === 'game' && game.phase === 'lit') recordGameHit(0, game.activeNodeIndex === idx, idx); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('screen-' + id).classList.add('active'); currentScreen = id; }
+function showModeInfoModal() {
+  const container = document.getElementById('modal-info-content'); container.innerHTML = '';
+  const renderCategory = (catData) => { let html = `<div class="cat-divider">${catData.categoryName}</div>`; catData.modes.forEach(m => { html += `<div class="info-card"><div class="info-icon">${m.icon}</div><div class="info-content"><div class="info-title">${m.name}</div><div class="info-desc">${m.desc}</div></div></div>`; }); return html; };
+  if (game.mode === 'free') { container.innerHTML += renderCategory(trainingProtocols.athlete) + renderCategory(trainingProtocols.elderly) + renderCategory(trainingProtocols.kids); } else { container.innerHTML = renderCategory(trainingProtocols[game.mode]); }
+  document.getElementById('modal-mode-info').classList.add('show');
+}
+function hideModeInfoModal() { document.getElementById('modal-mode-info').classList.remove('show'); }
+function populateDropdown(mode) {
+  const sel = document.getElementById('p-game-mode'); sel.innerHTML = '';
+  const addOpt = (cat) => cat.modes.map(m => `<option value="${m.id}">${m.icon} ${m.name}</option>`).join('');
+  if(mode !== 'free') { sel.innerHTML = addOpt(trainingProtocols[mode]); }
+}
+function renderPaletteUI() { document.getElementById('paletteGrid').innerHTML = palette.map((c, i) => `<div class="palette-item"><div class="palette-swatch-wrap ${i===0?'target-color':''}" style="background:${c};"><input type="color" class="swatch-input" value="${c}" onchange="updatePaletteColor(${i}, this.value)"></div><div class="palette-label">${i===0?'🎯 主目標':`干擾 ${i}`}</div></div>`).join(''); }
+function updatePaletteColor(index, newColor) { palette[index] = newColor; localStorage.setItem('RK_PALETTE', JSON.stringify(palette)); renderPaletteUI(); }
+function renderNodeGrid() {
+  document.getElementById('nodesContainer').innerHTML = nodes.map(n => `<div class="node-card" id="nodeCard_${n.index}"><div class="node-header"><div class="node-id-group"><span class="node-tag">P${n.index+1}</span><input type="text" class="dev-input" id="devInput_${n.index}" value="${n.deviceId}" onchange="saveNodeConfig(${n.index})"></div><div class="status-dot" id="statusDot_${n.index}" style="background:var(--sci-red);"></div></div><div class="node-monitor"><div class="node-val" id="valDisplay_${n.index}">—</div><div class="mini-bar-bg"><div class="mini-bar-fill" id="barFill_${n.index}"></div><div class="mini-threshold" id="thMarker_${n.index}" style="left:${n.threshold*100}%"></div></div></div><div class="node-controls"><div class="th-display" id="thDisplay_${n.index}">閥值: 自動校準中</div></div></div>`).join('');
+}
+function saveNodeConfig(idx) { let idVal = document.getElementById(`devInput_${idx}`).value.trim(); nodes[idx].deviceId = idVal; localStorage.setItem(`NODE_ID_${idx}`, idVal); }
+document.getElementById('brightnessSlider').oninput = function(){ globalBrightness = parseInt(this.value); document.getElementById('brightnessVal').textContent = globalBrightness; nodes.forEach(n => { if(n.connected && n.ws2812) n.ws2812.brightness(globalBrightness); }); };
+function updateGlobalStatus() { if (isSimMode) return; let count = nodes.filter(n => n.connected).length; let text = count>0?`已連線 ${count}/6 節點`:'等待陣列連線…'; let state = count>0?'connected':'connecting'; ['statusHome', 'statusGame', 'statusSettings'].forEach(id => { let el=document.getElementById(id); if(el){ el.className=`status-badge ${state}`; el.querySelector('span').textContent=text; } }); }
+function connectAllNodes() {
+  if(isSimMode) return;
+  nodes.forEach(n => {
+    if(!n.deviceId || n.connected) return;
+    boardReady({ board: 'Smart', device: n.deviceId, transport: 'mqtt', multi: true }, function(board) {
+      n.board = board; n.connected = true; board.samplingInterval = 50; n.ws2812 = getWS2812(board, 12, 16); n.ws2812.brightness(globalBrightness); for(let i=0;i<16;i++) n.ws2812.setColor(i, '#000000');
+      let dot = document.getElementById(`statusDot_${n.index}`); if(dot) dot.style.background = 'var(--sci-green)'; updateGlobalStatus();
+      n.photocell = getPhotocell(board, 0);
+      n.photocell.measure(function(val) {
+        n.valHistory.push(val);
+        if (n.valHistory.length > 100) n.valHistory.shift(); 
+        
+        let avg = n.valHistory.reduce((a, b) => a + b, 0) / n.valHistory.length;
+        n.threshold = avg + globalThresholdOffset;
+
+        let vEl = document.getElementById(`valDisplay_${n.index}`);
+        let bEl = document.getElementById(`barFill_${n.index}`);
+        let tEl = document.getElementById(`thDisplay_${n.index}`);
+        let mEl = document.getElementById(`thMarker_${n.index}`);
+        
+        if(vEl) vEl.textContent = val.toFixed(4); 
+        if(bEl) bEl.style.width = Math.min(val*100, 100) + '%'; 
+        if(tEl) tEl.textContent = `閥值: ${n.threshold.toFixed(4)}`;
+        if(mEl) mEl.style.left = (n.threshold*100) + '%';
+        
+        if(val < n.threshold) { 
+          if(!n.lastTriggered){ n.lastTriggered=true; handleNodeTrigger(n.index, val); } 
+        } else { 
+          n.lastTriggered=false; 
+        }
+      });
+    });
+  });
+}
+
+function testAllLeds() { 
+  let rc = palette[Math.floor(Math.random()*palette.length)]; 
+  nodes.forEach((n, idx) => { 
+    if(n.connected && n.ws2812) { 
+      setTimeout(() => { for(let i=0;i<16;i++) n.ws2812.setColor(i, rc); }, idx * 40);
+      setTimeout(() => { for(let i=0;i<16;i++) n.ws2812.setColor(i, '#000000'); }, 800 + (idx * 40)); 
+    } 
+  }); 
+}
+
+function handleNodeTrigger(idx, val) {
+  if(currentScreen === 'settings') { let c=document.getElementById(`nodeCard_${idx}`); if(c){ c.classList.add('triggered'); setTimeout(()=>c.classList.remove('triggered'),300); } if(nodes[idx].ws2812){ for(let i=0;i<16;i++) nodes[idx].ws2812.setColor(i,palette[0]); setTimeout(()=>{for(let i=0;i<16;i++) nodes[idx].ws2812.setColor(i,'#000000');},300); } }
+  else if (currentScreen === 'game' && game.phase === 'lit') { recordGameHit(val, game.activeNodeIndex === idx, idx); }
+}
+
+/* ─ 遊戲啟動與運作邏輯 ─ */
+function goMode(mode) {
+  game.mode = mode; let cfg = modeConfig[mode];
+  document.getElementById('setupTitle').textContent = cfg.t; document.getElementById('setupDesc').textContent = cfg.desc;
+  let infoFields = document.querySelectorAll('.player-info-col');
+  
+  // 自由模式切換專屬 UI 面板
+  if(mode === 'free') { 
+    infoFields.forEach(el => el.style.display = 'none'); 
+    document.getElementById('setup-standard-area').style.display = 'none';
+    document.getElementById('setup-free-area').style.display = 'block';
+  } else { 
+    infoFields.forEach(el => el.style.display = 'block'); 
+    document.getElementById('labelPlayerName').textContent = cfg.pName; 
+    document.getElementById('p-admin-id').placeholder = cfg.pAdmin; 
+    document.getElementById('setup-standard-area').style.display = 'block';
+    document.getElementById('setup-free-area').style.display = 'none';
+  }
+  populateDropdown(mode); showScreen('setup');
+}
+
+function startGame() {
+  let name = document.getElementById('p-name').value.trim(), adminId = document.getElementById('p-admin-id').value.trim();
+  if(game.mode !== 'free') { if(!name) return alert('請輸入姓名！'); if(!adminId) return alert('請輸入管理員ID！'); }
+  
+  if (game.mode === 'free') {
+    game.currentProtocolId = 'free_custom';
+    game.playerName = '自由玩家';
+    game.adminId = 'FREE';
+    game.totalRounds = parseInt(document.getElementById('fm-rounds').value);
+    game.freeLightMode = document.getElementById('fm-lights').value;
+    game.freeTimeout = parseInt(document.getElementById('fm-timeout').value);
+    game.freeNodeLimit = parseInt(document.getElementById('fm-nodes').value);
+  } else {
+    game.currentProtocolId = document.getElementById('p-game-mode').value;
+    let protoObj = null; Object.values(trainingProtocols).forEach(cat => { cat.modes.forEach(m => { if(m.id === game.currentProtocolId) protoObj = m; }); });
+    game.playerName = name; game.adminId = adminId; game.totalRounds = protoObj ? protoObj.rounds : 10;
+  }
+  
+  game.currentRound = 0; game.reactions = []; game.totalErrors = 0; game.phase = 'idle'; game.lastNodeIndex = -1;
+  document.getElementById('gameModeTag').textContent = modeConfig[game.mode].t; document.getElementById('gameModeTag').style.background = modeConfig[game.mode].tagBg;
+  document.getElementById('roundPips').innerHTML = game.totalRounds <= 15 ? Array.from({length:game.totalRounds}).map((_,i) => `<span class="round-pip" id="pip${i}"></span>`).join('') : '';
+  document.getElementById('roundTotal').textContent = game.totalRounds; document.getElementById('runningAvg').textContent = '—'; document.getElementById('runningBest').textContent = '—';
+  resetGameSignalUI('準備好了嗎？', 'var(--sci-dark)', '●', '— 等待開始 —'); turnOffAllLeds();
+  document.getElementById('gameSignal').style.display = isSimMode ? 'none' : 'flex'; document.getElementById('simulator-panel').style.display = isSimMode ? 'flex' : 'none';
+  showScreen('game'); setTimeout(() => initialCountdown(3), 600);
+}
+function updatePips() { if(game.totalRounds > 15) return; for(let i=0; i<game.totalRounds; i++){ let p=document.getElementById('pip'+i); if(p) p.className='round-pip '+(i<game.currentRound?'done':(i===game.currentRound?'current':'')); } }
+function initialCountdown(n) { if(n>0){ resetGameSignalUI(n+'…', 'var(--muted)', n, '— 準備 —'); game.countdownTimer = setTimeout(()=>initialCountdown(n-1), 900); } else nextRound(); }
+function nextRound() {
+  if(game.currentRound >= game.totalRounds) return endGame();
+  document.getElementById('roundCurrent').textContent = game.currentRound + 1; updatePips();
+  resetGameSignalUI('注意！', 'var(--sci-dark)', '●', '等待目標亮起...'); game.phase = 'waiting';
+  let delay = 800 + Math.random()*1500;
+  if(['ath_rush', 'kid_flash'].includes(game.currentProtocolId)) delay = 400 + Math.random()*600;
+  else if(game.currentProtocolId === 'kid_mole') delay = 500 + Math.random()*1000;
+  game.waitTimer = setTimeout(lightSignal, delay);
+}
+function handleMiss(msg) {
+  if(game.phase !== 'lit') return; game.totalErrors++; game.phase = 'feedback'; turnOffAllLeds();
+  document.getElementById('gameStatusText').textContent = msg||'太慢了！(Miss)'; document.getElementById('gameStatusText').style.color = 'var(--sci-red)';
+  document.getElementById('gameSignal').style.background = 'var(--sci-red)'; document.getElementById('reactionBadge').textContent = '漏擊'; document.getElementById('reactionBadge').style.background = '#fee2e2'; document.getElementById('reactionBadge').style.color = 'var(--sci-red)';
+  game.reactions.push(['ath_rush','kid_flash'].includes(game.currentProtocolId)?1200:2000); game.currentRound++; updatePips();
+  game.feedbackTimer = setTimeout(nextRound, 800);
+}
+function handleNoGoSuccess() {
+  if(game.phase !== 'lit') return; game.phase = 'feedback'; turnOffAllLeds();
+  document.getElementById('gameStatusText').textContent = '定力很好！'; document.getElementById('gameStatusText').style.color = 'var(--sci-green)';
+  document.getElementById('gameSignal').style.background = 'var(--sci-green)'; document.getElementById('reactionBadge').textContent = '成功抑制';
+  game.reactions.push(0); game.currentRound++; updatePips(); game.feedbackTimer = setTimeout(nextRound, 1000);
+}
+function lightSignal() {
+  if(game.phase !== 'waiting') return; game.phase = 'lit'; game.litTime = Date.now(); game.roundPenalty = 0; game.isNoGo = false; if(game.specialTimer) clearTimeout(game.specialTimer);
+  let pId = game.currentProtocolId; 
+  let isMemory = ['eld_memory','kid_match'].includes(pId) || (pId === 'free_custom' && game.freeLightMode === 'memory');
+  game.targetColor = isMemory ? palette[Math.floor(Math.random()*palette.length)] : palette[0];
+  
+  let cNodes = nodes.filter(n => n.connected && n.ws2812);
+  
+  // 自由模式：縮減節點範圍
+  if (pId === 'free_custom' && game.freeNodeLimit < cNodes.length) {
+    cNodes = cNodes.slice(0, game.freeNodeLimit);
+  }
+
+  if(cNodes.length > 0) {
+    let tNode = cNodes[Math.floor(Math.random()*cNodes.length)];
+    if(['eld_cross','ath_shift'].includes(pId) && cNodes.length>1) { while(tNode.index === game.lastNodeIndex) tNode = cNodes[Math.floor(Math.random()*cNodes.length)]; }
+    game.activeNodeIndex = tNode.index; game.lastNodeIndex = tNode.index;
+    if(pId === 'kid_freeze' && Math.random()>0.6) {
+      game.isNoGo = true; for(let i=0;i<16;i++) tNode.ws2812.setColor(i,'#FF0000');
+      document.getElementById('gameTargetNode').textContent = `P${tNode.index+1} (停)`; document.getElementById('gameSignal').style.background = '#FF0000'; document.getElementById('gameStatusText').textContent = '木頭人！'; document.getElementById('gameStatusText').style.color = '#FF0000';
+      game.specialTimer = setTimeout(handleNoGoSuccess, 2000); return;
+    }
+    for(let i=0;i<16;i++) tNode.ws2812.setColor(i, game.targetColor); document.getElementById('gameTargetNode').textContent = `P${tNode.index+1}`;
+    
+    // 干擾色邏輯判定
+    let hasDistractors = ['eld_memory','kid_match','ath_search'].includes(pId) || (['ath_gonogo','kid_treasure','eld_color'].includes(pId) && Math.random()>0.4) || (pId === 'free_custom' && game.freeLightMode === 'distract');
+    if (hasDistractors) {
+      cNodes.forEach(n => { if(n.index !== tNode.index) { let av=palette.filter(c=>c!==game.targetColor); let rc=av[Math.floor(Math.random()*av.length)]; for(let i=0;i<16;i++) n.ws2812.setColor(i,rc); } });
+    }
+
+    // 停留時間判定
+    if(['ath_rush','kid_flash'].includes(pId)) game.specialTimer = setTimeout(()=>handleMiss('極限超時！'), 1000); 
+    else if(pId==='kid_mole') game.specialTimer = setTimeout(()=>handleMiss('地鼠跑了！'), 2000);
+    else if(pId === 'free_custom' && game.freeTimeout > 0) game.specialTimer = setTimeout(()=>handleMiss('超時漏擊！'), game.freeTimeout);
+  } else { 
+    game.activeNodeIndex = -1; document.getElementById('gameTargetNode').textContent = 'UI'; 
+  }
+  
+  let sEl = document.getElementById('gameSignal'); sEl.style.background = game.targetColor; sEl.className = 'game-signal lit'; sEl.style.setProperty('--signal-glow', game.targetColor+'66'); sEl.innerHTML = '';
+  document.getElementById('gameStatusText').textContent = isMemory ? '尋找相同顏色的燈！' : '快打發光的目標！'; document.getElementById('gameStatusText').style.color = game.targetColor; document.getElementById('reactionBadge').textContent = '計時中…';
+  if(game.activeNodeIndex === -1 && !isSimMode) sEl.onclick = function(){ if(game.phase==='lit') recordGameHit(0,true,-1); }; else sEl.onclick = null;
+}
+function recordGameHit(val, isCorrect, nodeIdx) {
+  if(game.phase !== 'lit') return; if(game.specialTimer) clearTimeout(game.specialTimer);
+  if(!isCorrect || game.isNoGo) {
+    game.totalErrors++;
+    if(game.isNoGo) { game.phase='feedback'; turnOffAllLeds(); document.getElementById('gameStatusText').textContent='動到了！(失誤)'; document.getElementById('gameStatusText').style.color='var(--sci-red)'; document.getElementById('gameSignal').style.background='var(--sci-red)'; game.reactions.push(2000); game.currentRound++; updatePips(); game.feedbackTimer = setTimeout(nextRound, 1000); return; }
+    game.roundPenalty += 500;
+    if(nodeIdx >= 0 && nodes[nodeIdx].ws2812) { for(let i=0;i<16;i++) nodes[nodeIdx].ws2812.setColor(i,'#FF0000'); setTimeout(()=>{if(game.phase==='lit') for(let i=0;i<16;i++) nodes[nodeIdx].ws2812.setColor(i,'#000000');}, 200); }
+    document.getElementById('gameStatusText').textContent='按錯了！+500ms'; document.getElementById('gameStatusText').style.color='var(--sci-red)'; document.getElementById('gameSignal').style.background='var(--sci-red)';
+    setTimeout(()=>{ if(game.phase==='lit'){ document.getElementById('gameStatusText').textContent='繼續找主目標！'; document.getElementById('gameStatusText').style.color=game.targetColor; document.getElementById('gameSignal').style.background=game.targetColor; } }, 600);
+    if(['ath_rush','kid_flash'].includes(game.currentProtocolId)) game.specialTimer=setTimeout(()=>handleMiss('極限超時！'), 1000);
+    return;
+  }
+  let rMs = Date.now() - game.litTime + game.roundPenalty; game.phase = 'feedback'; game.reactions.push(rMs); game.currentRound++; turnOffAllLeds();
+  let b = document.getElementById('reactionBadge'); b.textContent = rMs+' ms'; b.style.background = rMs<250?'#dcfce7':rMs<400?'#fef9c3':'#fee2e2'; b.style.color = rMs<250?'var(--sci-green)':rMs<400?'#854d0e':'var(--sci-red)';
+  let st = document.getElementById('gameStatusText'); st.textContent = rMs<200?'極快！':rMs<300?'很好！':rMs<500?'不錯！':'再快一點！'; st.style.color = 'var(--sci-dark)';
+  let valRs = game.reactions.filter(m=>m>0); let avg = valRs.length?Math.round(valRs.reduce((a,b)=>a+b,0)/valRs.length):0;
+  document.getElementById('runningAvg').textContent = avg+'ms'; document.getElementById('runningBest').textContent = valRs.length?Math.min(...valRs)+'ms':'—';
+  updatePips(); resetGameSignalUI(st.textContent, st.style.color, '●', b.textContent, false);
+  game.feedbackTimer = setTimeout(nextRound, ['ath_rush','kid_flash','kid_mole'].includes(game.currentProtocolId)?400:800);
+}
+function resetGameSignalUI(sTxt, sCol, emo, bTxt, rBg=true) { let s=document.getElementById('gameSignal'); s.style.background='var(--border)'; s.className='game-signal'; s.innerHTML=`<span style="font-size:52px;color:var(--muted);">${emo}</span>`; document.getElementById('gameStatusText').textContent=sTxt; document.getElementById('gameStatusText').style.color=sCol; let b=document.getElementById('reactionBadge'); b.textContent=bTxt; if(rBg){b.style.background='var(--surf2)'; b.style.color='var(--muted)';} }
+
+function turnOffAllLeds() { 
+  nodes.forEach((n, idx) => {
+    if(n.connected && n.ws2812) {
+      setTimeout(() => { for(let i=0; i<16; i++) n.ws2812.setColor(i, '#000000'); }, idx * 40); 
+    }
+  }); 
+}
+
+function abortGame() { clearTimeout(game.waitTimer); clearTimeout(game.countdownTimer); clearTimeout(game.specialTimer); clearTimeout(game.feedbackTimer); turnOffAllLeds(); game.phase='idle'; showScreen('main-menu'); }
+
+/* ─ 動態圖表繪製共用函式 ─ */
+function renderChart(canvasId, dataRecords) {
+  let ctx = document.getElementById(canvasId).getContext('2d');
+  if (window[canvasId + 'Instance']) window[canvasId + 'Instance'].destroy();
+  
+  let labels = dataRecords.map((_, i) => `第 ${i+1} 次`);
+  let dataAvg = dataRecords.map(r => r.score);
+  let dataBest = dataRecords.map(r => r.best);
+
+  window[canvasId + 'Instance'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: '平均反應 (ms)', data: dataAvg, borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', borderWidth: 3, tension: 0.3, fill: true, pointRadius: 4, pointBackgroundColor: '#fff' },
+        { label: '最快極限 (ms)', data: dataBest, borderColor: '#10b981', borderWidth: 2, borderDash: [5, 5], tension: 0.3, fill: false, pointRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { font: { family: "'Segoe UI', sans-serif", weight: 'bold' } } }, tooltip: { mode: 'index', intersect: false } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: false, title: { display: true, text: '反應時間 (ms)' } } },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false }
+    }
+  });
+}
+
+/* ─ 結果處理與 AI 分析 ─ */
+async function generateExpertReport(protocolId, avg, best, worst, errors, totalRounds, fatigue, isAthlete) {
+  let insights = []; let adviceBox = document.getElementById('reportAdvice');
+  if (avg === 0) { insights.push('<li><strong>⚠️ 數據不足：</strong>有效次數過少。</li>'); } else {
+    insights.push(`<li><strong>⚡ 神經傳導狀態：</strong>${avg<=250?'極度優異':avg<=400?'標準良好':'待加強活化'} (${avg}ms)</li>`);
+    let stab = worst-best; insights.push(`<li><strong>🎯 專注穩定度：</strong>${stab<=120?'極高':stab>=300?'低 (波動大)':'中等'} (落差 ${stab}ms)</li>`);
+    if(errors>0) insights.push(`<li><strong>🚨 決策失誤：</strong>${errors}次。建議放慢節奏強化正確率。</li>`);
+    
+    // 🌟 新增疲勞指數反饋
+    if(isAthlete && typeof fatigue !== 'undefined') {
+       insights.push(`<li><strong>📉 體能疲勞指數：</strong>${fatigue > 0 ? '<span class="text-danger">+' + fatigue + 'ms (中後段出現疲勞衰退)</span>' : '<span class="text-success">' + fatigue + 'ms (體能維持良好)</span>'}</li>`);
+    }
+  }
+  document.getElementById('reportInsights').innerHTML = insights.join('');
+  adviceBox.innerHTML = `<div class="d-flex align-items-center gap-2" style="color:var(--sci-purple);"><div class="spinner-border spinner-border-sm"></div> AI 正在深度分析中...</div>`;
+  if(avg > 0) {
+    try {
+      let mName = protocolId === 'free_custom' ? '自訂自由參數' : "未知"; 
+      if(protocolId !== 'free_custom') { Object.values(trainingProtocols).forEach(c=>c.modes.forEach(m=>{if(m.id===protocolId) mName=m.name;})); }
+      let query = `這是一筆 ReflexKit 紀錄：\n項目：「${mName}」\n總回合：${totalRounds}\n平均：${avg}ms\n最快：${best}ms\n失誤：${errors}\n${isAthlete ? '疲勞指數：' + fatigue + 'ms (正值代表後段出現疲勞衰退)\n' : ''}請給出專家分析。`;
+      const res = await fetch(GAS_AI_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "chat", query: query }) });
+      if(!res.ok) throw new Error("HTTP 錯誤");
+      const data = await res.json();
+      if(data.status==="ok" && data.data && data.data.answer) adviceBox.innerHTML = data.data.answer.replace(/\n/g, '<br>');
+      else throw new Error(data.message || "未知錯誤");
+    } catch (e) { adviceBox.innerHTML = `<span class="text-danger fw-bold">⚠️ AI 報告生成失敗：<br>${e.message}</span>`; }
+  } else { adviceBox.innerHTML = "有效打擊次數不足。"; }
+}
+
+function endGame() {
+  game.phase = 'done'; turnOffAllLeds();
+  if(!game.reactions.length){ showScreen('main-menu'); return; }
+
+  let valRs = game.reactions.filter(m => m > 0); 
+  let avg = valRs.length ? Math.round(valRs.reduce((a,b)=>a+b,0)/valRs.length) : 0;
+  let best = valRs.length ? Math.min(...valRs) : 0; let worst = valRs.length ? Math.max(...valRs) : 0;
+  
+  // 🌟 計算疲勞指數 (Fatigue Index) - 僅供選手模式
+  let fatigue = 0;
+  let isAthlete = game.mode === 'athlete';
+  if (isAthlete && valRs.length >= 6) {
+      let half = Math.floor(valRs.length / 2);
+      let avg1 = valRs.slice(0, half).reduce((a,b) => a+b, 0) / half;
+      let avg2 = valRs.slice(-half).reduce((a,b) => a+b, 0) / half;
+      fatigue = Math.round(avg2 - avg1); // 後半段平均減去前半段平均
+  }
+
+  let selEl = document.getElementById('p-game-mode'); 
+  let mText = game.mode === 'free' ? '自訂自由訓練' : selEl.options[selEl.selectedIndex].text.split(' (')[0]; 
+  
+  let newRec = { adminId:game.adminId, name:game.playerName, mode:game.mode, detailMode:mText, score:avg, best:best, errors:game.totalErrors, time: getNowStr() };
+  let localRecs = JSON.parse(localStorage.getItem('TEST_RECORDS')||'[]');
+  localRecs.push(newRec); localStorage.setItem('TEST_RECORDS', JSON.stringify(localRecs));
+
+  if (game.mode !== 'free') fetch(GAS_AI_URL, { method: 'POST', headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "saveRecord", data: newRec }) }).catch(e=>console.error('儲存失敗',e));
+
+  document.getElementById('resultAvgMs').textContent = avg; document.getElementById('resultBest').textContent = best>0?best+'ms':'—'; document.getElementById('resultWorst').textContent = worst>0?worst+'ms':'—'; document.getElementById('resultErrors').textContent = game.totalErrors;
+  let rHtml = avg<250?'<span class="rank-badge" style="background:#fef9c3;color:#854d0e;">⚡ 閃電等級！</span>' : avg<350?'<span class="rank-badge" style="background:#dcfce7;color:#166534;">🥇 優秀</span>' : avg<500?'<span class="rank-badge" style="background:#eff6ff;color:#1e40af;">👍 良好</span>' : '<span class="rank-badge" style="background:var(--surf2);color:var(--muted);">💪 繼續練習</span>';
+  document.getElementById('resultRankBadge').innerHTML = rHtml;
+  
+  // 📈 即時繪製歷史趨勢圖 (過濾該選手同菜單的紀錄)
+  let pHistory = localRecs.filter(r => r.name === game.playerName && r.detailMode === mText);
+  let chartBox = document.getElementById('trendChartContainer');
+  if (pHistory.length >= 2) {
+    chartBox.style.display = 'block';
+    setTimeout(() => renderChart('trendChart', pHistory), 300); // 延遲繪製以確保 Canvas 尺寸正確
+  } else {
+    chartBox.style.display = 'none';
+  }
+
+  generateExpertReport(game.currentProtocolId, avg, best, worst, game.totalErrors, game.totalRounds, fatigue, isAthlete);
+  document.getElementById('resultRoundList').innerHTML = game.reactions.map((ms,i)=>ms===0?`<div class="d-flex justify-content-between p-2 mb-1 rounded bg-success bg-opacity-10 text-success fw-bold" style="font-size:13px;"><span>第 ${i+1} 次</span><span>成功抑制</span></div>`:`<div class="d-flex justify-content-between p-2 mb-1 rounded bg-light" style="font-size:13px;"><span class="text-muted">第 ${i+1} 次</span><span class="fw-bold ${ms<250?'text-success':ms<400?'text-warning':'text-danger'}">${ms>=1000&&['ath_rush','kid_flash'].includes(game.currentProtocolId)?'超時':ms+' ms'}</span></div>`).join('');
+  showScreen('results');
+}
+
+/* ─ 戰績後台 全新階層式邏輯 ─ */
+function switchAuthTab(tab) {
+  document.getElementById('login-box').style.display = tab==='login'?'block':'none'; document.getElementById('reg-box').style.display = tab==='reg'?'block':'none';
+  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login'); document.getElementById('tabRegBtn').classList.toggle('active', tab==='reg');
+}
+async function realRegister() {
+  let acc = document.getElementById('r-acc').value.trim(), pw = document.getElementById('r-pw').value, btn = document.querySelector('#reg-box button');
+  if (!acc || !pw) return alert('請完整填寫！');
+  let oTxt = btn.textContent; btn.textContent = "雲端註冊中..."; btn.disabled = true;
+  try {
+    let res = await fetch(GAS_AI_URL, { method: 'POST', headers:{"Content-Type":"text/plain"}, body: JSON.stringify({ action: 'register', adminId: acc, password: pw }) });
+    let data = await res.json(); if(data.status==='ok'){ alert('✅ 註冊成功！請登入'); switchAuthTab('login'); } else alert(data.message);
+  } catch(e) { alert("連線錯誤"); } finally { btn.textContent = oTxt; btn.disabled = false; }
+}
+async function realLogin() {
+  let acc = document.getElementById('l-acc').value.trim(), pw = document.getElementById('l-pw').value, btn = document.querySelector('#login-box button');
+  if (!acc || !pw) return alert('請完整填寫！');
+  let oTxt = btn.textContent; btn.textContent = "登入驗證中..."; btn.disabled = true;
+  try {
+    let res = await fetch(GAS_AI_URL, { method: 'POST', headers:{"Content-Type":"text/plain"}, body: JSON.stringify({ action: 'login', adminId: acc, password: pw }) });
+    let data = await res.json();
+    if(data.status === 'ok') {
+      document.getElementById('backendAdminLabel').textContent = '👤 ' + acc;
+      showScreen('backend'); loadBackendData(acc);
+    } else alert(data.message);
+  } catch(e) { alert("連線錯誤"); } finally { btn.textContent = oTxt; btn.disabled = false; }
+}
+
+async function loadBackendData(adminId) {
+  let box = document.getElementById('backendContentArea');
+  box.innerHTML = '<div class="text-center text-muted py-5"><div class="spinner-border text-primary mb-3" role="status"></div><br>正在從雲端載入戰績資料...</div>';
+  try {
+    let res = await fetch(GAS_AI_URL, { method: 'POST', headers:{"Content-Type":"text/plain"}, body: JSON.stringify({ action: 'getRecords', adminId: adminId }) });
+    let json = await res.json();
+    if (json.status !== 'ok') throw new Error(json.message);
+    
+    globalBackendRecords = json.data.map(r => {
+      let dMode = r.detailMode;
+      if (!dMode || dMode === 'undefined' || !isNaN(dMode)) {
+         dMode = modeConfig[r.mode] ? modeConfig[r.mode].t.split(' ')[1] : (r.mode || '綜合訓練');
+      }
+      return {
+        ...r,
+        name: String(r.name || '未知學員').trim(),
+        detailMode: String(dMode).trim(),
+        time: String(r.time || '未記錄時間')
+      };
+    });
+    
+    renderBackendStudents(); 
+  } catch(e) { box.innerHTML = `<div class="text-center text-danger py-5">⚠️ 無法取得雲端戰績：${e.message}</div>`; }
+}
+
+function goBackendBack() {
+  if (backendCurrentView === 'history') renderBackendModes();
+  else if (backendCurrentView === 'modes') renderBackendStudents();
+}
+
+function renderBackendStudents() {
+  backendCurrentView = 'students';
+  document.getElementById('backendBreadcrumb').innerHTML = `學員列表 (共 ${globalBackendRecords.length} 筆總紀錄)`;
+  document.getElementById('btnBackBackend').style.display = 'none';
+  let box = document.getElementById('backendContentArea');
+  
+  if (globalBackendRecords.length === 0) {
+    box.innerHTML = '<div class="text-center text-muted py-5">您的帳號目前沒有任何學員紀錄。</div>'; return;
+  }
+
+  let students = {};
+  globalBackendRecords.forEach(r => {
+    if (!students[r.name]) students[r.name] = { count: 0, lastTime: r.time };
+    students[r.name].count++;
+    students[r.name].lastTime = r.time; 
+  });
+
+  let html = `<div class="row g-4 mt-2">`;
+  for (let name in students) {
+    let safeName = name.replace(/'/g, "\\'");
+    // 解決舊版逗號或時間格式不一致導致切不開的問題
+    let displayTime = students[name].lastTime.split(' ')[0].replace(/,/g, ''); 
+    html += `
+      <div class="col-md-4 col-sm-6">
+        <div class="b-card" onclick="viewStudent('${safeName}')">
+          <div class="b-avatar">👤</div>
+          <div class="b-title">${name}</div>
+          <div class="b-stat">累計訓練：<span class="text-primary fw-bold">${students[name].count}</span> 局</div>
+          <div class="text-muted mt-2" style="font-size:11px;">最後訓練：${displayTime}</div>
+        </div>
+      </div>`;
+  }
+  html += `</div>`;
+  box.innerHTML = html;
+}
+window.viewStudent = function(name) { backendCurrentStudent = name; renderBackendModes(); };
+
+function renderBackendModes() {
+  backendCurrentView = 'modes';
+  document.getElementById('backendBreadcrumb').innerHTML = `學員列表 / <span class="text-primary">${backendCurrentStudent}</span> 的訓練菜單`;
+  document.getElementById('btnBackBackend').style.display = 'inline-flex';
+  
+  let pRecords = globalBackendRecords.filter(r => r.name === backendCurrentStudent);
+  let modes = {};
+  pRecords.forEach(r => {
+    if (!modes[r.detailMode]) modes[r.detailMode] = { count: 0, best: Infinity };
+    modes[r.detailMode].count++;
+    if (r.best > 0 && r.best < modes[r.detailMode].best) modes[r.detailMode].best = r.best;
+  });
+
+  let html = `<div class="row g-4 mt-2">`;
+  for (let mName in modes) {
+    let bst = modes[mName].best === Infinity ? '—' : modes[mName].best;
+    let safeMName = mName.replace(/'/g, "\\'");
+    html += `
+      <div class="col-md-4 col-sm-6">
+        <div class="b-card" onclick="viewMode('${safeMName}')">
+          <div class="b-icon">📊</div>
+          <div class="b-title">${mName}</div>
+          <div class="b-stat">訓練局數：<span class="text-primary fw-bold">${modes[mName].count}</span></div>
+          <div class="b-stat">歷史極限：<span class="text-success fw-bold">${bst} ms</span></div>
+        </div>
+      </div>`;
+  }
+  html += `</div>`;
+  
+  if (Object.keys(modes).length === 0) {
+     html = '<div class="text-center text-muted py-5">查無此學員的菜單資料。</div>';
+  }
+  
+  document.getElementById('backendContentArea').innerHTML = html;
+}
+window.viewMode = function(modeName) { backendCurrentMode = modeName; renderBackendHistory(); };
+
+function renderBackendHistory() {
+  backendCurrentView = 'history';
+  document.getElementById('backendBreadcrumb').innerHTML = `學員列表 / ${backendCurrentStudent} / <span class="text-primary">${backendCurrentMode}</span> 訓練分析`;
+  document.getElementById('btnBackBackend').style.display = 'inline-flex';
+  
+  let targetRecords = globalBackendRecords.filter(r => r.name === backendCurrentStudent && r.detailMode === backendCurrentMode);
+  
+  let html = `
+    <div class="expert-report-card mt-4 mb-4 text-start">
+      <div class="expert-report-header" style="border-bottom:none; margin-bottom:0; padding-bottom:12px;">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-graph-up-arrow text-primary me-2"></i>歷次反應力成長趨勢 (共 ${targetRecords.length} 次)</h5>
+      </div>
+      <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="backendHistoryChart"></canvas>
+      </div>
+    </div>
+    
+    <h6 class="fw-bold text-muted mb-3"><i class="bi bi-list-ul me-2"></i>原始數據明細</h6>
+    <div class="table-responsive bg-white rounded-3 border">
+      <table class="table table-hover align-middle mb-0 text-center">
+        <thead class="table-light"><tr><th>局數</th><th>訓練時間</th><th>平均 (ms)</th><th>最佳 (ms)</th><th>失誤</th></tr></thead>
+        <tbody>`;
+  
+  targetRecords.forEach((r, idx) => {
+    html += `<tr>
+      <td class="text-muted fw-bold">#${idx+1}</td>
+      <td style="font-size:13px;">${r.time}</td>
+      <td class="text-primary fw-bold">${r.score}</td>
+      <td class="text-success">${r.best||'—'}</td>
+      <td class="${r.errors>0?'text-danger fw-bold':''}">${r.errors}</td>
+    </tr>`;
+  });
+  
+  html += `</tbody></table></div>`;
+  document.getElementById('backendContentArea').innerHTML = html;
+  
+  setTimeout(() => renderChart('backendHistoryChart', targetRecords), 100);
+}
+
+/* ─ 初始化啟動 ─ */
+window.onload = function() { initSimulator(); renderPaletteUI(); renderNodeGrid(); setTimeout(connectAllNodes, 500); };
+</script>
+</body>
+</html>
