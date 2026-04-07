@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 音樂 MV 製作教學</title>
+  <title>AI 音樂 MV 製作</title>
   <style>
     /* ── BASE & RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,6 +35,10 @@
       overflow-x: hidden;
       scroll-behavior: smooth;
     }
+
+    /* ── LANGUAGE TOGGLE CSS ── */
+    body:not(.en-mode) .lang-en { display: none; }
+    body.en-mode .lang-zh { display: none; }
 
     /* ── IMMERSIVE BACKGROUND & CURSOR GLOW ── */
     #cursor-glow {
@@ -96,6 +100,34 @@
       font-weight: 500;
     }
 
+    /* ── LANGUAGE BUTTON ── */
+    .lang-toggle-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text-main);
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lang-toggle-btn:hover {
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+      color: var(--c1);
+    }
+
     /* ── FLOW STRIP (RESPONSIVE GRID) ── */
     .flow-strip {
       display: grid;
@@ -135,7 +167,6 @@
     .flow-card.s3.active { border-color: var(--c3); }
     .flow-card.s4.active { border-color: var(--c4); }
     
-    /* Image Logos Wrapper & Animation */
     .flow-icon-wrap {
       position: relative;
       width: 76px; height: 76px;
@@ -456,8 +487,18 @@
 </div>
 
 <header>
-  <h1>AI 音樂 MV 製作大師課</h1>
-  <p class="subtitle">從歌詞概念到高質感 MV </p>
+  <button id="lang-btn" class="lang-toggle-btn" onclick="toggleLang()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+    <span id="lang-text">EN</span>
+  </button>
+  
+  <h1 class="lang-zh">AI 音樂 MV 製作</h1>
+  <h1 class="lang-en">AI Music MV Production</h1>
+  
+  <p class="subtitle">
+    <span class="lang-zh">從歌詞概念到高質感 MV</span>
+    <span class="lang-en">From Lyric Concepts to High-Quality MVs</span>
+  </p>
 </header>
 
 <div class="flow-strip">  
@@ -474,7 +515,8 @@
     <div class="flow-meta">
       <div class="flow-step">Step 1</div>
       <div class="flow-tool">ChatGPT</div>
-      <div class="flow-desc">專業分鏡腳本企劃</div>
+      <div class="flow-desc lang-zh">專業分鏡腳本企劃</div>
+      <div class="flow-desc lang-en">Storyboard Planning</div>
     </div>
   </div>
 
@@ -493,7 +535,8 @@
     <div class="flow-meta">
       <div class="flow-step">Step 2</div>
       <div class="flow-tool">Gemini</div>
-      <div class="flow-desc">電影級分鏡圖生成</div>
+      <div class="flow-desc lang-zh">電影級分鏡圖生成</div>
+      <div class="flow-desc lang-en">Cinematic Image Gen</div>
     </div>
   </div>
 
@@ -512,7 +555,8 @@
     <div class="flow-meta">
       <div class="flow-step">Step 3</div>
       <div class="flow-tool">Google Flow/Meta AI</div>
-      <div class="flow-desc">高保真動態影片運算</div>
+      <div class="flow-desc lang-zh">高保真動態影片運算</div>
+      <div class="flow-desc lang-en">Motion Generation</div>
     </div>
   </div>
 
@@ -532,7 +576,8 @@
     <div class="flow-meta">
       <div class="flow-step">Step 4</div>
       <div class="flow-tool">Canva</div>
-      <div class="flow-desc">節拍同步專業剪輯</div>
+      <div class="flow-desc lang-zh">影音編輯</div>
+      <div class="flow-desc lang-en">Video editing</div>
     </div>
   </div>
 </div>
@@ -552,31 +597,34 @@
       </svg>
     </div>
     <div class="prereq-content">
-      <div class="prereq-title">製片前置作業 (Pre-production Checklist)</div>
+      <div class="prereq-title">
+        <span class="lang-zh">製片前置作業 (Pre-production Checklist)</span>
+        <span class="lang-en">Pre-production Checklist</span>
+      </div>
       <ul class="prereq-list">
         <li>
           <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><animateTransform attributeName="transform" type="scale" values="1; 1.1; 1" dur="2s" repeatCount="indefinite"/></svg>
-          Suno / Udio 生成的音樂檔
+          <span class="lang-zh">Suno / Udio 生成的音樂檔</span><span class="lang-en">Suno / Udio Music Files</span>
         </li>
         <li>
           <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/><animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" stroke-dasharray="100"/></svg>
-          完整歌詞文本與段落
+          <span class="lang-zh">完整歌詞文本與段落</span><span class="lang-en">Complete Lyrics & Structure</span>
         </li>
         <li>
           <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><animateTransform attributeName="transform" type="translate" values="0,0; 0,2; 0,0" dur="4s" repeatCount="indefinite"/></svg>
-          ChatGPT 帳號
+          <span class="lang-zh">ChatGPT 帳號</span><span class="lang-en">ChatGPT Account</span>
         </li>
         <li>
           <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="15 12 12" dur="2s" repeatCount="indefinite" direction="alternate"/></svg>
-          Google Gemini 帳號
+          <span class="lang-zh">Google Gemini 帳號</span><span class="lang-en">Google Gemini Account</span>
         </li>
         <li>
           <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/><animate attributeName="opacity" values="1; 0.4; 1" dur="1.5s" repeatCount="indefinite"/></svg>
-          Google Flow/Meta AI 權限
+          <span class="lang-zh">Google Flow/Meta AI 權限</span><span class="lang-en">Google Flow/Meta AI Access</span>
         </li>
         <li>
           <svg class="anim-icon" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/><animate attributeName="stroke-dasharray" values="0,20; 20,0; 0,20" dur="4s" repeatCount="indefinite"/></svg>
-          Canva 免費帳號
+          <span class="lang-zh">Canva 免費帳號</span><span class="lang-en">Canva Free Account</span>
         </li>
       </ul>
     </div>
@@ -589,10 +637,11 @@
       <div class="step-head">
         <div class="step-num">1</div>
         <div class="step-titles">
-          <h2>導演級企劃：ChatGPT 分鏡腳本生成</h2>
+          <h2 class="lang-zh">導演級企劃：ChatGPT 分鏡腳本生成</h2>
+          <h2 class="lang-en">Director's Plan: ChatGPT Storyboard Script</h2>
           <small>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
-            工具：ChatGPT (GPT-4o)
+            <span class="lang-zh">工具：ChatGPT (GPT-4o)</span><span class="lang-en">Tool: ChatGPT (GPT-4o)</span>
           </small>
         </div>
         <div class="step-tag">Director's Script</div>
@@ -600,23 +649,37 @@
       <div class="step-body">
         <div class="io-row">
           <div class="io-box">
-            <div class="io-label">📥 Input 你的輸入</div>
-            <div class="io-value">歌曲曲風設定 + 完整歌詞</div>
+            <div class="io-label">
+              <span class="lang-zh">📥 Input 你的輸入</span><span class="lang-en">📥 Input</span>
+            </div>
+            <div class="io-value">
+              <span class="lang-zh">歌曲曲風設定 + 完整歌詞</span><span class="lang-en">Song Style + Full Lyrics</span>
+            </div>
           </div>
           <div class="io-box">
-            <div class="io-label">📤 Output 你將得到</div>
-            <div class="io-value">具備「角色設定基準提示詞、鏡位、光影」的分鏡表</div>
+            <div class="io-label">
+              <span class="lang-zh">📤 Output 你將得到</span><span class="lang-en">📤 Output</span>
+            </div>
+            <div class="io-value">
+              <span class="lang-zh">具備「角色設定基準提示詞、鏡位、光影」的分鏡表</span><span class="lang-en">Storyboard with Character Prompts, Angles & Lighting</span>
+            </div>
           </div>
         </div>
 
-        <div class="section-label">📋 ChatGPT 專業導演提詞模板 (Prompt)</div>
+        <div class="section-label">
+          <span class="lang-zh">📋 ChatGPT 專業導演提詞模板 (Prompt)</span>
+          <span class="lang-en">📋 Expert Director Prompt Template</span>
+        </div>
+        
         <div class="prompt-wrap">
           <div class="prompt-bar">
             <div class="mac-dots"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
             <span class="prompt-bar-name">director_script_prompt.txt</span>
-            <button class="copy-btn" data-target="p1">複製提詞</button>
+            <button class="copy-btn" data-target="p1">
+              <span class="lang-zh">複製提詞</span><span class="lang-en">Copy</span>
+            </button>
           </div>
-          <div class="prompt-text" id="p1">你現在是一位榮獲多項大獎的專業 MV 導演。我需要你根據以下歌詞，為我規劃一個充滿電影感且視覺張力極強的 MV 分鏡腳本。
+          <div class="prompt-text lang-zh" id="p1_zh">你現在是一位榮獲多項大獎的專業 MV 導演。我需要你根據以下歌詞，為我規劃一個充滿電影感且視覺張力極強的 MV 分鏡腳本。
 
 歌曲名稱：<span class="highlight">【在此填入歌名】</span>
 曲風與情緒：<span class="highlight">【例如：賽博龐克電子樂 / 憂鬱抒情 / 史詩搖滾】</span>
@@ -638,23 +701,53 @@
 
 第三步：【全局視覺一致性建議】
 請列出固定的風格詞彙（如畫質、比例 --ar 16:9、整體色調），讓我能加在每個圖片提示詞的結尾。</div>
+
+          <div class="prompt-text lang-en" id="p1_en">You are an award-winning MV director. I need you to create a highly cinematic and visually striking MV storyboard based on the following lyrics.
+
+Song Title: <span class="highlight">[Enter Title]</span>
+Style/Vibe: <span class="highlight">[e.g., Cyberpunk / Melancholy / Epic Rock]</span>
+Lyrics: <span class="highlight">[Paste full lyrics]</span>
+
+Please follow these steps for the storyboard:
+
+Step 1: [Character Design]
+Design the main characters for the MV. For each character, provide:
+1. A highly detailed physical description in pure English (gender, age, hairstyle, clothing, accessories, etc.). This will act as the prefix for all future shot prompts.
+2. A [Character Sheet Prompt] for AI image generation. Must include: the detailed appearance, "multiple angles, character design sheet", and "solid white background, flat lighting" to serve as an AI reference baseline.
+
+Step 2: [Storyboard Planning]
+Break down the song by sections (Intro, Verse, Chorus, etc.). A 3-minute song needs about 12-15 shots. Each shot must include:
+1. [Visual & Mood]: Describe the scene details, actions, and emotions conveyed.
+2. [Camera Motion]: Specify movement (e.g., Dolly in, Pan right, Handheld).
+3. [Lighting]: Specify atmosphere (e.g., Cinematic lighting, Neon glow).
+4. [AI Image Prompt]: Write a detailed pure English prompt (60-80 words) including environment, lighting, and depth. **You MUST put the physical description from Step 1 at the very beginning of this prompt.**
+
+Step 3: [Global Style Modifiers]
+List consistent style keywords (e.g., 8k resolution, cinematic color grading, --ar 16:9) that I should append to the end of every image prompt to ensure a unified visual aesthetic.</div>
         </div>
 
         <div class="dict-box">
           <div class="dict-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            名詞翻譯蒟蒻 (常用咒語對照表)
+            <span class="lang-zh">名詞翻譯蒟蒻 (常用咒語對照表)</span>
+            <span class="lang-en">Jargon Dictionary (Common Prompts)</span>
           </div>
-          <ul class="dict-list">
+          <ul class="dict-list lang-zh">
             <li><code>Dolly in</code> = 鏡頭緩緩推進（適合：主角深情唱歌、情緒逐漸強烈時）</li>
             <li><code>Pan right</code> = 鏡頭向右橫移（適合：展示廣大的風景或環境時）</li>
             <li><code>Neon glow</code> = 霓虹光暈（適合：酷炫的賽博龐克風格、科技感畫面）</li>
             <li><code>Cinematic lighting</code> = 電影級光影（萬用神句，能讓畫面立刻擁有立體感與電影氛圍）</li>
           </ul>
+          <ul class="dict-list lang-en">
+            <li><code>Dolly in</code> = Slow push-in (Great for intense, emotional moments)</li>
+            <li><code>Pan right</code> = Horizontal sweep (Perfect for revealing landscapes or wide sets)</li>
+            <li><code>Neon glow</code> = Neon lighting (Ideal for Cyberpunk / Sci-Fi aesthetics)</li>
+            <li><code>Cinematic lighting</code> = Movie-like lighting (Universal tag for depth and drama)</li>
+          </ul>
         </div>
 
         <div class="output-prev">
-          <div class="output-prev-body">
+          <div class="output-prev-body lang-zh">
             <strong>🎵 第一步：主要角色設定</strong><br>
             【男主角：Leo】<br>
             ● 外貌特徵：A 20-year-old Asian young man, messy black hair, wearing a loose black hoodie and silver necklace...<br>
@@ -664,11 +757,26 @@
             ● 畫面描述：Leo 站在霓虹閃爍的雨中街道，抬頭看著天空。<br>
             ● AI 繪圖提示詞：(中文) Leo 站在霓虹閃爍的雨中街道，抬頭望向天空。(英文) A 20-year-old Asian young man, messy black hair, wearing a loose black hoodie... standing in a neon-lit cyberpunk street in the rain, looking up at the sky, cinematic lighting, neon reflections...
           </div>
+          <div class="output-prev-body lang-en">
+            <strong>🎵 Step 1: Character Design</strong><br>
+            [Male Lead: Leo]<br>
+            ● Appearance: A 20-year-old Asian young man, messy black hair, wearing a loose black hoodie and silver necklace...<br>
+            ● Character Sheet Prompt: Character design sheet of a 20-year-old Asian young man... multiple angles, front view, side view, solid white background, flat lighting, clear facial features.<br><br>
+            <strong>🎵 Step 2: Storyboard (Chorus 1:12 - 1:35)</strong><br>
+            [Shot 4]<br>
+            ● Visuals: Leo stands in a neon-lit street in the rain, looking up at the sky.<br>
+            ● AI Image Prompt: A 20-year-old Asian young man, messy black hair, wearing a loose black hoodie... standing in a neon-lit cyberpunk street in the rain, looking up at the sky, cinematic lighting, neon reflections...
+          </div>
         </div>
 
         <div class="nav-buttons">
-          <button class="nav-btn" disabled>上一步</button>
-          <button class="nav-btn primary" onclick="switchTab(2)">下一步：Gemini 生圖 ➔</button>
+          <button class="nav-btn" disabled>
+            <span class="lang-zh">上一步</span><span class="lang-en">Previous</span>
+          </button>
+          <button class="nav-btn primary" onclick="switchTab(2)">
+            <span class="lang-zh">下一步：Gemini 生圖 ➔</span>
+            <span class="lang-en">Next: Gemini Image Gen ➔</span>
+          </button>
         </div>
       </div>
     </div>
@@ -679,10 +787,11 @@
       <div class="step-head">
         <div class="step-num">2</div>
         <div class="step-titles">
-          <h2>視覺具象化：Gemini 生圖</h2>
+          <h2 class="lang-zh">視覺具象化：Gemini 生圖</h2>
+          <h2 class="lang-en">Visualizing: Gemini Image Generation</h2>
           <small>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            工具：Google Gemini
+            <span class="lang-zh">工具：Google Gemini</span><span class="lang-en">Tool: Google Gemini</span>
           </small>
         </div>
         <div class="step-tag">Visual Generation</div>
@@ -691,23 +800,40 @@
         <div class="io-row">
           <div class="io-box">
             <div class="io-label">📥 Input</div>
-            <div class="io-value">「角色設定圖提示詞」+「分鏡提示詞」+「風格詞」</div>
+            <div class="io-value">
+              <span class="lang-zh">「角色設定圖提示詞」+「分鏡提示詞」+「風格詞」</span>
+              <span class="lang-en">"Character Prompt" + "Shot Prompt" + "Style Modifiers"</span>
+            </div>
           </div>
           <div class="io-box">
             <div class="io-label">📤 Output</div>
-            <div class="io-value">角色基準圖 + 人物特徵高度一致的分鏡靜態圖</div>
+            <div class="io-value">
+              <span class="lang-zh">角色基準圖 + 人物特徵高度一致的分鏡靜態圖</span>
+              <span class="lang-en">Character Sheet + Highly Consistent Scene Images</span>
+            </div>
           </div>
         </div>
 
-        <div class="tip-box">
+        <div class="tip-box lang-zh">
           <strong>⚠️ 新手必看與急救包：</strong><br>
           主角外貌請保持<strong>「極度簡單且具記憶點」</strong>！例如「穿著黃色雨衣的短髮女孩」會比「穿著複雜蕾絲裙的精靈」好做 100 倍。AI 最擅長記住特定的顏色與配件。<br><br>
           <em>Q: Gemini 畫出來的人物一直變臉怎麼辦？</em><br>
           👉 A: 試著給主角加上「紅色棒球帽」或「顯眼的黑框眼鏡」，有了鮮明特徵，AI 比較不容易忘記你是誰！
         </div>
+        
+        <div class="tip-box lang-en">
+          <strong>⚠️ Beginner Tips & Troubleshooting:</strong><br>
+          Keep character appearance <strong>"extremely simple and memorable"</strong>! E.g., a "short-haired girl in a yellow raincoat" is 100x easier for AI than an "elf with a complex lace dress". AI excels at remembering distinct colors and props.<br><br>
+          <em>Q: Gemini keeps changing the character's face?</em><br>
+          👉 A: Add a distinctive prop like a "red baseball cap" or "thick black glasses". A strong visual anchor helps the AI remember!
+        </div>
 
-        <div class="section-label">🔧 影像生成與人物一致性操作流程</div>
-        <ol class="steps-ol">
+        <div class="section-label">
+          <span class="lang-zh">🔧 影像生成與人物一致性操作流程</span>
+          <span class="lang-en">🔧 Image Generation Workflow</span>
+        </div>
+        
+        <ol class="steps-ol lang-zh">
           <li>開啟 Gemini，下方工具選建立圖像，右邊選快捷即可。</li>
           <li><strong>【階段一：生成角色基準圖】</strong>將 Step 1 產生的【角色設定圖提示詞】複製貼上給 Gemini。如果有多位角色，請分別為他們生成基準圖。從結果中挑選最滿意的角色圖下載，並命名備用（例如 <code>Char_Leo.jpg</code>）。</li>
           <li><strong>【階段二：依基準圖生成分鏡】</strong>這一步是保持人物一致性的核心！點擊 Gemini 對話框的「+」或圖片上傳按鈕，上傳你剛剛下載好的【角色基準圖】。</li>
@@ -716,25 +842,54 @@
           <li>針對每一個分鏡重複步驟 3-5 (每次都要附上角色基準圖)。將滿意的場景圖下載並嚴格命名（如 <code>Shot_01.jpg</code>），以利後續作業。</li>
         </ol>
 
-        <div class="section-label">🎨 提升質感的神級咒語後綴 (Style Modifiers)</div>
+        <ol class="steps-ol lang-en">
+          <li>Open Gemini, select "Create image" from the tools below, or use the quick shortcut.</li>
+          <li><strong>[Phase 1: Generate Character Sheet]</strong> Paste the [Character Sheet Prompt] from Step 1. Pick the best result, download it, and name it (e.g., <code>Char_Leo.jpg</code>).</li>
+          <li><strong>[Phase 2: Generate Storyboard Shots]</strong> This is the key to consistency! Click the "+" or upload button in Gemini and upload the [Character Sheet] you just saved.</li>
+          <li>In the same prompt box, paste the [AI Image Prompt] for your shot, and prepend this command: <code>Keep the character exactly the same as the uploaded image.</code></li>
+          <li>Append your [Global Style Modifiers] at the end, including the aspect ratio (e.g., <code>wide 16:9 aspect ratio</code>), then hit send.</li>
+          <li>Repeat steps 3-5 for each shot (always attaching the character sheet image). Download and strictly name them (e.g., <code>Shot_01.jpg</code>).</li>
+        </ol>
+
+        <div class="section-label">
+          <span class="lang-zh">🎨 提升質感的神級咒語後綴 (Style Modifiers)</span>
+          <span class="lang-en">🎨 Pro Style Modifiers</span>
+        </div>
+        
         <div class="prompt-wrap">
           <div class="prompt-bar">
             <div class="mac-dots"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
             <span class="prompt-bar-name">cinematic_modifiers.txt</span>
-            <button class="copy-btn" data-target="p2">複製</button>
+            <button class="copy-btn" data-target="p2">
+              <span class="lang-zh">複製</span><span class="lang-en">Copy</span>
+            </button>
           </div>
-          <div class="prompt-text" id="p2">── 無論你生什麼圖，把符合曲風的這段加在提示詞最後，質感直接升級 ──
+          <div class="prompt-text lang-zh" id="p2_zh">── 無論你生什麼圖，把符合曲風的這段加在提示詞最後，質感直接升級 ──
 
 【好萊塢電影質感 (Cinematic Realism)】, shot on ARRI Alexa 65, cinematic color grading, 8k resolution, photorealistic, dramatic lighting, volumetric fog, sharp focus, hyper-detailed, masterpiece, 16:9 aspect ratio.
 
 【日系新海誠動畫風 (Anime Masterpiece)】, Makoto Shinkai style, Studio Ghibli, breathtaking anime background, vibrant colors, beautiful lighting, cinematic anime sky, highly detailed illustration, 16:9 aspect ratio.
 
 【賽博龐克/科幻 (Sci-Fi Cyberpunk)】, cyberpunk aesthetic, unreal engine 5 render, neon illumination, ray tracing, futuristic, dark and moody, high contrast, 16:9 aspect ratio.</div>
+
+          <div class="prompt-text lang-en" id="p2_en">── Add one of these to the end of any prompt to instantly upgrade visual quality ──
+
+[Cinematic Realism] , shot on ARRI Alexa 65, cinematic color grading, 8k resolution, photorealistic, dramatic lighting, volumetric fog, sharp focus, hyper-detailed, masterpiece, 16:9 aspect ratio.
+
+[Anime Masterpiece] , Makoto Shinkai style, Studio Ghibli, breathtaking anime background, vibrant colors, beautiful lighting, cinematic anime sky, highly detailed illustration, 16:9 aspect ratio.
+
+[Sci-Fi Cyberpunk] , cyberpunk aesthetic, unreal engine 5 render, neon illumination, ray tracing, futuristic, dark and moody, high contrast, 16:9 aspect ratio.</div>
         </div>
 
         <div class="nav-buttons">
-          <button class="nav-btn" onclick="switchTab(1)">🡨 上一步：分鏡腳本</button>
-          <button class="nav-btn primary" onclick="switchTab(3)">下一步：Google Flow/Meta AI 動態化 ➔</button>
+          <button class="nav-btn" onclick="switchTab(1)">
+            <span class="lang-zh">🡨 上一步：分鏡腳本</span>
+            <span class="lang-en">🡨 Prev: Storyboard</span>
+          </button>
+          <button class="nav-btn primary" onclick="switchTab(3)">
+            <span class="lang-zh">下一步：Google Flow/Meta AI 動態化 ➔</span>
+            <span class="lang-en">Next: Meta AI Motion ➔</span>
+          </button>
         </div>
       </div>
     </div>
@@ -745,10 +900,11 @@
       <div class="step-head">
         <div class="step-num">3</div>
         <div class="step-titles">
-          <h2>賦予生命：Google Flow/Meta AI 圖生影片運算</h2>
+          <h2 class="lang-zh">賦予生命：Google Flow/Meta AI 圖生影片運算</h2>
+          <h2 class="lang-en">Breathing Life: Google Flow/Meta AI Motion</h2>
           <small>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 8 6 4-6 4Z"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>
-            工具：Google Flow/Meta AI
+            <span class="lang-zh">工具：Google Flow/Meta AI</span><span class="lang-en">Tool: Google Flow/Meta AI</span>
           </small>
         </div>
         <div class="step-tag">Motion Computing</div>
@@ -757,23 +913,40 @@
         <div class="io-row">
           <div class="io-box">
             <div class="io-label">📥 Input</div>
-            <div class="io-value">Step 2 分鏡圖片 + Step 1 攝影機運動指令</div>
+            <div class="io-value">
+              <span class="lang-zh">Step 2 分鏡圖片 + Step 1 攝影機運動指令</span>
+              <span class="lang-en">Step 2 Images + Camera Motion Prompts</span>
+            </div>
           </div>
           <div class="io-box">
             <div class="io-label">📤 Output</div>
-            <div class="io-value">流暢無變形的 4-5 秒高畫質短片 (MP4)</div>
+            <div class="io-value">
+              <span class="lang-zh">流暢無變形的 4-5 秒高畫質短片 (MP4)</span>
+              <span class="lang-en">Smooth 4-5s High-Res Video Clips (MP4)</span>
+            </div>
           </div>
         </div>
 
-        <div class="tip-box">
+        <div class="tip-box lang-zh">
           <strong>💡 心態建立與急救包：</strong><br>
           生成影片就像<strong>「抽盲盒」</strong>，有時會崩壞是正常的！大師也是抽了 10 次才選出 1 次好的，請保持耐心多試幾次。<br><br>
           <em>Q: 影片動起來臉變形了（融圖）怎麼辦？</em><br>
           👉 A: 請在指令加上 <code>subtle motion</code> (微小動態)，或者換一張沒有露臉（例如背影）的圖片試試看。
         </div>
 
-        <div class="section-label">🔧 動態運算操作流程</div>
-        <ol class="steps-ol">
+        <div class="tip-box lang-en">
+          <strong>💡 Mindset & Troubleshooting:</strong><br>
+          Generating AI video is like <strong>"gacha" (blind boxes)</strong>! Sometimes it breaks—that's completely normal. Masters re-roll 10 times to pick 1 perfect shot. Be patient.<br><br>
+          <em>Q: Faces melt or distort during movement?</em><br>
+          👉 A: Add <code>subtle motion</code> to your prompt to reduce AI hallucination, or try using shots where the face isn't clearly visible (e.g., back views).
+        </div>
+
+        <div class="section-label">
+          <span class="lang-zh">🔧 動態運算操作流程</span>
+          <span class="lang-en">🔧 Motion Generation Workflow</span>
+        </div>
+        
+        <ol class="steps-ol lang-zh">
           <li>開啟 Google Flow/Meta AI 介面，先點擊左邊的 imagine 模式，上傳 Gemini 生成的分鏡圖片，下方選「生成影片」。</li>
           <li>在對話框中，我們不需要描述畫面內容（圖片已經有了），我們只需要<strong>指揮攝影機和動態</strong>。</li>
           <li>參考 Step 1 腳本中的【攝影機運動】，轉換為簡短有力的動態提示詞輸入給 Google Flow/Meta AI。</li>
@@ -781,14 +954,28 @@
           <li>滿意後下載，嚴格命名為 <strong>Clip_01.mp4</strong>。依序處理完所有鏡頭。</li>
         </ol>
 
-        <div class="section-label">🎬 動態提示詞秘笈 (Motion Prompts)</div>
+        <ol class="steps-ol lang-en">
+          <li>Open Google Flow/Meta AI, click "imagine" mode, upload the Gemini image, and select "Generate Video".</li>
+          <li>In the prompt box, do NOT describe the scene (the image does that). We only need to <strong>direct the camera and motion</strong>.</li>
+          <li>Refer back to the [Camera Motion] from Step 1, and convert it into short, punchy commands for the AI.</li>
+          <li>Review the generated video. If faces distort or backgrounds melt, reduce movement intensity by adding <code>subtle motion</code> and re-roll.</li>
+          <li>Download the best result and strictly name it <strong>Clip_01.mp4</strong>. Repeat this for all shots.</li>
+        </ol>
+
+        <div class="section-label">
+          <span class="lang-zh">🎬 動態提示詞秘笈 (Motion Prompts)</span>
+          <span class="lang-en">🎬 Motion Prompts Secret</span>
+        </div>
+        
         <div class="prompt-wrap">
           <div class="prompt-bar">
             <div class="mac-dots"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
-            <span class="prompt-bar-name">grok_motion_prompts.txt</span>
-            <button class="copy-btn" data-target="p3">複製</button>
+            <span class="prompt-bar-name">motion_prompts.txt</span>
+            <button class="copy-btn" data-target="p3">
+              <span class="lang-zh">複製</span><span class="lang-en">Copy</span>
+            </button>
           </div>
-          <div class="prompt-text" id="p3">將圖片餵給 Google Flow/Meta AI 時，使用這類簡短精準的指令控制動態：
+          <div class="prompt-text lang-zh" id="p3_zh">將圖片餵給 Google Flow/Meta AI 時，使用這類簡短精準的指令控制動態：
 
 【懶人專用神句】若無特殊需求，請直接輸入 "Cinematic, subtle motion" (電影感，微小動態) 即可，成功率最高。
 
@@ -798,12 +985,30 @@
 
 【大景 / 空拍視角】Drone shot, slow tracking forward over the landscape, clouds moving slowly in the background.
 
-【防崩壞保命咒語 (如果 Google Flow/Meta AI 算壞了加這句)】Minimal movement, completely static face, only background elements moving subtly, high coherence.</div>
+【防崩壞保命咒語 (如果 AI 算壞了加這句)】Minimal movement, completely static face, only background elements moving subtly, high coherence.</div>
+
+          <div class="prompt-text lang-en" id="p3_en">When using Google Flow/Meta AI, use these short, precise commands to direct motion:
+
+[The Lazy God-Tier Prompt] "Cinematic, subtle motion" (Highest success rate if you don't have specific needs).
+
+[Static / Slow Vibe] Subtle motion, slow pan to the right, hair blowing gently in the wind, atmospheric particles floating.
+
+[Intense / Push-In] Slow dolly in towards the character's face, cinematic depth of field transition, intense gaze, subtle blinking.
+
+[Wide / Aerial View] Drone shot, slow tracking forward over the landscape, clouds moving slowly in the background.
+
+[Anti-Distortion Lifesaver (Use if AI melts the image)] Minimal movement, completely static face, only background elements moving subtly, high coherence.</div>
         </div>
 
         <div class="nav-buttons">
-          <button class="nav-btn" onclick="switchTab(2)">🡨 上一步：Gemini 生圖</button>
-          <button class="nav-btn primary" onclick="switchTab(4)">下一步：Canva 剪輯 ➔</button>
+          <button class="nav-btn" onclick="switchTab(2)">
+            <span class="lang-zh">🡨 上一步：Gemini 生圖</span>
+            <span class="lang-en">🡨 Prev: Gemini Image Gen</span>
+          </button>
+          <button class="nav-btn primary" onclick="switchTab(4)">
+            <span class="lang-zh">下一步：Canva 剪輯 ➔</span>
+            <span class="lang-en">Next: Canva Video editing ➔</span>
+          </button>
         </div>
       </div>
     </div>
@@ -814,10 +1019,12 @@
       <div class="step-head">
         <div class="step-num">4</div>
         <div class="step-titles">
-          <h2>魔法拼圖：Canva 節拍同步剪輯</h2>
+          <h2 class="lang-zh">魔法拼圖：Canva 節拍同步剪輯</h2>
+          <h2 class="lang-en">Magic Puzzle: Canva Video editing</h2>
           <small>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            工具：Canva 影片專案 (支援多軌剪輯)
+            <span class="lang-zh">工具：Canva 影片專案 (支援多軌剪輯)</span>
+            <span class="lang-en">Tool: Canva Video Project (Multi-track)</span>
           </small>
         </div>
         <div class="step-tag">Post-Production</div>
@@ -829,48 +1036,76 @@
             <div class="ti">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="10s" repeatCount="indefinite"/></svg>
             </div>
-            <div class="tt">建立畫布</div>
-            <div class="td">選「影片 1920x1080」確保畫質</div>
+            <div class="tt">
+              <span class="lang-zh">建立畫布</span><span class="lang-en">Create Canvas</span>
+            </div>
+            <div class="td">
+              <span class="lang-zh">選「影片 1920x1080」確保畫質</span><span class="lang-en">Select "Video 1920x1080" for best quality</span>
+            </div>
           </div>
           <div class="canva-tile">
             <div class="ti">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><animateTransform attributeName="transform" type="translate" values="0,-2; 0,2; 0,-2" dur="2s" repeatCount="indefinite"/></svg>
             </div>
-            <div class="tt">匯入素材</div>
-            <div class="td">MP4 短片與 Suno 產出的 MP3</div>
+            <div class="tt">
+              <span class="lang-zh">匯入素材</span><span class="lang-en">Import Media</span>
+            </div>
+            <div class="td">
+              <span class="lang-zh">MP4 短片與 Suno 產出的 MP3</span><span class="lang-en">MP4 video clips & Suno MP3</span>
+            </div>
           </div>
           <div class="canva-tile">
             <div class="ti">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><animate attributeName="opacity" values="0.6; 1; 0.6" dur="1.5s" repeatCount="indefinite"/></svg>
             </div>
-            <div class="tt">鋪設音軌</div>
-            <div class="td">展開音訊波形，尋找重拍點</div>
+            <div class="tt">
+              <span class="lang-zh">鋪設音軌</span><span class="lang-en">Lay Audio Track</span>
+            </div>
+            <div class="td">
+              <span class="lang-zh">展開音訊波形，尋找重拍點</span><span class="lang-en">Expand audio waveform, find beats</span>
+            </div>
           </div>
           <div class="canva-tile">
             <div class="ti">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/><animateTransform attributeName="transform" type="scale" values="1; 1.1; 1" dur="2s" repeatCount="indefinite"/></svg>
             </div>
-            <div class="tt">節拍同步 (Beat Sync)</div>
-            <div class="td">讓畫面切換點精準落在鼓點上</div>
+            <div class="tt">
+              <span class="lang-zh">節拍同步 (Beat Sync)</span><span class="lang-en">Beat Sync</span>
+            </div>
+            <div class="td">
+              <span class="lang-zh">讓畫面切換點精準落在鼓點上</span><span class="lang-en">Align cuts precisely with drum beats</span>
+            </div>
           </div>
           <div class="canva-tile">
             <div class="ti">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="180 12 12" dur="4s" repeatCount="indefinite"/></svg>
             </div>
-            <div class="tt">轉場設計</div>
-            <div class="td">避免濫用轉場，90%使用「硬切(Cut)」</div>
+            <div class="tt">
+              <span class="lang-zh">轉場設計</span><span class="lang-en">Transitions</span>
+            </div>
+            <div class="td">
+              <span class="lang-zh">避免濫用轉場，90%使用「硬切(Cut)」</span><span class="lang-en">Avoid overuse. Rely on "Hard Cut" 90%</span>
+            </div>
           </div>
           <div class="canva-tile">
             <div class="ti">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/><animate attributeName="stroke-dasharray" values="0,50; 50,0; 0,50" dur="3s" repeatCount="indefinite"/></svg>
             </div>
-            <div class="tt">質感字幕</div>
-            <div class="td">使用無襯線字體，加微透明黑底</div>
+            <div class="tt">
+              <span class="lang-zh">質感字幕</span><span class="lang-en">Cinematic Subs</span>
+            </div>
+            <div class="td">
+              <span class="lang-zh">使用無襯線字體，加微透明黑底</span><span class="lang-en">Sans-serif font with semi-transparent bg</span>
+            </div>
           </div>
         </div>
 
-        <div class="section-label">🔧 剪輯與同步操作流程</div>
-        <ol class="steps-ol">
+        <div class="section-label">
+          <span class="lang-zh">🔧 剪輯與同步操作流程</span>
+          <span class="lang-en">🔧 Editing & Sync Workflow</span>
+        </div>
+        
+        <ol class="steps-ol lang-zh">
           <li><strong>鋪設基底：</strong> 將 MP3 音樂拖到最下方的音訊軌。點擊音軌兩下，放大波形圖 (Waveform)。</li>
           <li><strong>尋找節奏：</strong> 觀察波形圖上突起的尖峰，那些通常是鼓點 (Kick/Snare) 或是歌手換氣唱歌的起點。<strong>（想像音樂在『咚！』或『啪！』的地方，波形圖就會長出一根特別高的刺！）</strong></li>
           <li><strong>對拍剪輯：</strong> 將你的影片片段拖入時間軸。拖動片段的邊緣，讓片段結束與下一段開始的交界線，剛剛好對齊音軌波形的「尖峰」。<strong>（把影片的切換點對準那根刺就對了！）</strong>這種在音樂重拍上切換畫面的手法，能大幅提升專業感。</li>
@@ -879,10 +1114,23 @@
           <li><strong>匯出：</strong> 確認頭尾不突兀後，點擊右上角分享 > 下載 > MP4 格式 (1080p)。</li>
         </ol>
 
+        <ol class="steps-ol lang-en">
+          <li><strong>Lay the Base:</strong> Drag your MP3 music to the bottom audio track. Double-click the audio track to expand the Waveform.</li>
+          <li><strong>Find the Rhythm:</strong> Look for sharp peaks in the waveform—these are usually drum beats (Kicks/Snares). <strong>(Imagine the music goes 'Boom!' and a spike appears on the waveform!)</strong></li>
+          <li><strong>Beat Sync Editing:</strong> Drag your video clips into the timeline. Adjust the clip edges so the cut falls exactly on a waveform peak. <strong>(Align the cuts right on those spikes!)</strong> Cutting on the beat instantly elevates the professional feel.</li>
+          <li><strong>Restrain Transitions:</strong> 90% of professional MVs use "Hard Cuts". <strong>Save your best visuals for hard cuts</strong>, and only use a "Cross Dissolve" for major mood shifts (like moving from verse to chorus).</li>
+          <li><strong>Color Matching:</strong> If a clip's color feels out of place, use Canva's "Video Editor" > "Adjust" to lower saturation or tweak the temperature for a unified MV aesthetic.</li>
+          <li><strong>Export:</strong> Review the flow from start to finish. Once satisfied, click Share > Download > MP4 format (1080p).</li>
+        </ol>
+
         <div class="nav-buttons">
-          <button class="nav-btn" onclick="switchTab(3)">🡨 上一步：Google Flow/Meta AI 動態化</button>
+          <button class="nav-btn" onclick="switchTab(3)">
+            <span class="lang-zh">🡨 上一步：Google Flow/Meta AI 動態化</span>
+            <span class="lang-en">🡨 Prev: Google Flow/Meta AI Motion</span>
+          </button>
           <button class="nav-btn primary" disabled style="opacity: 1; cursor: default; background: linear-gradient(135deg, #F37021, #ea580c); box-shadow: 0 0 20px rgba(243,112,33,0.3);">
-            🎉 恭喜！你的 MV 完成了
+            <span class="lang-zh">🎉 恭喜！你的 MV 完成了</span>
+            <span class="lang-en">🎉 Congrats! Your MV is complete</span>
           </button>
         </div>
       </div>
@@ -891,9 +1139,20 @@
 </main>
 
 <footer>
-  <p style="font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 8px;">AI 音樂 MV 專業製片工作流</p>
-  <p style="margin-bottom: 16px;"><span>ChatGPT</span> 企劃腳本 ➔ <span>Gemini</span> 電影級生圖 ➔ <span>Google Flow/Meta AI</span> 動態運算 ➔ <span>Canva</span> 對拍剪輯</p>
-  <p>桃園市立觀音高中物理科林仟弘製作 | <a href="https://guidephy.github.io/" target="_blank" style="color: var(--c1); text-decoration: none; font-weight: bold;">Guidephy</a></p>
+  <p style="font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 8px;">
+    <span class="lang-zh">AI 音樂 MV 專業製片工作流</span>
+    <span class="lang-en">AI Music MV Pro Workflow</span>
+  </p>
+  <p style="margin-bottom: 16px;">
+    <span>ChatGPT</span> <span class="lang-zh">企劃腳本</span><span class="lang-en">Script</span> ➔ 
+    <span>Gemini</span> <span class="lang-zh">電影級生圖</span><span class="lang-en">Cinematic Gen</span> ➔ 
+    <span>Google Flow/Meta AI</span> <span class="lang-zh">動態運算</span><span class="lang-en">Motion</span> ➔ 
+    <span>Canva</span> <span class="lang-zh">影音編輯</span><span class="lang-en">Video editing</span>
+  </p>
+  <p>
+    <span class="lang-zh">桃園市立觀音高中物理科林仟弘製作</span><span class="lang-en">Created by Chien-Hung Lin, Guanyin High School</span> 
+    | <a href="https://guidephy.github.io/" target="_blank" style="color: var(--c1); text-decoration: none; font-weight: bold;">Guidephy</a>
+  </p>
 </footer>
 
 <script>
@@ -903,6 +1162,17 @@
     glow.style.left = e.clientX + 'px';
     glow.style.top = e.clientY + 'px';
   });
+
+  /* Language Toggle Logic */
+  function toggleLang() {
+    document.body.classList.toggle('en-mode');
+    const textSpan = document.getElementById('lang-text');
+    if (document.body.classList.contains('en-mode')) {
+      textSpan.innerText = "中文";
+    } else {
+      textSpan.innerText = "EN";
+    }
+  }
 
   /* Tab switching logic */
   function switchTab(num) {
@@ -930,17 +1200,23 @@
     });
   }
 
-  /* Copy buttons interaction */
+  /* Copy buttons interaction with language support */
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-target');
-      const text = document.getElementById(id).innerText;
+      const isEn = document.body.classList.contains('en-mode');
+      const targetId = isEn ? id + '_en' : id + '_zh';
+      const textElement = document.getElementById(targetId);
+      if(!textElement) return;
+      
+      const text = textElement.innerText;
+      
       navigator.clipboard.writeText(text).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = '已複製 ✓';
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = isEn ? 'Copied ✓' : '已複製 ✓';
         btn.classList.add('ok');
         setTimeout(() => {
-          btn.textContent = orig;
+          btn.innerHTML = origHtml;
           btn.classList.remove('ok');
         }, 2000);
       });
