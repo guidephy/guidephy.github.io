@@ -361,6 +361,35 @@ header p {
 .speed-wrap input[type=range] { width: 80px; accent-color: var(--sage); cursor: pointer; }
 .speed-val { min-width: 34px; font-size: 0.78rem; color: var(--text-mid); font-weight: 600; }
 
+/* 音頻視覺化動畫 (Audio Visualizer) */
+.audio-visualizer {
+  display: none;
+  align-items: center;
+  gap: 2.5px;
+  height: 12px;
+  margin-left: 4px;
+}
+.audio-visualizer span {
+  display: inline-block;
+  width: 3px;
+  height: 100%;
+  background-color: currentColor; /* 自動繼承文字顏色 */
+  border-radius: 1px;
+  animation: sound-wave 0.8s infinite ease-in-out;
+}
+.audio-visualizer span:nth-child(1) { animation-delay: -0.2s; }
+.audio-visualizer span:nth-child(2) { animation-delay: -0.4s; }
+.audio-visualizer span:nth-child(3) { animation-delay: -0.6s; }
+
+@keyframes sound-wave {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
+.playing .audio-visualizer {
+  display: flex;
+}
+
 /* Translation panel */
 .panel-zh .panel-header { background: var(--green-light); color: var(--green); border-bottom-color: var(--green-mid); }
 .zh-text { font-size: 0.97rem; line-height: 1.95; color: var(--text-mid); }
@@ -450,8 +479,8 @@ const slides = [
 {
   img: "img/1.png",
   label: "Slide 1 — Title Slide",
-  script: `Hello, everyone! Welcome to Guanyin Senior High School. I am your teacher, Purple, and this is my partner teacher, Ben. We are very happy to show you our AI Music Showcase today. Let's have fun!`,
-  zh: `大家好！歡迎來到觀音高中。我是你們的老師 Purple，這位是我的搭檔老師 Ben。今天我們非常高興能向你們展示我們的 AI 音樂成果發表會。讓我們玩得開心吧！`,
+  script: `Hello, everyone! Welcome to Guanyin High School. I’m Purple, and this is my partner teacher, Ben. Welcome to our AI Application class. My English is not perfect, but for our friends from Wayland High School, I will try my best to teach the whole class in English today! Today we’re excited to share our AI Music Video Showcase with you. Thank you for joining us, and we hope you enjoy the class!`,
+  zh: `大家好！歡迎來到觀音高中。我是 Purple，這位是我的搭檔老師 Ben。歡迎來到我們的 AI 應用課程。我的英文不是很完美，但為了我們來自 Wayland 高中的朋友們，我今天會盡全力用全英文來上這堂課！今天我們非常興奮能與你們分享我們的 AI 音樂影片成果發表會。感謝你們的參與，希望你們喜歡這堂課！`,
   classroom: [
     { en: "Is everyone here? Please sit with your groups.", zh: "大家都到了嗎？請按小組坐好。", ctx: "開場點名，確認學生就位" },
     { en: "Wayland friends, please join our students. Let's sit together!", zh: "Wayland 的朋友們，請加入我們的學生，大家坐在一起吧！", ctx: "歡迎交流生，請大家混坐" },
@@ -464,8 +493,8 @@ const slides = [
 {
   img: "img/2.png",
   label: "Slide 2 — Today's Journey",
-  script: `Today is a journey! First, we have a welcome performance. Second, we will explain our creation process. Third, we will showcase student works. Fourth, we have our Music Jam. And finally, we will have a reflection together. It will be a busy and happy morning!`,
-  zh: `今天是一段旅程！首先，我們有一個歡迎表演。第二，我們將解釋創作過程。第三，展示學生作品。第四，進行音樂即興創作。最後，我們一起進行反思。這將是一個忙碌而快樂的早上！`,
+  script: `Today is a journey! First, we have a welcome performance. Second, I will briefly introduce what we do with our students in this AI class. Third, we will showcase student works. Fourth, we have our Music Jam. And finally, we will have a reflection together. It will be a busy and happy morning!`,
+  zh: `今天是一段旅程！首先，我們有一個歡迎表演。第二，我會簡單介紹這門 AI 課我們帶學生做什麼。第三，展示學生作品。第四，進行音樂即興創作。最後，我們一起進行反思。這將是一個忙碌而快樂的早上！`,
   classroom: [
     { en: "Can everyone see the screen clearly?", zh: "大家都看得清楚螢幕嗎？", ctx: "確認視線沒有遮擋" },
     { en: "Let me walk you through today's agenda.", zh: "讓我帶大家看一下今天的議程。", ctx: "介紹行程時的開場白" },
@@ -530,8 +559,8 @@ const slides = [
 {
   img: "img/7.png",
   label: "Slide 7 — Creation Process Overview",
-  script: `Now let's look at how we create! Our creation process has five steps. Step one, we write lyrics. Step two, we use Suno AI to generate the melody. Step three, we create a Music Video. Step four, we add human vocals. And step five, we put everything together using Canva. Let's explore each step!`,
-  zh: `現在讓我們看看我們是如何創作的！我們的創作過程有五個步驟。第一步，我們寫歌詞。第二步，用 Suno AI 生成旋律。第三步，製作音樂影片。第四步，加入真人人聲。第五步，用 Canva 整合一切。讓我們逐步探索！`,
+  script: `Now let's look at how we create! Our creation process has five steps. Let's explore each step!`,
+  zh: `現在讓我們看看我們是如何創作的！我們的創作過程有五個步驟。讓我們逐步探索！`,
   classroom: [
     { en: "Have you ever written song lyrics before?", zh: "你們以前有寫過歌詞嗎？", ctx: "連結學生的生活經驗" },
     { en: "How many steps are there? Let's count together.", zh: "總共有幾個步驟？我們一起數數看。", ctx: "帶著學生複習重點" },
@@ -543,8 +572,8 @@ const slides = [
 {
   img: "img/8.png",
   label: "Slide 8 — Step 1: Writing Lyrics",
-  script: `The first step is writing lyrics. Our students use AI tools like ChatGPT or Gemini to brainstorm ideas and write song lyrics. They give the AI a theme, a mood, and a message. Then the AI suggests lyrics, and the students edit and improve them. It's a real team effort!`,
-  zh: `第一步是寫歌詞。我們的學生使用 ChatGPT 或 Gemini 等 AI 工具來腦力激盪並撰寫歌詞。他們給 AI 一個主題、一種情緒和一個訊息，AI 提供建議，學生再編輯改善。這是真正的團隊合作！`,
+  script: `The first step is writing lyrics. Our students use AI tools like ChatGPT or Gemini to brainstorm ideas and write song lyrics.`,
+  zh: `第一步是寫歌詞。我們的學生使用 ChatGPT 或 Gemini 等 AI 工具來腦力激盪並撰寫歌詞。`,
   classroom: [
     { en: "What theme would YOU choose for a song? Love? Nature? Technology?", zh: "你會選擇什麼主題寫歌？愛情？大自然？科技？", ctx: "讓學生想像自己是創作者" },
     { en: "AI can suggest ideas, but YOUR creativity makes it unique.", zh: "AI 可以提供建議，但你的創意讓它獨一無二。", ctx: "強調人類創意的價值" },
@@ -556,8 +585,8 @@ const slides = [
 {
   img: "img/9.png",
   label: "Slide 9 — Step 2: Suno AI Melody",
-  script: `The second step is using Suno AI to make a beautiful melody. You just need to paste your lyrics and choose a music style — like Rock, Pop, Jazz, or Classical. Suno AI will generate a full song in seconds! It's like magic, but it's actually science and creativity working together.`,
-  zh: `第二步是使用 Suno AI 製作美妙的旋律。你只需要貼上歌詞並選擇音樂風格——例如搖滾、流行、爵士或古典。Suno AI 會在幾秒鐘內生成一首完整的歌曲！這就像魔法，其實是科學與創意的結合。`,
+  script: `The second step is using Suno AI to make a beautiful melody. You just need to paste your lyrics and choose a music style — like Rock, Pop, Jazz, or Classical. Suno AI will generate a full song in seconds!`,
+  zh: `第二步是使用 Suno AI 製作美妙的旋律。你只需要貼上歌詞並選擇音樂風格——例如搖滾、流行、爵士或古典。Suno AI 會在幾秒鐘內生成一首完整的歌曲！`,
   classroom: [
     { en: "What music style do you like? Rock? Pop? K-pop?", zh: "你們喜歡什麼音樂風格？搖滾？流行？韓流？", ctx: "用學生感興趣的話題拉近距離" },
     { en: "Raise your hand if you've heard of Suno AI before.", zh: "如果你以前聽說過 Suno AI，請舉手。", ctx: "了解學生的先備知識" },
@@ -569,8 +598,8 @@ const slides = [
 {
   img: "img/10.png",
   label: "Slide 10 — Step 3: Image Generation",
-  script: `After we have the song, we make a Music Video. The first part is generating images. We use Gemini and NanoBanan to create AI-generated images that match the theme and mood of the song. Each image tells part of the story.`,
-  zh: `有了歌曲之後，我們開始製作音樂影片。第一個部分是生成圖像。我們使用 Gemini 和 NanoBanan 來創建符合歌曲主題和情緒的 AI 圖像。每張圖像都訴說故事的一部分。`,
+  script: `After we have the song, we make a Music Video. The first part is generating images. We use Gemini and NanoBanan to create AI-generated images that match the theme and mood of the song.`,
+  zh: `有了歌曲之後，我們開始製作音樂影片。第一個部分是生成圖像。我們使用 Gemini 和 NanoBanan 來創建符合歌曲主題和情緒的 AI 圖像。`,
   classroom: [
     { en: "Can a picture tell a story without any words? What do you think?", zh: "一張圖片可以在沒有任何文字的情況下講故事嗎？", ctx: "視覺敘事的思考問題" },
     { en: "Look at this image — what feeling does it give you?", zh: "看看這張圖片——它給你什麼感覺？", ctx: "引導學生用英文描述視覺感受" },
@@ -582,8 +611,8 @@ const slides = [
 {
   img: "img/11.png",
   label: "Slide 11 — Step 3: Video Generation",
-  script: `Next, we turn those images into videos. We use Google Flow and Meta AI to animate the images and create short video clips. These tools can bring still images to life by adding movement and transitions. It's truly amazing what AI can do!`,
-  zh: `接下來，我們將圖像轉換成影片。我們使用 Google Flow 和 Meta AI 來讓圖像動起來，創建短視頻片段。這些工具透過添加動態和轉場效果，讓靜態圖像活起來。AI 的能力真的令人驚嘆！`,
+  script: `Next, we turn those images into videos. We use Google Flow and Meta AI to animate the images and create short video clips.`,
+  zh: `接下來，我們將圖像轉換成影片。我們使用 Google Flow 和 Meta AI 來讓圖像動起來，並創建短影片片段。`,
   classroom: [
     { en: "Which do you prefer — still photos or videos? Why?", zh: "你比較喜歡靜態照片還是影片？為什麼？", ctx: "個人偏好問題，練習表達意見" },
     { en: "Imagine turning your drawings into a movie — that's what we're doing!", zh: "想像把你的畫變成一部電影——這就是我們正在做的事！", ctx: "讓學生代入創作的興奮感" },
@@ -595,8 +624,8 @@ const slides = [
 {
   img: "img/12.png",
   label: "Slide 12 — Step 4: Human Vocals",
-  script: `We also recorded real human vocals to make the music feel more warm and personal. Our students sang parts of the song themselves. This is the Human Reflection part of H-AI-H — adding the human touch that AI cannot fully replace.`,
-  zh: `我們也錄製了真人人聲，讓音樂感覺更溫暖、更個人化。我們的學生親自演唱了歌曲的部分段落。這就是 H-AI-H 的「人類反思」環節——加入 AI 無法完全取代的人類溫度。`,
+  script: `We also recorded real human vocals to make the music feel more warm and personal. Our students sang parts of the song themselves. This is the Human Reflection part of H-AI-H model — adding the human touch that AI cannot fully replace.`,
+  zh: `我們也錄製了真人人聲，讓音樂感覺更溫暖、更個人化。我們的學生親自演唱了歌曲的部分段落。這就是 H-AI-H 模型的「人類反思」環節——加入 AI 無法完全取代的人類溫度。`,
   classroom: [
     { en: "Do you think AI-generated voices sound as good as real human voices?", zh: "你覺得 AI 生成的聲音和真人聲音一樣好嗎？", ctx: "引發關於 AI 局限的討論" },
     { en: "Is anyone here a good singer? Don't be shy!", zh: "這裡有人是好歌手嗎？不要害羞！", ctx: "輕鬆有趣的互動" },
@@ -608,8 +637,8 @@ const slides = [
 {
   img: "img/13.png",
   label: "Slide 13 — Step 5: Canva Editing",
-  script: `Finally, we use Canva to edit everything into a perfect Music Video. We put the video clips together, add the music, adjust the timing, and add text effects. Canva makes professional-looking videos accessible to everyone, even without any prior editing experience.`,
-  zh: `最後，我們使用 Canva 把所有東西剪輯成一個完美的音樂影片。我們將影片片段拼接在一起，加入音樂，調整時間，並添加文字效果。Canva 讓所有人都能製作出專業的影片，即使沒有任何剪輯經驗也可以。`,
+  script: `Finally, we use Canva to edit everything into a perfect Music Video.`,
+  zh: `最後，我們使用 Canva 把所有東西剪輯成一個完美的音樂影片。`,
   classroom: [
     { en: "Have you ever used Canva? What did you make?", zh: "你們有用過 Canva 嗎？你做了什麼？", ctx: "了解學生使用工具的經驗" },
     { en: "Video editing used to be very difficult. Now, anyone can do it!", zh: "影片剪輯以前非常困難，現在任何人都能做到！", ctx: "強調工具民主化的概念" },
@@ -621,8 +650,8 @@ const slides = [
 {
   img: "img/14.png",
   label: "Slide 14 — Student Works Ready!",
-  script: `After all that hard work, our music videos are finally ready! These videos look like real masterpieces. Our students put so much heart and creativity into each one. Now, please sit back, relax, and enjoy our student showcase. Let's go!`,
-  zh: `經過所有的努力，我們的音樂影片終於完成了！這些影片看起來就像真正的傑作。我們的學生在每一個作品中投入了大量的心血和創意。現在，請放鬆身心，欣賞我們的學生成果展示。我們開始吧！`,
+  script: `After all that hard work, our music videos are finally ready! Our students put so much heart and creativity into each one. Are you ready to watch these amazing videos?`,
+  zh: `經過所有的努力，我們的音樂影片終於完成了！我們的學生在每一個作品中投入了大量的心血和創意。你們準備好觀看這些精彩的影片了嗎？`,
   classroom: [
     { en: "Are you ready to watch some amazing videos? Let's go!", zh: "你們準備好觀看一些精彩的影片了嗎？我們開始吧！", ctx: "播放前炒熱氣氛" },
     { en: "Please watch quietly and feel the music.", zh: "請靜靜地觀看，感受音樂。", ctx: "播放時的叮嚀" },
@@ -634,8 +663,8 @@ const slides = [
 {
   img: "img/15.png",
   label: "Slide 15 — Student Showcase",
-  script: `Now let's enjoy the student showcase! Each group has worked incredibly hard to create their own original AI music video. Please pay attention to the lyrics, the melody, the visuals, and the overall mood. After watching, we'll share our thoughts together.`,
-  zh: `現在讓我們欣賞學生成果展示！每個小組都非常努力地創作了自己的原創 AI 音樂影片。請注意歌詞、旋律、視覺效果和整體氛圍。看完之後，我們將一起分享想法。`,
+  script: `Now let's enjoy the student showcase!`,
+  zh: `現在讓我們欣賞學生成果展示！`,
   classroom: [
     { en: "Let's watch this one together. Ready?", zh: "我們一起看這個，準備好了嗎？", ctx: "播放每組作品前的提示" },
     { en: "Wasn't that creative? Give them a big hand!", zh: "這不是很有創意嗎？給他們熱烈的掌聲！", ctx: "播放後的即時回應" },
@@ -662,8 +691,8 @@ const slides = [
 {
   img: "img/17.png",
   label: "Slide 17 — Reflection",
-  script: `We had a great time today! Before we finish, let's take a moment to reflect. What did you learn? What surprised you the most? What would you do differently next time? Reflection helps us grow as learners and creators.`,
-  zh: `今天我們過得很開心！在結束之前，讓我們花一點時間反思。你學到了什麼？什麼讓你最驚訝？下次你會做什麼不同的事情？反思幫助我們成為更好的學習者和創作者。`,
+  script: `We had a great time today! Before we finish, let's take a moment to reflect. What did you learn? What surprised you the most? Reflection helps us grow as learners and creators. Would anyone like to share with us?`,
+  zh: `今天我們過得很開心！在結束之前，讓我們花一點時間反思。你學到了什麼？什麼讓你最驚訝？反思幫助我們成為更好的學習者和創作者。有沒有同學可以跟大家分享？`,
   classroom: [
     { en: "On a scale of 1 to 5, how much did you enjoy today? Show me with your fingers!", zh: "從 1 到 5 分，你有多喜歡今天？用手指告訴我！", ctx: "快速輕鬆的滿意度調查" },
     { en: "What's one thing you learned today that you didn't know before?", zh: "今天你學到了一件以前不知道的事情是什麼？", ctx: "引導有深度的反思" },
@@ -675,8 +704,8 @@ const slides = [
 {
   img: "img/18.png",
   label: "Slide 18 — Friendship & Goodbye",
-  script: `We had a wonderful time today! Thank you so much for coming. We hope you enjoyed our AI music and had fun learning with us. Let's keep in touch and stay friends! Remember, no matter how far apart we are, music and technology can always bring us together. Goodbye, and take care!`,
-  zh: `今天我們度過了美好的時光！非常感謝你們的到來。我們希望你們喜歡我們的 AI 音樂，並享受與我們一起學習的過程。讓我們保持聯絡，繼續做朋友！記住，無論相隔多遠，音樂和科技總能將我們聚在一起。再見，保重！`,
+  script: `We had a wonderful time today! Thank you so much for coming. We hope you enjoyed our AI class and had fun learning with us. Finally, let's take a group photo to remember this wonderful day!`,
+  zh: `今天我們度過了美好的時光！非常感謝你們的到來。我們希望你們喜歡我們的 AI 課程，並享受與我們一起學習的過程。最後，讓我們拍一張合照來紀念這美好的一天！`,
   classroom: [
     { en: "Thank you all for being such wonderful guests!", zh: "謝謝大家成為如此棒的貴賓！", ctx: "感謝交流生的到來" },
     { en: "Please exchange your LINE IDs or Instagram handles with your study buddies!", zh: "請跟你的學習夥伴交換 LINE ID 或 Instagram 帳號！", ctx: "促進學生之間的真實交友" },
@@ -689,7 +718,7 @@ const slides = [
 ];
 
 // ============================================================
-//  TTS ENGINE
+//  TTS ENGINE & LOGIC
 // ============================================================
 let activeBtnRef = null;
 
@@ -706,39 +735,92 @@ function getRate(slideIdx) {
   return el ? parseFloat(el.value) : 0.85;
 }
 
+// 更新按鈕狀態與視覺效果
+function updateBtnState(btn, isPlaying) {
+  if (!btn) return;
+  const textSpan = btn.querySelector('.play-text');
+  
+  if (isPlaying) {
+    btn.classList.add('playing');
+    if (textSpan) {
+      // 記錄原來的文字（可能是「播放全部」或「播放選取段落」）
+      textSpan.dataset.originalText = textSpan.textContent; 
+      textSpan.textContent = '⏹ 停止';
+    }
+  } else {
+    btn.classList.remove('playing');
+    if (textSpan) {
+      // 若是主按鈕，停止時依據當下是否有反白文字來還原顯示文字
+      if (btn.classList.contains('btn-play-main')) {
+        const selection = window.getSelection().toString().trim();
+        textSpan.textContent = selection ? '▶ 播放選取段落' : '▶ 播放全部';
+      } else {
+        // 課室補充按鈕直接還原
+        textSpan.textContent = textSpan.dataset.originalText || '▶ 播放';
+      }
+    }
+  }
+}
+
 function stopSpeech() {
   window.speechSynthesis.cancel();
   if (activeBtnRef) {
-    activeBtnRef.classList.remove('playing');
-    activeBtnRef.innerHTML = activeBtnRef.dataset.playLabel || '▶ 播放';
+    updateBtnState(activeBtnRef, false);
     activeBtnRef = null;
   }
 }
 
 function speakText(text, btn, slideIdx) {
-  if (activeBtnRef === btn) { stopSpeech(); return; }
+  // 如果點擊的是正在播放的按鈕，就停止
+  if (activeBtnRef === btn) { 
+    stopSpeech(); 
+    return; 
+  }
+  
   stopSpeech();
+  
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'en-US';
   u.rate = slideIdx !== undefined ? getRate(slideIdx) : 0.85;
   u.pitch = 1.0;
   const v = getVoice();
   if (v) u.voice = v;
+  
   u.onend = u.onerror = () => {
     if (activeBtnRef === btn) {
-      btn.classList.remove('playing');
-      btn.innerHTML = btn.dataset.playLabel || '▶ 播放';
+      updateBtnState(btn, false);
       activeBtnRef = null;
     }
   };
+  
   if (btn) {
-    if (!btn.dataset.playLabel) btn.dataset.playLabel = btn.innerHTML;
-    btn.classList.add('playing');
-    btn.innerHTML = '⏹ 停止';
+    updateBtnState(btn, true);
     activeBtnRef = btn;
   }
   window.speechSynthesis.speak(u);
 }
+
+// 播放段落邏輯：有選取文字聽選取，沒選取聽全部
+function playScript(btn, idx) {
+  const selectedText = window.getSelection().toString().trim();
+  if (selectedText) {
+    speakText(selectedText, btn, idx);
+  } else {
+    const fullText = document.getElementById('script-' + idx).textContent;
+    speakText(fullText, btn, idx);
+  }
+}
+
+// 監聽文字反白事件，動態改變按鈕文字
+document.addEventListener('selectionchange', () => {
+  const selection = window.getSelection().toString().trim();
+  // 找到當前頁面「未在播放中」的主播放按鈕
+  const currentPlayBtnText = document.querySelector(`#slide-${currentSlide} .btn-play-main:not(.playing) .play-text`);
+  if (currentPlayBtnText) {
+    currentPlayBtnText.textContent = selection ? '▶ 播放選取段落' : '▶ 播放全部';
+  }
+});
+
 
 // ============================================================
 //  BUILD UI
@@ -769,7 +851,7 @@ function buildSlides() {
     section.className = 'slide-section' + (idx === 0 ? ' active' : '');
     section.id = 'slide-' + idx;
 
-    // Dots HTML (built once per section, each dot gets unique ID within section)
+    // Dots HTML 
     const dotsHTML = slides.map((_, i) =>
       `<span class="nav-dot${i === idx ? ' active' : ''}" onclick="showSlide(${i})" title="投影片 ${i+1}"></span>`
     ).join('');
@@ -786,7 +868,10 @@ function buildSlides() {
           <button class="btn-play-cls"
             data-text="${safe}"
             data-slide="${idx}"
-            onclick="speakText(this.dataset.text, this, parseInt(this.dataset.slide))">▶ 播放</button>
+            onclick="speakText(this.dataset.text, this, parseInt(this.dataset.slide))">
+            <span class="play-text">▶ 播放</span>
+            <div class="audio-visualizer"><span></span><span></span><span></span></div>
+          </button>
         </div>
       </div>`;
     }).join('');
@@ -801,7 +886,7 @@ function buildSlides() {
             <img src="${s.img}" alt="${s.label}" loading="lazy">
             <div class="slide-counter-badge">${idx + 1} / ${slides.length}</div>
           </div>
-          <!-- ▼ Prev / Next directly under the slide image ▼ -->
+          <!-- Prev / Next -->
           <div class="slide-nav-under">
             <button class="btn-nav" onclick="showSlide(${idx - 1})" ${idx === 0 ? 'disabled' : ''}>← 上一頁</button>
             <div class="nav-dots">${dotsHTML}</div>
@@ -821,11 +906,14 @@ function buildSlides() {
             <div class="panel-body">
               <div class="script-text" id="script-${idx}">${s.script}</div>
               <div class="tts-bar">
+                <!-- 加上 onmousedown="event.preventDefault()" 避免點擊按鈕時清空文字選取狀態 -->
                 <button class="btn-play-main"
                   id="mainbtn-${idx}"
                   data-slide="${idx}"
-                  onclick="speakText(document.getElementById('script-${idx}').textContent, this, ${idx})">
-                  ▶ 播放朗讀
+                  onmousedown="event.preventDefault()"
+                  onclick="playScript(this, ${idx})">
+                  <span class="play-text">▶ 播放全部</span>
+                  <div class="audio-visualizer"><span></span><span></span><span></span></div>
                 </button>
                 <button class="btn-stop" onclick="stopSpeech()">⏹ 停止</button>
                 <div class="speed-wrap">
@@ -834,6 +922,9 @@ function buildSlides() {
                     id="speed-${idx}"
                     oninput="document.getElementById('sv-${idx}').textContent=this.value+'×'">
                   <span class="speed-val" id="sv-${idx}">0.85×</span>
+                </div>
+                <div style="flex-basis: 100%; font-size: 0.75rem; color: var(--text-light); margin-top: 8px;">
+                  💡 提示：可直接反白上方文字，點擊按鈕即可只播放您選取的段落。
                 </div>
               </div>
             </div>
@@ -880,6 +971,13 @@ function showSlide(idx) {
   updateProgress(idx);
   currentSlide = idx;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  // 換頁時也一併檢查是否有選取的文字，同步更新按鈕顯示
+  const selection = window.getSelection().toString().trim();
+  const currentPlayBtnText = document.querySelector(`#slide-${currentSlide} .btn-play-main:not(.playing) .play-text`);
+  if (currentPlayBtnText) {
+    currentPlayBtnText.textContent = selection ? '▶ 播放選取段落' : '▶ 播放全部';
+  }
 }
 
 window.speechSynthesis.onvoiceschanged = () => {};
