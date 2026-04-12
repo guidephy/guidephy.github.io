@@ -72,6 +72,10 @@ header p {
 }
 .header-controls {
   margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .btn-play-all {
   display: inline-flex;
@@ -99,6 +103,27 @@ header p {
 }
 .btn-play-all.playing:hover {
   background: #a87e77;
+}
+.btn-stop-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  color: var(--text-mid);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 2px 8px rgba(60,53,48,.08);
+}
+.btn-stop-all:hover {
+  background: var(--border);
+  color: var(--text-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(60,53,48,.12);
 }
 .header-badge {
   display: inline-block;
@@ -489,8 +514,11 @@ header p {
   <h1>🎵 AI 音樂創作成果發表會</h1>
   <p>雙語教學逐字稿練習</p>
   <div class="header-controls">
-    <button id="btnPlayAll" class="btn-play-all" onclick="togglePlayAll()">
+    <button id="btnPlayAll" class="btn-play-all" onclick="startPlayAll()">
       ▶ 連續播放 (從本頁開始)
+    </button>
+    <button id="btnStopAll" class="btn-stop-all" onclick="forceStop()">
+      ⏹ 停止連續播放
     </button>
   </div>
   <span class="header-badge">18 張投影片</span>
@@ -514,8 +542,8 @@ const slides = [
 {
   img: "img/1.png",
   label: "Slide 1 — Title Slide",
-  script: `Hello, everyone! Welcome to Guanyin High School. I’m Purple, and this is my partner teacher, Ben. We are so glad to have you in our AI Application class! My English is not perfect, but for our friends from Wayland High School, I will try my best to teach the whole class in English today! We’re very excited to share our AI Music Video Showcase with you. Thank you for joining us, and we hope you enjoy the class!`,
-  zh: `大家好！歡迎來到觀音高中。我是 Purple，這位是我的搭檔老師 Ben。很高興能在 AI 應用課程中見到你們！我的英文不是很完美，但為了我們來自 Wayland 高中的朋友們，我今天會盡全力用全英文來上這堂課！我們非常興奮能與你們分享我們的 AI 音樂影片成果發表會。感謝你們的參與，希望你們喜歡這堂課！`,
+  script: `Hello, everyone! Welcome to Guanyin High School. I’m Purple, and this is my partner teacher, Ben. My English is not good, but for our friends from Wayland High School, I will try my best to teach the whole class in English today! We are so glad to have you in our AI Application class! We’re very excited to share our AI Music Video Showcase with you, and we hope you enjoy the class!`,
+  zh: `大家好！歡迎來到觀音高中。我是 Purple，這位是我的搭檔老師 Ben。我的英文不太好，但為了我們來自 Wayland 高中的朋友們，我今天會盡全力用全英文來上這堂課！很高興能在 AI 應用課程中見到你們！我們非常興奮能與你們分享我們的 AI 音樂影片成果發表會，希望你們喜歡這堂課！`,
   classroom: [
     { en: "Is everyone here? Please sit with your groups.", zh: "大家都到了嗎？請按小組坐好。", ctx: "開場點名，確認學生就位" },
     { en: "Wayland friends, please join our students. Let's sit together!", zh: "Wayland 的朋友們，請加入我們的學生，大家坐在一起吧！", ctx: "歡迎交流生，請大家混坐" },
@@ -541,7 +569,7 @@ const slides = [
 {
   img: "img/3.png",
   label: "Slide 3 — Welcome Performance",
-  script: `As a warm welcome, our Grade 11 and 12 students have prepared a special music performance. They are so excited to play for you. Please give them a big hand! ... Wow! That was amazing! Let's give our performers a big hand again! Thank you, seniors! Now, let's dive into our AI class.`,
+  script: `As a warm welcome, our Grade 11 and 12 students have prepared a special music performance. They are so excited to play for you. Please give them a big hand! ... Wow! That was amazing! Let's give our performers a big hand again! Thank you, seniors! Now, let's move on to our AI class.`,
   zh: `為了表達熱烈的歡迎，我們的高二和高三學生準備了特別的音樂表演。他們非常興奮能為你們演出。請給他們熱烈的掌聲！……哇！太精彩了！讓我們再次給表演者熱烈的掌聲！謝謝學長姐！現在，讓我們正式進入 AI 課程。`,
   classroom: [
     { en: "Please give them a big hand!", zh: "請給他們熱烈的掌聲！", ctx: "帶動觀眾鼓掌" },
@@ -633,8 +661,8 @@ const slides = [
 {
   img: "img/10.png",
   label: "Slide 10 — Step 3: Image Generation",
-  script: `You just need to paste your lyrics and choose a music style — like Rock, Pop, Jazz, or Classical. Suno AI will generate a full song in seconds!`,
-  zh: `你只需要貼上歌詞並選擇音樂風格——例如搖滾、流行、爵士或古典。Suno AI 會在幾秒鐘內生成一首完整的歌曲！`,
+  script: `You just need to paste your lyrics and music style, Suno AI will generate a full song in seconds!`,
+  zh: `你只需要貼上歌詞和音樂風格，Suno AI 會在幾秒鐘內生成一首完整的歌曲！`,
   classroom: [
     { en: "Can a picture tell a story without any words? What do you think?", zh: "一張圖片可以在沒有任何文字的情況下講故事嗎？", ctx: "視覺敘事的思考問題" },
     { en: "Look at this image — what feeling does it give you?", zh: "看看這張圖片——它給你什麼感覺？", ctx: "引導學生用英文描述視覺感受" },
@@ -646,8 +674,8 @@ const slides = [
 {
   img: "img/11.png",
   label: "Slide 11 — Step 3: Video Generation",
-  script: `Once the song is ready, it's time to make a Music Video!`,
-  zh: `歌曲完成後，就該來製作音樂影片了！`,
+  script: `After we have the song, it's time to make a Music Video!`,
+  zh: `有了歌曲之後，就該來製作音樂影片了！`,
   classroom: [
     { en: "Which do you prefer — still photos or videos? Why?", zh: "你比較喜歡靜態照片還是影片？為什麼？", ctx: "個人偏好問題，練習表達意見" },
     { en: "Imagine turning your drawings into a movie — that's what we're doing!", zh: "想像把你的畫變成一部電影——這就是我們正在做的事！", ctx: "讓學生代入創作的興奮感" },
@@ -805,7 +833,6 @@ function forceStop() {
   const btnAll = document.getElementById('btnPlayAll');
   if (btnAll) {
     btnAll.classList.remove('playing');
-    btnAll.innerHTML = '▶ 連續播放 (從本頁開始)';
   }
   
   window.speechSynthesis.cancel();
@@ -863,25 +890,18 @@ function playScript(btn, idx) {
 }
 
 // 連續播放功能
-function togglePlayAll() {
-  const btn = document.getElementById('btnPlayAll');
-  if (isPlayingAll) {
-    forceStop();
-  } else {
-    isPlayingAll = true;
-    btn.classList.add('playing');
-    btn.innerHTML = '⏹ 停止連續播放';
-    // 如果已經在最後一頁，自動從頭開始
-    const startIdx = (currentSlide === slides.length - 1) ? 0 : currentSlide;
-    playSlideSequence(startIdx);
-  }
+function startPlayAll() {
+  forceStop(); // 先重置目前狀態
+  isPlayingAll = true;
+  document.getElementById('btnPlayAll').classList.add('playing');
+  playSlideSequence(currentSlide);
 }
 
 function playSlideSequence(idx) {
   if (!isPlayingAll) return;
+  
   if (idx >= slides.length) {
-    forceStop(); // 全部播完自動停止並重置
-    return;
+    idx = 0; // 無限循環：當播放到最後一頁時，回到第 0 頁
   }
   
   // 自動切換到該投影片 (設定為自動換頁，不觸發中斷)
