@@ -208,6 +208,8 @@ const boltMat      = new THREE.MeshStandardMaterial({ color: 0x3f4756, metalness
 const copperMat    = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6,  roughness: 0.3 });
 const copperDarkMat= new THREE.MeshStandardMaterial({ color: 0x9a5411, metalness: 0.6,  roughness: 0.35 });
 const foundationMat= new THREE.MeshStandardMaterial({ color: 0xa5a9b2, roughness: 0.9 });
+const brushMat     = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9, metalness: 0.1 });  // 碳刷材質
+const ringMat      = new THREE.MeshStandardMaterial({ color: 0xcca652, roughness: 0.4, metalness: 0.8 });  // 黃銅滑環材質
 
 // ====================== Twisted Airfoil Blade Geometry ======================
 function createTurbineBladeGeo(bladeLen, chord, twist, thick) {
@@ -469,6 +471,7 @@ bearingsGroup.add(buildBearing(4.5));
 const genHousingGroup = new THREE.Group();
 const coilRotorGroup  = new THREE.Group();
 const magnetsGroup    = new THREE.Group();
+const brushGroup      = new THREE.Group(); // 新增電刷群組
 
 const GEN_X = 6;
 const COIL_W = 4.0;
@@ -505,7 +508,44 @@ for (let i = 0; i < 3; i++) {
   coils.push(coil);
   coilRotorGroup.add(coil);
 }
+
+// --- 滑環 (Slip Rings) 與 連接線 ---
+// 跟隨線圈轉子一起旋轉
+const ring1 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.25, 32), ringMat);
+ring1.rotation.z = Math.PI / 2;
+ring1.position.set(2.4, 0, 0); // 局部座標
+ring1.castShadow = true;
+
+const ring2 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.25, 32), ringMat);
+ring2.rotation.z = Math.PI / 2;
+ring2.position.set(3.0, 0, 0);
+ring2.castShadow = true;
+
+// 將線圈兩端連接到滑環上
+function createRotorWire(p1, p2) {
+  const curve = new THREE.LineCurve3(new THREE.Vector3(...p1), new THREE.Vector3(...p2));
+  return new THREE.Mesh(new THREE.TubeGeometry(curve, 4, 0.04, 8, false), copperMat);
+}
+const conn1 = createRotorWire([2.0, 1.3, 0], [2.4, 0.35, 0]);
+const conn2 = createRotorWire([2.0, -1.3, 0], [3.0, -0.35, 0]);
+
+coilRotorGroup.add(ring1, ring2, conn1, conn2);
 coilRotorGroup.position.x = GEN_X;
+
+// --- 靜止電刷 (Brushes) ---
+// 第一個電刷 (接觸前滑環)
+const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.3), brushMat);
+b1.position.set(GEN_X + 2.4, 0.45, 0); 
+const h1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.35), casingMat);
+h1.position.set(GEN_X + 2.4, 0.7, 0);
+
+// 第二個電刷 (接觸後滑環)
+const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.3), brushMat);
+b2.position.set(GEN_X + 3.0, 0.45, 0);
+const h2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.35), casingMat);
+h2.position.set(GEN_X + 3.0, 0.7, 0);
+
+brushGroup.add(b1, h1, b2, h2);
 
 const magN_Mat = new THREE.MeshStandardMaterial({ map: createTextTexture('N', '#dc2626'), roughness: 0.55, metalness: 0.1 });
 const magnetN = new THREE.Mesh(new THREE.BoxGeometry(COIL_W + 0.6, 0.75, 2.4), magN_Mat);
@@ -574,14 +614,31 @@ genHousingGroup.add(termLid);
 const bulbGroup = new THREE.Group();
 
 const wireMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.2, roughness: 0.7 });
-const wireA = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.4, 12), wireMat);
-wireA.rotation.z = Math.PI / 2;
-wireA.position.set(9.8, 0.25, 0.25);
-bulbGroup.add(wireA);
-const wireB = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.4, 12), wireMat);
-wireB.rotation.z = Math.PI / 2;
-wireB.position.set(9.8, -0.25, -0.25);
-bulbGroup.add(wireB);
+
+// 繪製從電刷到燈泡的美觀曲線電線
+function createWire(p1, p2, p3, p4) {
+  const curve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(...p1), new THREE.Vector3(...p2),
+    new THREE.Vector3(...p3), new THREE.Vector3(...p4)
+  ]);
+  const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 0.05, 8, false), wireMat);
+  mesh.castShadow = true;
+  return mesh;
+}
+
+const wireA = createWire(
+  [GEN_X + 2.4, 0.8, 0],       // 從第一個電刷座接出
+  [GEN_X + 2.4, 1.4, 0.6],     // 向上往前彎曲
+  [11.2, 1.1, 0.6],            // 延伸至燈泡處
+  [11.6, 0.15, 0.15]           // 接到底座
+);
+const wireB = createWire(
+  [GEN_X + 3.0, 0.8, 0],       // 從第二個電刷座接出
+  [GEN_X + 3.0, 1.4, -0.6],    // 向上往後彎曲
+  [11.2, 1.1, -0.6],           // 延伸至燈泡處
+  [11.6, -0.15, -0.15]         // 接到底座
+);
+bulbGroup.add(wireA, wireB);
 
 const bulbBase = new THREE.Mesh(
   new THREE.CylinderGeometry(0.35, 0.26, 0.55, 20),
@@ -640,6 +697,7 @@ scene.add(turbineRotorGroup);
 scene.add(genHousingGroup);
 scene.add(magnetsGroup);
 scene.add(coilRotorGroup);
+scene.add(brushGroup); // 加入電刷群組
 scene.add(bulbGroup);
 scene.add(steamParticles);
 
@@ -652,7 +710,7 @@ const stages = [
     show: {
       foundation:1, casing:1, bearings:1, statorVanes:1,
       turbineRotor:1, genHousing:1, magnets:0, coilRotor:0,
-      bulb:1, steam:1, coilCount: 3
+      brushes:0, bulb:1, steam:1, coilCount: 3
     }
   },
   {
@@ -662,7 +720,7 @@ const stages = [
     show: {
       foundation:1, casing:0, bearings:1, statorVanes:1,
       turbineRotor:1, genHousing:0, magnets:1, coilRotor:1,
-      bulb:1, steam:1, coilCount: 3
+      brushes:1, bulb:1, steam:1, coilCount: 3
     }
   },
   {
@@ -672,12 +730,13 @@ const stages = [
     show: {
       foundation:0, casing:0, bearings:0, statorVanes:0,
       turbineRotor:0, genHousing:0, magnets:1, coilRotor:1,
-      bulb:1, steam:0, coilCount: 1
+      brushes:1, bulb:1, steam:0, coilCount: 1
     }
   }
 ];
 
 let currentStage = 0;
+let targetLookAt = new THREE.Vector3(1.5, 0.5, 0); // 用來控制相機平移的目標中心點
 
 function applyStage(n) {
   currentStage = n;
@@ -691,6 +750,7 @@ function applyStage(n) {
   genHousingGroup.visible   = !!s.show.genHousing;
   magnetsGroup.visible      = !!s.show.magnets;
   coilRotorGroup.visible    = !!s.show.coilRotor;
+  brushGroup.visible        = !!s.show.brushes;
   bulbGroup.visible         = !!s.show.bulb;
   steamParticles.visible    = !!s.show.steam;
 
@@ -703,6 +763,11 @@ function applyStage(n) {
   document.getElementById('prev-btn').disabled = n === 0;
   document.getElementById('next-btn').innerHTML =
     n === stages.length - 1 ? "Restart 🔄 重新開始" : "Next ▶ 下一步";
+
+  // 設定智慧運鏡的視角中心 (讓最後一步完美置中)
+  if (n === 0) targetLookAt.set(1.5, 0.5, 0);        // 完整機組置中
+  else if (n === 1) targetLookAt.set(3.5, 0.5, 0);   // 稍微向右移，兼顧渦輪與發電機
+  else if (n === 2) targetLookAt.set(8.5, 0.5, 0);   // 完全聚焦於右側的線圈、滑環與燈泡
 }
 
 // ====================== Controls ======================
@@ -747,6 +812,14 @@ function animate() {
       }
     }
     steamParticles.geometry.attributes.position.needsUpdate = true;
+  }
+
+  // 智慧運鏡：平滑移動整個相機與聚焦座標，但不改變使用者的縮放與旋轉角度
+  const targetDelta = new THREE.Vector3().subVectors(targetLookAt, controls.target);
+  if (targetDelta.lengthSq() > 0.001) {
+    const step = targetDelta.multiplyScalar(0.06); // 平滑移動速率
+    controls.target.add(step);
+    camera.position.add(step);
   }
 
   // 更新控制器以支援慣性滑動
