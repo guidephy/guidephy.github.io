@@ -103,6 +103,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 // ====================== Helper Functions ======================
 function createTextTexture(text, color) {
@@ -140,12 +141,14 @@ scene.background = new THREE.Color(0xf0f4f8);
 scene.fog = new THREE.Fog(0xdbe3ec, 30, 70);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-let cameraDistance = 30;
-let targetCameraDistance = 30;
-let cameraAngleX = 0.85;
-let cameraAngleY = 0.35;
-let cameraTarget = new THREE.Vector3(0, 0.5, 0);
-let currentCameraTarget = new THREE.Vector3(0, 0.5, 0);
+
+// 針對手機版(直向)自動拉遠視角，讓長條形的發電機不會被切掉
+const isMobile = window.innerWidth < 900;
+if (isMobile) {
+  camera.position.set(28, 20, 38); 
+} else {
+  camera.position.set(18, 12, 24);
+}
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -154,6 +157,16 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// ====================== 3D 控制器設定 (OrbitControls) ======================
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;      // 啟用滑動慣性 (非常適合手機，手感滑順)
+controls.dampingFactor = 0.08;      // 慣性阻尼係數
+controls.enablePan = false;         // 禁止雙指平移，避免模型跑出畫面
+controls.minDistance = 15;          // 最小縮放限制 (避免穿模)
+controls.maxDistance = 65;          // 最大拉遠限制
+controls.maxPolarAngle = Math.PI / 2 + 0.05; // 限制仰角，相機不會鑽到地板下方
+controls.target.set(0, 0.5, 0);     // 永遠聚焦在機組中心點
 
 // ====================== Lighting ======================
 scene.add(new THREE.AmbientLight(0xffffff, 0.75));
@@ -701,36 +714,6 @@ document.getElementById('prev-btn').addEventListener('click', () => {
   if (currentStage > 0) applyStage(currentStage - 1);
 });
 
-// Mouse drag / scroll
-let isDragging = false, prevMouse = { x: 0, y: 0 };
-window.addEventListener('mousedown', e => {
-  if (e.target.tagName === 'CANVAS') { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; }
-});
-window.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  cameraAngleX += (e.clientX - prevMouse.x) * 0.005;
-  cameraAngleY = Math.max(-1.4, Math.min(1.4, cameraAngleY + (e.clientY - prevMouse.y) * 0.005));
-  prevMouse = { x: e.clientX, y: e.clientY };
-});
-window.addEventListener('mouseup', () => isDragging = false);
-window.addEventListener('wheel', e => {
-  if (e.target.tagName === 'CANVAS') { e.preventDefault(); targetCameraDistance += e.deltaY * 0.02; }
-}, { passive: false });
-
-// Touch
-window.addEventListener('touchstart', e => {
-  if (e.target.tagName === 'CANVAS' && e.touches[0]) {
-    isDragging = true; prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }
-}, { passive: false });
-window.addEventListener('touchmove', e => {
-  if (!isDragging || !e.touches[0]) return;
-  cameraAngleX += (e.touches[0].clientX - prevMouse.x) * 0.005;
-  cameraAngleY = Math.max(-1.4, Math.min(1.4, cameraAngleY + (e.touches[0].clientY - prevMouse.y) * 0.005));
-  prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-}, { passive: false });
-window.addEventListener('touchend', () => isDragging = false);
-
 // ====================== Animation Loop ======================
 const clock = new THREE.Clock();
 function animate() {
@@ -766,13 +749,8 @@ function animate() {
     steamParticles.geometry.attributes.position.needsUpdate = true;
   }
 
-  cameraDistance += (targetCameraDistance - cameraDistance) * 0.08;
-  currentCameraTarget.lerp(cameraTarget, 0.08);
-
-  camera.position.x = currentCameraTarget.x + cameraDistance * Math.cos(cameraAngleY) * Math.sin(cameraAngleX);
-  camera.position.y = currentCameraTarget.y + cameraDistance * Math.sin(cameraAngleY);
-  camera.position.z = currentCameraTarget.z + cameraDistance * Math.cos(cameraAngleY) * Math.cos(cameraAngleX);
-  camera.lookAt(currentCameraTarget);
+  // 更新控制器以支援慣性滑動
+  controls.update();
 
   renderer.render(scene, camera);
 }
