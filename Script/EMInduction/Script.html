@@ -137,18 +137,17 @@ main {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 佈局容器：手機版預設為垂直堆疊 */
+/* 手機版排版順序 */
 .content-grid {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
-
-/* 手機版排序：圖片(1) -> 逐字稿(2) -> 課室英語(3) */
 .image-box { order: 1; }
 .script-panel { order: 2; }
 .classroom-panel { order: 3; }
 
+/* 電腦版雙欄排版 */
 @media (min-width: 768px) {
   .content-grid {
     display: grid;
@@ -323,8 +322,8 @@ const slides = [
   },
   {
     label: "Slide 3 — Statement of Inquiry",
-    script: `The Statement of Inquiry is: "Innovative technology and physical interactions drive sustainable energy transformation." This lesson guides students through three levels of questions. Factual: What are the similarities and differences in power plant structures? Conceptual: How do coils and magnets interact to generate electrical energy? Debatable: To achieve sustainability, "can" we and "should" we stop using fossil fuels?`,
-    zh: `本課的探究陳述是：「創新技術與物理間的交互作用，是驅動永續能源轉型的動力。」我透過三個層次的問題引導學生：事實性問題：發電廠的構造有什麼異同？概念性問題：線圈與磁鐵如何透過交互作用產生電能？辯論性問題：為了達成永續，我們是否「能」且「應該」停止使用化石燃料？`,
+    script: `The Statement of Inquiry is: "Innovative technology and the physical mechanisms of change and interaction drive sustainable energy transformation." This lesson guides students through three inquiry questions. Factual: What are the similarities and differences in power plant structures? Conceptual: How do coils and magnets interact to generate electrical energy? Debatable: To achieve sustainability, "can" we and "should" we stop using fossil fuels?`,
+    zh: `本課的探究陳述是：「創新技術以及變革與交互作用的物理機制，是驅動永續能源轉型的動力。」本課透過三個探究問題引導學生。事實性問題：各類發電廠的構造有什麼異同？概念性問題：線圈與磁鐵如何交互作用產生電能？辯論性問題：為了達成永續，我們是否「能」且「應該」停止使用化石燃料？`,
     classroom: [
       { en: "A factual question has a clear right answer.", zh: "事實性問題有明確的答案。" },
       { en: "Which of these three questions do you find most interesting?", zh: "這三個問題中，你覺得哪個最有趣？" }
@@ -332,8 +331,8 @@ const slides = [
   },
   {
     label: "Slide 4 — Learning Objectives",
-    script: `The learning objectives range from knowledge — Faraday's Law — to skills — conducting simulation experiments — and finally to application: evaluating the needs of Taiwan's energy transition.`,
-    zh: `學習目標涵蓋了從知識層面（法拉第定律），到技能層面的模擬實驗，最後延伸至應用層面：評估台灣能源轉型的需求。`,
+    script: `The learning objectives range from knowledge — Faraday's Law — to skills — conducting simulation experiments — and finally to application: evaluating the needs of the energy transition.`,
+    zh: `學習目標涵蓋了從知識層面（法拉第定律），到技能層面的模擬實驗，最後延伸至應用層面：評估能源轉型的需求。`,
     classroom: [
       { en: "By the end of this lesson, you should be able to explain Faraday's Law.", zh: "這堂課結束時，你應該能夠解釋法拉第定律。" },
       { en: "We'll apply it to Taiwan's energy situation.", zh: "我們會將其應用在台灣的能源情況。" }
