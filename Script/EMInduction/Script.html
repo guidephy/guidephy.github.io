@@ -40,7 +40,6 @@ body {
   padding-bottom: 80px;
 }
 
-/* Header */
 header {
   background: var(--card-bg);
   border-bottom: 1px solid var(--border);
@@ -85,7 +84,6 @@ header h1 {
 .btn-outline:hover { background: var(--border); }
 .btn.active { background: var(--accent); color: white; }
 
-/* Progress */
 .progress-container {
   height: 4px;
   background: var(--border);
@@ -100,7 +98,6 @@ header h1 {
   transition: width 0.3s ease;
 }
 
-/* Nav Bar */
 .nav-scroll {
   background: var(--card-bg);
   padding: 0.75rem;
@@ -123,7 +120,6 @@ header h1 {
 }
 .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-/* Main Content */
 main {
   max-width: 1000px;
   margin: 2rem auto;
@@ -141,17 +137,32 @@ main {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* 佈局容器：手機版預設為垂直堆疊 */
 .content-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
+/* 手機版排序：圖片(1) -> 逐字稿(2) -> 課室英語(3) */
+.image-box { order: 1; }
+.script-panel { order: 2; }
+.classroom-panel { order: 3; }
+
 @media (min-width: 768px) {
-  .content-grid { grid-template-columns: 350px 1fr; }
+  .content-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    grid-template-areas: 
+      "img script"
+      "cls script";
+    gap: 1.5rem;
+  }
+  .image-box { grid-area: img; }
+  .script-panel { grid-area: script; }
+  .classroom-panel { grid-area: cls; }
 }
 
-/* Image Box */
 .image-box {
   width: 100%;
   aspect-ratio: 16/9;
@@ -187,14 +198,13 @@ main {
   display: none;
 }
 
-/* Panels */
 .panel {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin-bottom: 1rem;
   overflow: hidden;
   box-shadow: var(--shadow);
+  height: fit-content;
 }
 
 .panel-header {
@@ -212,9 +222,9 @@ main {
 .script-text { font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; }
 .zh-text { font-size: 0.95rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 1rem; }
 
-/* TTS Controls */
 .tts-controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
   margin-top: 1rem;
@@ -222,10 +232,9 @@ main {
   background: var(--bg);
   border-radius: 8px;
 }
-.speed-control { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; flex: 1; }
+.speed-control { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; flex: 1; min-width: 150px; }
 .speed-control input { flex: 1; accent-color: var(--primary); }
 
-/* Classroom English */
 .classroom-list { display: flex; flex-direction: column; gap: 0.75rem; }
 .classroom-item {
   padding: 0.75rem;
@@ -237,7 +246,6 @@ main {
 .cls-zh { font-size: 0.85rem; color: var(--text-muted); }
 .cls-play { margin-top: 0.5rem; font-size: 0.75rem; color: var(--primary); cursor: pointer; text-decoration: underline; }
 
-/* Visualizer */
 .visualizer { display: none; height: 15px; align-items: center; gap: 2px; }
 .visualizer.active { display: flex; }
 .bar { width: 3px; height: 100%; background: var(--primary); animation: wave 1s infinite; }
@@ -248,7 +256,6 @@ main {
   50% { height: 15px; }
 }
 
-/* Footer Nav */
 .footer-nav {
   position: fixed;
   bottom: 0;
@@ -261,6 +268,7 @@ main {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+  z-index: 100;
 }
 </style>
 </head>
@@ -292,7 +300,6 @@ main {
 </div>
 
 <script>
-// 設定圖片存放的資料夾
 const imgDir = "img/";
 
 const slides = [
@@ -365,7 +372,7 @@ const slides = [
     zh: `接著我提供發電廠示意圖。每組負責一種發電廠的介紹。討論後，需簡述其發電過程。`,
     classroom: [
       { en: "Study it carefully with your teammates.", zh: "和組員仔細研究它。" },
-      { en: "Listen carefully to other groups.", zh: "仔細聆聽其他組別。" }
+      { en: "Listen carefully to other groups.", zh: "仔釋聆聽其他組別。" }
     ]
   },
   {
@@ -527,13 +534,13 @@ const slides = [
     zh: `受到戰爭影響，目前的能源價格已大幅上漲。`,
     classroom: [
       { en: "War hurts energy supplies.", zh: "戰爭傷害能源供應。" },
-      { en: "If the energy cost doubles, how might that affect you?", zh: "如果能源成本翻倍，會如何影響你？" }
+      { en: "If the energy cost doubles, how might that affect you?", zh: "如果能源成本翻倍，會如何影響你的生活？" }
     ]
   },
   {
     label: "Slide 27 — Opportunity for Change & SDGs",
     script: `This gives the world an opportunity to change. It encourages the use of renewable energy like wind and solar to reduce carbon emissions and achieve SDG 7 — Affordable and Clean Energy — and SDG 13 — Climate Action — moving toward Net Zero 2050.`,
-    zh: `這為世界提供了一個變革的契機。它鼓勵使用風能與太陽能等再生能源來降低碳排，進而實現 SDG 7（可負擔的潔淨能源）與 SDG 13（氣候行動），並邁向 2050 淨零排放的目標。`,
+    zh: `這為世界提供了一個變革的契機。它鼓勵使用風能與太陽能等再生能源來降低碳排，進而實現 SDG 7（可負負擔的潔淨能源）與 SDG 13（氣候行動），並邁向 2050 淨零排放的目標。`,
     classroom: [
       { en: "It's also a chance to change.", zh: "這也是一個做出改變的絕佳機會。" },
       { en: "Net Zero 2050 — Is this goal realistic?", zh: "2050 淨零排放——你覺得這目標現實嗎？" }
@@ -555,7 +562,6 @@ let isPlayingAll = false;
 let synthesis = window.speechSynthesis;
 let currentUtterance = null;
 
-// Initialize
 function init() {
   buildNav();
   renderSlide(0);
@@ -577,9 +583,7 @@ function renderSlide(idx) {
   stopSpeech();
   currentIdx = idx;
   const s = slides[idx];
-  // 建立圖片路徑: img/1.png, img/2.png ...
   const imagePath = imgDir + (idx + 1) + ".png";
-  
   const container = document.getElementById('slideContainer');
   
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -596,57 +600,53 @@ function renderSlide(idx) {
       </div>
       
       <div class="content-grid">
-        <div class="left-col">
-          <div class="image-box">
-             <div class="slide-num">Slide ${idx+1}</div>
-             <img src="${imagePath}" alt="${s.label}" onerror="handleImgError(this, ${idx})">
-             <div class="img-error" id="err-${idx}">
-                <p style="font-weight:bold; font-size: 1.1rem;">${s.label.split('—')[1] || s.label}</p>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">找不到圖片: ${imagePath}</p>
+        <!-- 簡報圖片區塊 -->
+        <div class="image-box">
+           <div class="slide-num">Slide ${idx+1}</div>
+           <img src="${imagePath}" alt="${s.label}" onerror="handleImgError(this, ${idx})">
+           <div class="img-error" id="err-${idx}">
+              <p style="font-weight:bold; font-size: 1.1rem;">${s.label.split('—')[1] || s.label}</p>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">找不到圖片: ${imagePath}</p>
+           </div>
+        </div>
+
+        <!-- 逐字稿區塊 -->
+        <div class="panel script-panel">
+          <div class="panel-header">
+             <span>📝 英文說課逐字稿</span>
+             <div class="visualizer" id="viz-${idx}">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
              </div>
           </div>
-
-          <div class="panel" style="margin-top: 1.5rem;">
-            <div class="panel-header">🏫 課室英語補充</div>
-            <div class="panel-body">
-              <div class="classroom-list">
-                ${s.classroom.map(c => `
-                  <div class="classroom-item">
-                    <div class="cls-en">${c.en}</div>
-                    <div class="cls-zh">${c.zh}</div>
-                    <div class="cls-play" onclick="speakText('${c.en.replace(/'/g, "\\'")}', 1.0)">▶ 點擊播放</div>
-                  </div>
-                `).join('')}
+          <div class="panel-body">
+            <div class="script-text" id="script-${idx}">${s.script}</div>
+            <div class="zh-text">${s.zh}</div>
+            
+            <div class="tts-controls">
+              <button class="btn btn-primary" onclick="playCurrentScript()">
+                 <span id="playIcon">▶</span> <span id="playText">播放全文</span>
+              </button>
+              <div class="speed-control">
+                <span>速度</span>
+                <input type="range" id="speed-${idx}" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeedLabel(${idx})">
+                <span id="speedVal-${idx}">1.0x</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="right-col">
-          <div class="panel">
-            <div class="panel-header">
-               <span>📝 英文說課逐字稿</span>
-               <div class="visualizer" id="viz-${idx}">
-                  <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-               </div>
-            </div>
-            <div class="panel-body">
-              <div class="script-text" id="script-${idx}">${s.script}</div>
-              <div class="zh-text">${s.zh}</div>
-              
-              <div class="tts-controls">
-                <button class="btn btn-primary" onclick="playCurrentScript()">
-                   <span id="playIcon">▶</span> <span id="playText">播放全文</span>
-                </button>
-                <div class="speed-control">
-                  <span>速度</span>
-                  <input type="range" id="speed-${idx}" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeedLabel(${idx})">
-                  <span id="speedVal-${idx}">1.0x</span>
+        <!-- 課室英語補充區塊 -->
+        <div class="panel classroom-panel">
+          <div class="panel-header">🏫 課室英語補充</div>
+          <div class="panel-body">
+            <div class="classroom-list">
+              ${s.classroom.map(c => `
+                <div class="classroom-item">
+                  <div class="cls-en">${c.en}</div>
+                  <div class="cls-zh">${c.zh}</div>
+                  <div class="cls-play" onclick="speakText('${c.en.replace(/'/g, "\\'")}', 1.0)">▶ 點擊播放</div>
                 </div>
-              </div>
-              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-style: italic;">
-                💡 秘訣：你可以反白選取文字，然後點擊「播放選取段落」來針對練習。
-              </p>
+              `).join('')}
             </div>
           </div>
         </div>
