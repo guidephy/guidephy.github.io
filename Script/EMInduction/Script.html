@@ -151,7 +151,7 @@ main {
   .content-grid { grid-template-columns: 350px 1fr; }
 }
 
-/* Image Placeholder */
+/* Image Box */
 .image-box {
   width: 100%;
   aspect-ratio: 16/9;
@@ -164,7 +164,12 @@ main {
   box-shadow: var(--shadow);
   position: relative;
 }
-.image-box img { width: 100%; height: 100%; object-fit: cover; }
+.image-box img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain; 
+  background: #eee;
+}
 .image-box .slide-num {
   position: absolute;
   top: 10px;
@@ -174,6 +179,12 @@ main {
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
+  z-index: 10;
+}
+.img-error {
+  text-align: center;
+  padding: 20px;
+  display: none;
 }
 
 /* Panels */
@@ -194,7 +205,6 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
 }
 
 .panel-body { padding: 1.25rem; }
@@ -202,7 +212,7 @@ main {
 .script-text { font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; }
 .zh-text { font-size: 0.95rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 1rem; }
 
-/* TTS Controls Inside Panel */
+/* TTS Controls */
 .tts-controls {
   display: flex;
   align-items: center;
@@ -212,7 +222,6 @@ main {
   background: var(--bg);
   border-radius: 8px;
 }
-
 .speed-control { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; flex: 1; }
 .speed-control input { flex: 1; accent-color: var(--primary); }
 
@@ -283,6 +292,9 @@ main {
 </div>
 
 <script>
+// 設定圖片存放的資料夾
+const imgDir = "img/";
+
 const slides = [
   {
     label: "Slide 1 — Introduction",
@@ -314,7 +326,7 @@ const slides = [
   {
     label: "Slide 4 — Learning Objectives",
     script: `The learning objectives range from knowledge — Faraday's Law — to skills — conducting simulation experiments — and finally to application: evaluating the needs of Taiwan's energy transition.`,
-    zh: `學習目標涵蓋了從知識層面（法拉第定律），到技能層面（進行模擬實驗），最後延伸至應用層面：評估台灣能源轉型的需求。`,
+    zh: `學習目標涵蓋了從知識層面（法拉第定律），到技能層面的模擬實驗，最後延伸至應用層面：評估台灣能源轉型的需求。`,
     classroom: [
       { en: "By the end of this lesson, you should be able to explain Faraday's Law.", zh: "這堂課結束時，你應該能夠解釋法拉第定律。" },
       { en: "We'll apply it to Taiwan's energy situation.", zh: "我們會將其應用在台灣的能源情況。" }
@@ -488,7 +500,7 @@ const slides = [
     zh: `前面知道渦輪轉動可發電，但究竟是什麼驅動了渦輪旋轉？`,
     classroom: [
       { en: "What makes it spin?", zh: "是什麼推動它轉動的？" },
-      { en: "Steam spins the turbine in coal plants.", zh: "燃煤電廠是用蒸汽推動渦輪。" }
+      { en: "Steam spins the turbine in coal plants.", zh: "在燃煤電廠中，是由蒸汽推動渦輪。" }
     ]
   },
   {
@@ -514,8 +526,8 @@ const slides = [
     script: `Because of the war, energy prices are now much higher.`,
     zh: `受到戰爭影響，目前的能源價格已大幅上漲。`,
     classroom: [
-      { en: "War hurts energy supplies.", zh: "戰爭會嚴重破壞能源供應鏈。" },
-      { en: "If the energy cost doubles, how might that affect you?", zh: "如果能源成本翻倍，會如何影響你的生活？" }
+      { en: "War hurts energy supplies.", zh: "戰爭傷害能源供應。" },
+      { en: "If the energy cost doubles, how might that affect you?", zh: "如果能源成本翻倍，會如何影響你？" }
     ]
   },
   {
@@ -565,9 +577,11 @@ function renderSlide(idx) {
   stopSpeech();
   currentIdx = idx;
   const s = slides[idx];
+  // 建立圖片路徑: img/1.png, img/2.png ...
+  const imagePath = imgDir + (idx + 1) + ".png";
+  
   const container = document.getElementById('slideContainer');
   
-  // Update Indicators
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.getElementById(`nav-${idx}`).classList.add('active');
   document.getElementById('slideIndicator').textContent = `${idx + 1} / ${slides.length}`;
@@ -585,9 +599,10 @@ function renderSlide(idx) {
         <div class="left-col">
           <div class="image-box">
              <div class="slide-num">Slide ${idx+1}</div>
-             <div style="text-align:center; padding: 20px;">
-                <p style="font-weight:bold; font-size: 1.2rem;">${s.label.split('—')[1] || s.label}</p>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Visual Aid Placeholder</p>
+             <img src="${imagePath}" alt="${s.label}" onerror="handleImgError(this, ${idx})">
+             <div class="img-error" id="err-${idx}">
+                <p style="font-weight:bold; font-size: 1.1rem;">${s.label.split('—')[1] || s.label}</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">找不到圖片: ${imagePath}</p>
              </div>
           </div>
 
@@ -630,7 +645,7 @@ function renderSlide(idx) {
                 </div>
               </div>
               <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-style: italic;">
-                💡 秘訣：你可以反白選取文字，然後點擊「播放選取文字」來針對練習。
+                💡 秘訣：你可以反白選取文字，然後點擊「播放選取段落」來針對練習。
               </p>
             </div>
           </div>
@@ -639,8 +654,13 @@ function renderSlide(idx) {
     </div>
   `;
 
-  // Update button text if selection exists
   document.addEventListener('selectionchange', handleSelection);
+}
+
+function handleImgError(img, idx) {
+  img.style.display = 'none';
+  const errDiv = document.getElementById(`err-${idx}`);
+  if (errDiv) errDiv.style.display = 'block';
 }
 
 function handleSelection() {
@@ -703,7 +723,7 @@ function togglePlayAll() {
 
 function playSequentially(idx) {
   if (!isPlayingAll || idx >= slides.length) {
-    togglePlayAll(); // stop
+    if (isPlayingAll) togglePlayAll(); 
     return;
   }
   renderSlide(idx);
@@ -712,7 +732,7 @@ function playSequentially(idx) {
     if (isPlayingAll) {
       setTimeout(() => {
         playSequentially(idx + 1);
-      }, 1500); // Pause between slides
+      }, 1500);
     }
   });
 }
@@ -731,7 +751,6 @@ function prevSlide() {
   if (currentIdx > 0) renderSlide(currentIdx - 1);
 }
 
-// Global hotkeys
 document.addEventListener('keydown', (e) => {
   if (e.code === 'ArrowRight') nextSlide();
   if (e.code === 'ArrowLeft') prevSlide();
@@ -740,9 +759,6 @@ document.addEventListener('keydown', (e) => {
     playCurrentScript();
   }
 });
-
-// Load voices
-window.speechSynthesis.onvoiceschanged = () => {};
 
 init();
 </script>
