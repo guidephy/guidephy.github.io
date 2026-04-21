@@ -29,11 +29,14 @@
     position: fixed; z-index: 100;
     background: var(--panel-bg); backdrop-filter: blur(12px);
     border: 1px solid rgba(15, 23, 42, 0.06);
-    border-left: 4px solid var(--primary);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
     border-radius: 12px;
   }
-  #info-panel { top: 24px; left: 24px; width: auto; min-width: 280px; padding: 16px 24px; }
+  #info-panel { 
+    top: 24px; left: 24px; width: auto; min-width: 280px; 
+    padding: 16px 24px; 
+    border-left: 4px solid var(--primary);
+  }
   
   .step-badge {
     display: inline-block; background: var(--primary); color: #fff;
@@ -41,10 +44,42 @@
     letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;
   }
   
-  /* 英文大標題 */
   #info-panel h1 { font-size: 22px; color: var(--text-main); margin-bottom: 2px; font-weight: 800; line-height: 1.2; }
-  /* 中文副標題 */
   #info-panel h2 { font-size: 14.5px; color: var(--text-muted); font-weight: 600; margin: 0; letter-spacing: 0.5px; }
+
+  /* 右上角互動控制面板 (針對最後階段) */
+  #interactive-panel {
+    top: 24px; right: 24px; width: auto; min-width: 260px;
+    padding: 16px 24px;
+    border-right: 4px solid var(--accent);
+    display: none; /* 預設隱藏，由 JS 控制顯示 */
+    flex-direction: column;
+    gap: 14px;
+  }
+  #interactive-panel h3 {
+    font-size: 15px; color: var(--text-main); font-weight: 800;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .toggle-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; font-weight: 700; color: var(--text-muted);
+  }
+
+  /* Switch 開關樣式 */
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #cbd5e1; transition: .4s; border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px;
+    left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  input:checked + .slider { background-color: var(--accent); }
+  input:checked + .slider:before { transform: translateX(20px); }
 
   /* 底部按鈕控制區 */
   #controls {
@@ -63,7 +98,7 @@
   .btn.btn-primary:hover:not(:disabled) { box-shadow: 0 6px 15px rgba(14, 165, 233, 0.4); color: #fff; }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  /* 操作提示 (移至底部按鈕上方) */
+  /* 操作提示 */
   #hint {
     position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
     color: var(--text-muted); font-size: 12px; z-index: 100;
@@ -79,6 +114,10 @@
       top: 16px; left: 50%; transform: translateX(-50%); width: 92vw;
       padding: 14px; border-left: none; border-top: 4px solid var(--primary);
       text-align: center; align-items: center; display: flex; flex-direction: column;
+    }
+    #interactive-panel {
+      top: 110px; left: 50%; right: auto; transform: translateX(-50%); width: 92vw;
+      border-right: none; border-top: 4px solid var(--accent);
     }
     #info-panel h1 { font-size: 20px; }
     #controls { bottom: 20px; width: 92vw; justify-content: space-between; gap: 8px; }
@@ -97,6 +136,25 @@
   <h2 id="stage-title-zh">渦輪發電機</h2>
 </div>
 
+<!-- 新增互動控制面板 -->
+<div id="interactive-panel" class="edu-panel">
+  <h3>⚡ 互動實驗 Interactive</h3>
+  <div class="toggle-row">
+    <span>線圈旋轉 Coil Rotation</span>
+    <label class="switch">
+      <input type="checkbox" id="toggle-rotate" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="toggle-row">
+    <span>磁鐵存在 Magnets</span>
+    <label class="switch">
+      <input type="checkbox" id="toggle-magnets" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>
+
 <div id="controls">
   <button class="btn" id="prev-btn">◀ Previous 上一步</button>
   <button class="btn btn-primary" id="next-btn">Next 下一步 ▶</button>
@@ -105,6 +163,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
+// ====================== 互動狀態變數 ======================
+let isRotating = true;
+let hasMagnets = true;
+
+// 綁定 UI 事件
+document.getElementById('toggle-rotate').addEventListener('change', (e) => {
+  isRotating = e.target.checked;
+});
+document.getElementById('toggle-magnets').addEventListener('change', (e) => {
+  hasMagnets = e.target.checked;
+  if (currentStage === 2) { // 只有在第三階段(index=2)時，依照開關控制磁鐵顯示
+    magnetsGroup.visible = hasMagnets;
+  }
+});
+
 // ====================== Helper Functions ======================
 function createTextTexture(text, color) {
   const canvas = document.createElement('canvas');
@@ -142,7 +215,6 @@ scene.fog = new THREE.Fog(0xdbe3ec, 30, 70);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// 針對手機版(直向)自動拉遠視角，讓長條形的發電機不會被切掉
 const isMobile = window.innerWidth < 900;
 if (isMobile) {
   camera.position.set(28, 20, 38); 
@@ -158,15 +230,15 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputEncoding = THREE.sRGBEncoding;
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-// ====================== 3D 控制器設定 (OrbitControls) ======================
+// ====================== 3D 控制器設定 ======================
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;      // 啟用滑動慣性 (非常適合手機，手感滑順)
-controls.dampingFactor = 0.08;      // 慣性阻尼係數
-controls.enablePan = false;         // 禁止雙指平移，避免模型跑出畫面
-controls.minDistance = 15;          // 最小縮放限制 (避免穿模)
-controls.maxDistance = 65;          // 最大拉遠限制
-controls.maxPolarAngle = Math.PI / 2 + 0.05; // 限制仰角，相機不會鑽到地板下方
-controls.target.set(0, 0.5, 0);     // 永遠聚焦在機組中心點
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.enablePan = false;
+controls.minDistance = 10; // 允許再拉近一點看線圈
+controls.maxDistance = 65;
+controls.maxPolarAngle = Math.PI / 2 + 0.05;
+controls.target.set(0, 0.5, 0);
 
 // ====================== Lighting ======================
 scene.add(new THREE.AmbientLight(0xffffff, 0.75));
@@ -208,8 +280,8 @@ const boltMat      = new THREE.MeshStandardMaterial({ color: 0x3f4756, metalness
 const copperMat    = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.6,  roughness: 0.3 });
 const copperDarkMat= new THREE.MeshStandardMaterial({ color: 0x9a5411, metalness: 0.6,  roughness: 0.35 });
 const foundationMat= new THREE.MeshStandardMaterial({ color: 0xa5a9b2, roughness: 0.9 });
-const brushMat     = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9, metalness: 0.1 });  // 碳刷材質
-const ringMat      = new THREE.MeshStandardMaterial({ color: 0xcca652, roughness: 0.4, metalness: 0.8 });  // 黃銅滑環材質
+const brushMat     = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9, metalness: 0.1 });
+const ringMat      = new THREE.MeshStandardMaterial({ color: 0xcca652, roughness: 0.4, metalness: 0.8 });
 
 // ====================== Twisted Airfoil Blade Geometry ======================
 function createTurbineBladeGeo(bladeLen, chord, twist, thick) {
@@ -235,177 +307,106 @@ function createTurbineBladeGeo(bladeLen, chord, twist, thick) {
   return geo;
 }
 
-// ====================== Rotor Stage (disc + blades) ======================
+// ====================== Build Functions ======================
+// (保持您原本優良的建模結構)
 function buildRotorStage(axialPos, hubR, bladeLen, bladeCount, chord, twist) {
   const group = new THREE.Group();
-
   const discThick = chord * 1.5;
-  const disc = new THREE.Mesh(
-    new THREE.CylinderGeometry(hubR, hubR, discThick, 48),
-    shaftMat
-  );
-  disc.rotation.z = Math.PI / 2;
-  disc.castShadow = true; disc.receiveShadow = true;
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(hubR, hubR, discThick, 48), shaftMat);
+  disc.rotation.z = Math.PI / 2; disc.castShadow = true; disc.receiveShadow = true;
   group.add(disc);
 
-  const rim = new THREE.Mesh(
-    new THREE.TorusGeometry(hubR + 0.02, 0.04, 8, 48),
-    casingDarkMat
-  );
-  rim.rotation.y = Math.PI / 2;
-  group.add(rim);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(hubR + 0.02, 0.04, 8, 48), casingDarkMat);
+  rim.rotation.y = Math.PI / 2; group.add(rim);
 
   const bladeGeo = createTurbineBladeGeo(bladeLen, chord, twist, 0.09);
   for (let i = 0; i < bladeCount; i++) {
     const angle = (i / bladeCount) * Math.PI * 2;
     const wrap = new THREE.Group();
     const blade = new THREE.Mesh(bladeGeo, bladeMat);
-    blade.rotation.x = Math.PI / 2;
-    blade.position.set(0, -hubR, 0);
-    blade.castShadow = true;
-    wrap.add(blade);
-    wrap.rotation.x = angle;
-    group.add(wrap);
+    blade.rotation.x = Math.PI / 2; blade.position.set(0, -hubR, 0); blade.castShadow = true;
+    wrap.add(blade); wrap.rotation.x = angle; group.add(wrap);
   }
-  group.position.x = axialPos;
-  return group;
+  group.position.x = axialPos; return group;
 }
 
-// ====================== Stator Vane Ring ======================
 function buildStatorRing(axialPos, innerR, outerR, vaneCount, chord, twist) {
   const group = new THREE.Group();
+  const shroud = new THREE.Mesh(new THREE.CylinderGeometry(outerR, outerR, chord * 1.2, 48, 1, true), casingDarkMat.clone());
+  shroud.material.side = THREE.DoubleSide; shroud.rotation.z = Math.PI / 2; group.add(shroud);
 
-  const shroud = new THREE.Mesh(
-    new THREE.CylinderGeometry(outerR, outerR, chord * 1.2, 48, 1, true),
-    casingDarkMat.clone()
-  );
-  shroud.material.side = THREE.DoubleSide;
-  shroud.rotation.z = Math.PI / 2;
-  group.add(shroud);
-
-  const inner = new THREE.Mesh(
-    new THREE.CylinderGeometry(innerR, innerR, chord * 1.2, 48, 1, true),
-    casingDarkMat.clone()
-  );
-  inner.material.side = THREE.DoubleSide;
-  inner.rotation.z = Math.PI / 2;
-  group.add(inner);
+  const inner = new THREE.Mesh(new THREE.CylinderGeometry(innerR, innerR, chord * 1.2, 48, 1, true), casingDarkMat.clone());
+  inner.material.side = THREE.DoubleSide; inner.rotation.z = Math.PI / 2; group.add(inner);
 
   const vaneGeo = createTurbineBladeGeo(outerR - innerR, chord, twist * 0.7, 0.07);
   for (let i = 0; i < vaneCount; i++) {
     const a = (i / vaneCount) * Math.PI * 2;
     const wrap = new THREE.Group();
     const vane = new THREE.Mesh(vaneGeo, statorMat);
-    vane.rotation.x = Math.PI / 2;
-    vane.position.set(0, -innerR, 0);
-    wrap.add(vane);
-    wrap.rotation.x = a;
-    group.add(wrap);
+    vane.rotation.x = Math.PI / 2; vane.position.set(0, -innerR, 0);
+    wrap.add(vane); wrap.rotation.x = a; group.add(wrap);
   }
-  group.position.x = axialPos;
-  return group;
+  group.position.x = axialPos; return group;
 }
 
-// ====================== Half-Casing ======================
 function buildHalfCasing(length, outerR, innerR) {
   const group = new THREE.Group();
-
-  const outer = new THREE.Mesh(
-    new THREE.CylinderGeometry(outerR, outerR, length, 48, 1, true, 0, Math.PI),
-    casingMat.clone()
-  );
-  outer.material.side = THREE.DoubleSide;
-  outer.rotation.z = Math.PI / 2;
-  outer.castShadow = true; outer.receiveShadow = true;
+  const outer = new THREE.Mesh(new THREE.CylinderGeometry(outerR, outerR, length, 48, 1, true, 0, Math.PI), casingMat.clone());
+  outer.material.side = THREE.DoubleSide; outer.rotation.z = Math.PI / 2; outer.castShadow = true; outer.receiveShadow = true;
   group.add(outer);
 
-  const inner = new THREE.Mesh(
-    new THREE.CylinderGeometry(innerR, innerR, length, 48, 1, true, 0, Math.PI),
-    casingDarkMat.clone()
-  );
-  inner.material.side = THREE.DoubleSide;
-  inner.rotation.z = Math.PI / 2;
-  group.add(inner);
+  const inner = new THREE.Mesh(new THREE.CylinderGeometry(innerR, innerR, length, 48, 1, true, 0, Math.PI), casingDarkMat.clone());
+  inner.material.side = THREE.DoubleSide; inner.rotation.z = Math.PI / 2; group.add(inner);
 
   for (const endX of [-length / 2, length / 2]) {
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(innerR, outerR, 48, 1, 0, Math.PI),
-      casingDarkMat
-    );
-    ring.rotation.y = Math.PI / 2;
-    ring.position.x = endX;
-    ring.material.side = THREE.DoubleSide;
-    group.add(ring);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(innerR, outerR, 48, 1, 0, Math.PI), casingDarkMat);
+    ring.rotation.y = Math.PI / 2; ring.position.x = endX; ring.material.side = THREE.DoubleSide; group.add(ring);
   }
 
   const flangeT = 0.2, flangeW = outerR * 2 + 0.9;
   const flange = new THREE.Mesh(new THREE.BoxGeometry(length, flangeT, flangeW), casingMat);
-  flange.position.y = -flangeT / 2;
-  flange.castShadow = true;
-  group.add(flange);
+  flange.position.y = -flangeT / 2; flange.castShadow = true; group.add(flange);
 
-  const boltCount = 14;
-  for (let i = 0; i < boltCount; i++) {
-    const x = -length / 2 + 0.6 + (i * (length - 1.2)) / (boltCount - 1);
+  for (let i = 0; i < 14; i++) {
+    const x = -length / 2 + 0.6 + (i * (length - 1.2)) / 13;
     for (const side of [-1, 1]) {
-      const shank = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.09, 0.09, 0.5, 10), boltMat
-      );
-      shank.position.set(x, -flangeT / 2, side * (outerR + 0.25));
-      group.add(shank);
-      const head = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.17, 0.17, 0.14, 6), boltMat
-      );
-      head.position.set(x, 0.07, side * (outerR + 0.25));
-      group.add(head);
+      const shank = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.5, 10), boltMat);
+      shank.position.set(x, -flangeT / 2, side * (outerR + 0.25)); group.add(shank);
+      const head = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.14, 6), boltMat);
+      head.position.set(x, 0.07, side * (outerR + 0.25)); group.add(head);
     }
   }
 
   for (let i = 0; i < 3; i++) {
-    const rx = -length / 3 + i * (length / 3);
-    const r = new THREE.Mesh(
-      new THREE.TorusGeometry(outerR + 0.06, 0.1, 10, 48, Math.PI),
-      casingDarkMat
-    );
-    r.rotation.y = Math.PI / 2;
-    r.position.x = rx;
-    group.add(r);
+    const r = new THREE.Mesh(new THREE.TorusGeometry(outerR + 0.06, 0.1, 10, 48, Math.PI), casingDarkMat);
+    r.rotation.y = Math.PI / 2; r.position.x = -length / 3 + i * (length / 3); group.add(r);
   }
   return group;
 }
 
-// ====================== Bearing Pedestal ======================
 function buildBearing(xPos) {
   const g = new THREE.Group();
   const ped = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.2, 2.2), casingMat);
-  ped.position.y = -1.8; ped.castShadow = true; ped.receiveShadow = true;
-  g.add(ped);
+  ped.position.y = -1.8; ped.castShadow = true; ped.receiveShadow = true; g.add(ped);
   const house = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 1.1, 32), casingDarkMat);
-  house.rotation.z = Math.PI / 2;
-  house.castShadow = true;
-  g.add(house);
+  house.rotation.z = Math.PI / 2; house.castShadow = true; g.add(house);
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2;
     const b = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.1, 6), boltMat);
-    b.position.set(0.3, Math.sin(a) * 0.7, Math.cos(a) * 0.7);
-    b.rotation.z = Math.PI / 2;
-    g.add(b);
+    b.position.set(0.3, Math.sin(a) * 0.7, Math.cos(a) * 0.7); b.rotation.z = Math.PI / 2; g.add(b);
   }
-  g.position.x = xPos;
-  return g;
+  g.position.x = xPos; return g;
 }
 
 // ====================== Assembly: Turbine Section ======================
 const foundationGroup   = new THREE.Group();
-const casingGroup       = new THREE.Group();  // top + bottom together
+const casingGroup       = new THREE.Group();
 const bearingsGroup     = new THREE.Group();
 const statorVanesGroup  = new THREE.Group();
 const turbineRotorGroup = new THREE.Group();
 
 const base = new THREE.Mesh(new THREE.BoxGeometry(22, 0.6, 7), foundationMat);
-base.position.y = -3.6;
-base.receiveShadow = true;
-foundationGroup.add(base);
+base.position.y = -3.6; base.receiveShadow = true; foundationGroup.add(base);
 
 const stageSpecs = [
   { x: -5.0, hub: 0.55, blade: 0.55, count: 22, chord: 0.42, twist: 0.9 },
@@ -413,9 +414,7 @@ const stageSpecs = [
   { x: -2.3, hub: 0.55, blade: 1.25, count: 18, chord: 0.62, twist: 1.15 },
   { x: -0.7, hub: 0.55, blade: 1.75, count: 16, chord: 0.78, twist: 1.3 }
 ];
-for (const s of stageSpecs) {
-  turbineRotorGroup.add(buildRotorStage(s.x, s.hub, s.blade, s.count, s.chord, s.twist));
-}
+for (const s of stageSpecs) turbineRotorGroup.add(buildRotorStage(s.x, s.hub, s.blade, s.count, s.chord, s.twist));
 
 const vaneSpecs = [
   { x: -5.7, inner: 1.1, outer: 2.7, count: 28, chord: 0.38, twist: -1.1 },
@@ -423,80 +422,48 @@ const vaneSpecs = [
   { x: -3.0, inner: 1.8, outer: 2.7, count: 24, chord: 0.55, twist: -1.2 },
   { x: -1.5, inner: 2.2, outer: 2.8, count: 22, chord: 0.7,  twist: -1.3 }
 ];
-for (const v of vaneSpecs) {
-  statorVanesGroup.add(buildStatorRing(v.x, v.inner, v.outer, v.count, v.chord, v.twist));
-}
+for (const v of vaneSpecs) statorVanesGroup.add(buildStatorRing(v.x, v.inner, v.outer, v.count, v.chord, v.twist));
 
-const mainShaft = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.38, 0.38, 16, 32),
-  shaftMat
-);
-mainShaft.rotation.z = Math.PI / 2;
-mainShaft.position.x = 1;
-mainShaft.castShadow = true;
+const mainShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 16, 32), shaftMat);
+mainShaft.rotation.z = Math.PI / 2; mainShaft.position.x = 1; mainShaft.castShadow = true;
 turbineRotorGroup.add(mainShaft);
 
-const coupling = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.7, 0.7, 0.8, 32),
-  casingDarkMat
-);
-coupling.rotation.z = Math.PI / 2;
-coupling.position.x = 3.3;
-coupling.castShadow = true;
-turbineRotorGroup.add(coupling);
+const coupling = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.8, 32), casingDarkMat);
+coupling.rotation.z = Math.PI / 2; coupling.position.x = 3.3; coupling.castShadow = true; turbineRotorGroup.add(coupling);
 for (let i = 0; i < 8; i++) {
   const a = (i / 8) * Math.PI * 2;
-  const b = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.07, 0.07, 0.9, 6),
-    boltMat
-  );
-  b.position.set(3.3, Math.sin(a) * 0.5, Math.cos(a) * 0.5);
-  b.rotation.z = Math.PI / 2;
-  turbineRotorGroup.add(b);
+  const b = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.9, 6), boltMat);
+  b.position.set(3.3, Math.sin(a) * 0.5, Math.cos(a) * 0.5); b.rotation.z = Math.PI / 2; turbineRotorGroup.add(b);
 }
 
-const casingLen = 6.6, casingOuterR = 3.0, casingInnerR = 2.78, casingCenterX = -3;
-const topHalf = buildHalfCasing(casingLen, casingOuterR, casingInnerR);
-topHalf.position.x = casingCenterX;
-casingGroup.add(topHalf);
-const botHalf = buildHalfCasing(casingLen, casingOuterR, casingInnerR);
-botHalf.position.x = casingCenterX;
-botHalf.rotation.x = Math.PI;
-casingGroup.add(botHalf);
+const topHalf = buildHalfCasing(6.6, 3.0, 2.78); topHalf.position.x = -3; casingGroup.add(topHalf);
+const botHalf = buildHalfCasing(6.6, 3.0, 2.78); botHalf.position.x = -3; botHalf.rotation.x = Math.PI; casingGroup.add(botHalf);
 
-bearingsGroup.add(buildBearing(-6.2));
-bearingsGroup.add(buildBearing(4.5));
+bearingsGroup.add(buildBearing(-6.2)); bearingsGroup.add(buildBearing(4.5));
 
 // ====================== Assembly: Generator Section ======================
 const genHousingGroup = new THREE.Group();
 const coilRotorGroup  = new THREE.Group();
 const magnetsGroup    = new THREE.Group();
-const brushGroup      = new THREE.Group(); // 新增電刷群組
+const brushGroup      = new THREE.Group();
 
-const GEN_X = 6;
-const COIL_W = 4.0;
-const COIL_H = 2.6;
+const GEN_X = 6, COIL_W = 4.0, COIL_H = 2.6;
 
 function buildCoilFrame(width, height, thick) {
   const g = new THREE.Group();
   const hGeo = new THREE.CylinderGeometry(thick, thick, width, 16);
   const vGeo = new THREE.CylinderGeometry(thick, thick, height, 16);
-  const top    = new THREE.Mesh(hGeo, copperMat);
-  top.rotation.z = Math.PI / 2; top.position.y = height / 2;
-  const bottom = new THREE.Mesh(hGeo, copperMat);
-  bottom.rotation.z = Math.PI / 2; bottom.position.y = -height / 2;
-  const left   = new THREE.Mesh(vGeo, copperMat);
-  left.position.set(-width / 2, 0, 0);
-  const right  = new THREE.Mesh(vGeo, copperMat);
-  right.position.set(width / 2, 0, 0);
-  [top, bottom, left, right].forEach(m => { m.castShadow = true; });
-  g.add(top, bottom, left, right);
+  const top = new THREE.Mesh(hGeo, copperMat); top.rotation.z = Math.PI / 2; top.position.y = height / 2;
+  const bottom = new THREE.Mesh(hGeo, copperMat); bottom.rotation.z = Math.PI / 2; bottom.position.y = -height / 2;
+  const left = new THREE.Mesh(vGeo, copperMat); left.position.set(-width / 2, 0, 0);
+  const right = new THREE.Mesh(vGeo, copperMat); right.position.set(width / 2, 0, 0);
+  [top, bottom, left, right].forEach(m => { m.castShadow = true; g.add(m); });
 
   const corner = (x, y) => {
     const s = new THREE.Mesh(new THREE.SphereGeometry(thick * 1.1, 12, 10), copperDarkMat);
     s.position.set(x, y, 0); g.add(s);
   };
-  corner(-width/2,  height/2); corner(width/2,  height/2);
+  corner(-width/2, height/2); corner(width/2, height/2);
   corner(-width/2, -height/2); corner(width/2, -height/2);
   return g;
 }
@@ -505,171 +472,101 @@ const coils = [];
 for (let i = 0; i < 3; i++) {
   const coil = buildCoilFrame(COIL_W, COIL_H, 0.08);
   coil.rotation.x = (i / 3) * Math.PI * 2;
-  coils.push(coil);
-  coilRotorGroup.add(coil);
+  coils.push(coil); coilRotorGroup.add(coil);
 }
 
-// --- 滑環 (Slip Rings) 與 連接線 ---
-// 跟隨線圈轉子一起旋轉
+// 滑環 (Slip Rings) 與 連接線
 const ring1 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.25, 32), ringMat);
-ring1.rotation.z = Math.PI / 2;
-ring1.position.set(2.4, 0, 0); // 局部座標
-ring1.castShadow = true;
+ring1.rotation.z = Math.PI / 2; ring1.position.set(2.4, 0, 0); ring1.castShadow = true;
 
 const ring2 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.25, 32), ringMat);
-ring2.rotation.z = Math.PI / 2;
-ring2.position.set(3.0, 0, 0);
-ring2.castShadow = true;
+ring2.rotation.z = Math.PI / 2; ring2.position.set(3.0, 0, 0); ring2.castShadow = true;
 
-// 將線圈兩端連接到滑環上
 function createRotorWire(p1, p2) {
   const curve = new THREE.LineCurve3(new THREE.Vector3(...p1), new THREE.Vector3(...p2));
   return new THREE.Mesh(new THREE.TubeGeometry(curve, 4, 0.04, 8, false), copperMat);
 }
 const conn1 = createRotorWire([2.0, 1.3, 0], [2.4, 0.35, 0]);
 const conn2 = createRotorWire([2.0, -1.3, 0], [3.0, -0.35, 0]);
+coilRotorGroup.add(ring1, ring2, conn1, conn2); coilRotorGroup.position.x = GEN_X;
 
-coilRotorGroup.add(ring1, ring2, conn1, conn2);
-coilRotorGroup.position.x = GEN_X;
-
-// --- 靜止電刷 (Brushes) ---
-// 第一個電刷 (接觸前滑環)
-const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.3), brushMat);
-b1.position.set(GEN_X + 2.4, 0.45, 0); 
-const h1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.35), casingMat);
-h1.position.set(GEN_X + 2.4, 0.7, 0);
-
-// 第二個電刷 (接觸後滑環)
-const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.3), brushMat);
-b2.position.set(GEN_X + 3.0, 0.45, 0);
-const h2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.35), casingMat);
-h2.position.set(GEN_X + 3.0, 0.7, 0);
-
+// 靜止電刷 (Brushes)
+const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.3), brushMat); b1.position.set(GEN_X + 2.4, 0.45, 0); 
+const h1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.35), casingMat); h1.position.set(GEN_X + 2.4, 0.7, 0);
+const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.3), brushMat); b2.position.set(GEN_X + 3.0, 0.45, 0);
+const h2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.35), casingMat); h2.position.set(GEN_X + 3.0, 0.7, 0);
 brushGroup.add(b1, h1, b2, h2);
 
 const magN_Mat = new THREE.MeshStandardMaterial({ map: createTextTexture('N', '#dc2626'), roughness: 0.55, metalness: 0.1 });
 const magnetN = new THREE.Mesh(new THREE.BoxGeometry(COIL_W + 0.6, 0.75, 2.4), magN_Mat);
-magnetN.position.set(GEN_X, 2.15, 0);
-magnetN.castShadow = true;
-magnetsGroup.add(magnetN);
+magnetN.position.set(GEN_X, 2.15, 0); magnetN.castShadow = true; magnetsGroup.add(magnetN);
 
-const poleShoeN = new THREE.Mesh(
-  new THREE.BoxGeometry(COIL_W + 0.2, 0.18, 2.0),
-  new THREE.MeshStandardMaterial({ color: 0xc0c6d0, metalness: 0.5, roughness: 0.5 })
-);
-poleShoeN.position.set(GEN_X, 1.68, 0);
-magnetsGroup.add(poleShoeN);
+const poleShoeN = new THREE.Mesh(new THREE.BoxGeometry(COIL_W + 0.2, 0.18, 2.0), new THREE.MeshStandardMaterial({ color: 0xc0c6d0, metalness: 0.5, roughness: 0.5 }));
+poleShoeN.position.set(GEN_X, 1.68, 0); magnetsGroup.add(poleShoeN);
 
 const magS_Mat = new THREE.MeshStandardMaterial({ map: createTextTexture('S', '#2563eb'), roughness: 0.55, metalness: 0.1 });
 const magnetS = new THREE.Mesh(new THREE.BoxGeometry(COIL_W + 0.6, 0.75, 2.4), magS_Mat);
-magnetS.position.set(GEN_X, -2.15, 0);
-magnetS.castShadow = true;
-magnetsGroup.add(magnetS);
+magnetS.position.set(GEN_X, -2.15, 0); magnetS.castShadow = true; magnetsGroup.add(magnetS);
 
-const poleShoeS = new THREE.Mesh(
-  new THREE.BoxGeometry(COIL_W + 0.2, 0.18, 2.0),
-  new THREE.MeshStandardMaterial({ color: 0xc0c6d0, metalness: 0.5, roughness: 0.5 })
-);
-poleShoeS.position.set(GEN_X, -1.68, 0);
-magnetsGroup.add(poleShoeS);
+const poleShoeS = new THREE.Mesh(new THREE.BoxGeometry(COIL_W + 0.2, 0.18, 2.0), new THREE.MeshStandardMaterial({ color: 0xc0c6d0, metalness: 0.5, roughness: 0.5 }));
+poleShoeS.position.set(GEN_X, -1.68, 0); magnetsGroup.add(poleShoeS);
 
-const genOuter = new THREE.Mesh(
-  new THREE.CylinderGeometry(3.0, 3.0, 5.2, 40),
-  casingMat
-);
-genOuter.rotation.z = Math.PI / 2;
-genOuter.position.x = GEN_X;
-genOuter.castShadow = true; genOuter.receiveShadow = true;
+const genOuter = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.0, 5.2, 40), casingMat);
+genOuter.rotation.z = Math.PI / 2; genOuter.position.x = GEN_X; genOuter.castShadow = true; genOuter.receiveShadow = true;
 genHousingGroup.add(genOuter);
 
 for (const endX of [GEN_X - 2.6, GEN_X + 2.6]) {
-  const cover = new THREE.Mesh(
-    new THREE.CylinderGeometry(3.0, 3.0, 0.25, 40),
-    casingDarkMat
-  );
-  cover.rotation.z = Math.PI / 2;
-  cover.position.x = endX;
-  genHousingGroup.add(cover);
-  
+  const cover = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.0, 0.25, 40), casingDarkMat);
+  cover.rotation.z = Math.PI / 2; cover.position.x = endX; genHousingGroup.add(cover);
   for (let i = 0; i < 18; i++) {
     const a = (i / 18) * Math.PI * 2;
-    const fin = new THREE.Mesh(
-      new THREE.BoxGeometry(0.08, 0.4, 1.5),
-      casingDarkMat
-    );
-    fin.position.set(endX, Math.sin(a) * 2.4, Math.cos(a) * 2.4);
-    fin.rotation.x = a;
-    genHousingGroup.add(fin);
+    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.4, 1.5), casingDarkMat);
+    fin.position.set(endX, Math.sin(a) * 2.4, Math.cos(a) * 2.4); fin.rotation.x = a; genHousingGroup.add(fin);
   }
 }
-
-const termBox = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.0, 1.4), casingMat);
-termBox.position.set(GEN_X, 3.3, 0);
-genHousingGroup.add(termBox);
-const termLid = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.08, 1.2), casingDarkMat);
-termLid.position.set(GEN_X, 3.85, 0);
-genHousingGroup.add(termLid);
+const termBox = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.0, 1.4), casingMat); termBox.position.set(GEN_X, 3.3, 0); genHousingGroup.add(termBox);
+const termLid = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.08, 1.2), casingDarkMat); termLid.position.set(GEN_X, 3.85, 0); genHousingGroup.add(termLid);
 
 // ====================== Bulb + Wires ======================
 const bulbGroup = new THREE.Group();
-
 const wireMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.2, roughness: 0.7 });
 
-// 繪製從電刷到燈泡的美觀曲線電線
 function createWire(p1, p2, p3, p4) {
   const curve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(...p1), new THREE.Vector3(...p2),
-    new THREE.Vector3(...p3), new THREE.Vector3(...p4)
+    new THREE.Vector3(...p1), new THREE.Vector3(...p2), new THREE.Vector3(...p3), new THREE.Vector3(...p4)
   ]);
   const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 0.05, 8, false), wireMat);
-  mesh.castShadow = true;
-  return mesh;
+  mesh.castShadow = true; return mesh;
 }
-
-const wireA = createWire(
-  [GEN_X + 2.4, 0.8, 0],       // 從第一個電刷座接出
-  [GEN_X + 2.4, 1.4, 0.6],     // 向上往前彎曲
-  [11.2, 1.1, 0.6],            // 延伸至燈泡處
-  [11.6, 0.15, 0.15]           // 接到底座
+bulbGroup.add(
+  createWire([GEN_X + 2.4, 0.8, 0], [GEN_X + 2.4, 1.4, 0.6], [11.2, 1.1, 0.6], [11.6, 0.15, 0.15]),
+  createWire([GEN_X + 3.0, 0.8, 0], [GEN_X + 3.0, 1.4, -0.6], [11.2, 1.1, -0.6], [11.6, -0.15, -0.15])
 );
-const wireB = createWire(
-  [GEN_X + 3.0, 0.8, 0],       // 從第二個電刷座接出
-  [GEN_X + 3.0, 1.4, -0.6],    // 向上往後彎曲
-  [11.2, 1.1, -0.6],           // 延伸至燈泡處
-  [11.6, -0.15, -0.15]         // 接到底座
-);
-bulbGroup.add(wireA, wireB);
 
 const bulbBase = new THREE.Mesh(
   new THREE.CylinderGeometry(0.35, 0.26, 0.55, 20),
   new THREE.MeshStandardMaterial({ color: 0x9ca3af, metalness: 0.75, roughness: 0.35 })
 );
-bulbBase.position.set(11.6, 0, 0); bulbBase.rotation.z = -Math.PI / 2;
-bulbGroup.add(bulbBase);
+bulbBase.position.set(11.6, 0, 0); bulbBase.rotation.z = -Math.PI / 2; bulbGroup.add(bulbBase);
 
 const bulbGlassMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, transparent: true, opacity: 0.88, roughness: 0.08,
   emissive: 0xffd700, emissiveIntensity: 2.5
 });
 const bulbGlass = new THREE.Mesh(new THREE.SphereGeometry(0.75, 32, 32), bulbGlassMat);
-bulbGlass.position.set(12.5, 0, 0);
-bulbGroup.add(bulbGlass);
+bulbGlass.position.set(12.5, 0, 0); bulbGroup.add(bulbGlass);
 
 const filMat = new THREE.MeshStandardMaterial({ color: 0xff6600, emissive: 0xffaa22, emissiveIntensity: 2.5 });
 const fil = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.022, 8, 20), filMat);
-fil.position.set(12.5, 0, 0);
-bulbGroup.add(fil);
+fil.position.set(12.5, 0, 0); bulbGroup.add(fil);
 
 const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({
   map: createGlowTexture(), color: 0xffaa00, transparent: true, blending: THREE.AdditiveBlending
 }));
-glowSprite.scale.set(3.6, 3.6, 1);
-glowSprite.position.set(12.5, 0, 0);
-bulbGroup.add(glowSprite);
+glowSprite.scale.set(3.6, 3.6, 1); glowSprite.position.set(12.5, 0, 0); bulbGroup.add(glowSprite);
 
 const bulbLight = new THREE.PointLight(0xffd700, 1.4, 12);
-bulbLight.position.set(12.5, 0, 0);
-bulbGroup.add(bulbLight);
+bulbLight.position.set(12.5, 0, 0); bulbGroup.add(bulbLight);
 
 // ====================== Steam Particles ======================
 const steamCount = 600;
@@ -697,46 +594,28 @@ scene.add(turbineRotorGroup);
 scene.add(genHousingGroup);
 scene.add(magnetsGroup);
 scene.add(coilRotorGroup);
-scene.add(brushGroup); // 加入電刷群組
+scene.add(brushGroup);
 scene.add(bulbGroup);
 scene.add(steamParticles);
 
 // ====================== Stage Definitions ======================
 const stages = [
   {
-    badge: "Stage 1",
-    titleEn: "Turbine Generator",
-    titleZh: "渦輪發電機",
-    show: {
-      foundation:1, casing:1, bearings:1, statorVanes:1,
-      turbineRotor:1, genHousing:1, magnets:0, coilRotor:0,
-      brushes:0, bulb:1, steam:1, coilCount: 3
-    }
+    badge: "Stage 1", titleEn: "Turbine Generator", titleZh: "渦輪發電機",
+    show: { foundation:1, casing:1, bearings:1, statorVanes:1, turbineRotor:1, genHousing:1, magnets:0, coilRotor:0, brushes:0, bulb:1, steam:1, coilCount: 3 }
   },
   {
-    badge: "Stage 2",
-    titleEn: "Remove Casing",
-    titleZh: "移除外殼",
-    show: {
-      foundation:1, casing:0, bearings:1, statorVanes:1,
-      turbineRotor:1, genHousing:0, magnets:1, coilRotor:1,
-      brushes:1, bulb:1, steam:1, coilCount: 3
-    }
+    badge: "Stage 2", titleEn: "Remove Casing", titleZh: "移除外殼",
+    show: { foundation:1, casing:0, bearings:1, statorVanes:1, turbineRotor:1, genHousing:0, magnets:1, coilRotor:1, brushes:1, bulb:1, steam:1, coilCount: 3 }
   },
   {
-    badge: "Stage 3",
-    titleEn: "Core Components",
-    titleZh: "核心元件",
-    show: {
-      foundation:0, casing:0, bearings:0, statorVanes:0,
-      turbineRotor:0, genHousing:0, magnets:1, coilRotor:1,
-      brushes:1, bulb:1, steam:0, coilCount: 1
-    }
+    badge: "Stage 3", titleEn: "Core Components", titleZh: "核心元件",
+    show: { foundation:0, casing:0, bearings:0, statorVanes:0, turbineRotor:0, genHousing:0, magnets:1, coilRotor:1, brushes:1, bulb:1, steam:0, coilCount: 1 }
   }
 ];
 
 let currentStage = 0;
-let targetLookAt = new THREE.Vector3(1.5, 0.5, 0); // 用來控制相機平移的目標中心點
+let targetLookAt = new THREE.Vector3(1.5, 0.5, 0);
 
 function applyStage(n) {
   currentStage = n;
@@ -748,11 +627,17 @@ function applyStage(n) {
   statorVanesGroup.visible  = !!s.show.statorVanes;
   turbineRotorGroup.visible = !!s.show.turbineRotor;
   genHousingGroup.visible   = !!s.show.genHousing;
-  magnetsGroup.visible      = !!s.show.magnets;
   coilRotorGroup.visible    = !!s.show.coilRotor;
   brushGroup.visible        = !!s.show.brushes;
   bulbGroup.visible         = !!s.show.bulb;
   steamParticles.visible    = !!s.show.steam;
+
+  // 磁鐵可見度的特殊邏輯：只有在 Stage 3 且使用者關閉磁鐵時才隱藏
+  if (n === 2) {
+    magnetsGroup.visible = hasMagnets;
+  } else {
+    magnetsGroup.visible = !!s.show.magnets;
+  }
 
   coils.forEach((c, i) => { c.visible = i < s.show.coilCount; });
 
@@ -761,13 +646,18 @@ function applyStage(n) {
   document.getElementById('stage-title-zh').innerHTML = s.titleZh;
 
   document.getElementById('prev-btn').disabled = n === 0;
-  document.getElementById('next-btn').innerHTML =
-    n === stages.length - 1 ? "Restart 🔄 重新開始" : "Next ▶ 下一步";
+  document.getElementById('next-btn').innerHTML = n === stages.length - 1 ? "Restart 🔄 重新開始" : "Next ▶ 下一步";
 
-  // 設定智慧運鏡的視角中心 (讓最後一步完美置中)
-  if (n === 0) targetLookAt.set(1.5, 0.5, 0);        // 完整機組置中
-  else if (n === 1) targetLookAt.set(3.5, 0.5, 0);   // 稍微向右移，兼顧渦輪與發電機
-  else if (n === 2) targetLookAt.set(8.5, 0.5, 0);   // 完全聚焦於右側的線圈、滑環與燈泡
+  // 控制右側互動面板的顯示與隱藏
+  const interactivePanel = document.getElementById('interactive-panel');
+  if (n === 2) {
+    interactivePanel.style.display = 'flex';
+    targetLookAt.set(8.5, 0.5, 0);
+  } else {
+    interactivePanel.style.display = 'none';
+    if (n === 0) targetLookAt.set(1.5, 0.5, 0);
+    else if (n === 1) targetLookAt.set(3.5, 0.5, 0);
+  }
 }
 
 // ====================== Controls ======================
@@ -787,15 +677,34 @@ function animate() {
   const t = clock.getElapsedTime();
 
   const spinSpeed = 2.8;
-  turbineRotorGroup.rotation.x -= spinSpeed * delta;
-  coilRotorGroup.rotation.x    -= spinSpeed * delta;
+  
+  // 旋轉邏輯：如果不是第三階段，或者在第三階段且「旋轉」開關打開時，才進行轉動
+  const shouldRotate = (currentStage !== 2) || isRotating;
+  if (shouldRotate) {
+    turbineRotorGroup.rotation.x -= spinSpeed * delta;
+    coilRotorGroup.rotation.x    -= spinSpeed * delta;
+  }
 
+  // 燈泡發光邏輯：如果有轉動，且有磁鐵，才產生電流
   if (bulbGroup.visible) {
-    const pulse = 2.4 + Math.sin(t * 6) * 0.3;
-    bulbGlassMat.emissiveIntensity = pulse;
-    filMat.emissiveIntensity = pulse * 1.0;
-    bulbLight.intensity = 1.2 + Math.sin(t * 6) * 0.25;
-    glowSprite.material.opacity = 0.75 + Math.sin(t * 9) * 0.18;
+    const isGeneratingPower = shouldRotate && (currentStage !== 2 || hasMagnets);
+    
+    if (isGeneratingPower) {
+      const pulse = 2.4 + Math.sin(t * 6) * 0.3;
+      bulbGlassMat.emissiveIntensity = pulse;
+      filMat.emissiveIntensity = pulse * 1.0;
+      bulbLight.intensity = 1.2 + Math.sin(t * 6) * 0.25;
+      bulbLight.visible = true;
+      
+      glowSprite.material.opacity = 0.75 + Math.sin(t * 9) * 0.18;
+      glowSprite.visible = true;
+    } else {
+      // 未發電時，燈泡熄滅 (移除發光效果，只保留基本玻璃反光)
+      bulbGlassMat.emissiveIntensity = 0;
+      filMat.emissiveIntensity = 0;
+      bulbLight.visible = false;
+      glowSprite.visible = false;
+    }
   }
 
   if (steamParticles.visible) {
@@ -814,17 +723,14 @@ function animate() {
     steamParticles.geometry.attributes.position.needsUpdate = true;
   }
 
-  // 智慧運鏡：平滑移動整個相機與聚焦座標，但不改變使用者的縮放與旋轉角度
   const targetDelta = new THREE.Vector3().subVectors(targetLookAt, controls.target);
   if (targetDelta.lengthSq() > 0.001) {
-    const step = targetDelta.multiplyScalar(0.06); // 平滑移動速率
+    const step = targetDelta.multiplyScalar(0.06);
     controls.target.add(step);
     camera.position.add(step);
   }
 
-  // 更新控制器以支援慣性滑動
   controls.update();
-
   renderer.render(scene, camera);
 }
 
