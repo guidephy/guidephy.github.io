@@ -25,6 +25,11 @@
             background-color: var(--bg-color); font-family: 'Noto Sans TC', sans-serif;
             touch-action: none; /* 防止手機瀏覽器滑動特效 */
         }
+        
+        /* 支援現代手機瀏覽器的動態可視高度，防止底部被裁切 */
+        @supports (height: 100dvh) {
+            body, html { height: 100dvh; }
+        }
 
         /* 磨砂玻璃特效 */
         .glass-panel {
@@ -84,7 +89,7 @@
 <body class="flex flex-col md:flex-row">
 
     <!-- 3D 視圖區 (上方 / 左方) -->
-    <div id="view3d-container" class="relative flex-1 bg-white min-h-[45vh] md:min-h-full">
+    <div id="view3d-container" class="relative h-[45%] shrink-0 md:h-full md:flex-1 bg-white">
         <!-- 3D Canvas -->
         <div id="canvas-container" class="w-full h-full"></div>
         
@@ -123,8 +128,8 @@
     </div>
 
     <!-- 控制面板區 (下方 / 右方) -->
-    <div id="controls-container" class="w-full md:w-[380px] h-[55vh] md:h-full bg-slate-50 border-t md:border-t-0 md:border-l border-slate-200 flex flex-col shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-none">
-        <div class="p-4 overflow-y-auto no-scrollbar flex-1 space-y-5">
+    <div id="controls-container" class="flex-1 min-h-0 w-full md:w-[380px] md:flex-none md:h-full bg-slate-50 border-t md:border-t-0 md:border-l border-slate-200 flex flex-col z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-none">
+        <div class="p-4 pb-12 md:pb-4 overflow-y-auto no-scrollbar flex-1 space-y-5">
             
             <!-- 磁場強度設定 -->
             <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100">
