@@ -3,250 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>電磁感應實驗</title>
+    <title>電磁感應實驗室 (Faraday's Law)</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;800&family=Noto+Sans+TC:wght@400;700;900&display=swap');
 
-        body, html { 
-            margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; 
-            background-color: #ffffff; font-family: 'Noto Sans TC', sans-serif; touch-action: none; 
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --accent: #f97316;
+            --bg-color: #f8fafc;
         }
 
-        .main-container { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
-
-        @media (orientation: landscape) {
-            .main-container { flex-direction: row; }
-            #experiment-area { flex: 1.8 !important; border-right: 2px solid #f1f5f9; border-bottom: none !important; }
-            #control-area { flex: 1.1 !important; height: 100%; padding: 12px 15px !important; }
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden;
+            background-color: var(--bg-color); font-family: 'Noto Sans TC', sans-serif;
+            touch-action: none; /* 防止手機瀏覽器滑動特效 */
         }
 
-        #experiment-area { 
-            flex: 2; position: relative; background-color: #ffffff; border-bottom: 2px solid #f1f5f9; 
-            min-height: 35%;
+        /* 磨砂玻璃特效 */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
         }
 
-        #control-area { 
-            flex: 1; background-color: #f8fafc; padding: 12px 16px; overflow-y: auto; 
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.05); z-index: 10; 
+        /* 自定義滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent; height: 32px;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px; background: #e2e8f0; border-radius: 4px; border: 1px solid #cbd5e1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
+            background: white; border: 3px solid var(--primary); margin-top: -10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.15); }
+
+        /* 特殊滑桿：磁場強度 */
+        input[type=range].strength-slider::-webkit-slider-thumb { border-color: #10b981; }
+        input[type=range].strength-slider::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #e2e8f0, #34d399); border: none;
         }
 
-        .hud-overlay { 
-            position: absolute; top: 10px; left: 10px; right: 10px; display: flex; 
-            flex-direction: column; gap: 5px; pointer-events: none; 
+        /* 3D 浮動標籤 */
+        #currentLabel {
+            position: absolute; color: var(--accent);
+            font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 1.25rem;
+            pointer-events: none; opacity: 0; z-index: 50; text-align: center;
+            text-shadow: 0 0 8px white, 0 0 15px rgba(255,255,255,0.8);
+            transform: translate(-50%, -100%); transition: opacity 0.2s ease;
         }
 
-        .hud-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
-
-        .glass-tag { 
-            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); 
-            border: 1px solid rgba(0, 0, 0, 0.08); padding: 10px 14px; border-radius: 14px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            white-space: nowrap; pointer-events: auto; width: fit-content;
-        }
-
-        /* 感應電流標籤視覺 */
-        #currentLabel { 
-            position: absolute; 
-            color: #ea580c; 
-            font-family: 'JetBrains Mono', monospace; 
-            font-weight: 800; 
-            font-size: 1.2rem; 
-            pointer-events: none; 
-            opacity: 0; 
-            z-index: 100; 
-            text-align: center; 
-            line-height: 1.1;
-            text-shadow: 0 0 12px #ffffff, 0 0 4px #ffffff, 0 0 20px rgba(255,255,255,0.5); 
-            transform: translateX(-50%);
-            transition: opacity 0.3s ease;
-        }
-
-        input[type=range] { -webkit-appearance: none; background: transparent; height: 34px; width: 100%; }
-        input[type=range]::-webkit-slider-thumb { 
-            -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%; 
-            background: #0ea5e9; border: 3px solid #ffffff; margin-top: -10px; 
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); 
-        }
-        input[type=range]::-webkit-slider-runnable-track { height: 7px; background: #e2e8f0; border-radius: 4px; }
-
-        .label-text { font-size: 12px; font-weight: 900; color: #64748b; text-transform: uppercase; white-space: nowrap; }
-        .value-text { font-size: 14px; font-weight: 900; color: #0284c7; }
-        
-        .btn-sm-action { 
-            background: white; border: 1.5px solid #e2e8f0; 
-            border-radius: 12px; display: flex; align-items: center; 
-            justify-content: center; transition: all 0.2s; gap: 4px; padding: 5px 10px;
-        }
-        .btn-sm-action:active { transform: scale(0.95); background: #f1f5f9; border-color: #0ea5e9; }
-        
+        /* 隱藏捲軸但可滾動 */
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .title-container { display: flex; flex-direction: column; align-items: flex-start; }
-        .title-main { font-size: 1.1rem; font-weight: 900; color: #1e293b; line-height: 1.1; letter-spacing: -0.02em; }
-        .title-sub { font-size: 1.1rem; font-weight: 900; color: #0ea5e9; line-height: 1.1; margin-top: 4px; }
-        .divider-full { height: 3px; background-color: #e2e8f0; width: 100%; margin: 6px 0; border-radius: 99px; }
-
-        .hud-tool-btn { 
-            width: 100%; text-align: center; font-size: 10px; font-weight: 900; 
-            padding: 6px 8px; border-radius: 10px; border: 2px solid #e2e8f0;
-            transition: all 0.2s; background: white; color: #94a3b8;
-            display: flex; align-items: center; justify-content: center; gap: 4px;
+        /* 動態波紋按鈕效果 */
+        .btn-auto {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .hud-tool-btn.active { border-color: #0ea5e9; color: #0ea5e9; background: #f0f9ff; }
-        .hud-tool-btn.active-green { border-color: #10b981; color: #059669; background: #f0fdf4; }
-
-        #it-graph-box { width: 140px; height: 75px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 8px; }
+        .btn-auto.active {
+            background-color: #eff6ff; border-color: var(--primary); color: var(--primary);
+            box-shadow: inset 0 0 0 1px var(--primary);
+        }
+        .btn-auto.active svg { animation: spin-slow 3s linear infinite; }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body class="flex flex-col md:flex-row">
 
-<div class="main-container">
-    <div id="experiment-area">
-        <!-- 感應電流標籤 -->
-        <div id="currentLabel">Induced current<br>= 0.0 A</div>
+    <!-- 3D 視圖區 (上方 / 左方) -->
+    <div id="view3d-container" class="relative flex-1 bg-white min-h-[45vh] md:min-h-full">
+        <!-- 3D Canvas -->
+        <div id="canvas-container" class="w-full h-full"></div>
         
-        <div class="hud-overlay">
-            <div class="hud-row">
-                <div class="glass-tag title-container">
-                    <div class="title-main">Electromagnetic<br>Induction</div>
-                    <div class="divider-full"></div>
-                    <div class="title-sub text-sky-600">電磁感應</div>
+        <!-- 浮動感應電流數值 -->
+        <div id="currentLabel">I = 0.0 A</div>
+
+        <!-- HUD: 左上角標題與資訊 -->
+        <div class="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none z-10">
+            <div class="glass-panel px-4 py-2 rounded-xl pointer-events-auto w-fit">
+                <h1 class="text-sm font-black text-slate-800 leading-tight">法拉第電磁感應定律</h1>
+                <p class="text-xs font-bold text-sky-600">Faraday's Law of Induction</p>
+            </div>
+        </div>
+
+        <!-- HUD: 右上角工具列與圖表 -->
+        <div class="absolute top-3 right-3 flex flex-col items-end gap-2 pointer-events-none z-10">
+            <div class="glass-panel p-2 rounded-xl pointer-events-auto flex gap-1">
+                <button id="btnToggleLines" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100">
+                    顯示磁力線
+                </button>
+                <button id="btnToggleGraph" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100">
+                    顯示 I-t 圖
+                </button>
+            </div>
+            
+            <div id="graphContainer" class="glass-panel p-2 rounded-xl pointer-events-auto flex flex-col w-[160px] hidden">
+                <div class="flex justify-between items-center mb-1 px-1">
+                    <span class="text-[10px] font-black text-slate-500">I-t 電流時間圖</span>
+                    <span class="text-[10px] font-bold text-orange-500">I (A)</span>
                 </div>
-
-                <div class="flex flex-col gap-2 items-end">
-                    <div class="glass-tag flex flex-col gap-2 min-w-[150px]">
-                        <div class="flex gap-1.5 w-full">
-                            <button id="linesToggle" class="hud-tool-btn flex-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span>
-                                磁力線
-                            </button>
-                            <button id="graphToggle" class="hud-tool-btn flex-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span>
-                                I-t 圖
-                            </button>
-                        </div>
-                        
-                        <div id="fluxLinesDisplay" class="hidden w-full border-t border-slate-100 pt-2 pb-1">
-                            <div class="flex justify-between items-baseline px-1">
-                                <span class="text-[9px] text-emerald-600 font-black uppercase tracking-tighter">通過磁力線數</span>
-                                <div class="text-xl font-black text-emerald-600 font-mono leading-none">
-                                    <span id="fluxLinesCount">0</span><span class="text-[10px] ml-0.5">條</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="itGraphDisplay" class="hidden w-full border-t border-slate-100 pt-2">
-                            <div class="w-full flex justify-between items-center mb-1 px-1">
-                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Current (I) - Time (t)</span>
-                                <span class="text-[8px] font-bold text-orange-500">I(A)</span>
-                            </div>
-                            <div id="it-graph-box">
-                                <canvas id="currentGraph" width="140" height="75"></canvas>
-                            </div>
-                        </div>
-                    </div>
+                <div class="w-full h-[80px] bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                    <canvas id="graphCanvas" width="160" height="80"></canvas>
                 </div>
             </div>
         </div>
-        <div id="canvas-container" class="w-full h-full"></div>
     </div>
 
-    <div id="control-area" class="no-scrollbar">
-        <div class="max-w-xl mx-auto space-y-3.5">
-            <div class="grid grid-cols-1 gap-2.5">
-                <div class="flex flex-col">
-                    <div class="flex justify-between items-center px-1 mb-0.5">
-                        <span class="label-text">磁鐵 (Magnet) 位置</span>
+    <!-- 控制面板區 (下方 / 右方) -->
+    <div id="controls-container" class="w-full md:w-[380px] h-[55vh] md:h-full bg-slate-50 border-t md:border-t-0 md:border-l border-slate-200 flex flex-col shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-none">
+        <div class="p-4 overflow-y-auto no-scrollbar flex-1 space-y-5">
+            
+            <!-- 磁場強度設定 -->
+            <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-end mb-1">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-black text-slate-700">磁場強度 (B)</span>
+                        <span class="text-[10px] text-slate-400">決定磁力線密度與感應極限</span>
                     </div>
-                    <input type="range" id="magSlider" min="-30" max="30" step="0.1" value="-15">
+                    <span id="strengthText" class="font-mono font-black text-emerald-600 text-sm">0.50 T</span>
                 </div>
-                <div class="flex flex-col">
-                    <div class="flex justify-between items-center px-1 mb-0.5">
-                        <span class="label-text">線圈 (Coil)</span>
+                <input type="range" id="strengthSlider" class="strength-slider" min="0.1" max="1" step="0.01" value="0.5">
+            </div>
+
+            <hr class="border-slate-200 border-dashed">
+
+            <!-- 磁鐵控制 -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-black text-slate-800 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span> 磁鐵 (Magnet)
+                    </span>
+                    <button id="btnFlipPolarity" class="text-xs font-bold bg-white border border-slate-200 px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-50 active:scale-95 transition-all">
+                        🔄 磁極交換
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold text-slate-500">位置 (X)</span>
+                        </div>
+                        <input type="range" id="magSlider" min="-30" max="30" step="0.1" value="-15">
                     </div>
-                    <input type="range" id="coilSlider" min="-30" max="30" step="0.1" value="0">
+                    <button id="btnAutoMag" class="btn-auto w-[60px] h-[64px] bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 shrink-0 text-slate-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span class="text-[10px] font-black">自動</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex items-end gap-3">
-                <div class="flex-1 flex flex-col">
-                    <div class="flex justify-between items-center px-1 mb-0.5">
-                        <span class="label-text">線圈角度 θ</span>
-                        <span id="angleText" class="value-text">0°</span>
+            <!-- 線圈控制 -->
+            <div class="space-y-2">
+                <span class="text-sm font-black text-slate-800 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-600"></span> 銅線圈 (Coil)
+                </span>
+                
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold text-slate-500">位置 (X)</span>
+                        </div>
+                        <input type="range" id="coilSlider" min="-30" max="30" step="0.1" value="0">
+                    </div>
+                    <button id="btnAutoCoil" class="btn-auto w-[60px] h-[64px] bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 shrink-0 text-slate-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span class="text-[10px] font-black">自動</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-slate-500">傾斜角度 (θ)</span>
+                        <span id="angleText" class="font-mono font-black text-slate-700 text-xs">0°</span>
                     </div>
                     <input type="range" id="angleSlider" min="0" max="90" step="1" value="0">
                 </div>
-                <button id="flipBtn" class="btn-sm-action h-[38px] flex-shrink-0 px-3 border-slate-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                    </svg>
-                    <span class="text-[10px] font-black text-slate-700">磁極交換</span>
-                </button>
             </div>
+            
         </div>
     </div>
-</div>
 
 <script>
+// --- 核心變數與常數 ---
 const COLORS = {
     bg: 0xffffff,
-    magnetN: 0xdc2626, 
-    magnetS: 0x2563eb, 
+    magnetN: 0xdc2626, // 紅
+    magnetS: 0x2563eb, // 藍
     copper: 0xb45309,
     fluxLine: 0x10b981,
-    induced: 0xea580c 
+    induced: 0xf97316
 };
 
+// 物理狀態
+let state = {
+    magX: -15,
+    coilX: 0,
+    coilAngle: 0,
+    magStrength: 0.5,  // 磁場強度 0.1~1.0
+    polarity: 1,       // 1: N朝右, -1: S朝右
+    autoMove: 'none',  // 'none', 'magnet', 'coil'
+    showLines: false,
+    showGraph: false,
+    lastFlux: 0,
+    inducedI: 0,
+    animTime: 0
+};
+
+// Three.js 物件
 let scene, camera, renderer, controls;
 let magnetGroup, coilGroup, currentArrowGroup, fieldLinesGroup;
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 let dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
+// 圖表歷史
 const graphHistory = [];
-const maxGraphPoints = 150; 
+const MAX_GRAPH_POINTS = 100;
+let displayedValueI = 0; // 用於平滑 UI 數字顯示
 
-let averageBuffer = [];
-const bufferSize = 10; 
-
-let labelVisibilityTimer = 0;
-const labelHoldTime = 12; 
-
-let state = {
-    magX: -15,
-    coilX: 0,
-    coilAngle: 0,
-    polarity: 1, 
-    showLines: false,
-    showGraph: false,
-    lastFlux: 0,
-    inducedI: 0,
-    displayedValueI: 0
-};
-
+// --- 初始化程序 ---
 function init() {
     const container = document.getElementById('canvas-container');
+    
+    // 建立場景
     scene = new THREE.Scene();
     scene.background = new THREE.Color(COLORS.bg);
 
+    // 建立相機
     camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, 22, 65);
+    camera.position.set(0, 25, 60);
 
+    // 建立渲染器
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
+    // 視角控制器
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.1;
-    controls.maxPolarAngle = Math.PI / 1.9;
+    controls.maxPolarAngle = Math.PI / 1.8;
+    controls.minDistance = 20;
+    controls.maxDistance = 100;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-    
+    // 光源
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    dirLight.position.set(10, 20, 10);
+    scene.add(dirLight);
+
+    // 群組
     magnetGroup = new THREE.Group();
     coilGroup = new THREE.Group();
     fieldLinesGroup = new THREE.Group();
@@ -255,139 +275,204 @@ function init() {
     scene.add(coilGroup);
     scene.add(fieldLinesGroup);
 
+    // 建構物件
     createMagnet();
     createCoil();
-    createFieldLines();
+    createFieldLinesPool(); // 預先建立最大數量的磁力線池
+    updateFieldLinesVisibility();
 
-    // 初始化同步 Flux
-    const dist = state.coilX - state.magX;
-    const angleRad = state.coilAngle * Math.PI / 180;
-    state.lastFlux = (350 / (dist * dist + 50)) * Math.cos(angleRad) * state.polarity;
-
+    // 事件監聽
     window.addEventListener('resize', onResize);
     renderer.domElement.addEventListener('pointerdown', onPointerDown);
     renderer.domElement.addEventListener('pointermove', onPointerMove);
     renderer.domElement.addEventListener('pointerup', () => controls.enabled = true);
 
     setupUI();
+    
+    // 填滿初始圖表陣列
+    for(let i=0; i<MAX_GRAPH_POINTS; i++) graphHistory.push(0);
+
     animate();
 }
 
+// --- 3D 物件建構 ---
 function createMagnet() {
     magnetGroup.clear();
-    const body = new THREE.Group();
     const r = 1.3, h = 6.5;
     const geo = new THREE.CylinderGeometry(r, r, h/2, 32).rotateZ(Math.PI/2);
-    const mRight = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: state.polarity === 1 ? COLORS.magnetN : COLORS.magnetS }));
+    
+    const matN = new THREE.MeshPhongMaterial({ color: COLORS.magnetN, shininess: 30 });
+    const matS = new THREE.MeshPhongMaterial({ color: COLORS.magnetS, shininess: 30 });
+
+    const mRight = new THREE.Mesh(geo, state.polarity === 1 ? matN : matS);
     mRight.position.x = h/4;
-    body.add(mRight);
-    const mLeft = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: state.polarity === 1 ? COLORS.magnetS : COLORS.magnetN }));
+    
+    const mLeft = new THREE.Mesh(geo, state.polarity === 1 ? matS : matN);
     mLeft.position.x = -h/4;
+    
+    const body = new THREE.Group();
+    body.add(mRight);
     body.add(mLeft);
 
+    // 文字標籤
     const createLabel = (txt, color) => {
         const canvas = document.createElement('canvas');
         canvas.width = 128; canvas.height = 128;
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = color;
-        ctx.font = 'bold 100px sans-serif';
+        ctx.font = 'bold 90px sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(txt, 64, 64);
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas) }));
-        sprite.scale.set(3, 3, 1);
+        sprite.scale.set(3.5, 3.5, 1);
         return sprite;
     };
+
     const labelR = createLabel(state.polarity === 1 ? "N" : "S", state.polarity === 1 ? "#dc2626" : "#2563eb");
-    labelR.position.set(h/2-0.5, r+1.3, 0);
+    labelR.position.set(h/2, r+1.5, 0);
     body.add(labelR);
+
     const labelL = createLabel(state.polarity === 1 ? "S" : "N", state.polarity === 1 ? "#2563eb" : "#dc2626");
-    labelL.position.set(-h/2+0.5, r+1.3, 0);
+    labelL.position.set(-h/2, r+1.5, 0);
     body.add(labelL);
+
     body.name = "MAGNET_BODY";
     magnetGroup.add(body);
-    magnetGroup.position.x = state.magX;
 }
 
 function createCoil() {
     coilGroup.clear();
-    const mat = new THREE.MeshStandardMaterial({ color: COLORS.copper, metalness: 0.8, roughness: 0.2 });
+    const mat = new THREE.MeshStandardMaterial({ 
+        color: COLORS.copper, metalness: 0.8, roughness: 0.3 
+    });
     const mesh = new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.45, 16, 64).rotateY(Math.PI/2), mat);
     mesh.name = "COIL_BODY";
     coilGroup.add(mesh);
+    
     currentArrowGroup = new THREE.Group();
     coilGroup.add(currentArrowGroup);
-    coilGroup.position.x = state.coilX;
 }
 
-/**
- * 修改處：增加磁力線的整體間距
- */
-function createFieldLines() {
+// 建立磁力線物件池 (一次性建立最大數量，透過 visibility 控制密度)
+function createFieldLinesPool() {
     fieldLinesGroup.clear();
-    const tubeRadius = 0.035; 
-    const tubeMat = new THREE.MeshBasicMaterial({ color: COLORS.fluxLine, transparent: true, opacity: 0.18, depthWrite: false });
+    const tubeRadius = 0.035;
+    const tubeMat = new THREE.MeshBasicMaterial({ color: COLORS.fluxLine, transparent: true, opacity: 0.15, depthWrite: false });
     
-    // 調低 numLoops 與 layers 以配合更大的間距，避免視覺雜亂
-    const h = 6.5, numLoops = 8, layers = 5;    
-    for (let i = 0; i < numLoops; i++) {
-        const angle = (i / numLoops) * Math.PI * 2;
+    const h = 6.5;
+    const maxLoops = 16; // 最大條數
+    const layers = 4;
+    
+    for (let i = 0; i < maxLoops; i++) {
+        const angle = (i / maxLoops) * Math.PI * 2;
         for (let j = 1; j <= layers; j++) {
-            // 關鍵修改：調大寬度與高度的倍數 (原本是 35*j 與 5.5*j)
-            const curveWidth = 40 * j, curveHeight = 30 * j; 
+            const curveWidth = 35 * j, curveHeight = 25 * j;
             const p = state.polarity;
             const startX = (h/2) * p, endX = -(h/2) * p;
+            
             const curve = new THREE.CubicBezierCurve3(
                 new THREE.Vector3(startX, 0, 0),
                 new THREE.Vector3(startX + curveWidth * p, curveHeight, 0),
                 new THREE.Vector3(endX - curveWidth * p, curveHeight, 0),
                 new THREE.Vector3(endX, 0, 0)
             );
-            const pts = curve.getPoints(60).map(pt => new THREE.Vector3(pt.x, pt.y * Math.cos(angle), pt.y * Math.sin(angle)));
-            const tubeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, tubeRadius, 6, false);
-            fieldLinesGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+            
+            const pts = curve.getPoints(50).map(pt => new THREE.Vector3(pt.x, pt.y * Math.cos(angle), pt.y * Math.sin(angle)));
+            const tubeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 50, tubeRadius, 6, false);
+            
+            const mesh = new THREE.Mesh(tubeGeo, tubeMat);
+            // 儲存原始索引，用於計算是否顯示
+            mesh.userData = { loopIndex: i }; 
+            fieldLinesGroup.add(mesh);
         }
     }
-    fieldLinesGroup.visible = state.showLines;
 }
 
-function updateInductionVisuals(rawVal) {
-    const label = document.getElementById('currentLabel');
-    averageBuffer.push(rawVal);
-    if (averageBuffer.length > bufferSize) averageBuffer.shift();
-    const avgI = averageBuffer.reduce((a, b) => a + b, 0) / averageBuffer.length;
-    state.displayedValueI += (avgI - state.displayedValueI) * 0.15;
-    const stableI = Math.abs(rawVal) < 0.008 ? 0 : state.displayedValueI;
+// 根據磁場強度決定顯示多少磁力線
+function updateFieldLinesVisibility() {
+    if (!state.showLines) {
+        fieldLinesGroup.visible = false;
+        return;
+    }
+    fieldLinesGroup.visible = true;
+    
+    // magStrength 從 0.1~1.0，對應顯示比例
+    const ratio = state.magStrength / 1.0;
+    const maxLoops = 16;
+    const activeLoops = Math.max(2, Math.floor(maxLoops * ratio));
 
-    if (Math.abs(stableI) > 0.02) {
-        labelVisibilityTimer = labelHoldTime;
-        label.innerHTML = `Induced current<br>= ${stableI.toFixed(1)} A`;
+    fieldLinesGroup.children.forEach(mesh => {
+        mesh.visible = mesh.userData.loopIndex < activeLoops;
+    });
+}
+
+// --- 物理計算與視覺更新 ---
+function calculatePhysics() {
+    const dist = state.coilX - state.magX;
+    const angleRad = state.coilAngle * Math.PI / 180;
+    
+    // 磁通量 Φ = B * A * cos(θ) / (r² + 50)
+    // 這裡我們把 state.magStrength 當作 B (現在最大為 1.0 T)
+    const baseFlux = (400 / (dist * dist + 50)) * Math.cos(angleRad) * state.polarity;
+    const currentFlux = baseFlux * state.magStrength;
+    
+    // 感應電流 I ∝ - dΦ/dt (法拉第定律)
+    const dFlux = currentFlux - state.lastFlux;
+    // 放大係數讓電流容易觀察 (因為 B 縮小了 10 倍，我們把放大係數乘以 10 保持視覺效果)
+    state.inducedI = -dFlux * 300; 
+    
+    state.lastFlux = currentFlux;
+
+    // 紀錄圖表數據
+    graphHistory.push(state.inducedI);
+    if (graphHistory.length > MAX_GRAPH_POINTS) graphHistory.shift();
+
+    updateInductionVisuals(state.inducedI);
+    if (state.showGraph) drawGraph();
+}
+
+function updateInductionVisuals(rawI) {
+    const label = document.getElementById('currentLabel');
+    
+    // 平滑化數值顯示
+    displayedValueI += (rawI - displayedValueI) * 0.2;
+    const showI = Math.abs(rawI) < 0.05 ? 0 : displayedValueI;
+
+    // 更新浮動標籤位置與內容
+    if (Math.abs(showI) > 0.1) {
+        label.innerText = `I = ${showI.toFixed(1)} A`;
         label.style.opacity = 1;
-        const v = new THREE.Vector3(state.coilX, 7.5, 0);
-        v.project(camera);
-        const container = document.getElementById('experiment-area');
+        // 將 3D 座標轉 2D 螢幕座標
+        const v = new THREE.Vector3(state.coilX, 7, 0).project(camera);
+        const container = document.getElementById('view3d-container');
         const x = (v.x * 0.5 + 0.5) * container.clientWidth;
         const y = (-(v.y * 0.5) + 0.5) * container.clientHeight;
         label.style.left = `${x}px`;
-        label.style.top = `${y - 45}px`;
+        label.style.top = `${y - 20}px`;
     } else {
-        if (labelVisibilityTimer > 0) labelVisibilityTimer--;
-        else label.style.opacity = 0;
+        label.style.opacity = 0;
     }
 
+    // 更新線圈上的電流箭頭 (冷次定律方向)
     currentArrowGroup.clear();
-    const absVal = Math.abs(stableI);
-    if (absVal > 0.1) {
-        const arrowRadius = 6.4;
-        const arcLength = Math.min(Math.PI * 0.5, absVal * 0.15); 
+    const absVal = Math.abs(showI);
+    if (absVal > 0.2) {
+        const arrowRadius = 6.3;
+        const arcLength = Math.min(Math.PI * 0.6, absVal * 0.1); 
         const startAngle = Math.PI / 2;
-        const isClockwise = stableI < 0; 
+        // 電流方向取決於正負值
+        const isClockwise = showI > 0; 
         const endAngle = isClockwise ? startAngle - arcLength : startAngle + arcLength;
+        
         const curve = new THREE.EllipseCurve(0, 0, arrowRadius, arrowRadius, startAngle, endAngle, isClockwise);
-        const pts = curve.getPoints(25).map(p => new THREE.Vector3(0, p.y, p.x));
-        const tubeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, 0.22, 8, false);
+        const pts = curve.getPoints(30).map(p => new THREE.Vector3(0, p.y, p.x));
+        const tubeGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, 0.3, 8, false);
         const tubeMat = new THREE.MeshBasicMaterial({ color: COLORS.induced });
+        
         currentArrowGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.3, 12), tubeMat);
+        
+        // 箭頭圓錐
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.8, 12), tubeMat);
         cone.position.copy(pts[pts.length - 1]);
         const tangent = new THREE.Vector3(0, Math.cos(endAngle), -Math.sin(endAngle)).normalize();
         if (isClockwise) tangent.multiplyScalar(-1); 
@@ -396,48 +481,129 @@ function updateInductionVisuals(rawVal) {
     }
 }
 
+// 繪製電流圖表
 function drawGraph() {
-    if (!state.showGraph) return;
-    const canvas = document.getElementById('currentGraph');
+    const canvas = document.getElementById('graphCanvas');
+    if(!canvas) return;
     const ctx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
+    
     ctx.clearRect(0, 0, w, h);
-    const fixedMaxI = 20.0; 
-    ctx.setLineDash([2, 2]);
-    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1;
+    
+    // 中心線
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
-    ctx.setLineDash([]); 
+    
     if (graphHistory.length < 2) return;
-    ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    
+    // 繪製波形
+    ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2; 
+    ctx.lineJoin = 'round';
     ctx.beginPath();
-    const step = w / (maxGraphPoints - 1);
-    const yScale = (h / 2 * 0.85) / fixedMaxI; 
+    
+    const step = w / (MAX_GRAPH_POINTS - 1);
+    const maxGraphValue = 100.0; // Y軸極限放大到 100
+    const yScale = (h / 2 * 0.8) / maxGraphValue; 
+    
     for (let i = 0; i < graphHistory.length; i++) {
         const x = i * step;
-        const val = Math.max(-fixedMaxI, Math.min(fixedMaxI, graphHistory[i]));
+        const val = Math.max(-maxGraphValue, Math.min(maxGraphValue, graphHistory[i]));
         const y = h/2 - (val * yScale);
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
     ctx.stroke();
 }
 
-function calculatePhysics() {
-    const fluxDir = state.polarity; 
-    const dist = state.coilX - state.magX;
-    const angleRad = state.coilAngle * Math.PI / 180;
-    const flux = (350 / (dist * dist + 50)) * Math.cos(angleRad) * fluxDir;
-    const dFlux = flux - state.lastFlux;
-    state.inducedI = dFlux * 40; 
-    state.lastFlux = flux;
-    graphHistory.push(state.inducedI);
-    if (graphHistory.length > maxGraphPoints) graphHistory.shift();
-    if (document.getElementById('fluxLinesCount')) {
-        document.getElementById('fluxLinesCount').innerText = Math.round(Math.abs(flux) * 12);
-    }
-    updateInductionVisuals(state.inducedI);
-    drawGraph();
+// --- 互動與 UI 控制 ---
+function setAutoMove(mode) {
+    state.autoMove = mode;
+    document.getElementById('btnAutoMag').classList.toggle('active', mode === 'magnet');
+    document.getElementById('btnAutoCoil').classList.toggle('active', mode === 'coil');
+    // 如果啟動自動，紀錄當前時間做為相位起點
+    if(mode !== 'none') state.animTime = 0; 
 }
 
+function setupUI() {
+    // 磁場強度滑桿
+    const strengthSlider = document.getElementById('strengthSlider');
+    strengthSlider.addEventListener('input', (e) => {
+        state.magStrength = parseFloat(e.target.value);
+        document.getElementById('strengthText').innerText = state.magStrength.toFixed(2) + ' T';
+        updateFieldLinesVisibility();
+    });
+
+    // 位置滑桿
+    const magSlider = document.getElementById('magSlider');
+    const coilSlider = document.getElementById('coilSlider');
+    
+    magSlider.addEventListener('input', (e) => {
+        state.magX = parseFloat(e.target.value);
+        if(state.autoMove === 'magnet') setAutoMove('none');
+    });
+    
+    coilSlider.addEventListener('input', (e) => {
+        state.coilX = parseFloat(e.target.value);
+        if(state.autoMove === 'coil') setAutoMove('none');
+    });
+
+    // 角度滑桿
+    document.getElementById('angleSlider').addEventListener('input', (e) => {
+        state.coilAngle = parseFloat(e.target.value);
+        document.getElementById('angleText').innerText = `${state.coilAngle}°`;
+    });
+
+    // 自動按鈕
+    document.getElementById('btnAutoMag').addEventListener('click', () => {
+        setAutoMove(state.autoMove === 'magnet' ? 'none' : 'magnet');
+    });
+    document.getElementById('btnAutoCoil').addEventListener('click', () => {
+        setAutoMove(state.autoMove === 'coil' ? 'none' : 'coil');
+    });
+
+    // 磁極翻轉
+    document.getElementById('btnFlipPolarity').addEventListener('click', () => {
+        state.polarity *= -1;
+        createMagnet();
+        createFieldLinesPool();
+        updateFieldLinesVisibility();
+    });
+
+    // 顯示/隱藏磁力線
+    const btnToggleLines = document.getElementById('btnToggleLines');
+    btnToggleLines.addEventListener('click', () => {
+        state.showLines = !state.showLines;
+        updateFieldLinesVisibility();
+        if(state.showLines){
+            btnToggleLines.classList.replace('bg-slate-50', 'bg-emerald-50');
+            btnToggleLines.classList.replace('text-slate-600', 'text-emerald-700');
+            btnToggleLines.classList.replace('border-slate-200', 'border-emerald-200');
+        } else {
+            btnToggleLines.classList.replace('bg-emerald-50', 'bg-slate-50');
+            btnToggleLines.classList.replace('text-emerald-700', 'text-slate-600');
+            btnToggleLines.classList.replace('border-emerald-200', 'border-slate-200');
+        }
+    });
+
+    // 顯示/隱藏圖表
+    const btnToggleGraph = document.getElementById('btnToggleGraph');
+    const graphContainer = document.getElementById('graphContainer');
+    btnToggleGraph.addEventListener('click', () => {
+        state.showGraph = !state.showGraph;
+        if(state.showGraph) {
+            graphContainer.classList.remove('hidden');
+            btnToggleGraph.classList.replace('bg-slate-50', 'bg-emerald-50');
+            btnToggleGraph.classList.replace('text-slate-600', 'text-emerald-700');
+            btnToggleGraph.classList.replace('border-slate-200', 'border-emerald-200');
+        } else {
+            graphContainer.classList.add('hidden');
+            btnToggleGraph.classList.replace('bg-emerald-50', 'bg-slate-50');
+            btnToggleGraph.classList.replace('text-emerald-700', 'text-slate-600');
+            btnToggleGraph.classList.replace('border-emerald-200', 'border-slate-200');
+        }
+    });
+}
+
+// 3D 拖曳邏輯
 function onPointerDown(e) {
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -447,7 +613,13 @@ function onPointerDown(e) {
     for (let intersect of intersects) {
         let obj = intersect.object;
         while(obj.parent && !obj.name) obj = obj.parent;
-        if (obj.name === "MAGNET_BODY" || obj.name === "COIL_BODY") { controls.enabled = false; break; }
+        if (obj.name === "MAGNET_BODY" || obj.name === "COIL_BODY") { 
+            controls.enabled = false; 
+            // 點擊 3D 物件時暫停自動運動
+            if (obj.name === "MAGNET_BODY" && state.autoMove === 'magnet') setAutoMove('none');
+            if (obj.name === "COIL_BODY" && state.autoMove === 'coil') setAutoMove('none');
+            break; 
+        }
     }
 }
 
@@ -457,10 +629,13 @@ function onPointerMove(e) {
     mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
+    
     const intersectPos = new THREE.Vector3();
     raycaster.ray.intersectPlane(dragPlane, intersectPos);
+    
     const limit = 30;
     const newX = Math.max(-limit, Math.min(limit, intersectPos.x));
+    
     if (Math.abs(newX - state.magX) < Math.abs(newX - state.coilX)) {
         state.magX = newX;
         document.getElementById('magSlider').value = newX;
@@ -471,55 +646,46 @@ function onPointerMove(e) {
 }
 
 function onResize() {
-    const container = document.getElementById('experiment-area');
+    const container = document.getElementById('view3d-container');
     const w = container.clientWidth, h = container.clientHeight;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
 }
 
-function setupUI() {
-    document.getElementById('magSlider').addEventListener('input', (e) => state.magX = parseFloat(e.target.value));
-    document.getElementById('coilSlider').addEventListener('input', (e) => state.coilX = parseFloat(e.target.value));
-    document.getElementById('angleSlider').addEventListener('input', (e) => {
-        state.coilAngle = parseFloat(e.target.value);
-        document.getElementById('angleText').innerText = `${state.coilAngle}°`;
-    });
-    const linesToggle = document.getElementById('linesToggle');
-    const fluxLinesDisplay = document.getElementById('fluxLinesDisplay');
-    linesToggle.addEventListener('click', () => {
-        state.showLines = !state.showLines;
-        fieldLinesGroup.visible = state.showLines;
-        linesToggle.classList.toggle('active-green', state.showLines);
-        fluxLinesDisplay.classList.toggle('hidden', !state.showLines);
-    });
-    const graphToggle = document.getElementById('graphToggle');
-    const itGraphDisplay = document.getElementById('itGraphDisplay');
-    graphToggle.addEventListener('click', () => {
-        state.showGraph = !state.showGraph;
-        graphToggle.classList.toggle('active', state.showGraph);
-        itGraphDisplay.classList.toggle('hidden', !state.showGraph);
-        if (state.showGraph) drawGraph();
-    });
-    document.getElementById('flipBtn').addEventListener('click', () => {
-        state.polarity *= -1;
-        createMagnet();
-        createFieldLines();
-    });
-}
-
+// --- 主迴圈 ---
 function animate() {
     requestAnimationFrame(animate);
+
+    // 處理自動運動
+    if (state.autoMove !== 'none') {
+        state.animTime += 0.02; // 運動速度減半
+        // 使用 Sine 波函數建立平滑往復運動
+        const autoPos = Math.sin(state.animTime) * 25; 
+        
+        if (state.autoMove === 'magnet') {
+            state.magX = autoPos;
+            document.getElementById('magSlider').value = state.magX;
+        } else if (state.autoMove === 'coil') {
+            state.coilX = autoPos;
+            document.getElementById('coilSlider').value = state.coilX;
+        }
+    }
+
+    // 更新 3D 物件位置
     magnetGroup.position.x = state.magX;
     coilGroup.position.x = state.coilX;
     coilGroup.rotation.z = state.coilAngle * Math.PI / 180;
     fieldLinesGroup.position.x = state.magX;
+
+    // 執行物理模擬並更新畫面
     calculatePhysics();
     controls.update();
     renderer.render(scene, camera);
 }
 
-init();
+// 啟動
+window.onload = init;
 </script>
 </body>
 </html>
