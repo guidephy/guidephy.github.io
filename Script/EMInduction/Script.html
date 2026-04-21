@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>電磁感應雙語說課練習工具 V2</title>
+<style>
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary: #64748b;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: #334155;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', 'Noto Sans TC', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  line-height: 1.6;
+  padding-bottom: 80px;
+}
+
+/* Header */
+header {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 1rem;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, var(--primary), var(--success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 9999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+.btn-outline:hover { background: var(--border); }
+.btn.active { background: var(--accent); color: white; }
+
+/* Progress */
+.progress-container {
+  height: 4px;
+  background: var(--border);
+  position: sticky;
+  top: 120px;
+  z-index: 99;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--primary);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* Nav Bar */
+.nav-scroll {
+  background: var(--card-bg);
+  padding: 0.75rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+  scrollbar-width: none;
+}
+.nav-scroll::-webkit-scrollbar { display: none; }
+.nav-item {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  cursor: pointer;
+  background: var(--card-bg);
+}
+.nav-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* Main Content */
+main {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.slide-card {
+  display: none;
+  animation: fadeIn 0.3s ease-out;
+}
+.slide-card.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .content-grid { grid-template-columns: 350px 1fr; }
+}
+
+/* Image Placeholder */
+.image-box {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.image-box img { width: 100%; height: 100%; object-fit: cover; }
+.image-box .slide-num {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+/* Panels */
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.panel-header {
+  padding: 1rem;
+  background: rgba(0,0,0,0.02);
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.panel-body { padding: 1.25rem; }
+
+.script-text { font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; }
+.zh-text { font-size: 0.95rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 1rem; }
+
+/* TTS Controls Inside Panel */
+.tts-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border-radius: 8px;
+}
+
+.speed-control { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; flex: 1; }
+.speed-control input { flex: 1; accent-color: var(--primary); }
+
+/* Classroom English */
+.classroom-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.classroom-item {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--bg);
+  border-left: 4px solid var(--accent);
+}
+.cls-en { font-weight: 600; color: var(--primary); margin-bottom: 0.25rem; }
+.cls-zh { font-size: 0.85rem; color: var(--text-muted); }
+.cls-play { margin-top: 0.5rem; font-size: 0.75rem; color: var(--primary); cursor: pointer; text-decoration: underline; }
+
+/* Visualizer */
+.visualizer { display: none; height: 15px; align-items: center; gap: 2px; }
+.visualizer.active { display: flex; }
+.bar { width: 3px; height: 100%; background: var(--primary); animation: wave 1s infinite; }
+.bar:nth-child(2) { animation-delay: 0.2s; }
+.bar:nth-child(3) { animation-delay: 0.4s; }
+@keyframes wave {
+  0%, 100% { height: 5px; }
+  50% { height: 15px; }
+}
+
+/* Footer Nav */
+.footer-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border);
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ 電磁感應雙語說課練習</h1>
+  <p style="color:var(--text-muted); font-size: 0.9rem;">How Change Induces Electricity</p>
+  <div class="controls">
+    <button id="btnPlayAll" class="btn btn-primary" onclick="togglePlayAll()">
+      <span>▶</span> <span id="btnPlayAllText">全自動練習模式</span>
+    </button>
+    <button class="btn btn-outline" onclick="stopSpeech()">⏹ 停止播放</button>
+  </div>
+</header>
+
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<nav class="nav-scroll" id="navBar"></nav>
+
+<main id="slideContainer"></main>
+
+<div class="footer-nav">
+  <button class="btn btn-outline" onclick="prevSlide()" id="btnPrev">← 上一張</button>
+  <div id="slideIndicator" style="font-weight: bold;">1 / 28</div>
+  <button class="btn btn-primary" onclick="nextSlide()" id="btnNext">下一張 →</button>
+</div>
+
+<script>
+const slides = [
+  {
+    label: "Slide 1 — Introduction",
+    script: `Hello everyone, I am Chang-Hong Lin, a physics teacher from Guanyin Senior High School. Today, I would like to share my lesson: "How Change Induces Electricity and Transforms Our World."`,
+    zh: `大家好，我是觀音高中的物理老師林長宏。今天我要分享的課程主題是：「變革如何感應電力，並改造我們的世界」。`,
+    classroom: [
+      { en: "Good morning, everyone. Please take your seats and get ready.", zh: "大家早安，請就座準備好。" },
+      { en: "Today's lesson title is on the board. Can everyone read it?", zh: "今天的課程主題在黑板上，大家都看得到嗎？" }
+    ]
+  },
+  {
+    label: "Slide 2 — Context & Core Concepts",
+    script: `This lesson is designed for the Grade 10 Physics unit "Electromagnetic Induction." And I chose "Change" and "Interaction" as key concepts.`,
+    zh: `本課針對高一物理「電磁感應」單元設計。我選擇了「變革」與「交互作用」作為核心概念。`,
+    classroom: [
+      { en: "Has anyone heard of this before?", zh: "有人之前聽說過嗎？" },
+      { en: "Write these key concepts down!", zh: "把這些核心概念寫下來！" }
+    ]
+  },
+  {
+    label: "Slide 3 — Statement of Inquiry",
+    script: `The Statement of Inquiry is: "Innovative technology and physical interactions drive sustainable energy transformation." This lesson guides students through three levels of questions. Factual: What are the similarities and differences in power plant structures? Conceptual: How do coils and magnets interact to generate electrical energy? Debatable: To achieve sustainability, "can" we and "should" we stop using fossil fuels?`,
+    zh: `本課的探究陳述是：「創新技術與物理間的交互作用，是驅動永續能源轉型的動力。」我透過三個層次的問題引導學生：事實性問題：發電廠的構造有什麼異同？概念性問題：線圈與磁鐵如何透過交互作用產生電能？辯論性問題：為了達成永續，我們是否「能」且「應該」停止使用化石燃料？`,
+    classroom: [
+      { en: "A factual question has a clear right answer.", zh: "事實性問題有明確的答案。" },
+      { en: "Which of these three questions do you find most interesting?", zh: "這三個問題中，你覺得哪個最有趣？" }
+    ]
+  },
+  {
+    label: "Slide 4 — Learning Objectives",
+    script: `The learning objectives range from knowledge — Faraday's Law — to skills — conducting simulation experiments — and finally to application: evaluating the needs of Taiwan's energy transition.`,
+    zh: `學習目標涵蓋了從知識層面（法拉第定律），到技能層面（進行模擬實驗），最後延伸至應用層面：評估台灣能源轉型的需求。`,
+    classroom: [
+      { en: "By the end of this lesson, you should be able to explain Faraday's Law.", zh: "這堂課結束時，你應該能夠解釋法拉第定律。" },
+      { en: "We'll apply it to Taiwan's energy situation.", zh: "我們會將其應用在台灣的能源情況。" }
+    ]
+  },
+  {
+    label: "Slide 5 — The Hook: Energy Crisis",
+    script: `This is the "Hook" of the lesson. The discussion introduces the energy crisis by talking about the Iran war and the blockade of the Strait of Hormuz.`,
+    zh: `這是我這堂課的 Hook，以美伊戰爭引發的「能源危機」作為動機引發。`,
+    classroom: [
+      { en: "Pay attention to the key issue.", zh: "注意其中的關鍵問題。" },
+      { en: "What is an 'energy crisis'? Explain in your own words.", zh: "什麼是「能源危機」？用自己的話解釋。" }
+    ]
+  },
+  {
+    label: "Slide 6 — Web Game Experience",
+    script: `To help students feel the impact of this war and realize the heavy reliance on imported energy, I designed a web-based game for them to experience these challenges firsthand.`,
+    zh: `為了讓學生感受到戰爭影響與對進口能源的重度依賴，我設計了一個網頁遊戲讓他們親身體驗。`,
+    classroom: [
+      { en: "Scan the QR code on the board.", zh: "掃描黑板上的 QR Code。" },
+      { en: "After the game, tell me: what surprised you the most?", zh: "遊戲結束後告訴我：什麼讓你最驚訝？" }
+    ]
+  },
+  {
+    label: "Slide 7 — Types of Power Plants",
+    script: `In the game, students learn about coal, nuclear, gas, wind, solar, and hydro power. The lesson also includes checking Taiwan's real-time power generation status to confirm the current situation.`,
+    zh: `在遊戲中認識各種發電廠，並查看台灣即時發電數據以確認現狀。`,
+    classroom: [
+      { en: "Taiwan Power Company publishes real-time data online.", zh: "台電在網路上發布即時數據。" },
+      { en: "What does 'renewable' mean?", zh: "「再生」是什麼意思？" }
+    ]
+  },
+  {
+    label: "Slide 8 — Group Overview",
+    script: `Then I provide students with diagrams of various power plants. Each group is responsible for introducing one type of power plant. After discussion, they briefly explain the process of generating electricity.`,
+    zh: `接著我提供發電廠示意圖。每組負責一種發電廠的介紹。討論後，需簡述其發電過程。`,
+    classroom: [
+      { en: "Study it carefully with your teammates.", zh: "和組員仔細研究它。" },
+      { en: "Listen carefully to other groups.", zh: "仔細聆聽其他組別。" }
+    ]
+  },
+  {
+    label: "Slide 9 — Finding Commonality",
+    script: `After the presentations, students discuss: Do these power plants have anything in common?`,
+    zh: `各組報告後，引導學生討論：這些發電廠有沒有任何共同點？`,
+    classroom: [
+      { en: "What do they all have in common?", zh: "它們有什麼共同點？" },
+      { en: "Do you notice any similar parts?", zh: "你有注意到任何相似的部分嗎？" }
+    ]
+  },
+  {
+    label: "Slide 10 — The Core Component: Turbine",
+    script: `The discussion leads students to discover that, except for solar power, all power plants have a core component — the Turbine.`,
+    zh: `引導出除了太陽能外，幾乎所有電廠都有一個核心組件——渦輪 (Turbine)。`,
+    classroom: [
+      { en: "The answer is the turbine! Can you say that word? Tur-bine.", zh: "答案是渦輪！跟我念一次：Tur-bine。" },
+      { en: "Which power plant is the exception?", zh: "哪種發電廠是例外？" }
+    ]
+  },
+  {
+    label: "Slide 11 — Purpose of the Turbine",
+    script: `And the purpose of the turbine is to generate electricity. but How?`,
+    zh: `渦輪的目的就是為了發電，但具體是「如何」做到的呢？`,
+    classroom: [
+      { en: "What exactly does it do?", zh: "它到底具體做什麼工作？" },
+      { en: "But how? This is the big question.", zh: "但是怎麼發的？這是我們要探討的大問題。" }
+    ]
+  },
+  {
+    label: "Slide 12 — 3D Deconstruction",
+    script: `I created a simple 3D webpage to deconstruct the turbine. By removing the casing, students find that electricity is generated by magnets and rotating coils inside. This reflects a vital scientific method: deconstructing complex systems to find the simplest variables and correlations.`,
+    zh: `我製作了一個簡單的 3D 網頁來解構渦輪。透過移除外殼，學生會發現電力是由內部的磁鐵與轉動線圈產生的。這體現了重要的科學方法：拆解複雜系統以找出最簡單的變因與關聯性。`,
+    classroom: [
+      { en: "You can drag to rotate the view.", zh: "你可以拖動來旋轉視角。" },
+      { en: "What do you see inside?", zh: "你在裡面看到了什麼？" }
+    ]
+  },
+  {
+    label: "Slide 13 — The Lingering Question",
+    script: `But the problem isn't solved yet: Why does "rotation" generate electricity?`,
+    zh: `關鍵問題：為什麼「旋轉轉動」就能產生電力？`,
+    classroom: [
+      { en: "Does anyone have a hypothesis?", zh: "有人有任何假設嗎？" },
+      { en: "Asking a good question is important.", zh: "在科學中，提出好問題與找到答案一樣重要。" }
+    ]
+  },
+  {
+    label: "Slide 14 — Virtual Laboratory",
+    script: `To find the answer, I designed a simulation experiment for students to explore. They scan a QR code to enter a virtual lab. They can change the view by touching the screen, move magnets and coils, adjust field strength, or change the coil's angle, and decide whether to show magnetic field lines or I-t curves.`,
+    zh: `為了尋找答案，我設計了一個模擬實驗供學生探究。掃描 QR Code 進入虛擬實驗室，學生可透過觸控改變視角、移動磁鐵線圈、調整磁場強度或角度，並觀察數據曲線。`,
+    classroom: [
+      { en: "Try moving the magnet toward and away from the coil.", zh: "試著將磁鐵靠近和遠離線圈。" },
+      { en: "Record your observations in your worksheet.", zh: "把你的觀察記錄在學習單上。" }
+    ]
+  },
+  {
+    label: "Slide 15 — Summary of Observations",
+    script: `Next, students write a 'Summary of All Observations.' They discover how to generate electricity in a coil. Then, they try to summarize the rule in one simple sentence.`,
+    zh: `接著，學生需撰寫「觀察總結」。他們需找出讓線圈產生電流的方法，並嘗試用一句話來歸納這個物理規律。`,
+    classroom: [
+      { en: "Try to write ONE sentence that summarizes the rule.", zh: "試著寫一個句子來總結這個規律。" },
+      { en: "Keep it simple and clear.", zh: "盡量保持簡單明瞭。" }
+    ]
+  },
+  {
+    label: "Slide 16 — Group Discussion",
+    script: `The students discuss these findings with their group members.`,
+    zh: `學生隨後與小組成員討論這些發現，並嘗試達成共識。`,
+    classroom: [
+      { en: "Everyone should speak!", zh: "每個人都要發言分享喔！" },
+      { en: "Choose one person to be the spokesperson.", zh: "選一個人當你們組的代表發言者。" }
+    ]
+  },
+  {
+    label: "Slide 17 — Class Sharing",
+    script: `Then, one student from each group shares the results with the whole class.`,
+    zh: `接著每組派一位代表向全班分享討論成果。`,
+    classroom: [
+      { en: "Group One, please share your findings.", zh: "第一組，請上台分享你們的發現。" },
+      { en: "Let's give a round of applause!", zh: "讓我們給分享的組別熱烈掌聲！" }
+    ]
+  },
+  {
+    label: "Slide 18 — Key Findings",
+    script: `Through this inquiry, two key points are summarized. First, the coil must be in a changing magnetic field. Second, the faster the magnetic field changes, the larger the induced current.`,
+    zh: `透過剛才的探究，我們歸納出兩個重點：第一，線圈必須處於「變動」的磁場中；第二，磁場變動越快，感應電流就越大。`,
+    classroom: [
+      { en: "Everyone repeat after me!", zh: "大家跟我重複一次重點！" },
+      { en: "Does that make sense?", zh: "這說得通嗎？有理解嗎？" }
+    ]
+  },
+  {
+    label: "Slide 19 — Faraday's Law",
+    script: `At this point, I explain to students that this is the famous Faraday's Electromagnetic Induction Law. Michael Faraday discovered this 200 years ago. Today, students have discovered this law themselves through experiments.`,
+    zh: `此時我向學生說明這就是著名的法拉第電磁感應定律。法拉第在兩百年前發現了它，而今天大家也透過實驗重現了這個定律。`,
+    classroom: [
+      { en: "You just replicated a 200-year-old discovery!", zh: "你們剛剛重現了兩百年前的偉大發現！" },
+      { en: "That's real science!", zh: "這就是真正的科學精神！" }
+    ]
+  },
+  {
+    label: "Slide 20 — ATL Skills",
+    script: `In this student activity, the ATL focuses on Thinking Skills and Research Skills.`,
+    zh: `在這次活動中，ATL（學習方法技能）側重於思考技能與研究技能。`,
+    classroom: [
+      { en: "Thinking Skills means you analyze information critically.", zh: "思考技能指的就是你如何批判性地分析資訊。" },
+      { en: "Research Skills means you collect data.", zh: "研究技能則是你如何有系統地收集數據。" }
+    ]
+  },
+  {
+    label: "Slide 21 — Explaining the Turbine",
+    script: `Returning to the question, I ask students: Why must a turbine keep rotating to generate electricity? They use their findings to explain this, demonstrating their understanding of the law.`,
+    zh: `回到剛才的問題，我請學生回答：渦輪機為什麼要一直轉動才能發電？他們利用實驗發現來解釋，以此證明對定律的理解。`,
+    classroom: [
+      { en: "Don't just say 'it rotates' — explain the physics!", zh: "不要只說「它在轉」，要用物理原理解釋！" },
+      { en: "Explain it to someone who has never studied physics.", zh: "試著向沒學過物理的人解釋看看。" }
+    ]
+  },
+  {
+    label: "Slide 22 — Real-World Perspectives",
+    script: `After understanding the physical mechanism, the lesson returns to the real world. I ask students: What are your thoughts now on the energy crisis mentioned in the news?`,
+    zh: `理解物理機制後回到現實世界，反思一開始提到的能源危機：現在你有什麼新的想法？`,
+    classroom: [
+      { en: "Has your thinking changed?", zh: "你的想法有改變了嗎？" },
+      { en: "Physics helps us understand real problems.", zh: "物理能幫助我們理解現實世界的問題。" }
+    ]
+  },
+  {
+    label: "Slide 23 — How to Spin the Turbine?",
+    script: `The class previously learned that a rotating turbine generates electricity through induction. But what makes the turbine spin in the first place?`,
+    zh: `前面知道渦輪轉動可發電，但究竟是什麼驅動了渦輪旋轉？`,
+    classroom: [
+      { en: "What makes it spin?", zh: "是什麼推動它轉動的？" },
+      { en: "Steam spins the turbine in coal plants.", zh: "燃煤電廠是用蒸汽推動渦輪。" }
+    ]
+  },
+  {
+    label: "Slide 24 — Primary vs. Secondary Energy",
+    script: `Coal, nuclear, gas, wind, or hydro are used to spin the turbine. These are called "Primary Energy." The resulting electricity is "Secondary Energy." The lesson clarifies that the energy crisis being discussed is mainly about the "Primary Energy" part.`,
+    zh: `區分一次能源（Primary Energy）與二次能源（Secondary Energy），並說明能源危機主要關乎前者。`,
+    classroom: [
+      { en: "Primary energy comes from nature directly.", zh: "一次能源是直接取自自然的能源。" },
+      { en: "Secondary energy is electricity.", zh: "二次能源則是轉化後的電力。" }
+    ]
+  },
+  {
+    label: "Slide 25 — The Cost of Fossil Fuels",
+    script: `Fossil fuels are stable and cheap, but they result in high carbon emissions.`,
+    zh: `化石燃料雖然穩定便宜，但代價是伴隨著高碳排放。`,
+    classroom: [
+      { en: "But what's the cost?", zh: "但這背後的環境成本是什麼？" },
+      { en: "High carbon emissions lead to climate change.", zh: "高碳排放會導致全球氣候變遷。" }
+    ]
+  },
+  {
+    label: "Slide 26 — Impact of War",
+    script: `Because of the war, energy prices are now much higher.`,
+    zh: `受到戰爭影響，目前的能源價格已大幅上漲。`,
+    classroom: [
+      { en: "War hurts energy supplies.", zh: "戰爭會嚴重破壞能源供應鏈。" },
+      { en: "If the energy cost doubles, how might that affect you?", zh: "如果能源成本翻倍，會如何影響你的生活？" }
+    ]
+  },
+  {
+    label: "Slide 27 — Opportunity for Change & SDGs",
+    script: `This gives the world an opportunity to change. It encourages the use of renewable energy like wind and solar to reduce carbon emissions and achieve SDG 7 — Affordable and Clean Energy — and SDG 13 — Climate Action — moving toward Net Zero 2050.`,
+    zh: `這為世界提供了一個變革的契機。它鼓勵使用風能與太陽能等再生能源來降低碳排，進而實現 SDG 7（可負擔的潔淨能源）與 SDG 13（氣候行動），並邁向 2050 淨零排放的目標。`,
+    classroom: [
+      { en: "It's also a chance to change.", zh: "這也是一個做出改變的絕佳機會。" },
+      { en: "Net Zero 2050 — Is this goal realistic?", zh: "2050 淨零排放——你覺得這目標現實嗎？" }
+    ]
+  },
+  {
+    label: "Slide 28 — Final Reflection",
+    script: `At the end of the class, I ask students to reflect: "How does the physics of 'change' inspire you to drive 'change' for our energy future?" That concludes my report. Thank you, fellow teachers.`,
+    zh: `以上是我的報告(針對課程說明)，謝謝大家。`,
+    classroom: [
+      { en: "Take two minutes to write a reflection.", zh: "花兩分鐘寫下你的課後反思。" },
+      { en: "In life, 'change' creates a better future!", zh: "在生活中，「變革」能創造更好的未來！" }
+    ]
+  }
+];
+
+let currentIdx = 0;
+let isPlayingAll = false;
+let synthesis = window.speechSynthesis;
+let currentUtterance = null;
+
+// Initialize
+function init() {
+  buildNav();
+  renderSlide(0);
+}
+
+function buildNav() {
+  const nav = document.getElementById('navBar');
+  slides.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'nav-item';
+    item.textContent = i + 1;
+    item.onclick = () => renderSlide(i);
+    item.id = `nav-${i}`;
+    nav.appendChild(item);
+  });
+}
+
+function renderSlide(idx) {
+  stopSpeech();
+  currentIdx = idx;
+  const s = slides[idx];
+  const container = document.getElementById('slideContainer');
+  
+  // Update Indicators
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`nav-${idx}`).classList.add('active');
+  document.getElementById('slideIndicator').textContent = `${idx + 1} / ${slides.length}`;
+  document.getElementById('progressBar').style.width = `${((idx + 1) / slides.length) * 100}%`;
+  document.getElementById('btnPrev').disabled = idx === 0;
+  document.getElementById('btnNext').disabled = idx === slides.length - 1;
+
+  container.innerHTML = `
+    <div class="slide-card active">
+      <div style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">
+        ${s.label}
+      </div>
+      
+      <div class="content-grid">
+        <div class="left-col">
+          <div class="image-box">
+             <div class="slide-num">Slide ${idx+1}</div>
+             <div style="text-align:center; padding: 20px;">
+                <p style="font-weight:bold; font-size: 1.2rem;">${s.label.split('—')[1] || s.label}</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Visual Aid Placeholder</p>
+             </div>
+          </div>
+
+          <div class="panel" style="margin-top: 1.5rem;">
+            <div class="panel-header">🏫 課室英語補充</div>
+            <div class="panel-body">
+              <div class="classroom-list">
+                ${s.classroom.map(c => `
+                  <div class="classroom-item">
+                    <div class="cls-en">${c.en}</div>
+                    <div class="cls-zh">${c.zh}</div>
+                    <div class="cls-play" onclick="speakText('${c.en.replace(/'/g, "\\'")}', 1.0)">▶ 點擊播放</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-col">
+          <div class="panel">
+            <div class="panel-header">
+               <span>📝 英文說課逐字稿</span>
+               <div class="visualizer" id="viz-${idx}">
+                  <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+               </div>
+            </div>
+            <div class="panel-body">
+              <div class="script-text" id="script-${idx}">${s.script}</div>
+              <div class="zh-text">${s.zh}</div>
+              
+              <div class="tts-controls">
+                <button class="btn btn-primary" onclick="playCurrentScript()">
+                   <span id="playIcon">▶</span> <span id="playText">播放全文</span>
+                </button>
+                <div class="speed-control">
+                  <span>速度</span>
+                  <input type="range" id="speed-${idx}" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateSpeedLabel(${idx})">
+                  <span id="speedVal-${idx}">1.0x</span>
+                </div>
+              </div>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-style: italic;">
+                💡 秘訣：你可以反白選取文字，然後點擊「播放選取文字」來針對練習。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Update button text if selection exists
+  document.addEventListener('selectionchange', handleSelection);
+}
+
+function handleSelection() {
+  const selection = window.getSelection().toString().trim();
+  const playText = document.getElementById('playText');
+  if (playText) {
+    playText.textContent = selection ? "播放選取段落" : "播放全文";
+  }
+}
+
+function updateSpeedLabel(idx) {
+  const val = document.getElementById(`speed-${idx}`).value;
+  document.getElementById(`speedVal-${idx}`).textContent = val + 'x';
+}
+
+function getVoice() {
+  const voices = synthesis.getVoices();
+  return voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('en'));
+}
+
+function speakText(text, rate, onEnd) {
+  stopSpeech();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US';
+  utterance.rate = rate || 1.0;
+  utterance.voice = getVoice();
+  
+  const viz = document.getElementById(`viz-${currentIdx}`);
+  if(viz) viz.classList.add('active');
+
+  utterance.onend = () => {
+    if(viz) viz.classList.remove('active');
+    if (onEnd) onEnd();
+  };
+
+  currentUtterance = utterance;
+  synthesis.speak(utterance);
+}
+
+function playCurrentScript() {
+  const selection = window.getSelection().toString().trim();
+  const text = selection || slides[currentIdx].script;
+  const rate = document.getElementById(`speed-${currentIdx}`).value;
+  speakText(text, rate);
+}
+
+function togglePlayAll() {
+  if (isPlayingAll) {
+    stopSpeech();
+    isPlayingAll = false;
+    document.getElementById('btnPlayAll').classList.remove('active');
+    document.getElementById('btnPlayAllText').textContent = "全自動練習模式";
+  } else {
+    isPlayingAll = true;
+    document.getElementById('btnPlayAll').classList.add('active');
+    document.getElementById('btnPlayAllText').textContent = "練習進行中...";
+    playSequentially(currentIdx);
+  }
+}
+
+function playSequentially(idx) {
+  if (!isPlayingAll || idx >= slides.length) {
+    togglePlayAll(); // stop
+    return;
+  }
+  renderSlide(idx);
+  const rate = document.getElementById(`speed-${idx}`).value;
+  speakText(slides[idx].script, rate, () => {
+    if (isPlayingAll) {
+      setTimeout(() => {
+        playSequentially(idx + 1);
+      }, 1500); // Pause between slides
+    }
+  });
+}
+
+function stopSpeech() {
+  synthesis.cancel();
+  const viz = document.getElementById(`viz-${currentIdx}`);
+  if(viz) viz.classList.remove('active');
+}
+
+function nextSlide() {
+  if (currentIdx < slides.length - 1) renderSlide(currentIdx + 1);
+}
+
+function prevSlide() {
+  if (currentIdx > 0) renderSlide(currentIdx - 1);
+}
+
+// Global hotkeys
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'ArrowRight') nextSlide();
+  if (e.code === 'ArrowLeft') prevSlide();
+  if (e.code === 'Space' && e.target === document.body) {
+    e.preventDefault();
+    playCurrentScript();
+  }
+});
+
+// Load voices
+window.speechSynthesis.onvoiceschanged = () => {};
+
+init();
+</script>
+</body>
+</html>
