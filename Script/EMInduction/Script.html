@@ -137,7 +137,7 @@ main {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 手機版排版順序：圖片(1) -> 逐字稿(2) -> 課室英語(3) */
+/* 手機版排版順序 */
 .content-grid {
   display: flex;
   flex-direction: column;
@@ -300,7 +300,7 @@ main {
 
 <script>
 const imgDir = "img/";
-let lastSelectedText = ""; // 用於修正手機版點擊按鈕選取範圍消失的問題
+let lastSelectedText = "";
 
 const slides = [
   {
@@ -377,8 +377,8 @@ const slides = [
   },
   {
     label: "Slide 9 — Finding Commonality",
-    script: `After the presentations, students discuss: Do these power plants have anything in common?`,
-    zh: `各組報告後，引導學生討論：這些發電廠有沒有任何共同點？`,
+    script: `After the presentations, I lead a discussion by asking: Do these power plants have anything in common?`,
+    zh: `各組報告後，我引導討論並詢問全班：「這些發電廠有沒有任何共同點？」`,
     classroom: [
       { en: "What do they all have in common?", zh: "它們有什麼共同點？" },
       { en: "Do you notice any similar parts?", zh: "你有注意到任何相似的部分嗎？" }
@@ -417,7 +417,7 @@ const slides = [
     zh: `關鍵問題：為什麼「旋轉轉動」就能產生電力？`,
     classroom: [
       { en: "Does anyone have a hypothesis?", zh: "有人有任何假設嗎？" },
-      { en: "Asking a good question is important.", zh: "提出好問題與找到答案一樣重要。" }
+      { en: "Asking a good question is important.", zh: "在科學中，提出好問題與找到答案一樣重要。" }
     ]
   },
   {
@@ -565,8 +565,6 @@ let currentUtterance = null;
 function init() {
   buildNav();
   renderSlide(0);
-  
-  // 核心邏輯：持續監聽選取事件並鎖定「最後一次有效選取」
   document.addEventListener('selectionchange', handleSelection);
 }
 
@@ -585,15 +583,10 @@ function buildNav() {
 function handleSelection() {
   const selection = window.getSelection();
   const text = selection.toString().trim();
-  
-  // 檢查選取內容是否位於當前的逐字稿 ID 中
   const scriptEl = document.getElementById(`script-${currentIdx}`);
   if (text && scriptEl && selection.containsNode(scriptEl, true)) {
-    lastSelectedText = text; // 鎖定選取文字
-  } else if (!text) {
-    // 只有在真的點擊空白處取消選取時才清除，點擊按鈕引起的消失會被 playCurrentScript 攔截
+    lastSelectedText = text;
   }
-
   const playText = document.getElementById('playText');
   if (playText) {
     playText.textContent = (text || lastSelectedText) ? "播放選取段落" : "播放全文";
@@ -603,8 +596,7 @@ function handleSelection() {
 function renderSlide(idx) {
   stopSpeech();
   currentIdx = idx;
-  lastSelectedText = ""; // 切換頁面時清空選取
-  
+  lastSelectedText = "";
   const s = slides[idx];
   const imagePath = imgDir + (idx + 1) + ".png";
   const container = document.getElementById('slideContainer');
@@ -621,7 +613,6 @@ function renderSlide(idx) {
       <div style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">
         ${s.label}
       </div>
-      
       <div class="content-grid">
         <div class="image-box">
            <div class="slide-num">Slide ${idx+1}</div>
@@ -631,7 +622,6 @@ function renderSlide(idx) {
               <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">找不到圖片: ${imagePath}</p>
            </div>
         </div>
-
         <div class="panel script-panel">
           <div class="panel-header">
              <span>📝 英文說課逐字稿</span>
@@ -642,7 +632,6 @@ function renderSlide(idx) {
           <div class="panel-body">
             <div class="script-text" id="script-${idx}">${s.script}</div>
             <div class="zh-text">${s.zh}</div>
-            
             <div class="tts-controls">
               <button class="btn btn-primary" onclick="playCurrentScript()">
                  <span id="playIcon">▶</span> <span id="playText">播放全文</span>
@@ -655,7 +644,6 @@ function renderSlide(idx) {
             </div>
           </div>
         </div>
-
         <div class="panel classroom-panel">
           <div class="panel-header">🏫 課室英語補充</div>
           <div class="panel-body">
@@ -695,35 +683,26 @@ function getVoice() {
 function speakText(text, rate, onEnd) {
   stopSpeech();
   if (!text) return;
-  
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'en-US';
   utterance.rate = rate || 1.0;
   utterance.voice = getVoice();
-  
   const viz = document.getElementById(`viz-${currentIdx}`);
   if(viz) viz.classList.add('active');
-
   utterance.onend = () => {
     if(viz) viz.classList.remove('active');
     if (onEnd) onEnd();
   };
-
   currentUtterance = utterance;
   synthesis.speak(utterance);
 }
 
 function playCurrentScript() {
-  // 先嘗試獲取當前選取，如果消失了則使用 lastSelectedText
   const currentSelection = window.getSelection().toString().trim();
   const textToPlay = currentSelection || lastSelectedText || slides[currentIdx].script;
-  
   const speedInput = document.getElementById(`speed-${currentIdx}`);
   const rate = speedInput ? speedInput.value : 1.0;
-  
   speakText(textToPlay, rate);
-  
-  // 播放完後重設暫存，避免誤播
   lastSelectedText = ""; 
 }
 
@@ -781,7 +760,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// 啟動
 init();
 </script>
 </body>
