@@ -137,7 +137,7 @@ main {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 手機版排版順序 */
+/* 手機版排版順序：圖片(1) -> 逐字稿(2) -> 課室英語(3) */
 .content-grid {
   display: flex;
   flex-direction: column;
@@ -218,7 +218,7 @@ main {
 
 .panel-body { padding: 1.25rem; }
 
-.script-text { font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; }
+.script-text { font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; user-select: text; -webkit-user-select: text; }
 .zh-text { font-size: 0.95rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 1rem; }
 
 .tts-controls {
@@ -300,6 +300,7 @@ main {
 
 <script>
 const imgDir = "img/";
+let lastSelectedText = ""; // 用於修正手機版點擊按鈕選取範圍消失的問題
 
 const slides = [
   {
@@ -416,7 +417,7 @@ const slides = [
     zh: `關鍵問題：為什麼「旋轉轉動」就能產生電力？`,
     classroom: [
       { en: "Does anyone have a hypothesis?", zh: "有人有任何假設嗎？" },
-      { en: "Asking a good question is important.", zh: "在科學中，提出好問題與找到答案一樣重要。" }
+      { en: "Asking a good question is important.", zh: "提出好問題與找到答案一樣重要。" }
     ]
   },
   {
@@ -564,6 +565,9 @@ let currentUtterance = null;
 function init() {
   buildNav();
   renderSlide(0);
+  
+  // 核心邏輯：持續監聽選取事件並鎖定「最後一次有效選取」
+  document.addEventListener('selectionchange', handleSelection);
 }
 
 function buildNav() {
@@ -578,9 +582,29 @@ function buildNav() {
   });
 }
 
+function handleSelection() {
+  const selection = window.getSelection();
+  const text = selection.toString().trim();
+  
+  // 檢查選取內容是否位於當前的逐字稿 ID 中
+  const scriptEl = document.getElementById(`script-${currentIdx}`);
+  if (text && scriptEl && selection.containsNode(scriptEl, true)) {
+    lastSelectedText = text; // 鎖定選取文字
+  } else if (!text) {
+    // 只有在真的點擊空白處取消選取時才清除，點擊按鈕引起的消失會被 playCurrentScript 攔截
+  }
+
+  const playText = document.getElementById('playText');
+  if (playText) {
+    playText.textContent = (text || lastSelectedText) ? "播放選取段落" : "播放全文";
+  }
+}
+
 function renderSlide(idx) {
   stopSpeech();
   currentIdx = idx;
+  lastSelectedText = ""; // 切換頁面時清空選取
+  
   const s = slides[idx];
   const imagePath = imgDir + (idx + 1) + ".png";
   const container = document.getElementById('slideContainer');
@@ -599,7 +623,6 @@ function renderSlide(idx) {
       </div>
       
       <div class="content-grid">
-        <!-- 簡報圖片區塊 -->
         <div class="image-box">
            <div class="slide-num">Slide ${idx+1}</div>
            <img src="${imagePath}" alt="${s.label}" onerror="handleImgError(this, ${idx})">
@@ -609,7 +632,6 @@ function renderSlide(idx) {
            </div>
         </div>
 
-        <!-- 逐字稿區塊 -->
         <div class="panel script-panel">
           <div class="panel-header">
              <span>📝 英文說課逐字稿</span>
@@ -651,8 +673,6 @@ function renderSlide(idx) {
       </div>
     </div>
   `;
-
-  document.addEventListener('selectionchange', handleSelection);
 }
 
 function handleImgError(img, idx) {
@@ -661,17 +681,10 @@ function handleImgError(img, idx) {
   if (errDiv) errDiv.style.display = 'block';
 }
 
-function handleSelection() {
-  const selection = window.getSelection().toString().trim();
-  const playText = document.getElementById('playText');
-  if (playText) {
-    playText.textContent = selection ? "播放選取段落" : "播放全文";
-  }
-}
-
 function updateSpeedLabel(idx) {
   const val = document.getElementById(`speed-${idx}`).value;
-  document.getElementById(`speedVal-${idx}`).textContent = val + 'x';
+  const label = document.getElementById(`speedVal-${idx}`);
+  if (label) label.textContent = val + 'x';
 }
 
 function getVoice() {
@@ -681,6 +694,8 @@ function getVoice() {
 
 function speakText(text, rate, onEnd) {
   stopSpeech();
+  if (!text) return;
+  
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'en-US';
   utterance.rate = rate || 1.0;
@@ -699,10 +714,17 @@ function speakText(text, rate, onEnd) {
 }
 
 function playCurrentScript() {
-  const selection = window.getSelection().toString().trim();
-  const text = selection || slides[currentIdx].script;
-  const rate = document.getElementById(`speed-${currentIdx}`).value;
-  speakText(text, rate);
+  // 先嘗試獲取當前選取，如果消失了則使用 lastSelectedText
+  const currentSelection = window.getSelection().toString().trim();
+  const textToPlay = currentSelection || lastSelectedText || slides[currentIdx].script;
+  
+  const speedInput = document.getElementById(`speed-${currentIdx}`);
+  const rate = speedInput ? speedInput.value : 1.0;
+  
+  speakText(textToPlay, rate);
+  
+  // 播放完後重設暫存，避免誤播
+  lastSelectedText = ""; 
 }
 
 function togglePlayAll() {
@@ -725,7 +747,8 @@ function playSequentially(idx) {
     return;
   }
   renderSlide(idx);
-  const rate = document.getElementById(`speed-${idx}`).value;
+  const speedInput = document.getElementById(`speed-${idx}`);
+  const rate = speedInput ? speedInput.value : 1.0;
   speakText(slides[idx].script, rate, () => {
     if (isPlayingAll) {
       setTimeout(() => {
@@ -758,6 +781,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// 啟動
 init();
 </script>
 </body>
