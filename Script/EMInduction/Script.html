@@ -300,7 +300,7 @@ main {
 
 <script>
 const imgDir = "img/";
-let lastSelectedText = ""; 
+let lastSelectedText = ""; // 暫存選取文字
 
 const slides = [
   {
@@ -485,8 +485,8 @@ const slides = [
   },
   {
     label: "Slide 21 — Explaining the Turbine",
-    script: `Returning to the question, I ask students: Why must a turbine keep rotating to generate electricity? They use their findings to explain this, demonstrating their understanding of the law.`,
-    zh: `回到剛才的問題，我請學生回答：渦輪機為什麼要一直轉動才能發電？他們利用實驗發現來解釋，以此證明對定律的理解。`,
+    script: `Returning to the question, they use their findings to explain this. This proves they truly understand the law.`,
+    zh: `回到問題，學生利用實驗發現來解釋這一點，這證明了他們真的理解了這個定律。`,
     classroom: [
       { en: "Don't just say 'it rotates' — explain the physics!", zh: "不要只說「它在轉」，要用物理原理解釋！" },
       { en: "Explain it to someone who has never studied physics.", zh: "試著向沒學過物理的人解釋看看。" }
@@ -565,6 +565,7 @@ let currentUtterance = null;
 function init() {
   buildNav();
   renderSlide(0);
+  // 全域監聽選取事件
   document.addEventListener('selectionchange', handleSelection);
 }
 
@@ -585,6 +586,7 @@ function handleSelection() {
   const text = selection.toString().trim();
   const scriptEl = document.getElementById(`script-${currentIdx}`);
   
+  // 核心修復：確保選取文字來自目前的腳本區塊
   if (text && scriptEl && selection.anchorNode && scriptEl.contains(selection.anchorNode)) {
     lastSelectedText = text; 
   }
@@ -632,6 +634,7 @@ function renderSlide(idx) {
             <div class="script-text" id="script-${idx}">${s.script}</div>
             <div class="zh-text">${s.zh}</div>
             <div class="tts-controls">
+              <!-- 加入 onpointerdown 防止手機版點擊瞬間清空選取 -->
               <button class="btn btn-primary" onpointerdown="event.preventDefault()" onclick="playCurrentScript()">
                  <span id="playIcon">▶</span> <span id="playText">播放全文</span>
               </button>
@@ -691,6 +694,7 @@ function speakText(text, rate, onEnd) {
 }
 
 function playCurrentScript() {
+  // 優先使用當前選取，若為空則使用暫存的 lastSelectedText
   const currentSelection = window.getSelection().toString().trim();
   const textToPlay = currentSelection || lastSelectedText || slides[currentIdx].script;
   const speedInput = document.getElementById(`speed-${currentIdx}`);
