@@ -422,8 +422,8 @@ const slides = [
   },
   {
     label: "Slide 14 — Virtual Laboratory",
-    script: `To find the answer, I designed a simulation experiment for students to explore. They scan a QR code to enter a virtual lab. They can change the view by touching and moving the screen, move the magnet and the coil, they also can adjust the magnetic field, or change the coil's angle, and decide whether to show magnetic field lines or the I-t curve.`,
-    zh: `為了尋找答案，我設計了一個模擬實驗供學生探究。掃描 QR Code 進入虛擬實驗室，學生可以透過觸控和移動螢幕來改變視角、移動磁鐵與線圈，也可以調整磁場、改變線圈角度，並決定是否顯示磁力線或 I-t 數據曲線。`,
+    script: `To find the answer, I designed a simulation experiment for students to explore. They scan the QR code to open the simulation. Students can change the view by touching and moving the screen, move the magnet and the coil, they also can adjust the magnetic field, or change the coil's angle, and decide whether to show magnetic field lines or the I-t curve.`,
+    zh: `為了尋找答案，我設計了一個模擬實驗供學生探究。他們掃描 QR Code 開啟模擬實驗。學生可以透過觸控和移動螢幕來改變視角、移動磁鐵與線圈，也可以調整磁場、改變線圈角度，並決定是否顯示磁力線或 I-t 數據曲線。`,
     classroom: [
       { en: "Try moving the magnet toward and away from the coil.", zh: "試著將磁鐵靠近和遠離線圈。" },
       { en: "Record your observations in your worksheet.", zh: "把你的觀察記錄在學習單上。" }
@@ -565,7 +565,6 @@ let currentUtterance = null;
 function init() {
   buildNav();
   renderSlide(0);
-  // 全域監聽選取事件
   document.addEventListener('selectionchange', handleSelection);
 }
 
@@ -586,7 +585,6 @@ function handleSelection() {
   const text = selection.toString().trim();
   const scriptEl = document.getElementById(`script-${currentIdx}`);
   
-  // 核心修復：確保選取文字來自目前的腳本區塊
   if (text && scriptEl && selection.anchorNode && scriptEl.contains(selection.anchorNode)) {
     lastSelectedText = text; 
   }
@@ -634,7 +632,6 @@ function renderSlide(idx) {
             <div class="script-text" id="script-${idx}">${s.script}</div>
             <div class="zh-text">${s.zh}</div>
             <div class="tts-controls">
-              <!-- 加入 onpointerdown 防止手機版點擊瞬間清空選取 -->
               <button class="btn btn-primary" onpointerdown="event.preventDefault()" onclick="playCurrentScript()">
                  <span id="playIcon">▶</span> <span id="playText">播放全文</span>
               </button>
@@ -694,7 +691,6 @@ function speakText(text, rate, onEnd) {
 }
 
 function playCurrentScript() {
-  // 優先使用當前選取，若為空則使用暫存的 lastSelectedText
   const currentSelection = window.getSelection().toString().trim();
   const textToPlay = currentSelection || lastSelectedText || slides[currentIdx].script;
   const speedInput = document.getElementById(`speed-${currentIdx}`);
