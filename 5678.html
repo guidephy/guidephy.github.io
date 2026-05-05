@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>範例網頁</title>
+    
+    <style>
+        /* 1. 網頁全域設定 */
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            
+            /* --- 【教學重點】背景圖片設定 --- */
+            /* 圖片網址：可以換成任何您喜歡的圖片連結 */
+            background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80');
+            
+            /* 讓圖片填滿整個螢幕，不要重複 */
+            background-size: cover;
+            
+            /* 讓圖片永遠居中 */
+            background-position: center;
+            
+            /* (選修) 讓背景固定住，滾動時只有內容會動 */
+            background-attachment: fixed;
+        }
+
+        /* 2. 導覽列 */
+        nav {
+            background-color: rgba(0, 0, 0, 0.8); /* 0.8 代表有點半透明的黑色 */
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        nav a:hover {
+            color: orange; /* 滑鼠移過去變橘色 */
+        }
+
+        /* 3. 中間的白色內容卡片 */
+        .box {
+            /* 使用 rgba 設定白色背景，0.95 代表微微透明，讓背景圖透出一點點 */
+            background-color: rgba(255, 255, 255, 0.95);
+            
+            width: 80%;           /* 寬度 */
+            max-width: 800px;     /* 最大不超過 800px */
+            margin: 60px auto;    /* 上下距離加大到 60px */
+            padding: 40px;
+            border-radius: 15px;  /* 圓角 */
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* 加上陰影讓卡片浮起來 */
+        }
+
+        /* 4. 標題與頭像排版 */
+        .title-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #333;
+            object-fit: cover; /* 確保圖片縮放時不變形 */
+        }
+
+        /* 5. 按鈕樣式 */
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #e67e22; /* 橘色按鈕 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background-color: #d35400; /* 滑鼠移過去變深橘色 */
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><b>xxx的學習歷程</b></div>
+        <div class="menu">
+            <a href="a.html">關於我</a>
+            <a href="b.html">學習成果</a>
+            <a href="c.html">多元表現</a>
+            <a href="d.html">未來展望</a>
+        </div>
+    </nav>
+
+    <div class="box">
+        
+        <div class="title-group">
+            <img src="https://cdn-icons-png.flaticon.com/512/4333/4333609.png" class="avatar" alt="頭像">
+            <h1>打造你的個人網頁</h1>
+        </div>
+
+        <p>這是一個網頁設計的範例。</p>
+        <p>試著將內容進行更改，看看效果如何！</p>
+        
+        <button onclick="cheerUp()">點我開始設計</button>
+    </div>
+
+    <script>
+        function cheerUp() {
+            alert("太棒了！\n現在來更改綱頁文字、頭像和背景吧！");
+        }
+    </script>
+
+</body>
+</html>
