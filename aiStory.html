@@ -100,8 +100,7 @@
     }
 
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.02fr) minmax(300px, 0.98fr);
+      display: block;
       min-height: calc(100vh - 64px);
       border-bottom: 1px solid var(--line);
     }
@@ -177,6 +176,10 @@
       margin-top: 14px;
       padding: 7px 12px;
       font-size: 0.92rem;
+    }
+
+    section[id] {
+      scroll-margin-top: 84px;
     }
 
     .hero-media {
@@ -621,7 +624,6 @@
     }
 
     @media (max-width: 980px) {
-      .hero,
       .section-head,
       .task-board,
       .planning-grid,
@@ -743,12 +745,6 @@
           <a class="button secondary" href="#materials">查看課堂素材</a>
         </div>
       </div>
-      <figure class="hero-media" aria-label="石雕故事照片">
-        <img src="石雕故事.JPG" alt="保障宮石雕故事照片">
-        <figcaption class="image-label">
-          任務核心：從石雕線條、人物姿勢與場景關係，推理這一幕的故事，再讓它成為動畫。
-        </figcaption>
-      </figure>
     </section>
 
     <section id="materials">
@@ -758,18 +754,18 @@
       </div>
       <div class="materials">
         <article class="material-card fade-in">
-          <img src="石雕故事.JPG" alt="石雕故事素材">
+          <img src="https://i.ibb.co/svGsNY2M/image.jpg" alt="石雕故事素材">
           <div class="material-body">
             <h3>石雕故事.JPG</h3>
             <p>觀察人物位置、動作、道具與場景，找出這一幕可能是哪個西遊記情節。</p>
           </div>
         </article>
         <article class="material-card character fade-in">
-          <img src="西遊記人物設定圖.png" alt="西遊記四位主角人物設定">
+          <img src="https://i.ibb.co/ZzHr7L45/image.png" alt="西遊記四位主角人物設定">
           <div class="material-body">
             <h3>西遊記人物設定圖.png</h3>
             <p>四位主角的臉型、服裝、配色、武器都要一致，讓全班作品像同一個系列。</p>
-            <a class="button small secondary" href="西遊記人物設定圖.png" download>下載人物設定圖</a>
+            <a class="button small secondary" href="https://i.ibb.co/ZzHr7L45/image.png" download>下載人物設定圖</a>
           </div>
         </article>
         <article class="material-card fade-in">
@@ -1147,7 +1143,7 @@ Through AI animation, we can see how an old carving continues to speak to us tod
             <li>檔名：班級_組別_西遊記章節名稱。</li>
             <li>片頭標題：保障宮石雕故事：〔章節名稱〕。</li>
             <li>片尾註明：石雕來源為保障宮廟宇建築裝飾。</li>
-            <li><a href="直式專題海報範本.html">開啟直式專題海報範本</a></li>
+            <li><a href="https://i.ibb.co/TM4nfR77/AI.png">開啟 AI 專題海報說明</a></li>
           </ul>
         </div>
       </div>
@@ -1157,5 +1153,18 @@ Through AI animation, we can see how an old carving continues to speak to us tod
   <footer>
     <p>課程目標：用 AI 把地方廟宇的石雕故事轉成可觀看、可聆聽、可分享的雙語動畫，讓傳統文化在新的媒介中被重新理解。</p>
   </footer>
+
+  <script>
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const target = document.querySelector(link.getAttribute("href"));
+        if (!target) return;
+
+        event.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.pushState(null, "", link.getAttribute("href"));
+      });
+    });
+  </script>
 </body>
 </html>
