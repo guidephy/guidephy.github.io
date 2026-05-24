@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>古石新映：保障宮的 AI 說書人</title>
+  <style>
+    :root {
+      --ink: #17221f;
+      --muted: #5d6965;
+      --paper: #f7f4ec;
+      --paper-strong: #fffdf6;
+      --stone: #56615d;
+      --stone-light: #dde2dc;
+      --moss: #496f58;
+      --lacquer: #9f3328;
+      --gold: #d59a3b;
+      --sky: #dcecf0;
+      --line: rgba(23, 34, 31, 0.16);
+      --shadow: 0 18px 48px rgba(36, 44, 40, 0.18);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(220, 236, 240, 0.8), transparent 30%),
+        linear-gradient(225deg, rgba(213, 154, 59, 0.18), transparent 34%),
+        var(--paper);
+      font-family: "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
+      line-height: 1.75;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 12px clamp(18px, 4vw, 52px);
+      background: rgba(247, 244, 236, 0.9);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .brand small {
+      color: var(--muted);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      padding: 6px 10px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-decoration: none;
+    }
+
+    .nav a:hover {
+      border-color: var(--line);
+      background: var(--paper-strong);
+      color: var(--ink);
+    }
+
+    main {
+      overflow: hidden;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(300px, 0.98fr);
+      min-height: calc(100vh - 64px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(42px, 7vw, 90px) clamp(20px, 6vw, 80px);
+    }
+
+    .kicker {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 20px;
+      padding: 5px 12px;
+      border-left: 4px solid var(--lacquer);
+      background: rgba(255, 253, 246, 0.72);
+      color: var(--moss);
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-size: clamp(2.6rem, 7vw, 6.7rem);
+      font-weight: 900;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 22px 0 0;
+      color: #31403b;
+      font-size: clamp(1.08rem, 2vw, 1.34rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper-strong);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button.small {
+      min-height: 38px;
+      margin-top: 14px;
+      padding: 7px 12px;
+      font-size: 0.92rem;
+    }
+
+    .hero-media {
+      position: relative;
+      min-height: 520px;
+      background: var(--stone);
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(18%) contrast(1.05);
+    }
+
+    .image-label {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      max-width: min(420px, calc(100% - 40px));
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 253, 246, 0.36);
+      border-radius: var(--radius);
+      background: rgba(23, 34, 31, 0.76);
+      color: var(--paper-strong);
+      font-size: 0.95rem;
+    }
+
+    section {
+      padding: clamp(50px, 8vw, 96px) clamp(18px, 5vw, 76px);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.75fr) minmax(300px, 1.25fr);
+      gap: clamp(18px, 5vw, 70px);
+      align-items: end;
+      max-width: 1180px;
+      margin: 0 auto 34px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 3.9vw, 3.7rem);
+      word-break: keep-all;
+      text-wrap: balance;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .materials {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .material-card {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 246, 0.76);
+      box-shadow: 0 10px 28px rgba(36, 44, 40, 0.08);
+      overflow: hidden;
+    }
+
+    .material-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: var(--stone-light);
+    }
+
+    .material-card.character img {
+      aspect-ratio: 4 / 2.18;
+      object-fit: contain;
+      padding: 8px;
+    }
+
+    .material-body {
+      padding: 18px;
+    }
+
+    .material-body h3 {
+      font-size: 1.25rem;
+    }
+
+    .material-body p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .flow {
+      background:
+        linear-gradient(90deg, rgba(73, 111, 88, 0.12), transparent 50%),
+        var(--paper-strong);
+      border-block: 1px solid var(--line);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(180px, 1fr));
+      gap: 12px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .step {
+      position: relative;
+      padding: 20px;
+      min-height: 280px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfaf4;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 18px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 800;
+    }
+
+    .step h3 {
+      font-size: 1.18rem;
+    }
+
+    .step p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .task-board {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.88fr) minmax(320px, 1.12fr);
+      gap: 22px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 246, 0.78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(221, 226, 220, 0.5);
+    }
+
+    .panel-header h3 {
+      font-size: 1.3rem;
+    }
+
+    .panel-content {
+      padding: 20px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 12px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper-strong);
+    }
+
+    .check input {
+      width: 18px;
+      height: 18px;
+      margin-top: 5px;
+      accent-color: var(--moss);
+    }
+
+    .check strong {
+      display: block;
+      line-height: 1.45;
+    }
+
+    .check span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .prompt-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .planning-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+      gap: 22px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .story-fields {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper-strong);
+    }
+
+    .field-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .field-card span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .storyboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .shot-card {
+      min-height: 158px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfaf4;
+    }
+
+    .shot-card strong {
+      display: inline-flex;
+      margin-bottom: 8px;
+      color: var(--lacquer);
+    }
+
+    .shot-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .prompt-box {
+      border: 1px solid rgba(23, 34, 31, 0.22);
+      border-radius: var(--radius);
+      background: #17221f;
+      color: #f9f6ec;
+      overflow: hidden;
+    }
+
+    .prompt-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 253, 246, 0.18);
+      color: #f6d28e;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      font-family: "Menlo", "Consolas", monospace;
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+
+    .subtitle-demo {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .subtitle-card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .subtitle-card h3 {
+      color: #f6d28e;
+      font-size: 1.25rem;
+    }
+
+    .subtitle-line {
+      margin-top: 16px;
+      padding: 16px;
+      border-left: 4px solid var(--gold);
+      background: rgba(255, 253, 246, 0.08);
+    }
+
+    .subtitle-line .zh {
+      display: block;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .subtitle-line .en {
+      display: block;
+      margin-top: 4px;
+      color: #d8e6e0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+    }
+
+    .rubric {
+      background: var(--paper-strong);
+      border-top: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: #fbfaf4;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 28px rgba(36, 44, 40, 0.08);
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--stone);
+      color: white;
+      font-weight: 800;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .deliverable {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 22px;
+      max-width: 1180px;
+      margin: 0 auto;
+      align-items: stretch;
+    }
+
+    .final-card {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper-strong);
+      box-shadow: 0 12px 32px rgba(36, 44, 40, 0.12);
+    }
+
+    .final-card h3 {
+      font-size: 1.45rem;
+    }
+
+    .final-card ul {
+      margin: 14px 0 0;
+      padding-left: 1.1rem;
+      color: var(--muted);
+    }
+
+    footer {
+      padding: 30px clamp(18px, 5vw, 76px);
+      border-top: 1px solid var(--line);
+      background: var(--ink);
+      color: var(--paper-strong);
+    }
+
+    footer p {
+      max-width: 1180px;
+      margin: 0 auto;
+      color: #d8e6e0;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: rise 0.72s ease forwards;
+    }
+
+    .fade-in:nth-child(2) {
+      animation-delay: 0.08s;
+    }
+
+    .fade-in:nth-child(3) {
+      animation-delay: 0.16s;
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .section-head,
+      .task-board,
+      .planning-grid,
+      .subtitle-demo,
+      .deliverable {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-media {
+        min-height: 420px;
+      }
+
+      .materials {
+        grid-template-columns: 1fr;
+      }
+
+      .steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .storyboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        position: static;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .hero-copy {
+        padding-top: 38px;
+      }
+
+      .hero-media {
+        min-height: 340px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .storyboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        min-height: auto;
+      }
+
+      table,
+      thead,
+      tbody,
+      th,
+      td,
+      tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      td {
+        border-bottom: 0;
+      }
+
+      tr {
+        border-bottom: 1px solid var(--line);
+      }
+
+      td::before {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--moss);
+        font-weight: 800;
+        content: attr(data-label);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      古石新映：保障宮的 AI 說書人
+      <small>Temple Stone Stories to AI Animation</small>
+    </div>
+    <nav class="nav" aria-label="課程導覽">
+      <a href="#materials">素材</a>
+      <a href="#workflow">流程</a>
+      <a href="#story">分鏡</a>
+      <a href="#prompts">提示詞</a>
+      <a href="#editing">剪輯</a>
+      <a href="#rubric">檢核</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="kicker">保障宮石雕 × 西遊記 × AI 影片創作</span>
+        <h1>讓廟宇石雕故事動起來</h1>
+        <p class="lead">
+          這堂課要把保障宮旁的西遊記石雕，轉化成一段有角色一致性、雙語字幕與英文旁白的動畫說書影片。
+          你會先讀懂石雕，再用統一人物設定生成故事插畫，最後用 Google Vids 完成剪輯、字幕與配音。
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#workflow">開始製作</a>
+          <a class="button secondary" href="#materials">查看課堂素材</a>
+        </div>
+      </div>
+      <figure class="hero-media" aria-label="石雕故事照片">
+        <img src="石雕故事.JPG" alt="保障宮石雕故事照片">
+        <figcaption class="image-label">
+          任務核心：從石雕線條、人物姿勢與場景關係，推理這一幕的故事，再讓它成為動畫。
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="materials">
+      <div class="section-head">
+        <h2>課堂素材</h2>
+        <p>製作時請同時使用三份材料。石雕照片決定故事和構圖，人物設定圖決定四位主角的外型，學習單則保留你已完成的觀察與故事判讀。</p>
+      </div>
+      <div class="materials">
+        <article class="material-card fade-in">
+          <img src="石雕故事.JPG" alt="石雕故事素材">
+          <div class="material-body">
+            <h3>石雕故事.JPG</h3>
+            <p>觀察人物位置、動作、道具與場景，找出這一幕可能是哪個西遊記情節。</p>
+          </div>
+        </article>
+        <article class="material-card character fade-in">
+          <img src="西遊記人物設定圖.png" alt="西遊記四位主角人物設定">
+          <div class="material-body">
+            <h3>西遊記人物設定圖.png</h3>
+            <p>四位主角的臉型、服裝、配色、武器都要一致，讓全班作品像同一個系列。</p>
+            <a class="button small secondary" href="西遊記人物設定圖.png" download>下載人物設定圖</a>
+          </div>
+        </article>
+        <article class="material-card fade-in">
+          <div class="material-body">
+            <h3>古石新映學習單</h3>
+            <p>請參考你已完成的學習單第二頁，把石雕觀察、故事理解與分鏡想法，轉成 AI 生成與影片剪輯指令。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="flow" id="workflow">
+      <div class="section-head">
+        <h2>五步驟流程</h2>
+        <p>先求故事正確，再求畫面漂亮；先讓角色穩定，再讓畫面動起來。每一步都會留下可以檢查的成果。</p>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <span class="step-number">1</span>
+          <h3>讀石雕</h3>
+          <p>寫下主角、配角、場景、道具、動作。用一句話說明這格石雕正在發生什麼事。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">2</span>
+          <h3>定章節</h3>
+          <p>判斷這是西遊記的哪一段故事，整理至少 12 個分鏡鏡頭。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">3</span>
+          <h3>生插畫</h3>
+          <p>用 Google Flow 生圖，參考石雕構圖與人物設定圖，先做一張完整彩色故事插畫。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">4</span>
+          <h3>生影片</h3>
+          <p>用 Google Flow 或 Meta AI 將插畫變成動畫，讓角色、背景與鏡頭運鏡依故事重點動起來。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">5</span>
+          <h3>剪說書人</h3>
+          <p>用 Google Vids 剪輯影片，加入繁中與英文雙語字幕，並製作英文配音。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="story">
+      <div class="section-head">
+        <h2>劇情與 12 格分鏡</h2>
+        <p>生成圖片前先完成這一段。AI 比較擅長執行清楚的指令；你先把故事、鏡頭、台詞和運鏡寫出來，後面生成插畫與影片會穩很多。</p>
+      </div>
+      <div class="planning-grid">
+        <aside class="panel">
+          <div class="panel-header">
+            <h3>先寫劇情說明</h3>
+          </div>
+          <div class="panel-content story-fields">
+            <div class="field-card">
+              <strong>故事章節</strong>
+              <span>這一格石雕對應西遊記哪一段？例如：三打白骨精、收服紅孩兒、真假美猴王。</span>
+            </div>
+            <div class="field-card">
+              <strong>關鍵事件</strong>
+              <span>這段故事最重要的事情是什麼？角色正在經歷、選擇、學習或完成什麼？</span>
+            </div>
+            <div class="field-card">
+              <strong>角色任務</strong>
+              <span>孫悟空、唐僧、豬八戒、沙悟淨在這段故事中各自負責什麼？</span>
+            </div>
+            <div class="field-card">
+              <strong>文化連結</strong>
+              <span>這段故事如何和保障宮石雕、廟宇建築或地方文化連在一起？</span>
+            </div>
+            <div class="field-card">
+              <strong>一分鐘說書重點</strong>
+              <span>用開場、關鍵事件、情節推進、故事收束、文化意義五個段落，安排至少 1 分鐘的敘事。</span>
+            </div>
+          </div>
+        </aside>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>12 格分鏡說明圖</h3>
+          </div>
+          <div class="panel-content">
+            <p>每一格都要完成 6 個欄位：分鏡說明、攝影機運動、AI 生圖提示詞中文、AI 生圖提示詞英文、該分鏡台詞中文、該分鏡台詞英文。建議每格影片約 5 到 7 秒，12 格就能形成至少 1 分鐘的動畫說書影片。</p>
+            <div class="storyboard-grid" aria-label="12格分鏡模板">
+              <article class="shot-card"><strong>鏡頭 1</strong><p>片頭：保障宮石雕與章節名稱。運鏡：慢慢推近。台詞：介紹石雕來源。</p></article>
+              <article class="shot-card"><strong>鏡頭 2</strong><p>交代故事背景。運鏡：由石雕轉成彩色場景。台詞：說明師徒來到何處。</p></article>
+              <article class="shot-card"><strong>鏡頭 3</strong><p>主要角色登場。運鏡：平移介紹角色。台詞：點出人物任務。</p></article>
+              <article class="shot-card"><strong>鏡頭 4</strong><p>關鍵事件出現。運鏡：鏡頭靠近畫面重點。台詞：說明故事開始發展。</p></article>
+              <article class="shot-card"><strong>鏡頭 5</strong><p>孫悟空觀察或行動。運鏡：特寫眼神或金箍棒。台詞：描述判斷與反應。</p></article>
+              <article class="shot-card"><strong>鏡頭 6</strong><p>唐僧或同伴反應。運鏡：中景呈現情緒。台詞：補充角色立場。</p></article>
+              <article class="shot-card"><strong>鏡頭 7</strong><p>情節推進。運鏡：稍快推進或斜向移動。台詞：說明角色下一步行動。</p></article>
+              <article class="shot-card"><strong>鏡頭 8</strong><p>關鍵動作。運鏡：跟隨武器或角色動作。台詞：說明決定性瞬間。</p></article>
+              <article class="shot-card"><strong>鏡頭 9</strong><p>故事收束。運鏡：慢慢拉開。台詞：交代這段故事留下的結果或感受。</p></article>
+              <article class="shot-card"><strong>鏡頭 10</strong><p>回到石雕。運鏡：彩色畫面轉回石雕質感。台詞：連結廟宇工藝。</p></article>
+              <article class="shot-card"><strong>鏡頭 11</strong><p>文化意義。運鏡：掃過石雕線條與人物。台詞：說明古石如何保存故事。</p></article>
+              <article class="shot-card"><strong>鏡頭 12</strong><p>片尾。運鏡：定格在石雕或四位主角。台詞：總結保障宮 AI 說書人的主題。</p></article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="prompts">
+      <div class="section-head">
+        <h2>提示詞工作站</h2>
+        <p>完成劇情與 12 格分鏡後，再把每格內容轉成 Google Flow 或 Meta AI 指令。請先生成每格故事插畫，確認角色一致後再生成動畫。</p>
+      </div>
+      <div class="task-board">
+        <aside class="panel">
+          <div class="panel-header">
+            <h3>送出前檢查</h3>
+          </div>
+          <div class="panel-content checklist">
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>故事有根據</strong>我能指出畫面中哪些石雕細節支持我的情節判斷。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>角色有一致</strong>孫悟空、唐僧、豬八戒、沙悟淨都有參考人物設定圖。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>畫面有保留石雕構圖</strong>不是完全重畫成無關場景，而是讓原石雕被轉化。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>動畫指令清楚</strong>我有分別寫清楚角色動作、背景動態、攝影機運動，並確認角色外型不改變。</span>
+            </label>
+          </div>
+        </aside>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>可直接使用的模板</h3>
+          </div>
+          <div class="panel-content prompt-grid">
+            <div class="prompt-box">
+              <div class="prompt-title">
+                <span>Google Flow / Meta AI：生成故事插畫</span>
+                <span>Image generation</span>
+              </div>
+              <pre>請根據附件「石雕故事.JPG」的構圖、人物姿勢與場景關係，將廟宇石雕轉化為一張彩色西遊記故事插畫。
+
+故事章節是：「〔填入你判斷的章節或故事名稱〕」。
+本分鏡是第〔  〕格，共 12 格。
+分鏡說明：「〔填入這一格畫面正在發生什麼事〕」。
+畫面重點：「〔填入主要角色、動作、情緒、關鍵事件或畫面變化〕」。
+
+角色造型必須參考附件「西遊記人物設定圖.png」：
+孫悟空、唐僧、豬八戒、沙悟淨的臉型、服裝、配色、武器要保持一致。
+
+保留石雕原本的構圖和動作安排，但讓灰色石雕變成生動的東方神話電影畫面。
+風格：廟宇文化、細節豐富、尊重原石雕、電影感、清楚可辨識的角色。</pre>
+            </div>
+            <div class="prompt-box">
+              <div class="prompt-title">
+                <span>Google Flow / Meta AI：插畫轉動畫</span>
+                <span>Image to video</span>
+              </div>
+              <pre>請將這張西遊記故事插畫轉成 5 到 7 秒動畫，作為 12 格分鏡中的第〔  〕格。
+角色外型、服裝、武器與配色不要改變，保持和人物設定圖一致。
+
+角色動作：
+〔填入角色要做的動作，例如轉身、舉起金箍棒、保護師父、指向遠方、表現驚訝或警覺。〕
+
+背景動態：
+〔填入環境如何動，例如雲氣流動、光影穿過樹葉、石雕紋理浮現、塵光飄動、廟宇背景由灰石轉成彩色。〕
+
+攝影機運動：
+〔填入鏡頭運鏡，例如慢慢推近主角、由左到右橫移、從石雕局部拉到全景、跟隨角色動作、最後定格在關鍵道具。〕
+
+整體感覺：
+像保障宮石雕故事被喚醒，畫面有東方神話感與廟宇文化感，動作服務故事重點。
+
+避免：角色變臉、服裝改變、出現現代物品、畫面劇烈晃動、字幕直接燒在影片中。</pre>
+            </div>
+            <div class="prompt-box">
+              <div class="prompt-title">
+                <span>12 格分鏡表欄位</span>
+                <span>Storyboard fields</span>
+              </div>
+              <pre>每一格都請寫滿以下欄位：
+
+1. 分鏡說明：
+〔這一格畫面要讓觀眾看到什麼？〕
+
+2. 攝影機運動：
+〔推近、拉遠、橫移、跟拍、定格，選一種最適合故事的運鏡。〕
+
+3. AI 生圖提示詞（中文）：
+〔用中文描述角色、場景、動作、風格，並提醒參考人物設定圖。〕
+
+4. AI image prompt (English):
+〔Write the same shot in English. Mention character consistency, temple stone carving, Journey to the West, and cinematic composition.〕
+
+5. 台詞（繁體中文）：
+〔一句清楚的說書字幕。〕
+
+6. Dialogue / Voiceover (English):
+〔One clear English sentence for subtitles and voiceover.〕</pre>
+            </div>
+            <div class="prompt-box">
+              <div class="prompt-title">
+                <span>英文旁白草稿</span>
+                <span>Voiceover draft</span>
+              </div>
+              <pre>This stone carving from Baozhang Temple tells a scene from Journey to the West.
+In this shot, 〔write the main action in English〕.
+The characters move from carved stone into a living story, while keeping the memory of temple art.
+Through AI animation, we can see how an old carving continues to speak to us today.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="editing">
+      <div class="section-head">
+        <h2>Google Vids <span class="nowrap">剪輯</span></h2>
+        <p>12 格動畫素材生成後，再放進 Google Vids 剪成一段完整的英文說書影片。這裡的重點是敘事節奏、字幕時間、英文配音與畫面銜接。</p>
+      </div>
+      <div class="task-board">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Google Vids 剪輯流程</h3>
+          </div>
+          <div class="panel-content checklist">
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>匯入 12 段動畫</strong>依照分鏡順序排列，每格約 5 到 7 秒，讓總長達到至少 1 分鐘。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>調整故事節奏</strong>片頭、關鍵事件、情節推進、故事收束、文化意義都要有清楚段落。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>加入雙語字幕</strong>每句先繁體中文，再英文；字幕時間要對齊英文配音。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>製作英文配音</strong>使用每格英文台詞錄音或產生旁白，語速要讓觀眾聽得懂。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>輸出前總檢查</strong>完整播放一次，檢查音量、字幕、轉場、角色一致性與影片長度。</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>建議影片結構</h3>
+          </div>
+          <div class="panel-content checklist">
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>片頭 3 秒</strong>保障宮石雕故事：〔章節名稱〕</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>故事至少 1 分鐘</strong>用至少 12 個鏡頭說清楚人物、關鍵事件、情節推進、故事收束與文化意義。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>字幕雙語</strong>每句先繁體中文，再英文；字不要擋住主角臉部。</span>
+            </label>
+            <label class="check">
+              <input type="checkbox">
+              <span><strong>英文配音</strong>聲音清楚，語速適中，內容要和字幕意思一致。</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>字幕與配音</h2>
+        <p>字幕採雙語，配音採英文。繁體中文幫觀眾理解文化與情節，英文旁白讓作品變成可以分享給更多人的廟宇故事。</p>
+      </div>
+      <div class="subtitle-demo">
+        <article class="subtitle-card">
+          <h3>字幕格式</h3>
+          <div class="subtitle-line">
+            <span class="zh">孫悟空舉起金箍棒，準備保護師父。</span>
+            <span class="en">Sun Wukong raises his golden staff to protect his master.</span>
+          </div>
+          <div class="subtitle-line">
+            <span class="zh">古老石雕在光影中慢慢甦醒。</span>
+            <span class="en">The ancient stone carving slowly awakens in the light.</span>
+          </div>
+        </article>
+        <article class="subtitle-card">
+          <h3>英文配音原則</h3>
+          <div class="subtitle-line">
+            <span class="zh">一句字幕對應一句英文旁白。</span>
+            <span class="en">One subtitle line should match one spoken sentence.</span>
+          </div>
+          <div class="subtitle-line">
+            <span class="zh">先求清楚，再求戲劇感。</span>
+            <span class="en">Make it clear first, then make it dramatic.</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="rubric" id="rubric">
+      <div class="section-head">
+        <h2>完成檢核</h2>
+        <p>輸出前用這張表自評。好的作品要同時看得出石雕來源、角色一致性、故事理解與影片完成度。</p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>完成標準</th>
+            <th>自我檢查</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="項目">石雕理解</td>
+            <td data-label="完成標準">能說明石雕畫面對應的西遊記情節，且不是只靠猜測。</td>
+            <td data-label="自我檢查">我能指出畫面中的人物、動作或道具證據。</td>
+          </tr>
+          <tr>
+            <td data-label="項目">角色一致</td>
+            <td data-label="完成標準">四位主角外型符合人物設定圖，沒有每個鏡頭都長不一樣。</td>
+            <td data-label="自我檢查">我有檢查臉、服裝、武器與配色。</td>
+          </tr>
+          <tr>
+            <td data-label="項目">劇情分鏡</td>
+            <td data-label="完成標準">完成至少 12 個分鏡鏡頭，每格都有畫面、運鏡、提示詞與中英文台詞。</td>
+            <td data-label="自我檢查">我能用 12 格說完開場、關鍵事件、情節推進、故事收束與文化意義。</td>
+          </tr>
+          <tr>
+            <td data-label="項目">動畫品質</td>
+            <td data-label="完成標準">角色動作、背景動態與鏡頭運動符合分鏡需求，角色沒有嚴重變形或突然消失。</td>
+            <td data-label="自我檢查">我有挑選最穩定的片段放進 Google Vids。</td>
+          </tr>
+          <tr>
+            <td data-label="項目">雙語字幕</td>
+            <td data-label="完成標準">每段字幕都有繁體中文與英文，位置清楚，不遮住重點畫面。</td>
+            <td data-label="自我檢查">我有逐句檢查中英文意思是否一致。</td>
+          </tr>
+          <tr>
+            <td data-label="項目">英文配音</td>
+            <td data-label="完成標準">配音清楚、音量適中，與畫面和字幕時間大致對齊。</td>
+            <td data-label="自我檢查">我有完整播放一次確認節奏。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <div class="deliverable">
+        <div class="final-card">
+          <h3>最後繳交</h3>
+          <ul>
+            <li>完成的劇情說明與 12 格分鏡說明圖。</li>
+            <li>一段至少 1 分鐘的動畫說書影片。</li>
+            <li>一張直式專題海報，介紹作品故事、製作歷程、AI 工具與影片 QR Code。</li>
+            <li>影片包含繁體中文與英文雙語字幕。</li>
+            <li>影片使用英文配音。</li>
+            <li>作品能看出保障宮石雕與西遊記人物設定的連結。</li>
+          </ul>
+        </div>
+        <div class="final-card">
+          <h3>命名方式</h3>
+          <ul>
+            <li>檔名：班級_組別_西遊記章節名稱。</li>
+            <li>片頭標題：保障宮石雕故事：〔章節名稱〕。</li>
+            <li>片尾註明：石雕來源為保障宮廟宇建築裝飾。</li>
+            <li><a href="直式專題海報範本.html">開啟直式專題海報範本</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>課程目標：用 AI 把地方廟宇的石雕故事轉成可觀看、可聆聽、可分享的雙語動畫，讓傳統文化在新的媒介中被重新理解。</p>
+  </footer>
+</body>
+</html>
