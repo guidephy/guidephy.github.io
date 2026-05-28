@@ -29,6 +29,9 @@
         .animate-fade-in {
             animation: fadeIn 0.5s ease-out forwards;
         }
+        .is-soft-update .animate-fade-in {
+            animation: none !important;
+        }
         .animate-bounce-subtle {
             animation: bounceSubtle 2s infinite;
         }
@@ -183,31 +186,31 @@
                 type: "matching",
                 icon: Icons.Globe,
                 storyImage: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXcIi2pWQ9nCEoNG0jgE-hiYzdBLb6bujUOA25C_VSEp5ZWxNvm_vC057Pnsy6i6r_5BW8qX9nKOyldnP5RAkE-usIxYvHGdOOh5nY-r9-5wCUyUgTKzKRBPtUorpSc5A94xSfBKPnLS1P6PwgQD3GMG?key=FHIAIJ-gaW42Wi8RxY0FKw",
-                question: "請根據剛剛的文本，將國家知名步道連線到正確的「步道目的」：",
+                question: "請根據剛剛的文本，將國家案例連線到正確的「守護目的」：",
                 leftItems: [
                     { id: 'tw', text: "🇹🇼 台灣 (白千層林道)" },
                     { id: 'au', text: "🇦🇺 澳洲 (巨樹谷天空步道)" },
-                    { id: 'sg', text: "🇸🇬 新加坡 (麥里芝樹頂吊橋)" },
+                    { id: 'sg', text: "🇸🇬 新加坡 (Eco-Link@BKE 生態橋)" },
                     { id: 'jp', text: "🇯🇵 日本 (赤澤自然休養林)" }
                 ],
                 // 右側選項已打亂順序，避免直接水平對應
                 rightItems: [
                     { id: 'health', text: "🛀 享受森林浴 (療癒身心)" },
-                    { id: 'protect', text: "🛡️ 防風護農田 (保護作物)" },
-                    { id: 'safe', text: "🛤️ 保護樹根 (行走於樹冠)" },
-                    { id: 'urban', text: "🏙️ 連結動物棲地 (生態廊道)" }
+                    { id: 'protect', text: "🌿 形成防風綠廊，陪伴農田景觀" },
+                    { id: 'safe', text: "🛤️ 離地行走，減少踩踏根系" },
+                    { id: 'urban', text: "🌉 連結棲地，讓動物安全移動" }
                 ],
                 correctMatches: { tw: 'protect', au: 'safe', sg: 'urban', jp: 'health' },
-                hint: "台灣是為了種田；澳洲是為了保護樹根；新加坡是為了連結棲地；日本是為了森林浴。",
-                explanation: "世界各地的樹木步道都很厲害！台灣擋風、澳洲護根、新加坡連結棲地、日本療癒身心。我們都是用樹木守護地球的一份子！"
+                hint: "台灣是防風綠廊；澳洲用離地步道減少踩踏；新加坡用生態橋連結棲地；日本以森林浴療癒身心。",
+                explanation: "世界各地都在用不同方法和自然好好相處。台灣觀音的白千層林道形成防風綠廊，澳洲巨樹谷天空步道讓人離地行走、減少踩踏森林地表與根系，新加坡 Eco-Link@BKE 生態橋讓野生動物能安全移動，日本赤澤自然休養林則以森林浴療癒身心。"
             },
             {
                 id: 5,
-                title: "最終關：我是步道守護員",
+                title: "最終關：我是環境守護員",
                 type: "sorting",
                 icon: Icons.Shield,
                 storyImage: "https://lh7-rt.googleusercontent.com/docsz/AD_4nXc-wLRxOU-S-pS71wU1JPbmnV5i5Mop-vItODVxmsSnryyukrqYxjbjRg1zQJHi16E08eK8eNezDI-e3mOULZ9TW22R5crw6suAvcvmPnod6_b7c79goS-pLRASvIJfa6OCc7LbvaSOigTZVuKVzPI?key=FHIAIJ-gaW42Wi8RxY0FKw",
-                question: "請「依照重要順序」，依序點選你認為步道最重要的 3 個元素：\n(你的第一選擇，將決定你會成為哪一種守護員喔！)",
+                question: "請「依照重要順序」，依序點選你認為步道最重要的 3 個元素：",
                 options: [
                     { id: 'tree', text: "🌳 樹 (自然環境)" },
                     { id: 'human', text: "🧑 人 (你的參與)" },
@@ -237,8 +240,13 @@
 
         // --- 4. 渲染邏輯 (Render Functions) ---
         const app = document.getElementById('app');
+        let lastRenderViewKey = null;
 
         function render() {
+            const viewKey = `${state.gameState}:${state.currentLevel}:${state.levelPhase}`;
+            const shouldScrollTop = viewKey !== lastRenderViewKey;
+            const previousScrollY = window.scrollY;
+            app.classList.toggle('is-soft-update', !shouldScrollTop);
             app.innerHTML = ''; // 清空內容
 
             if (state.gameState === 'intro') {
@@ -248,9 +256,14 @@
             } else {
                 renderLevel();
             }
-            
-            // 每次渲染後滾動到頂部
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // 只有切換畫面或關卡時回到頂部，避免點選答案造成畫面跳動。
+            if (shouldScrollTop) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo(0, previousScrollY);
+            }
+            lastRenderViewKey = viewKey;
         }
 
         // 渲染：開場畫面
@@ -348,7 +361,7 @@
                                             </div>
                                             <div class="rounded-2xl bg-white/80 p-3 border border-emerald-100">
                                                 <div class="text-xs font-bold text-gray-400">身份</div>
-                                                <div class="text-lg font-black text-emerald-700">步道守護員</div>
+                                                <div class="text-lg font-black text-emerald-700">環境守護員</div>
                                             </div>
                                         </div>
                                     </div>
@@ -538,7 +551,7 @@
                     </div>
                     
                     <p class="text-center text-gray-400 text-xs py-6 bg-gray-50 mt-auto px-4">
-                        © 觀音高中國際教育社群
+                        © 觀音高中物理科林仟弘
                     </p>
                 </div>
             `;
@@ -552,7 +565,7 @@
                 <div class="space-y-3">
                     ${data.options.map(opt => `
                         <button onclick="selectOption('${opt.id}')" 
-                            class="w-full text-left p-4 rounded-xl border-2 transition-all active:scale-[0.98] ${state.selectedOption === opt.id ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold ring-2 ring-emerald-200' : 'border-gray-100 bg-white text-gray-600'}">
+                            class="w-full text-left p-4 rounded-xl border-2 transition-colors ${state.selectedOption === opt.id ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold ring-2 ring-emerald-200' : 'border-gray-100 bg-white text-gray-600'}">
                             ${opt.text}
                         </button>
                     `).join('')}
@@ -571,25 +584,25 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3 sm:gap-4 items-start">
-                    <div class="flex flex-col gap-3 min-w-0">
-                        <div class="text-center text-xs sm:text-sm font-bold text-gray-500 tracking-wide">左邊：特徵</div>
+                    <div class="flex flex-col gap-3 min-w-0 rounded-2xl bg-emerald-50/80 p-2 sm:p-3 border border-emerald-100">
+                        <div class="text-center text-xs sm:text-sm font-bold text-emerald-700 tracking-wide">左邊：題目</div>
                         ${data.leftItems.map(item => `
                             <button onclick="clickLeft('${item.id}')" 
                                 class="w-full p-3 sm:p-4 text-xs sm:text-sm lg:text-base rounded-xl border-2 text-left transition-all min-h-[96px] sm:min-h-[104px] flex items-center justify-start leading-snug
                                 ${state.matches[item.id] ? 'bg-emerald-100 border-emerald-500 opacity-70' : 
-                                  state.selectedLeft === item.id ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-200 font-bold' : 'border-gray-200 bg-white'}">
+                                  state.selectedLeft === item.id ? 'bg-white border-emerald-500 ring-2 ring-emerald-200 font-bold' : 'border-emerald-200 bg-white/90'}">
                                 ${item.text}
                             </button>
                         `).join('')}
                     </div>
-                    <div class="flex flex-col gap-3 min-w-0">
-                        <div class="text-center text-xs sm:text-sm font-bold text-gray-500 tracking-wide">右邊：功能 / 目的</div>
+                    <div class="flex flex-col gap-3 min-w-0 rounded-2xl bg-sky-50/90 p-2 sm:p-3 border border-sky-100">
+                        <div class="text-center text-xs sm:text-sm font-bold text-sky-700 tracking-wide">右邊：答案</div>
                         ${data.rightItems.map(item => {
                             const isMatched = Object.values(state.matches).includes(item.id);
                             return `
                                 <button onclick="clickRight('${item.id}')"
                                     class="w-full p-3 sm:p-4 text-xs sm:text-sm lg:text-base rounded-xl border-2 text-left min-h-[96px] sm:min-h-[104px] flex items-center justify-start transition-all leading-snug
-                                    ${isMatched ? 'bg-emerald-100 border-emerald-500 opacity-70 font-bold' : 'border-gray-200 border-dashed bg-gray-50'}">
+                                    ${isMatched ? 'bg-sky-100 border-sky-500 text-sky-900 opacity-80 font-bold' : 'border-sky-200 border-dashed bg-white/90'}">
                                     ${isMatched ? "✅ " + item.text : item.text}
                                 </button>
                             `;
@@ -605,7 +618,7 @@
                 <div class="grid grid-cols-2 gap-3 sm:gap-4">
                     ${data.options.map(opt => `
                         <button onclick="toggleMulti('${opt.id}')"
-                            class="p-4 sm:p-5 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all active:scale-[0.98] min-h-[132px]
+                            class="p-4 sm:p-5 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-colors min-h-[132px]
                             ${state.multiSelections.includes(opt.id) ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200' : 'border-gray-100 bg-white text-gray-600'}">
                             <span class="text-3xl sm:text-4xl block mb-1">${opt.text.split(' ')[0]}</span>
                             <span class="font-bold text-sm sm:text-base text-center">${opt.text.split(' ')[1]}</span>
@@ -806,25 +819,34 @@
                     return;
                 }
 
-                // 生成專屬回饋
-                const firstChoice = state.sortOrder[0];
-                let feedback = "";
-                switch(firstChoice) {
-                    case 'tree':
-                        feedback = "很有眼光！你將「自然環境」放在第一位。\n\n沒錯，健康的樹木是所有生命的基石。有了穩固的防風林，生態與人類生活才能得到保障。你是一位「自然守護者」！\n\n不過別忘了，人與故事也是賦予步道靈魂的重要元素喔！";
-                        break;
-                    case 'human':
-                        feedback = "你認為「人的參與」最重要！\n\n真的，唯有在地居民與遊客願意親近、愛護，這條步道才不會被遺忘。你是一位充滿熱情的「社群守護者」！\n\n當然，我們也要努力維持樹木與生態的健康，讓人們永遠有綠地可以走！";
-                        break;
-                    case 'animal':
-                        feedback = "你擁有一顆溫柔的心，將「動物」放在第一位。\n\n保護棲地讓白鷺鷥、青蛙能安居樂業，展現了對生命的尊重。你是一位很有愛心的「生態守護者」！\n\n而這也需要健康的樹木與人類的守護才能達成喔！";
-                        break;
-                    case 'story':
-                        feedback = "你選擇了「故事」作為核心。\n\n文化的傳承讓步道不只是路，而是一條連結過去與未來的時光隧道！你是一位有深度的「文化守護者」！\n\n希望你能把白千層與石觀音的故事，繼續說給更多人聽！";
-                        break;
-                    default:
-                        feedback = "每個元素都缺一不可！很高興你完成了這項艱難的選擇。";
-                }
+                const feedbackMap = {
+                    tree: {
+                        label: "樹與自然環境",
+                        focus: "你最重視「樹與自然環境」。這代表你看見了環境守護的根本：健康的樹木、防風林與綠地，是生態和人類生活能穩定延續的基礎。",
+                        support: "你也把「樹與自然環境」納入考量，表示你知道所有步道守護都需要從照顧棲地與植物開始。"
+                    },
+                    human: {
+                        label: "人的參與",
+                        focus: "你最重視「人的參與」。這代表你相信環境不會自己被記得，必須有人願意走進步道、理解它、照顧它，守護行動才會真的發生。",
+                        support: "你也重視「人的參與」，表示你知道環境教育、日常行動與社群支持，會讓守護變得長久。"
+                    },
+                    animal: {
+                        label: "動物與生態多樣性",
+                        focus: "你最重視「動物與生態多樣性」。這代表你很在意步道是否能成為生命的家，讓鳥類、青蛙和其他生物都能在這裡安全生活。",
+                        support: "你也選擇了「動物與生態多樣性」，表示你會從生命共存的角度思考步道價值。"
+                    },
+                    story: {
+                        label: "故事與文化傳承",
+                        focus: "你最重視「故事與文化傳承」。這代表你看見了步道不只是路，也承載地方記憶、地名由來與人和土地之間的情感。",
+                        support: "你也放入「故事與文化傳承」，表示你知道環境守護不只保護自然，也要把地方故事繼續傳下去。"
+                    }
+                };
+                const selectedLabels = state.sortOrder.map(id => feedbackMap[id].label).join("、");
+                const focusText = feedbackMap[state.sortOrder[0]].focus;
+                const supportText = state.sortOrder.slice(1).map((id, index) => {
+                    return `第 ${index + 2} 順位：${feedbackMap[id].support}`;
+                }).join("\n");
+                const feedback = `你的環境守護排序是：${selectedLabels}。\n\n${focusText}\n\n${supportText}\n\n這三個選擇合在一起，形成了你的環境守護觀：先抓住最重要的核心，再用其他元素補足步道的自然、生態、文化與行動力量。`;
                 state.dynamicFeedback = feedback;
                 state.levelPhase = 'feedback';
                 render();
