@@ -69,6 +69,7 @@
       font-size: clamp(20px, 2.5vw, 30px);
       line-height: 1.1;
       letter-spacing: -.02em;
+      word-break: keep-all;
     }
 
     .brand p {
@@ -124,6 +125,7 @@
       margin: 0 0 8px;
       font-size: clamp(22px, 3vw, 34px);
       letter-spacing: -.02em;
+      word-break: keep-all;
     }
 
     .hero-main p {
@@ -156,6 +158,7 @@
     .stat span {
       color: var(--muted);
       font-size: 12px;
+      white-space: nowrap;
     }
 
     .tabs {
@@ -167,7 +170,10 @@
       border: 1px solid var(--line);
       border-radius: 15px;
       background: rgba(255,255,255,.72);
+      scrollbar-width: none;
     }
+
+    .tabs::-webkit-scrollbar { display: none; }
 
     .tab-btn, .seg-btn {
       border: 0;
@@ -179,7 +185,7 @@
       font-size: 13px;
     }
 
-    .tab-btn { padding: 9px 14px; }
+    .tab-btn { flex: 0 0 auto; padding: 9px 14px; white-space: nowrap; }
     .tab-btn.active {
       color: #fff;
       background: var(--navy);
@@ -208,6 +214,7 @@
     .panel-head h2 {
       margin: 0;
       font-size: 18px;
+      word-break: keep-all;
     }
 
     .panel-head p {
@@ -233,6 +240,7 @@
     }
 
     .seg-btn { padding: 7px 11px; }
+    .seg-btn, select { white-space: nowrap; }
     .seg-btn.active {
       color: #fff;
       background: var(--orange);
@@ -277,6 +285,7 @@
     .board-title h3, .month-title h3 {
       margin: 0;
       font-size: 16px;
+      white-space: nowrap;
     }
 
     .count {
@@ -287,6 +296,7 @@
       background: var(--blue-soft);
       font-size: 11px;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .task-list { padding: 5px 12px 11px; }
@@ -327,6 +337,7 @@
       background: var(--amber-soft);
       font-size: 10px;
       font-weight: 800;
+      line-height: 1.35;
     }
 
     .month-board {
@@ -354,6 +365,7 @@
       border-radius: 999px;
       font-size: 10px;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .group-chip { color: var(--navy); background: var(--blue-soft); }
@@ -419,6 +431,7 @@
     .compare-head h3, .audit-head h3 {
       margin: 0;
       font-size: 15px;
+      word-break: keep-all;
     }
 
     .compare-layers {
@@ -438,6 +451,7 @@
       display: block;
       margin-bottom: 5px;
       font-size: 11px;
+      white-space: nowrap;
     }
 
     .layer p {
@@ -513,7 +527,7 @@
 
     .staffing-stat strong { display: block; font-size: 24px; }
     .staffing-stat span, .formula-card p { color: var(--muted); font-size: 11px; }
-    .formula-card strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .formula-card strong { display: block; margin-bottom: 5px; font-size: 13px; word-break: keep-all; }
     .formula-card p { margin: 0; line-height: 1.55; }
 
     .data-table {
@@ -531,6 +545,7 @@
     }
 
     .data-table th { color: #fff; background: var(--navy); }
+    .data-table th, .data-table td:first-child { white-space: nowrap; }
     .data-table tr:nth-child(even) td { background: var(--surface-2); }
     .table-note { margin: 10px 0 18px; color: var(--muted); font-size: 11px; line-height: 1.6; }
 
@@ -555,6 +570,7 @@
       text-decoration: none;
       font-size: 11px;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .link-grid {
@@ -573,6 +589,7 @@
     .link-card h3 {
       margin: 0 0 5px;
       font-size: 14px;
+      word-break: keep-all;
     }
 
     .link-card p {
@@ -605,17 +622,70 @@
     }
 
     @media (max-width: 720px) {
-      .app { width: min(100% - 16px, 1440px); padding-top: 8px; }
+      .app { width: min(100% - 12px, 1440px); padding-top: 6px; }
       .topbar, .hero-main { border-radius: 17px; }
-      .hero-main { padding: 16px; }
+      .topbar { gap: 12px; padding: 14px; }
+      .brand h1 { font-size: clamp(18px, 5.4vw, 23px); }
+      .brand p { display: none; }
+      .global-search input { padding-block: 10px; font-size: 13px; }
+      .hero { margin-top: 10px; }
+      .hero-main { padding: 14px; }
+      .hero-main h2 { font-size: clamp(19px, 5.6vw, 24px); }
+      .hero-main p { font-size: 12px; line-height: 1.6; }
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .panel-head { align-items: flex-start; flex-direction: column; }
+      .stat { padding: 11px 10px; }
+      .stat strong { font-size: 20px; }
+      .stat span { font-size: 10px; }
+      .panel { border-radius: 18px; }
+      .panel-head { align-items: stretch; flex-direction: column; padding: 14px; }
+      .panel-head > div:first-child { min-width: 0; }
+      .panel-head p { font-size: 11px; }
+      .control-bar { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+      .control-bar .segment { grid-column: 1 / -1; }
+      .segment .seg-btn { flex: 1; }
+      .control-bar select { width: 100%; min-width: 0; font-size: 12px; }
       .group-board, .law-grid, .link-grid, .month-tasks { grid-template-columns: 1fr; }
-      .tabs { width: 100%; }
-      .tab-btn { flex: 1; }
-      .task { grid-template-columns: 70px minmax(0, 1fr); }
+      .tabs {
+        position: sticky;
+        top: 6px;
+        z-index: 25;
+        width: calc(100vw - 12px);
+        margin: 10px 0;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        scroll-snap-type: inline proximity;
+        background: rgba(255,255,255,.94);
+        backdrop-filter: blur(12px);
+      }
+      .tab-btn { scroll-snap-align: start; padding: 8px 12px; font-size: 12px; }
+      .schedule-wrap, .law-wrap, .links-wrap, #staffingRoot { padding: 12px; }
+      .task { grid-template-columns: 64px minmax(0, 1fr); gap: 8px; }
+      .task-time { font-size: 11px; }
+      .task-main strong, .month-task strong { font-size: 12px; }
+      .task-law { display: inline-block; max-width: 100%; border-radius: 8px; overflow-wrap: anywhere; }
+      .compare-card, .audit-card { padding: 13px; }
+      .compare-head, .audit-head { flex-direction: column; gap: 7px; }
+      .compare-head > div { display: flex; flex-wrap: wrap; gap: 5px; }
+      .layer { padding: 10px; }
+      .difference { line-height: 1.65; }
       .staffing-summary, .formula-grid { grid-template-columns: 1fr; }
-      .data-table { display: block; overflow-x: auto; white-space: nowrap; }
+      .staffing-stat, .formula-card { padding: 13px; }
+      .staffing-stat { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
+      .staffing-stat strong { font-size: 20px; white-space: nowrap; }
+      .staffing-stat span { line-height: 1.45; }
+      .data-table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+      .data-table th, .data-table td { padding: 8px; }
+      .review-card strong, .formula-card strong { white-space: nowrap; }
+      .footnote { text-align: left; line-height: 1.6; }
+    }
+
+    @media (max-width: 390px) {
+      .stats { gap: 7px; }
+      .stat span { font-size: 9px; }
+      .control-bar { grid-template-columns: 1fr; }
+      .control-bar .segment { grid-column: auto; }
+      .panel-head h2 { font-size: 16px; }
+      .compare-head h3, .audit-head h3 { font-size: 14px; }
     }
   </style>
 </head>
