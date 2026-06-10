@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>觀音高中教務主任工具查詢庫</title>
+  <style>
+    :root {
+      --bg: #f2f0e9;
+      --surface: #fffefa;
+      --surface-2: #f8f7f2;
+      --ink: #172126;
+      --muted: #647078;
+      --line: #dfe2dd;
+      --navy: #173f4d;
+      --navy-2: #245b66;
+      --orange: #c75d32;
+      --amber: #a27625;
+      --green: #47745c;
+      --blue-soft: #e9f1f2;
+      --orange-soft: #f8ece6;
+      --amber-soft: #f5f0e4;
+      --green-soft: #eaf2ed;
+      --shadow: 0 16px 40px rgba(23, 33, 38, 0.08);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% -8%, rgba(199, 93, 50, 0.14), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(23, 63, 77, 0.14), transparent 24%),
+        var(--bg);
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.55;
+    }
+
+    button, input, select { font: inherit; }
+    a { color: inherit; }
+
+    .app {
+      width: min(1440px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 10px;
+      z-index: 30;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(300px, 560px);
+      gap: 20px;
+      align-items: center;
+      padding: 16px 18px;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 22px;
+      color: #fff;
+      background: rgba(23, 63, 77, .95);
+      box-shadow: 0 18px 44px rgba(23, 63, 77, .2);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.5vw, 30px);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+    }
+
+    .brand p {
+      margin: 5px 0 0;
+      color: rgba(255,255,255,.7);
+      font-size: 12px;
+    }
+
+    .global-search {
+      position: relative;
+    }
+
+    .global-search input {
+      width: 100%;
+      padding: 12px 44px 12px 15px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 14px;
+      color: #fff;
+      background: rgba(255,255,255,.11);
+      outline: none;
+    }
+
+    .global-search input::placeholder { color: rgba(255,255,255,.62); }
+    .global-search input:focus { border-color: rgba(255,255,255,.55); }
+    .global-search span {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,.65);
+      font-size: 13px;
+    }
+
+    .hero {
+      margin-top: 18px;
+    }
+
+    .hero-main {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-main {
+      padding: 24px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.96), rgba(248,244,235,.95)),
+        var(--surface);
+    }
+
+    .hero-main h2 {
+      margin: 0 0 8px;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: -.02em;
+    }
+
+    .hero-main p {
+      max-width: 800px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .stat {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,.72);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 7px;
+      margin: 18px 0 12px;
+      padding: 5px;
+      width: fit-content;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,.72);
+    }
+
+    .tab-btn, .seg-btn {
+      border: 0;
+      border-radius: 11px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .tab-btn { padding: 9px 14px; }
+    .tab-btn.active {
+      color: #fff;
+      background: var(--navy);
+    }
+
+    .panel {
+      display: none;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel.active { display: block; }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .panel-head p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .segment {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+    }
+
+    .seg-btn { padding: 7px 11px; }
+    .seg-btn.active {
+      color: #fff;
+      background: var(--orange);
+    }
+
+    select {
+      min-width: 130px;
+      padding: 8px 30px 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .schedule-wrap, .law-wrap, .links-wrap {
+      padding: 18px;
+    }
+
+    .group-board {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .board-section, .month-section {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .board-title, .month-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .board-title h3, .month-title h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .count {
+      display: inline-flex;
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: var(--navy);
+      background: var(--blue-soft);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .task-list { padding: 5px 12px 11px; }
+    .task {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px 3px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .task:last-child { border-bottom: 0; }
+    .task-time {
+      color: var(--orange);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .task-main strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .task-main small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .task-law {
+      display: inline-flex;
+      margin-top: 5px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: var(--amber);
+      background: var(--amber-soft);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .month-board {
+      display: grid;
+      gap: 13px;
+    }
+
+    .month-tasks {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .month-task {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .group-chip, .law-chip {
+      display: inline-flex;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .group-chip { color: var(--navy); background: var(--blue-soft); }
+    .month-task strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .month-task small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .law-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .law-card {
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-2);
+    }
+
+    .law-card h3 {
+      margin: 8px 0 6px;
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .law-card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .compare-grid, .audit-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .compare-card, .audit-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--surface-2);
+    }
+
+    .compare-head, .audit-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .compare-head h3, .audit-head h3 {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .compare-layers {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .layer {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .layer strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 11px;
+    }
+
+    .layer p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .difference {
+      margin-top: 10px;
+      padding: 9px 11px;
+      border-left: 3px solid var(--amber);
+      color: #665020;
+      background: var(--amber-soft);
+      font-size: 11px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status-chip.missing { color: #9a3d29; background: #f8e8e3; }
+    .status-chip.partial { color: var(--amber); background: var(--amber-soft); }
+    .status-chip.covered { color: var(--green); background: var(--green-soft); }
+
+    .audit-card p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .audit-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .review-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: linear-gradient(145deg, #fff, #f7f3ea);
+    }
+
+    .review-card strong { display: block; margin-bottom: 5px; font-size: 12px; }
+    .review-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+    .staffing-summary, .formula-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .staffing-stat, .formula-card {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-2);
+    }
+
+    .staffing-stat strong { display: block; font-size: 24px; }
+    .staffing-stat span, .formula-card p { color: var(--muted); font-size: 11px; }
+    .formula-card strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .formula-card p { margin: 0; line-height: 1.55; }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 11px;
+    }
+
+    .data-table th, .data-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    .data-table th { color: #fff; background: var(--navy); }
+    .data-table tr:nth-child(even) td { background: var(--surface-2); }
+    .table-note { margin: 10px 0 18px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+    .law-chip.national { color: var(--navy); background: var(--blue-soft); }
+    .law-chip.school { color: var(--orange); background: var(--orange-soft); }
+    .law-chip.local { color: var(--amber); background: var(--amber-soft); }
+
+    .law-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: auto;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      padding: 7px 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--navy);
+      background: #fff;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .link-card {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-2);
+    }
+
+    .link-card h3 {
+      margin: 0 0 5px;
+      font-size: 14px;
+    }
+
+    .link-card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .empty {
+      padding: 36px 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .footnote {
+      margin: 14px 2px 0;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+    }
+
+    @media (max-width: 1100px) {
+      .topbar { grid-template-columns: 1fr; }
+      .topbar { position: static; }
+      .group-board, .law-grid, .link-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .compare-layers { grid-template-columns: 1fr; }
+      .review-grid { grid-template-columns: 1fr; }
+      .staffing-summary, .formula-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .app { width: min(100% - 16px, 1440px); padding-top: 8px; }
+      .topbar, .hero-main { border-radius: 17px; }
+      .hero-main { padding: 16px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .panel-head { align-items: flex-start; flex-direction: column; }
+      .group-board, .law-grid, .link-grid, .month-tasks { grid-template-columns: 1fr; }
+      .tabs { width: 100%; }
+      .tab-btn { flex: 1; }
+      .task { grid-template-columns: 70px minmax(0, 1fr); }
+      .staffing-summary, .formula-grid { grid-template-columns: 1fr; }
+      .data-table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>觀音高中教務主任工具查詢庫</h1>
+        <p>高中教務處｜處本部、教學組、註冊組、設備組、試務組、實驗研究組</p>
+      </div>
+      <label class="global-search">
+        <input id="globalSearch" type="search" placeholder="搜尋工作或法規，例如：補考、選課、減免、學習歷程">
+        <span>搜尋</span>
+      </label>
+    </header>
+
+    <section class="hero">
+      <div class="hero-main">
+        <h2>時程、責任組別、法規，一次對照</h2>
+        <p>以 114 暑假、114-1、114 寒假、114-2、115 暑假教職員版行事曆整理；同一作業的連續日期已合併。</p>
+        <div class="stats">
+          <div class="stat"><strong id="taskCount">0</strong><span>項時程工作</span></div>
+          <div class="stat"><strong>5＋1</strong><span>五組＋處本部</span></div>
+          <div class="stat"><strong id="lawCount">0</strong><span>項法規與辦法</span></div>
+          <div class="stat"><strong id="gapCount">0</strong><span>項建議納入</span></div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="主要功能">
+      <button class="tab-btn active" data-tab="schedule">時程工作</button>
+      <button class="tab-btn" data-tab="laws">法規三層對照</button>
+      <button class="tab-btn" data-tab="audit">法規稽核</button>
+      <button class="tab-btn" data-tab="staffing">教師員額</button>
+      <button class="tab-btn" data-tab="links">工作入口</button>
+    </nav>
+
+    <section id="schedulePanel" class="panel active">
+      <div class="panel-head">
+        <div>
+          <h2>時程工作</h2>
+          <p>可依責任組別或月份切換。</p>
+        </div>
+        <div class="control-bar">
+          <div class="segment">
+            <button class="seg-btn active" data-view="group">依組別</button>
+            <button class="seg-btn" data-view="month">依月份</button>
+          </div>
+          <select id="groupFilter" aria-label="組別篩選"></select>
+          <select id="monthFilter" aria-label="月份篩選"></select>
+        </div>
+      </div>
+      <div id="scheduleRoot" class="schedule-wrap"></div>
+    </section>
+
+    <section id="lawsPanel" class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>法規三層對照</h2>
+          <p>中央規範、桃園市執行層與觀高校內辦法，並列出差異。</p>
+        </div>
+        <div class="control-bar">
+          <select id="lawGroupFilter" aria-label="法規組別篩選"></select>
+          <select id="lawTypeFilter" aria-label="法規類型篩選"></select>
+        </div>
+      </div>
+      <div id="lawRoot" class="law-wrap"></div>
+    </section>
+
+    <section id="auditPanel" class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>法規稽核</h2>
+          <p>由法規反查校曆，列出已涵蓋、部分涵蓋及建議納入的工作。</p>
+        </div>
+        <div class="control-bar">
+          <select id="auditGroupFilter" aria-label="稽核組別篩選"></select>
+          <select id="auditStatusFilter" aria-label="稽核狀態篩選"></select>
+        </div>
+      </div>
+      <div class="review-grid" aria-label="三位資深教務主任審查結論">
+        <article class="review-card"><strong>法規風險主任</strong><p>優先檢查程序正義、成績學籍、特教評量、個資及受教權，並由法規反查未排入校曆事項。</p></article>
+        <article class="review-card"><strong>時程督導主任</strong><p>課程計畫、師資配課、畢業資格、會議決議及專案核銷應設主任核定點，年度簡章須逐年更新。</p></article>
+        <article class="review-card"><strong>日常使用主任</strong><p>保留全域搜尋、依組／依月切換與三層法規對照；暫定校曆及待納入事項須立即可辨識。</p></article>
+      </div>
+      <div id="auditRoot" class="law-wrap"></div>
+    </section>
+
+    <section id="staffingPanel" class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>教師員額</h2>
+          <p>依 114.05.12 師資需求表與 114-2 配課表匿名彙整。</p>
+        </div>
+      </div>
+      <div id="staffingRoot"></div>
+    </section>
+
+    <section id="linksPanel" class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>工作入口</h2>
+          <p>常用校內頁面與系統。</p>
+        </div>
+      </div>
+      <div id="linksRoot" class="links-wrap"></div>
+    </section>
+
+    <p class="footnote">資料查核：2026-06-10。辦理個案前，仍應核對最新公文、年度簡章與校內公告。</p>
+  </div>
+
+  <script>
+    const groups = ["處本部", "教學組", "註冊組", "設備組", "試務組", "實驗研究組"];
+    const months = [
+      ["2025-07", "114年7月"], ["2025-08", "114年8月"], ["2025-09", "114年9月"],
+      ["2025-10", "114年10月"], ["2025-11", "114年11月"], ["2025-12", "114年12月"],
+      ["2026-01", "115年1月"], ["2026-02", "115年2月"], ["2026-03", "115年3月"],
+      ["2026-04", "115年4月"], ["2026-05", "115年5月"], ["2026-06", "115年6月"],
+      ["2026-07", "115年7月"], ["2026-08", "115年8月"]
+    ];
+    const monthLabel = Object.fromEntries(months);
+
+    const tasks = [
+      {m:"2025-07",g:"教學組",d:"7月上旬",t:"114-1 高二、高一線上選課初選、加退選與正式結果公告",l:"課程規劃及實施要點"},
+      {m:"2025-07",g:"註冊組",d:"7/4",t:"公告高二、高三編班名單；期末成績與學期總成績登打截止",l:"學籍管理／成績評量"},
+      {m:"2025-07",g:"註冊組",d:"7月",t:"免試入學、特色招生、四技二專技優甄審及甄選入學放榜、志願序與報到作業",l:"多元入學招生辦法"},
+      {m:"2025-07",g:"註冊組",d:"7/10",t:"高中新生報到",l:"學籍管理辦法"},
+      {m:"2025-07",g:"註冊組",d:"7/29起",t:"分科測驗成績通知、大學考試分發登記費與志願登記",l:"年度招生簡章"},
+      {m:"2025-07",g:"試務組",d:"7/7–7/21",t:"公告學期補考名單、辦理學期補考、收繳補考成績",l:"成績評量辦法"},
+      {m:"2025-07",g:"試務組",d:"7/11–7/12",t:"分科測驗考試事項",l:"年度考試簡章"},
+      {m:"2025-07",g:"設備組",d:"7月初",t:"班級教學設備檢修",l:"設備組工作職掌"},
+
+      {m:"2025-08",g:"處本部",d:"8月底",t:"期初教務工作會議",l:"教務處工作職掌"},
+      {m:"2025-08",g:"教學組",d:"8月",t:"114-1 高一新生線上選課說明、初選、加退選與正式結果公告",l:"課程規劃及實施要點"},
+      {m:"2025-08",g:"教學組",d:"暑假期間",t:"高中部暑期學藝活動管理",l:"桃園市課業輔導及寒暑假學藝活動要點"},
+      {m:"2025-08",g:"註冊組",d:"8/1",t:"高中部新生編班名單公告",l:"觀高編班及轉班作業規定"},
+      {m:"2025-08",g:"註冊組",d:"8月",t:"四技二專登記分發、大學考試分發放榜及高中校務行政系統升級",l:"招生簡章／學籍管理"},
+      {m:"2025-08",g:"試務組",d:"8月上旬",t:"普三第一次全國學測模擬考",l:"試務組工作職掌"},
+      {m:"2025-08",g:"試務組",d:"8月",t:"桃園市語文競賽高中組複決賽報名",l:"年度競賽規定"},
+      {m:"2025-08",g:"實驗研究組",d:"8月",t:"桃園市中小學國際教育共通及分流課程研習",l:"實驗研究組工作職掌"},
+
+      {m:"2025-09",g:"教學組",d:"9月",t:"第一次教學研究會、科召集人會議及課程發展委員會",l:"課程規劃及實施要點"},
+      {m:"2025-09",g:"教學組",d:"9月初",t:"高中部學藝股長幹部訓練",l:"教學組工作職掌"},
+      {m:"2025-09",g:"教學組",d:"9月中",t:"第8節輔導課開始；普通科、體育班彈性學習與多元選修執行",l:"桃園市課業輔導要點"},
+      {m:"2025-09",g:"教學組",d:"9月底",t:"金融教育宣導",l:"教學組工作職掌"},
+      {m:"2025-09",g:"註冊組",d:"9月初",t:"高一註冊費減免與就學費用減免申請、審查",l:"向學生收取費用辦法"},
+      {m:"2025-09",g:"註冊組",d:"9月",t:"學習歷程課程成果及多元表現上傳、教師認證、學生勾選、家長講座與工作小組會議",l:"學習歷程作業要點"},
+      {m:"2025-09",g:"註冊組",d:"9月初",t:"高中英語聽力測驗第一次考試報名",l:"年度考試簡章"},
+      {m:"2025-09",g:"試務組",d:"9月",t:"普二開學複習考、普三第二次學測模擬考、第一次定期評量命題通知",l:"成績評量辦法"},
+
+      {m:"2025-10",g:"教學組",d:"10月",t:"第二次教學研究會、科召集人會議、課程發展委員會",l:"課程規劃及實施要點"},
+      {m:"2025-10",g:"試務組",d:"10月",t:"第一次定期評量命題、試卷繳交、評量實施及成績登打截止",l:"成績評量辦法"},
+      {m:"2025-10",g:"試務組",d:"10月",t:"職三第一次統測模擬考、全國英文作文比賽",l:"試務組工作職掌"},
+      {m:"2025-10",g:"實驗研究組",d:"10月",t:"日本廣島高校、大阪佐野高校交流接待",l:"國際教育計畫"},
+      {m:"2025-10",g:"設備組",d:"10月起",t:"114-2 高中教科書選用作業",l:"設備組工作職掌"},
+
+      {m:"2025-11",g:"教學組",d:"11月",t:"課程發展委員會、課程諮詢教師工作會議及彈性學習／多元選修執行",l:"課程規劃及實施要點"},
+      {m:"2025-11",g:"註冊組",d:"11月",t:"學科能力測驗與高中英語聽力測驗第二次考試報名",l:"年度考試簡章"},
+      {m:"2025-11",g:"試務組",d:"11月",t:"職三第二次統測模擬考、第二次定期評量命題與試卷繳交",l:"成績評量辦法"},
+      {m:"2025-11",g:"試務組",d:"11月",t:"全國英語演講比賽及高中部語文競賽",l:"試務組工作職掌"},
+      {m:"2025-11",g:"實驗研究組",d:"11月",t:"日本國際教育旅行",l:"國際教育計畫"},
+      {m:"2025-11",g:"實驗研究組",d:"11月",t:"高中部英文單字競試",l:"實驗研究組工作職掌"},
+
+      {m:"2025-12",g:"教學組",d:"12月",t:"第三次教學研究會、科召集人會議、課程發展委員會與114-2選課說明／團體課程諮詢",l:"課程規劃及實施要點"},
+      {m:"2025-12",g:"教學組",d:"12月",t:"發放114-2第8節輔導課調查回條",l:"桃園市課業輔導要點"},
+      {m:"2025-12",g:"教學組",d:"12月",t:"高中部國文、英文、數學、社會、自然、作文作業抽查及補查",l:"教學組工作職掌"},
+      {m:"2025-12",g:"註冊組",d:"12月",t:"114-2註冊費及就學費用減免申請開始",l:"向學生收取費用辦法"},
+      {m:"2025-12",g:"試務組",d:"12月",t:"普三第四次學測模擬考、職三第三次統測模擬考",l:"試務組工作職掌"},
+      {m:"2025-12",g:"試務組",d:"12月",t:"普三期末、高一高二職三期末定期評量及學期補考命題、試題繳交",l:"成績評量辦法"},
+      {m:"2025-12",g:"試務組",d:"12月",t:"高中部語文競賽及校內英語比賽",l:"試務組工作職掌"},
+      {m:"2025-12",g:"設備組",d:"12月",t:"高中部教科書領用",l:"設備組工作職掌"},
+
+      {m:"2026-01",g:"教學組",d:"1月",t:"114-2線上選課初選結果、加退選、正式結果公告；第8節輔導課結束",l:"課程規劃／課業輔導要點"},
+      {m:"2026-01",g:"註冊組",d:"1月",t:"114-2就學費用減免申請截止；期末成績暨學期總成績登打截止",l:"收費辦法／成績評量"},
+      {m:"2026-01",g:"試務組",d:"1月",t:"高一、高二、職三期末定期評量；學期補考命題繳交",l:"成績評量辦法"},
+      {m:"2026-01",g:"設備組",d:"寒假初",t:"班級設備檢修",l:"設備組工作職掌"},
+
+      {m:"2026-02",g:"教學組",d:"2月",t:"彈性學習與多元選修執行；第四次課程發展委員會",l:"課程規劃及實施要點"},
+      {m:"2026-02",g:"教學組",d:"2月下旬",t:"高中部學藝股長幹部訓練",l:"教學組工作職掌"},
+      {m:"2026-02",g:"註冊組",d:"2月",t:"學習歷程課程成果送出認證截止、註冊費減免文件補交、學測及術科成績通知",l:"學習歷程／收費規範"},
+      {m:"2026-02",g:"註冊組",d:"2月起",t:"普通大學繁星、科技校院繁星作業開始",l:"年度招生簡章"},
+      {m:"2026-02",g:"試務組",d:"寒假",t:"公告學期補考名單、辦理高中部學期補考及成績繳交",l:"成績評量辦法"},
+      {m:"2026-02",g:"試務組",d:"2月",t:"普三第五次分科測驗模擬考",l:"試務組工作職掌"},
+
+      {m:"2026-03",g:"教學組",d:"3月",t:"第一、第二次教學研究會與課程發展委員會",l:"課程規劃及實施要點"},
+      {m:"2026-03",g:"教學組",d:"3月",t:"金融教育及防詐騙宣導",l:"教學組工作職掌"},
+      {m:"2026-03",g:"註冊組",d:"3月",t:"大學繁星選填、推薦報名；科技校院繁星與大學／科大申請入學報名",l:"年度招生簡章"},
+      {m:"2026-03",g:"試務組",d:"3月",t:"高一高二第一次定期評量命題、試題繳交與評量實施",l:"成績評量辦法"},
+      {m:"2026-03",g:"試務組",d:"3月",t:"職三第四次全國統測模擬考",l:"試務組工作職掌"},
+
+      {m:"2026-04",g:"教學組",d:"4月",t:"普一選班群說明會暨團體課程諮詢輔導",l:"觀高編班及轉班作業規定"},
+      {m:"2026-04",g:"註冊組",d:"4月",t:"大學申請第一階段公告、職三繁星志願序、四技二專技優甄審資格審查",l:"年度招生簡章"},
+      {m:"2026-04",g:"試務組",d:"4月",t:"高三期末定期評量、普三第六次分科測驗模擬考",l:"成績評量辦法"},
+      {m:"2026-04",g:"試務組",d:"4月",t:"高一高二第二次定期評量、高三學期補考命題與試題繳交",l:"成績評量辦法"},
+
+      {m:"2026-05",g:"教學組",d:"5月",t:"第三次教學研究會、科召集人會議及第六次課程發展委員會",l:"課程規劃及實施要點"},
+      {m:"2026-05",g:"註冊組",d:"5月",t:"四技二專登記分發資格審查、技優甄審、甄選入學報名與成績通知",l:"年度招生簡章"},
+      {m:"2026-05",g:"試務組",d:"5月",t:"公告高三補考名單、辦理高三學期補考與成績繳交",l:"成績評量辦法"},
+      {m:"2026-05",g:"試務組",d:"5月",t:"職三第五次統測模擬考、普三第七次分科測驗模擬考、高一高二第二次定期評量",l:"試務組工作職掌"},
+
+      {m:"2026-06",g:"教學組",d:"6月",t:"115-1選課說明會暨團體課程諮詢輔導；彈性學習與多元選修收尾",l:"課程規劃及實施要點"},
+      {m:"2026-06",g:"註冊組",d:"6月",t:"115-1註冊費減免申請；大學分科測驗報名與申請入學結果作業",l:"收費辦法／年度招生簡章"},
+      {m:"2026-06",g:"註冊組",d:"6月底",t:"高中職直升入學報到；普通科高一升高二班群編班名單公告",l:"招生辦法／編班規定"},
+      {m:"2026-06",g:"試務組",d:"6月",t:"高一高二期末定期評量命題、試題繳交與評量實施",l:"成績評量辦法"},
+      {m:"2026-06",g:"設備組",d:"6月底",t:"班級教室設備檢修",l:"設備組工作職掌"},
+
+      {m:"2026-07",g:"教學組",d:"7月",t:"115-1高二、高一線上選課初選、加退選與正式結果公告",l:"課程規劃及實施要點"},
+      {m:"2026-07",g:"註冊組",d:"7月",t:"期末成績登打截止、公告高二高三編班、新生報到與新生編班名單公告",l:"學籍管理／編班規定"},
+      {m:"2026-07",g:"註冊組",d:"7月",t:"免試入學、特色招生、四技二專技優甄審及甄選入學放榜、志願序與報到",l:"多元入學招生辦法"},
+      {m:"2026-07",g:"註冊組",d:"7月底",t:"分科測驗成績通知、大學考試分發與四技二專登記分發志願作業",l:"年度招生簡章"},
+      {m:"2026-07",g:"試務組",d:"7月",t:"公告高中部學期補考名單、辦理補考與成績繳交；分科測驗事項",l:"成績評量辦法"},
+      {m:"2026-07",g:"設備組",d:"7月初",t:"班級設備檢修",l:"設備組工作職掌"},
+
+      {m:"2026-08",g:"處本部",d:"8/27",t:"高中教務會議",l:"教務處工作職掌"},
+      {m:"2026-08",g:"教學組",d:"8月",t:"115-1高一新生選課說明、初選、加退選與正式結果公告",l:"課程規劃及實施要點"},
+      {m:"2026-08",g:"教學組",d:"暑假期間",t:"高中部暑期學藝活動管理",l:"桃園市課業輔導及寒暑假學藝活動要點"},
+      {m:"2026-08",g:"註冊組",d:"8月",t:"四技二專與大學考試分發放榜；高中校務行政系統升級；高一新生學習歷程講座",l:"招生簡章／學習歷程"},
+      {m:"2026-08",g:"設備組",d:"8月中下旬",t:"高一、高二、高三教科書領用",l:"設備組工作職掌"},
+      {m:"2026-08",g:"試務組",d:"8月",t:"桃園市語文競賽高中組複決賽及原住民族語言朗讀、演說報名",l:"年度競賽規定"},
+      {m:"2026-08",g:"實驗研究組",d:"8/27",t:"雙語教育暨國際教育校內教師分享",l:"實驗研究組工作職掌"}
+    ];
+
+    const laws = [
+      {g:"處本部",topic:"教務治理與學生受教權",status:"桃園未另訂",national:["教育基本法、高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],local:["桃園市教育局高級中等教育科依中央法規監督，未查得同名地方版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["教務處工作分配與校務章則","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央規定權利義務及制度；桃園負責主管監督、函示與年度執行；觀高須將程序落實到校內章則。"},
+      {g:"教學組",topic:"課程計畫、選課與課程諮詢",status:"桃園年度作業",national:["十二年國教課綱總綱、課程規劃及實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001729"],local:["桃園市依年度函示辦理課程計畫審查與備查，未查得另訂統一法規","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高課程計畫、課程地圖與選課輔導手冊","https://www.gish.tyc.edu.tw/p/404-1000-2832.php"],diff:"中央定課程結構與程序；桃園管審查期程及備查；觀高決定實際開課、選課與團體課程諮詢。"},
+      {g:"教學組",topic:"課程評鑑",status:"桃園未另訂",national:["高級中等學校課程評鑑實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001894&media=print"],local:["桃園市未查得另訂統一版本，依中央要點及主管機關函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應訂課程評鑑計畫並留存結果","https://www.gish.tyc.edu.tw/p/404-1000-2832.php"],diff:"中央要求定期評鑑與回饋；桃園沒有替代版本；學校須自行建立評鑑週期、工具與改善紀錄。"},
+      {g:"教學組",topic:"第8節與寒暑假學藝活動",status:"桃園另訂",national:["高級中等教育法、向學生收取費用辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030724"],local:["桃園市市立高級中等學校課業輔導及寒暑假學藝活動實施要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/5/199018468.pdf"],school:["觀高校曆、參加調查與實際課表","./115年觀高暑假行事曆-公版(教職員)05.18.pdf"],diff:"桃園版進一步規範學生自由參加、授課內容、時數、收費與行政程序，是辦理課輔時的直接操作依據。"},
+      {g:"教學組",topic:"教師員額編制、缺額與代理教師",status:"桃園年度作業",national:["高級中等學校組織設置及員額編制標準、兼任代課及代理教師聘任辦法","https://edu.law.moe.gov.tw/"],local:["桃園市依中央標準核定市立高中員額、預算缺額及年度增置員額","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高114學年師資需求表：高中部法定員額72人","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央標準決定班級類型的員額基準；桃園核定可用員額與增置方案；觀高依實際課務、正式缺額及留停虛缺提出代理需求。兼課教師不得直接算入法定編制員額。"},
+      {g:"教學組",topic:"教師甄選、聘任與授課配置",status:"桃園年度作業",national:["教師法、教評會設置辦法及教師授課節數基準","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008447"],local:["桃園市依年度員額、甄選及市立學校人事函示辦理","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高教學組統籌教師甄選試務、配課與排課","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定聘任程序與授課原則；桃園核定員額及年度作業；觀高完成需求盤點、甄選、配課與教評程序。"},
+      {g:"註冊組",topic:"學籍、休復學、轉學與國外學歷",status:"桃園未另訂",national:["學生學籍管理辦法、國外學歷採認辦法","https://edu.law.moe.gov.tw/LawContentSearch.aspx?id=GL001225"],local:["桃園市未查得另訂統一版本，依中央及主管機關個案函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高註冊組規章與校務系統作業","https://www.gish.tyc.edu.tw/p/404-1000-672.php"],diff:"中央直接規範學籍資格與證明；桃園處理督導及特殊個案；觀高負責資料審查、登錄與證明核發。"},
+      {g:"註冊組",topic:"編班、轉班、選群與轉科",status:"桃園未另訂",national:["高級中等學校學生編班及轉班作業原則","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL002210"],local:["桃園市未查得另訂統一版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高編班轉班規定、轉科組實施要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/5/174686825.pdf"],diff:"中央定公平及程序原則；觀高具體規範選群、編班、轉班群與轉科審查。"},
+      {g:"註冊組",topic:"招生、新生報到與升學管道",status:"桃園年度作業",national:["多元入學招生辦法、免試入學遵行事項","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001163"],local:["桃連區年度免試入學簡章、桃園市新生線上報到及年度函示","https://www.tyc.edu.tw/"],school:["觀高招生委員會章程與新生入學專區","https://www.gish.tyc.edu.tw/p/404-1000-7493.php"],diff:"中央定招生制度；桃園／桃連區每年訂實際名額、比序、日期與報到流程；觀高執行校內招生委員會及報到。"},
+      {g:"註冊組",topic:"學雜費、減免、補助與證明收費",status:"桃園年度作業",national:["向學生收取費用辦法、學生學費補助實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030724"],local:["桃園市依學期公告收費數額、補助與減免作業","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高學雜費頁、證明文件收費要點","https://www.gish.tyc.edu.tw/p/404-1000-675.php"],diff:"中央定可收項目與補助資格；桃園公告當期數額與作業；觀高受理、審查、公告及退費。"},
+      {g:"註冊組",topic:"學習歷程檔案",status:"桃園年度作業",national:["高級中等學校學生學習歷程檔案作業要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001928"],local:["桃園市依每學年中央期程轉知及督導，未查得另訂統一法規","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高學習歷程補充規定與公告頁","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/729029977.pdf"],diff:"中央定資料類別與提交制度；桃園轉知年度期程；觀高分配權責、訂校內截止日並確認收訖明細。"},
+      {g:"註冊組",topic:"學分抵免、預警與畢業資格",status:"桃園未另訂",national:["學生學習評量辦法、學生學籍管理辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001247"],local:["桃園市未查得另訂統一版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高學分抵免、預警與畢業條件文件","https://www.gish.tyc.edu.tw/p/404-1000-668.php"],diff:"中央定最低標準；觀高將普通科、專業群科及體育班條件具體化，並負責預警與資格審查。"},
+      {g:"試務組",topic:"學習評量、補考、重修與補修",status:"桃園未另訂",national:["高級中等學校學生學習評量辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001247"],local:["桃園市未查得另訂統一評量辦法","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀音高中學生成績評量辦法補充規定","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/327922417.pdf"],diff:"中央定及格、補考、重補修及畢業原則；觀高決定定期評量比率、校內補考及成績作業細節。"},
+      {g:"試務組",topic:"特教評量調整與考試服務",status:"桃園年度作業",national:["特殊教育法、特教評量實施辦法、身心障礙學生考試服務辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL000679"],local:["桃園市特教行政與年度鑑定安置、考試服務函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高每次定期評量及補考前依 IEP／支持需求執行","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央保障合理調整；桃園負責特教行政督導；觀高須在每次考試前完成個別服務安排與紀錄。"},
+      {g:"試務組",topic:"模擬考、升學考試與語文競賽",status:"桃園年度作業",national:["各考試、招生及競賽年度簡章","https://www.ceec.edu.tw/"],local:["桃園市及各主辦單位每年公告競賽與共同模考規則","https://www.tyc.edu.tw/"],school:["觀高試務組依校曆辦理","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"此類多屬年度簡章而非固定法規；每年日期、資格、報名方式均可能改變，必須以當年度公告為準。"},
+      {g:"設備組",topic:"教科書選用、採購與領用",status:"桃園年度作業",national:["課綱、政府採購法及教科用書相關規範","https://edu.law.moe.gov.tw/"],local:["桃園市依年度教科書及採購函示辦理","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高設備組辦理選用、採購及領用","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定合法版本與採購原則；桃園轉知年度作業；觀高應留存選用會議、採購及發放紀錄。"},
+      {g:"設備組",topic:"實驗室、專科教室與教學設備安全",status:"桃園未另訂",national:["職業安全衛生法及學校安全相關規定","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001"],local:["桃園市未查得高中教務設備專用統一版本，依中央及市府安全函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高設備組負責設備維護、專科教室及實驗室管理","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定安全責任；觀高須自行排定巡檢、危害告知、維護與紀錄週期。"},
+      {g:"實驗研究組",topic:"優質化、全英語、國際教育與語言計畫",status:"桃園年度作業",national:["教育基本法及各專案年度作業要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008468"],local:["桃園市亮點躍升、外師、國際教育等年度計畫與核定","https://www.tyc.edu.tw/"],school:["觀高實驗研究組依核定計畫執行與核銷","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央與桃園多以年度專案規定管理，和固定法規不同；觀高須追申請、核定、執行、成果及核銷節點。"},
+      {g:"處本部",topic:"不利決定、理由附記與行政程序",status:"桃園未另訂",national:["行政程序法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030055"],local:["桃園市未另訂教務專用程序法，依行政程序法及主管機關函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高成績、學籍、轉班等決定應建立通知與救濟告知程序","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央程序法直接適用；桃園無替代版本；觀高須把通知、理由、送達、陳述意見與救濟告知納入教務標準作業。"},
+      {g:"處本部",topic:"性平事件與學生懷孕期間之受教權",status:"桃園年度作業",national:["性別平等教育法、校園性別事件防治準則","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030508"],local:["桃園市依性平事件處理程序及年度函示督導","https://www.tyc.edu.tw/News.aspx?n=5179&sms=10543"],school:["觀高須依個案調整請假、課務、補考、轉班與保護措施","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央保障受教權與保護義務；桃園負責督導及處理程序；觀高教務處負責個案的課務、評量與學籍安排。"},
+      {g:"處本部",topic:"學生申訴與程序正義",status:"桃園未另訂",national:["學生申訴及再申訴評議委員會組織及運作辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001254"],local:["桃園市未查得另訂統一版本，主管機關受理再申訴","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應依法組成申評會、公告救濟及保存紀錄","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央直接規範申訴期限、委員組成與程序；學校必須建立可立即啟動的校內機制。"},
+      {g:"處本部",topic:"個人資料與教務資料治理",status:"桃園年度作業",national:["個人資料保護法","https://mojlaw.moj.gov.tw/LawContent.aspx?id=FL010631"],local:["桃園市教育局個人資料保護專區與市府資安要求","https://www.tyc.edu.tw/"],school:["觀高應管理成績、學籍、招生、學習歷程權限及附件傳送","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定蒐集利用原則；桃園補充資安與通報要求；觀高須落實帳號權限、資料遮罩、保存與銷毀。"}
+    ];
+
+    const audits = [
+      {g:"教學組",status:"建議納入",title:"每學年課程評鑑與改善追蹤",basis:"高級中等學校課程評鑑實施要點",when:"每學年末／新學年課程計畫前",note:"現有校曆有課發會，但未明列課程評鑑、結果回饋與改善確認。"},
+      {g:"教學組",status:"建議納入",title:"次學年度課程計畫撰寫、校內審議、送審與修正",basis:"十二年國教課綱、課程規劃及實施要點、桃園年度函示",when:"依桃園市每學年審查期程",note:"校曆有課發會與選課，但未完整列出課程計畫送審、退修及核定後公告節點。"},
+      {g:"教學組",status:"部分涵蓋",title:"課程會議提案、法定組成、決議追蹤與紀錄核定",basis:"課程規劃及實施要點、校內課發會組織規程",when:"每次課發會及教學研究會前後",note:"校曆已列會議日期，仍應補入會前提案與會後決議追蹤、紀錄核定。"},
+      {g:"教學組",status:"建議納入",title:"教師需求、甄選、配課與授課節數查核",basis:"教師法、教評會設置辦法、授課節數基準",when:"每年4月至8月",note:"資料夾已有師資需求與配課表，但校曆未形成完整節點。"},
+      {g:"教學組",status:"已涵蓋",title:"選課、課發會、課程諮詢及第8節／暑輔",basis:"課程規劃及實施要點、桃園市課輔要點",when:"依校曆",note:"校曆已有多輪選課、課發會、團體課程諮詢及課輔事項。"},
+      {g:"註冊組",status:"建議納入",title:"畢業資格逐生審查與證書核發複核",basis:"學籍管理辦法、學習評量辦法",when:"高三下學期及畢業前",note:"校曆有補考與成績工作，但未明列畢業資格審查會議或雙重複核。"},
+      {g:"註冊組",status:"建議納入",title:"學分預警、重補修需求調查與開課",basis:"學習評量辦法、觀高學分預警規定",when:"每次成績結算後",note:"校曆有補考，未完整呈現學分預警及重補修開課鏈。"},
+      {g:"註冊組",status:"部分涵蓋",title:"學習歷程收訖明細確認與異常處理",basis:"學習歷程檔案作業要點",when:"依中央每學年期程",note:"已有上傳、認證、勾選；應再明列收訖明細確認與錯誤更正。"},
+      {g:"註冊組",status:"建議納入",title:"學籍異動、國外學歷與證明文件年度抽核",basis:"學籍管理辦法、國外學歷採認辦法",when:"每學期至少一次",note:"屬經常性業務，校曆未列管理節點。"},
+      {g:"註冊組",status:"已涵蓋",title:"招生、報到、編班、減免與升學報名",basis:"招生、學籍、收費相關規定",when:"依校曆及年度簡章",note:"五份校曆已有主要節點，但年度簡章日期仍須逐年更新。"},
+      {g:"試務組",status:"建議納入",title:"每次考試前特教考試服務確認",basis:"身心障礙學生考試服務辦法",when:"每次定期評量、補考及模擬考前",note:"校曆有考試，未明列合理調整申請、確認與試場安排。"},
+      {g:"試務組",status:"部分涵蓋",title:"定期評量命審題、保密、成績更正與異常處理",basis:"學習評量辦法、觀高成績評量補充規定",when:"每次定期評量前後",note:"校曆有命題與試卷繳交，但未完整呈現審題、保密與成績更正流程。"},
+      {g:"設備組",status:"建議納入",title:"實驗室與專科教室安全巡檢及危害告知",basis:"職業安全衛生法及學校安全規定",when:"開學前、每學期及設備異動時",note:"校曆僅列班級設備檢修，未列實驗室與專科教室安全管理。"},
+      {g:"設備組",status:"部分涵蓋",title:"教科書選用會議、採購、驗收與差異處理",basis:"課綱、採購及教科書相關規範",when:"每學期前",note:"已有選用與領用，但採購、驗收及缺漏處理未明列。"},
+      {g:"實驗研究組",status:"建議納入",title:"專案申請、核定、期中管考、成果與核銷",basis:"各年度優質化、全英語、國際教育計畫",when:"依各專案期程",note:"校曆僅呈現少數交流活動，未呈現計畫管理完整週期。"},
+      {g:"處本部",status:"建議納入",title:"不利決定通知、理由、送達與救濟告知檢核",basis:"行政程序法及學生申訴相關規定",when:"每學年初建立程序；個案發生時執行",note:"成績、學籍、編班與轉班決定可能影響學生權益，校曆未列程序及文件檢核。"},
+      {g:"處本部",status:"建議納入",title:"性平、懷孕及重大個案之課務與評量調整機制",basis:"性別平等教育法、校園性別事件防治準則",when:"每學年初檢核；個案發生時立即啟動",note:"校曆未列跨處室個案協調、補考、請假、轉班與學籍彈性處理機制。"},
+      {g:"處本部",status:"建議納入",title:"學生申評會名冊、迴避與救濟告知年度檢核",basis:"學生申訴及再申訴評議委員會組織及運作辦法",when:"每學年初及個案發生時",note:"校曆未列，卻是成績、學籍或轉班爭議發生時的高風險程序。"},
+      {g:"處本部",status:"建議納入",title:"教務資料權限、個資附件與備份年度檢核",basis:"個人資料保護法、桃園市資安要求",when:"每學期初、帳號異動及學年結束",note:"校曆未列，建議納入主任督導清單。"}
+    ];
+
+    const staffingSubjects = [
+      ["國文科",9,2,2,0], ["英文科",8,3,1,2], ["數學科",7,3,0,3],
+      ["化學＋化工",9,2,0,2], ["美術＋多媒體",6,5,1,4], ["體育科",3,5,0,5],
+      ["歷史科",2,0,0,0], ["地理科",2,1,0,1], ["公民科",2,0,0,0],
+      ["生物科",2,0,0,0], ["物理科",1,0,0,0], ["地球科學",1,0,0,0],
+      ["音樂科",1,0,0,0], ["資訊科",1,1,1,0], ["專任運動教練",2,0,0,0]
+    ];
+
+    const quickLinks = [
+      {title:"教務處介紹與工作分配",desc:"主任與五組職掌、分機及信箱。",url:"https://www.gish.tyc.edu.tw/p/404-1000-460.php"},
+      {title:"註冊組規章辦法",desc:"成績、學籍、編班、轉科、學習歷程與學分規定。",url:"https://www.gish.tyc.edu.tw/p/404-1000-672.php"},
+      {title:"課程計畫專區",desc:"普通型、技術型課程計畫與選課輔導手冊。",url:"https://www.gish.tyc.edu.tw/p/404-1000-2832.php"},
+      {title:"學習歷程公告頁",desc:"上傳、認證、勾選與提交時程。",url:"https://www.gish.tyc.edu.tw/p/404-1000-669.php"},
+      {title:"學雜費用頁",desc:"學雜費、代收代辦、補助與減免。",url:"https://www.gish.tyc.edu.tw/p/404-1000-675.php"},
+      {title:"高中部新生入學專區",desc:"新生報到、公告與表單。",url:"https://www.gish.tyc.edu.tw/p/404-1000-7493.php"},
+      {title:"高中部校務系統",desc:"成績、學籍與校務行政。",url:"https://ssys.gish.tyc.edu.tw"},
+      {title:"學生行事曆官網入口",desc:"學校後續發布的新版行事曆。",url:"https://www.gish.tyc.edu.tw/p/412-1000-323.php"},
+      {title:"全國法規資料庫",desc:"查法律與法規命令最新版本。",url:"https://law.moj.gov.tw"},
+      {title:"教育部主管法規共用系統",desc:"查教育部法規、要點與解釋令。",url:"https://edu.law.moe.gov.tw"}
+      ,{title:"桃園市教育局法規查詢",desc:"桃園市主管法規、行政規則與地方執行依據。",url:"https://www.tyc.edu.tw/cl.aspx?n=5176"}
+      ,{title:"桃園市教育局行政規則",desc:"查桃園市教育局公布的行政規則。",url:"https://www.tyc.edu.tw/News.aspx?n=5179&sms=10543"}
+      ,{title:"教育部教師員額法規",desc:"查高級中等學校組織設置及員額編制標準、代理教師聘任辦法。",url:"https://edu.law.moe.gov.tw/"}
+    ];
+
+    let currentTab = "schedule";
+    let scheduleView = "group";
+    const globalSearch = document.getElementById("globalSearch");
+    const groupFilter = document.getElementById("groupFilter");
+    const monthFilter = document.getElementById("monthFilter");
+    const lawGroupFilter = document.getElementById("lawGroupFilter");
+    const lawTypeFilter = document.getElementById("lawTypeFilter");
+    const auditGroupFilter = document.getElementById("auditGroupFilter");
+    const auditStatusFilter = document.getElementById("auditStatusFilter");
+
+    document.getElementById("taskCount").textContent = tasks.length;
+    document.getElementById("lawCount").textContent = laws.length;
+    document.getElementById("gapCount").textContent = audits.filter(x => x.status === "建議納入").length;
+
+    function fillSelect(select, first, values) {
+      select.innerHTML = `<option value="">${first}</option>` + values.map(v => {
+        const value = Array.isArray(v) ? v[0] : v;
+        const label = Array.isArray(v) ? v[1] : v;
+        return `<option value="${value}">${label}</option>`;
+      }).join("");
+    }
+
+    fillSelect(groupFilter, "全部組別", groups);
+    fillSelect(monthFilter, "全部月份", months);
+    fillSelect(lawGroupFilter, "全部組別", groups);
+    fillSelect(lawTypeFilter, "全部桃園層級", [...new Set(laws.map(x => x.status))]);
+    fillSelect(auditGroupFilter, "全部組別", groups);
+    fillSelect(auditStatusFilter, "全部稽核狀態", ["建議納入", "部分涵蓋", "已涵蓋"]);
+
+    function matches(text) {
+      const q = globalSearch.value.trim().toLowerCase();
+      return !q || text.toLowerCase().includes(q);
+    }
+
+    function filteredTasks() {
+      return tasks.filter(x =>
+        (!groupFilter.value || x.g === groupFilter.value) &&
+        (!monthFilter.value || x.m === monthFilter.value) &&
+        matches(`${x.g} ${x.d} ${x.t} ${x.l} ${monthLabel[x.m]}`)
+      );
+    }
+
+    function taskRow(x) {
+      return `<div class="task">
+        <div class="task-time">${monthLabel[x.m]}<br>${x.d}</div>
+        <div class="task-main"><strong>${x.t}</strong><span class="task-law">${x.l}</span></div>
+      </div>`;
+    }
+
+    function renderSchedule() {
+      const root = document.getElementById("scheduleRoot");
+      const data = filteredTasks();
+      if (!data.length) {
+        root.innerHTML = `<div class="empty">沒有符合條件的時程工作。</div>`;
+        return;
+      }
+      if (scheduleView === "group") {
+        root.innerHTML = `<div class="group-board">${groups.map(g => {
+          const rows = data.filter(x => x.g === g);
+          if (!rows.length) return "";
+          return `<section class="board-section">
+            <div class="board-title"><h3>${g}</h3><span class="count">${rows.length} 項</span></div>
+            <div class="task-list">${rows.map(taskRow).join("")}</div>
+          </section>`;
+        }).join("")}</div>`;
+      } else {
+        root.innerHTML = `<div class="month-board">${months.map(([m,label]) => {
+          const rows = data.filter(x => x.m === m);
+          if (!rows.length) return "";
+          return `<section class="month-section">
+            <div class="month-title"><h3>${label}</h3><span class="count">${rows.length} 項</span></div>
+            <div class="month-tasks">${rows.map(x => `<div class="month-task">
+              <span class="group-chip">${x.g}</span>
+              <strong>${x.t}</strong>
+              <small>${x.d} · ${x.l}</small>
+            </div>`).join("")}</div>
+          </section>`;
+        }).join("")}</div>`;
+      }
+    }
+
+    function renderLaws() {
+      const root = document.getElementById("lawRoot");
+      const data = laws.filter(x =>
+        (!lawGroupFilter.value || x.g === lawGroupFilter.value) &&
+        (!lawTypeFilter.value || x.status === lawTypeFilter.value) &&
+        matches(`${x.g} ${x.topic} ${x.status} ${x.national[0]} ${x.local[0]} ${x.school[0]} ${x.diff}`)
+      );
+      root.innerHTML = data.length ? `<div class="compare-grid">${data.map(x => `<article class="compare-card">
+        <div class="compare-head"><h3>${x.topic}</h3><div><span class="group-chip">${x.g}</span> <span class="status-chip ${x.status === "桃園另訂" ? "covered" : x.status === "桃園年度作業" ? "partial" : "missing"}">${x.status}</span></div></div>
+        <div class="compare-layers">
+          <div class="layer"><strong>全國規範</strong><p>${x.national[0]}</p><a class="link-btn" href="${x.national[1]}" target="_blank" rel="noopener noreferrer">開啟全國依據</a></div>
+          <div class="layer"><strong>桃園市層級</strong><p>${x.local[0]}</p><a class="link-btn" href="${x.local[1]}" target="_blank" rel="noopener noreferrer">開啟桃園依據</a></div>
+          <div class="layer"><strong>觀高校內執行</strong><p>${x.school[0]}</p><a class="link-btn" href="${x.school[1]}" target="_blank" rel="noopener noreferrer">開啟校內依據</a></div>
+        </div>
+        <div class="difference"><strong>主要差別：</strong>${x.diff}</div>
+      </article>`).join("")}</div>` : `<div class="empty">沒有符合條件的法規對照。</div>`;
+    }
+
+    function renderAudits() {
+      const root = document.getElementById("auditRoot");
+      const data = audits.filter(x =>
+        (!auditGroupFilter.value || x.g === auditGroupFilter.value) &&
+        (!auditStatusFilter.value || x.status === auditStatusFilter.value) &&
+        matches(`${x.g} ${x.status} ${x.title} ${x.basis} ${x.when} ${x.note}`)
+      );
+      root.innerHTML = data.length ? `<div class="audit-grid">${data.map(x => `<article class="audit-card">
+        <div class="audit-head"><h3>${x.title}</h3><span class="status-chip ${x.status === "已涵蓋" ? "covered" : x.status === "部分涵蓋" ? "partial" : "missing"}">${x.status}</span></div>
+        <p>${x.note}</p>
+        <div class="audit-meta"><span class="group-chip">${x.g}</span><span class="law-chip local">${x.when}</span><span class="law-chip national">${x.basis}</span></div>
+      </article>`).join("")}</div>` : `<div class="empty">沒有符合條件的稽核項目。</div>`;
+    }
+
+    function renderStaffing() {
+      const root = document.getElementById("staffingRoot");
+      root.innerHTML = `
+        <div class="staffing-summary">
+          <div class="staffing-stat"><strong>72</strong><span>高中部法定員額</span></div>
+          <div class="staffing-stat"><strong>56</strong><span>編制內正式教師（含專任運動教練2人）</span></div>
+          <div class="staffing-stat"><strong>16＋5</strong><span>法定實缺16＋留停／長病虛缺5</span></div>
+          <div class="staffing-stat"><strong>22</strong><span>規劃代理21＋非山非市增置1</span></div>
+        </div>
+        <div class="formula-grid">
+          <article class="formula-card"><strong>普通科：27人</strong><p>12班 × 每班2人 ＋ 12班 ÷ 每4班增置1人<br>＝ 24 ＋ 3 ＝ 27</p></article>
+          <article class="formula-card"><strong>體育班：9人</strong><p>3班 × 每班3人<br>＝ 9（含專任運動教練）</p></article>
+          <article class="formula-card"><strong>化工科＋多媒體動畫科：36人</strong><p>12班 × 每班3人<br>＝ 36</p></article>
+          <article class="formula-card"><strong>合計：72人</strong><p>普通科27 ＋ 體育班9 ＋ 專業群科36<br>＝ 72</p></article>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>科別</th><th>正式編制</th><th>規劃代理</th><th>可辨識虛缺</th><th>實缺／其他增置</th></tr></thead>
+          <tbody>${staffingSubjects.map(x => `<tr><td>${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td></tr>`).join("")}</tbody>
+          <tfoot><tr><th>合計</th><th>56</th><th>22</th><th>5</th><th>17</th></tr></tfoot>
+        </table>
+        <p class="table-note">「實缺／其他增置」合計17人，其中法定員額未補實缺16人、非山非市增置代理1人；現有資料未標示增置代理所屬科別，因此無法再按科別拆分。專輔與特教員額另依專輔及特殊教育規定核定，不計入上述高中部72人。</p>
+        <div class="staffing-summary">
+          <div class="staffing-stat"><strong>20</strong><span>114-2配課表可辨識代理</span></div>
+          <div class="staffing-stat"><strong>6</strong><span>114-2配課表可辨識兼課</span></div>
+          <div class="staffing-stat"><strong>2</strong><span>與規劃代理22人的差異，需人事覆核</span></div>
+          <div class="staffing-stat"><strong>不併計</strong><span>跨校、兼課、專輔與特教不得直接併入72人</span></div>
+        </div>
+        <p class="table-note">114-2配課表是「實際授課配置」而非員額核定表，且部分職稱未明示實缺、虛缺或增置來源。因此頁面僅呈現可由文字明確辨識的代理與兼課數，不以配課表反推法定員額。</p>
+        <div class="difference"><strong>主任核對公式：</strong>法定員額缺額＝72－正式編制56＝實缺16；正式編制56中可辨識虛缺5，故代理需求＝實缺16＋虛缺5＝21；再加桃園核定非山非市增置1＝規劃代理22。換一個角度核對：正式實際在勤推估51＋實缺代理16＋虛缺代理5＝法定教學人力72，增置代理1另列。每年仍須以桃園市正式員額核定函、預算員額及實際留停狀況覆核。</div>`;
+    }
+
+    function renderLinks() {
+      const root = document.getElementById("linksRoot");
+      const data = quickLinks.filter(x => matches(`${x.title} ${x.desc}`));
+      root.innerHTML = data.length ? `<div class="link-grid">${data.map(x => `<article class="link-card">
+        <h3>${x.title}</h3><p>${x.desc}</p>
+        <a class="link-btn" href="${x.url}" target="_blank" rel="noopener noreferrer">開啟入口</a>
+      </article>`).join("")}</div>` : `<div class="empty">沒有符合條件的工作入口。</div>`;
+    }
+
+    function renderAll() {
+      renderSchedule();
+      renderLaws();
+      renderAudits();
+      renderStaffing();
+      renderLinks();
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
+      currentTab = btn.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach(x => x.classList.toggle("active", x === btn));
+      document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+      document.getElementById(`${currentTab}Panel`).classList.add("active");
+    }));
+
+    document.querySelectorAll(".seg-btn").forEach(btn => btn.addEventListener("click", () => {
+      scheduleView = btn.dataset.view;
+      document.querySelectorAll(".seg-btn").forEach(x => x.classList.toggle("active", x === btn));
+      renderSchedule();
+    }));
+
+    [globalSearch, groupFilter, monthFilter, lawGroupFilter, lawTypeFilter, auditGroupFilter, auditStatusFilter].forEach(el => {
+      el.addEventListener(el.tagName === "INPUT" ? "input" : "change", renderAll);
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
