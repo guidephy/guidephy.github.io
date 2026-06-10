@@ -103,68 +103,10 @@
       font-size: 13px;
     }
 
-    .hero {
-      margin-top: 18px;
-    }
-
-    .hero-main {
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-    }
-
-    .hero-main {
-      padding: 24px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.96), rgba(248,244,235,.95)),
-        var(--surface);
-    }
-
-    .hero-main h2 {
-      margin: 0 0 8px;
-      font-size: clamp(22px, 3vw, 34px);
-      letter-spacing: -.02em;
-      word-break: keep-all;
-    }
-
-    .hero-main p {
-      max-width: 800px;
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .stat {
-      padding: 13px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: rgba(255,255,255,.72);
-    }
-
-    .stat strong {
-      display: block;
-      font-size: 22px;
-      line-height: 1.1;
-    }
-
-    .stat span {
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
     .tabs {
       display: flex;
       gap: 7px;
-      margin: 18px 0 12px;
+      margin: 12px 0;
       padding: 5px;
       width: fit-content;
       border: 1px solid var(--line);
@@ -634,19 +576,11 @@
 
     @media (max-width: 720px) {
       .app { width: min(100% - 12px, 1440px); padding-top: 6px; }
-      .topbar, .hero-main { border-radius: 17px; }
+      .topbar { border-radius: 17px; }
       .topbar { gap: 12px; padding: 14px; }
       .brand h1 { font-size: clamp(18px, 5.4vw, 23px); }
       .brand p { display: none; }
       .global-search input { padding-block: 10px; font-size: 13px; }
-      .hero { margin-top: 10px; }
-      .hero-main { padding: 14px; }
-      .hero-main h2 { font-size: clamp(19px, 5.6vw, 24px); }
-      .hero-main p { font-size: 12px; line-height: 1.6; }
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .stat { padding: 11px 10px; }
-      .stat strong { font-size: 20px; }
-      .stat span { font-size: 10px; }
       .panel { border-radius: 18px; }
       .panel-head { align-items: stretch; flex-direction: column; padding: 14px; }
       .panel-head > div:first-child { min-width: 0; }
@@ -691,8 +625,6 @@
     }
 
     @media (max-width: 390px) {
-      .stats { gap: 7px; }
-      .stat span { font-size: 9px; }
       .control-bar { grid-template-columns: 1fr; }
       .control-bar .segment { grid-column: auto; }
       .panel-head h2 { font-size: 16px; }
@@ -712,19 +644,6 @@
         <span>搜尋</span>
       </label>
     </header>
-
-    <section class="hero">
-      <div class="hero-main">
-        <h2>時程、責任組別、法規，一次對照</h2>
-        <p>以 114 暑假、114-1、114 寒假、114-2、115 暑假教職員版行事曆整理；同一作業的連續日期已合併。</p>
-        <div class="stats">
-          <div class="stat"><strong id="taskCount">0</strong><span>項時程工作</span></div>
-          <div class="stat"><strong>5</strong><span>教務處五組</span></div>
-          <div class="stat"><strong id="lawCount">0</strong><span>項法規與辦法</span></div>
-          <div class="stat"><strong id="gapCount">0</strong><span>項建議納入</span></div>
-        </div>
-      </div>
-    </section>
 
     <nav class="tabs" aria-label="主要功能">
       <button class="tab-btn active" data-tab="schedule">時程工作</button>
@@ -999,10 +918,6 @@
     const lawTypeFilter = document.getElementById("lawTypeFilter");
     const auditGroupFilter = document.getElementById("auditGroupFilter");
     const auditStatusFilter = document.getElementById("auditStatusFilter");
-
-    document.getElementById("taskCount").textContent = tasks.length;
-    document.getElementById("lawCount").textContent = laws.length;
-    document.getElementById("gapCount").textContent = audits.filter(x => x.status === "建議納入").length;
 
     function fillSelect(select, first, values) {
       select.innerHTML = `<option value="">${first}</option>` + values.map(v => {
