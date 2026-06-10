@@ -705,7 +705,7 @@
     <header class="topbar">
       <div class="brand">
         <h1>觀音高中教務主任工具查詢庫</h1>
-        <p>高中教務處｜處本部、教學組、註冊組、設備組、試務組、實驗研究組</p>
+        <p>高中教務處｜教學組、註冊組、設備組、試務組、實驗研究組</p>
       </div>
       <label class="global-search">
         <input id="globalSearch" type="search" placeholder="搜尋工作或法規，例如：補考、選課、減免、學習歷程">
@@ -719,7 +719,7 @@
         <p>以 114 暑假、114-1、114 寒假、114-2、115 暑假教職員版行事曆整理；同一作業的連續日期已合併。</p>
         <div class="stats">
           <div class="stat"><strong id="taskCount">0</strong><span>項時程工作</span></div>
-          <div class="stat"><strong>5＋1</strong><span>五組＋處本部</span></div>
+          <div class="stat"><strong>5</strong><span>教務處五組</span></div>
           <div class="stat"><strong id="lawCount">0</strong><span>項法規與辦法</span></div>
           <div class="stat"><strong id="gapCount">0</strong><span>項建議納入</span></div>
         </div>
@@ -809,7 +809,7 @@
   </div>
 
   <script>
-    const groups = ["處本部", "教學組", "註冊組", "設備組", "試務組", "實驗研究組"];
+    const groups = ["教學組", "註冊組", "設備組", "試務組", "實驗研究組"];
     const months = [
       ["2025-07", "114年7月"], ["2025-08", "114年8月"], ["2025-09", "114年9月"],
       ["2025-10", "114年10月"], ["2025-11", "114年11月"], ["2025-12", "114年12月"],
@@ -829,7 +829,7 @@
       {m:"2025-07",g:"試務組",d:"7/11–7/12",t:"分科測驗考試事項",l:"年度考試簡章"},
       {m:"2025-07",g:"設備組",d:"7月初",t:"班級教學設備檢修",l:"設備組工作職掌"},
 
-      {m:"2025-08",g:"處本部",d:"8月底",t:"期初教務工作會議",l:"教務處工作職掌"},
+      {m:"2025-08",g:"教學組",d:"8月底",t:"期初教務工作會議",l:"教務處工作職掌"},
       {m:"2025-08",g:"教學組",d:"8月",t:"114-1 高一新生線上選課說明、初選、加退選與正式結果公告",l:"課程規劃及實施要點"},
       {m:"2025-08",g:"教學組",d:"暑假期間",t:"高中部暑期學藝活動管理",l:"桃園市課業輔導及寒暑假學藝活動要點"},
       {m:"2025-08",g:"註冊組",d:"8/1",t:"高中部新生編班名單公告",l:"觀高編班及轉班作業規定"},
@@ -910,7 +910,7 @@
       {m:"2026-07",g:"試務組",d:"7月",t:"公告高中部學期補考名單、辦理補考與成績繳交；分科測驗事項",l:"成績評量辦法"},
       {m:"2026-07",g:"設備組",d:"7月初",t:"班級設備檢修",l:"設備組工作職掌"},
 
-      {m:"2026-08",g:"處本部",d:"8/27",t:"高中教務會議",l:"教務處工作職掌"},
+      {m:"2026-08",g:"教學組",d:"8/27",t:"高中教務會議",l:"教務處工作職掌"},
       {m:"2026-08",g:"教學組",d:"8月",t:"115-1高一新生選課說明、初選、加退選與正式結果公告",l:"課程規劃及實施要點"},
       {m:"2026-08",g:"教學組",d:"暑假期間",t:"高中部暑期學藝活動管理",l:"桃園市課業輔導及寒暑假學藝活動要點"},
       {m:"2026-08",g:"註冊組",d:"8月",t:"四技二專與大學考試分發放榜；高中校務行政系統升級；高一新生學習歷程講座",l:"招生簡章／學習歷程"},
@@ -920,7 +920,7 @@
     ];
 
     const laws = [
-      {g:"處本部",topic:"教務治理與學生受教權",status:"桃園未另訂",national:["高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],related:[["教育基本法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008468"]],local:["桃園市教育局高級中等教育科依中央法規監督，未查得同名地方版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["教務處工作分配與校務章則","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央規定權利義務及制度；桃園負責主管監督、函示與年度執行；觀高須將程序落實到校內章則。"},
+      {g:"教學組",topic:"教務治理與學生受教權",status:"桃園未另訂",national:["高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],related:[["教育基本法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008468"]],local:["桃園市教育局高級中等教育科依中央法規監督，未查得同名地方版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["教務處工作分配與校務章則","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央規定權利義務及制度；桃園負責主管監督、函示與年度執行；觀高須將程序落實到校內章則。"},
       {g:"教學組",topic:"課程計畫、選課與課程諮詢",status:"桃園年度作業",national:["高級中等學校課程規劃及實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001729"],local:["桃園市依年度函示辦理課程計畫審查與備查，未查得另訂統一法規","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高課程計畫、課程地圖與選課輔導手冊","https://www.gish.tyc.edu.tw/p/404-1000-2832.php"],diff:"中央定課程結構與程序；桃園管審查期程及備查；觀高決定實際開課、選課與團體課程諮詢。"},
       {g:"教學組",topic:"課程評鑑",status:"桃園未另訂",national:["高級中等學校課程評鑑實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001894&media=print"],local:["桃園市未查得另訂統一版本，依中央要點及主管機關函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應訂課程評鑑計畫並留存結果","https://www.gish.tyc.edu.tw/p/404-1000-2832.php"],diff:"中央要求定期評鑑與回饋；桃園沒有替代版本；學校須自行建立評鑑週期、工具與改善紀錄。"},
       {g:"教學組",topic:"第8節與寒暑假學藝活動",status:"桃園另訂",national:["高級中等學校向學生收取費用辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030724"],related:[["高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"]],local:["桃園市市立高級中等學校課業輔導及寒暑假學藝活動實施要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/5/199018468.pdf"],school:["觀高教務處依校曆、調查及課表執行","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"桃園版進一步規範學生自由參加、授課內容、時數、收費與行政程序，是辦理課輔時的直接操作依據。"},
@@ -928,7 +928,7 @@
       {g:"教學組",topic:"教師甄選、聘任與授課配置",status:"桃園年度作業",national:["教師法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008447"],related:[["國立高級中等學校教師每週教學節數標準（市立學校仍須依桃園核定）","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001242"],["高級中等以下學校兼任代課及代理教師聘任辦法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0150024"]],local:["桃園市依年度員額、甄選及市立學校人事函示辦理","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高教學組統籌教師甄選試務、配課與排課","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定聘任程序與授課原則；桃園核定員額及年度作業；觀高完成需求盤點、甄選、配課與教評程序。"},
       {g:"註冊組",topic:"學籍、休復學、轉學與國外學歷",status:"桃園未另訂",national:["高級中等學校學生學籍管理辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001225"],related:[["高級中等學校辦理學生國外學歷採認辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001230"]],local:["桃園市未查得另訂統一版本，依中央及主管機關個案函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高註冊組規章與校務系統作業","https://www.gish.tyc.edu.tw/p/404-1000-672.php"],diff:"中央直接規範學籍資格與證明；桃園處理督導及特殊個案；觀高負責資料審查、登錄與證明核發。"},
       {g:"註冊組",topic:"編班、轉班、選群與轉科",status:"桃園未另訂",national:["高級中等學校學生編班及轉班作業原則","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL002210"],local:["桃園市未查得另訂統一版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高學生編班及轉班作業規定","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/779527171.pdf"],schoolRelated:[["觀高校內學生轉科組實施要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/437586116.pdf"]],diff:"中央定公平及程序原則；觀高具體規範選群、編班、轉班群與轉科審查。"},
-      {g:"註冊組",topic:"招生、新生報到與升學管道",status:"桃園年度作業",national:["高級中等學校多元入學招生辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001163"],local:["桃連區高級中等學校免試入學作業要點","https://www.gish.tyc.edu.tw/app/index.php?Action=downloadfile&file=WVhSMFlXTm9MekU1TDNCMFlWOHlNelUxTlY4M09UWTNOVGd6WHpNeE1qWTRMbkJrWmc9PQ==&fname=DGGGROTSYWQO41XX50LKSWHGRK30TSXWECB040MK41GD00FCYSQOVTA4USSSPKPO"],localRelated:[["桃連區高級中等學校特色招生核定作業要點","https://www.gish.tyc.edu.tw/app/index.php?Action=downloadfile&file=WVhSMFlXTm9MemMyTDNCMFlWOHlNemd5TkY4ME9EY3hOekV3WHpJNE5USXhMbkJrWmc9PQ==&fname=DGGGROTSYWQO41XX50LKSWHGRK30TSXWECB040MK41GD00FCYSQOVTA4USSSPKPO"]],school:["觀高多元入學招生委員會組織章程","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/225972323.pdf"],diff:"中央定招生制度；桃園／桃連區每年訂實際名額、比序、日期與報到流程；觀高執行校內招生委員會及報到。"},
+      {g:"註冊組",topic:"招生、新生報到與升學管道",status:"桃園年度作業",national:["高級中等學校多元入學招生辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001163"],local:["桃連區高級中等學校免試入學作業要點","https://www.gish.tyc.edu.tw/var/file/0/1000/attach/19/pta_23555_7967583_31268.pdf"],localRelated:[["桃連區高級中等學校特色招生核定作業要點","https://www.gish.tyc.edu.tw/var/file/0/1000/attach/76/pta_23824_4871710_28521.pdf"]],school:["觀高多元入學招生委員會組織章程","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/225972323.pdf"],diff:"中央定招生制度；桃園／桃連區每年訂實際名額、比序、日期與報到流程；觀高執行校內招生委員會及報到。"},
       {g:"註冊組",topic:"學雜費、減免、補助與證明收費",status:"桃園年度作業",national:["高級中等學校向學生收取費用辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030724"],local:["桃園市依學期公告收費數額、補助與減免作業；未取得可直接開啟的固定辦法原文","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高申請各項證明文件收費要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/262503391.pdf"],schoolRelated:[["115-1學雜費及就學費用補助標準","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/461985798.pdf"]],diff:"中央定可收項目與補助資格；桃園公告當期數額與作業；觀高受理、審查、公告及退費。"},
       {g:"註冊組",topic:"學習歷程檔案",status:"桃園年度作業",national:["高級中等學校學生學習歷程檔案作業要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001916"],local:["桃園市依每學年中央期程轉知及督導，未查得另訂統一法規","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高學習歷程補充規定與公告頁","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/729029977.pdf"],diff:"中央定資料類別與提交制度；桃園轉知年度期程；觀高分配權責、訂校內截止日並確認收訖明細。"},
       {g:"註冊組",topic:"學分抵免、預警與畢業資格",status:"桃園未另訂",national:["高級中等學校學生學習評量辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001247"],related:[["高級中等學校學生學籍管理辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001225"]],local:["桃園市未查得另訂統一版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高學生學分抵免實施辦法","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/317215934.pdf"],schoolRelated:[["觀高學生學分取得預警作業實施要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/507728462.pdf"],["觀高畢業條件及線上查詢表格說明","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/846080624.pdf"]],diff:"中央定最低標準；觀高將普通科、專業群科及體育班條件具體化，並負責預警與資格審查。"},
@@ -938,10 +938,10 @@
       {g:"設備組",topic:"教科書選用、採購與領用",status:"桃園年度作業",national:["高級中等學校教科用書審定辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001238"],related:[["高級中等學校教科用書採購應行注意事項","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL000279"]],local:["桃園市依年度教科書及採購函示辦理","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高設備組辦理選用、採購及領用","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定合法版本與採購原則；桃園轉知年度作業；觀高應留存選用會議、採購及發放紀錄。"},
       {g:"設備組",topic:"實驗室、專科教室與教學設備安全",status:"桃園未另訂",national:["職業安全衛生法及學校安全相關規定","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001"],local:["桃園市未查得高中教務設備專用統一版本，依中央及市府安全函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高設備組負責設備維護、專科教室及實驗室管理","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定安全責任；觀高須自行排定巡檢、危害告知、維護與紀錄週期。"},
       {g:"實驗研究組",topic:"優質化、全英語、國際教育與語言計畫",status:"桃園年度作業",national:["教育基本法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008468"],local:["桃園市亮點躍升、外師、國際教育等年度計畫與核定（請由教育局查詢）","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高實驗研究組依核定計畫執行與核銷","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央與桃園多以年度專案規定管理，和固定法規不同；觀高須追申請、核定、執行、成果及核銷節點。"},
-      {g:"處本部",topic:"不利決定、理由附記與行政程序",status:"桃園未另訂",national:["行政程序法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030055"],local:["桃園市未另訂教務專用程序法，依行政程序法及主管機關函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高成績、學籍、轉班等決定應建立通知與救濟告知程序","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央程序法直接適用；桃園無替代版本；觀高須把通知、理由、送達、陳述意見與救濟告知納入教務標準作業。"},
-      {g:"處本部",topic:"性平事件與學生懷孕期間之受教權",status:"桃園年度作業",national:["性別平等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030508"],local:["桃園市依性平事件處理程序及年度函示督導（行政規則入口）","https://www.tyc.edu.tw/News.aspx?n=5179&sms=10543"],school:["觀高須依個案調整請假、課務、補考、轉班與保護措施","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央保障受教權與保護義務；桃園負責督導及處理程序；觀高教務處負責個案的課務、評量與學籍安排。"},
-      {g:"處本部",topic:"學生申訴與程序正義",status:"桃園未另訂",national:["學生申訴及再申訴評議委員會組織及運作辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001254"],local:["桃園市未查得另訂統一版本，主管機關受理再申訴","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應依法組成申評會、公告救濟及保存紀錄","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央直接規範申訴期限、委員組成與程序；學校必須建立可立即啟動的校內機制。"},
-      {g:"處本部",topic:"個人資料與教務資料治理",status:"桃園年度作業",national:["個人資料保護法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0050021"],local:["桃園市教育局及市府資安年度要求（請由教育局查詢）","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應管理成績、學籍、招生、學習歷程權限及附件傳送","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定蒐集利用原則；桃園補充資安與通報要求；觀高須落實帳號權限、資料遮罩、保存與銷毀。"}
+      {g:"註冊組",topic:"不利決定、理由附記與行政程序",status:"桃園未另訂",national:["行政程序法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030055"],local:["桃園市未另訂教務專用程序法，依行政程序法及主管機關函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高成績、學籍、轉班等決定應建立通知與救濟告知程序","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央程序法直接適用；桃園無替代版本；觀高須把通知、理由、送達、陳述意見與救濟告知納入教務標準作業。"},
+      {g:"試務組",topic:"性平事件與學生懷孕期間之受教權",status:"桃園年度作業",national:["性別平等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030508"],local:["桃園市依性平事件處理程序及年度函示督導（行政規則入口）","https://www.tyc.edu.tw/News.aspx?n=5179&sms=10543"],school:["觀高須依個案調整請假、課務、補考、轉班與保護措施","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央保障受教權與保護義務；桃園負責督導及處理程序；觀高教務處負責個案的課務、評量與學籍安排。"},
+      {g:"註冊組",topic:"學生申訴與程序正義",status:"桃園未另訂",national:["學生申訴及再申訴評議委員會組織及運作辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001254"],local:["桃園市未查得另訂統一版本，主管機關受理再申訴","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應依法組成申評會、公告救濟及保存紀錄","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央直接規範申訴期限、委員組成與程序；學校必須建立可立即啟動的校內機制。"},
+      {g:"註冊組",topic:"個人資料與教務資料治理",status:"桃園年度作業",national:["個人資料保護法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0050021"],local:["桃園市教育局及市府資安年度要求（請由教育局查詢）","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應管理成績、學籍、招生、學習歷程權限及附件傳送","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定蒐集利用原則；桃園補充資安與通報要求；觀高須落實帳號權限、資料遮罩、保存與銷毀。"}
     ];
 
     const audits = [
@@ -960,10 +960,10 @@
       {g:"設備組",status:"建議納入",title:"實驗室與專科教室安全巡檢及危害告知",basis:"職業安全衛生法及學校安全規定",when:"開學前、每學期及設備異動時",note:"校曆僅列班級設備檢修，未列實驗室與專科教室安全管理。"},
       {g:"設備組",status:"部分涵蓋",title:"教科書選用會議、採購、驗收與差異處理",basis:"課綱、採購及教科書相關規範",when:"每學期前",note:"已有選用與領用，但採購、驗收及缺漏處理未明列。"},
       {g:"實驗研究組",status:"建議納入",title:"專案申請、核定、期中管考、成果與核銷",basis:"各年度優質化、全英語、國際教育計畫",when:"依各專案期程",note:"校曆僅呈現少數交流活動，未呈現計畫管理完整週期。"},
-      {g:"處本部",status:"建議納入",title:"不利決定通知、理由、送達與救濟告知檢核",basis:"行政程序法及學生申訴相關規定",when:"每學年初建立程序；個案發生時執行",note:"成績、學籍、編班與轉班決定可能影響學生權益，校曆未列程序及文件檢核。"},
-      {g:"處本部",status:"建議納入",title:"性平、懷孕及重大個案之課務與評量調整機制",basis:"性別平等教育法、校園性別事件防治準則",when:"每學年初檢核；個案發生時立即啟動",note:"校曆未列跨處室個案協調、補考、請假、轉班與學籍彈性處理機制。"},
-      {g:"處本部",status:"建議納入",title:"學生申評會名冊、迴避與救濟告知年度檢核",basis:"學生申訴及再申訴評議委員會組織及運作辦法",when:"每學年初及個案發生時",note:"校曆未列，卻是成績、學籍或轉班爭議發生時的高風險程序。"},
-      {g:"處本部",status:"建議納入",title:"教務資料權限、個資附件與備份年度檢核",basis:"個人資料保護法、桃園市資安要求",when:"每學期初、帳號異動及學年結束",note:"校曆未列，建議納入主任督導清單。"}
+      {g:"註冊組",status:"建議納入",title:"不利決定通知、理由、送達與救濟告知檢核",basis:"行政程序法及學生申訴相關規定",when:"每學年初建立程序；個案發生時執行",note:"成績、學籍、編班與轉班決定可能影響學生權益，校曆未列程序及文件檢核。"},
+      {g:"試務組",status:"建議納入",title:"性平、懷孕及重大個案之課務與評量調整機制",basis:"性別平等教育法、校園性別事件防治準則",when:"每學年初檢核；個案發生時立即啟動",note:"校曆未列跨處室個案協調、補考、請假、轉班與學籍彈性處理機制。"},
+      {g:"註冊組",status:"建議納入",title:"學生申評會名冊、迴避與救濟告知年度檢核",basis:"學生申訴及再申訴評議委員會組織及運作辦法",when:"每學年初及個案發生時",note:"校曆未列，卻是成績、學籍或轉班爭議發生時的高風險程序。"},
+      {g:"註冊組",status:"建議納入",title:"教務資料權限、個資附件與備份年度檢核",basis:"個人資料保護法、桃園市資安要求",when:"每學期初、帳號異動及學年結束",note:"校曆未列，建議納入主任督導清單。"}
     ];
 
     const staffingSubjects = [
