@@ -471,7 +471,8 @@
     .compare-head h3, .audit-head h3 {
       margin: 0;
       font-size: 15px;
-      word-break: keep-all;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .compare-layers {
@@ -491,13 +492,18 @@
       display: block;
       margin-bottom: 5px;
       font-size: 11px;
-      white-space: nowrap;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .layer p {
       margin: 0 0 8px;
       color: var(--muted);
       font-size: 11px;
+      line-height: 1.55;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .difference {
@@ -507,6 +513,9 @@
       color: #665020;
       background: var(--amber-soft);
       font-size: 11px;
+      line-height: 1.6;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .status-chip {
@@ -598,19 +607,27 @@
       flex-wrap: wrap;
       gap: 7px;
       margin-top: auto;
+      min-width: 0;
     }
 
     .link-btn {
       display: inline-flex;
+      align-items: center;
+      justify-content: center;
       padding: 7px 9px;
       border: 1px solid var(--line);
       border-radius: 10px;
       color: var(--navy);
       background: #fff;
+      cursor: pointer;
       text-decoration: none;
       font-size: 11px;
       font-weight: 800;
-      white-space: nowrap;
+      white-space: normal;
+      line-height: 1.4;
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .no-source {
@@ -622,6 +639,11 @@
       background: var(--surface-2);
       font-size: 11px;
       font-weight: 800;
+      white-space: normal;
+      line-height: 1.4;
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .link-grid {
@@ -662,6 +684,189 @@
       font-size: 11px;
       text-align: right;
     }
+
+    .law-modal {
+      width: min(980px, calc(100vw - 16px));
+      max-width: 980px;
+      max-height: min(92vh, 980px);
+      padding: 0;
+      border: 0;
+      border-radius: 22px;
+      overflow: hidden;
+      background: transparent;
+      box-shadow: 0 24px 60px rgba(23, 33, 38, 0.22);
+    }
+
+    .law-modal::backdrop {
+      background: rgba(23, 33, 38, 0.52);
+      backdrop-filter: blur(4px);
+    }
+
+    .law-modal-shell {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      height: min(92vh, 980px);
+      background:
+        radial-gradient(circle at 12% -8%, rgba(199, 93, 50, 0.1), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(23, 63, 77, 0.1), transparent 24%),
+        #f3f0e7;
+    }
+
+    .law-modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(23, 33, 38, 0.08);
+      color: #fff;
+      background: rgba(23, 63, 77, 0.96);
+    }
+
+    .law-modal-head h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .law-modal-head p {
+      margin: 3px 0 0;
+      color: rgba(255,255,255,.72);
+      font-size: 11px;
+    }
+
+    .law-close {
+      flex: 0 0 auto;
+      min-width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .law-modal-body {
+      overflow: auto;
+      padding: 16px;
+    }
+
+    .law-doc {
+      width: min(900px, 100%);
+      margin: 0 auto;
+      padding: clamp(18px, 4vw, 34px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fffdf8;
+      box-shadow: 0 18px 50px rgba(32,48,49,.1);
+      line-height: 1.8;
+    }
+
+    .law-doc h1 {
+      margin: 0 0 8px;
+      color: var(--navy);
+      font-size: clamp(22px, 3vw, 33px);
+      line-height: 1.35;
+    }
+
+    .law-doc h2 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 18px;
+    }
+
+    .law-doc p { margin: 6px 0; }
+    .law-doc ul, .law-doc ol { margin: 8px 0; padding-left: 1.55em; }
+    .law-doc li { margin: 5px 0; }
+    .law-doc a { color: #0a5b9d; }
+    .law-doc .meta { color: var(--muted); font-size: 13px; }
+    .law-doc .notice {
+      margin: 18px 0 22px;
+      padding: 13px 15px;
+      border-left: 4px solid #c69027;
+      border-radius: 10px;
+      background: #fff4d6;
+      font-size: 14px;
+    }
+
+    .law-doc .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 24px;
+    }
+
+    .law-doc .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: #f2f6f4;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.35;
+      white-space: normal;
+    }
+
+    .law-doc details {
+      margin: 14px 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .law-doc summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 16px;
+      color: var(--navy);
+      background: #e7eff1;
+      font-weight: 900;
+    }
+
+    .law-doc summary::-webkit-details-marker { display: none; }
+
+    .law-doc .section {
+      padding: 14px 16px 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .law-doc .subhead {
+      margin-top: 12px;
+      color: var(--navy);
+      font-weight: 900;
+    }
+
+    .law-doc .source {
+      margin-top: 30px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .law-doc table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .law-doc th, .law-doc td {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .law-doc th { background: #f7fafb; }
 
     @media (max-width: 1100px) {
       .topbar { grid-template-columns: 1fr; }
@@ -722,6 +927,32 @@
       .data-table th, .data-table td { padding: 8px; }
       .review-card strong, .formula-card strong { white-space: nowrap; }
       .footnote { text-align: left; line-height: 1.6; }
+      .law-modal {
+        width: calc(100vw - 8px);
+        max-height: 95vh;
+        border-radius: 16px;
+      }
+      .law-modal-shell { height: 95vh; }
+      .law-modal-head {
+        align-items: flex-start;
+        padding: 12px 14px;
+      }
+      .law-modal-head h3 { font-size: 16px; }
+      .law-modal-body { padding: 8px; }
+      .law-doc {
+        padding: 16px;
+        border-radius: 14px;
+      }
+      .law-doc .chips { gap: 6px; }
+      .law-doc .chip {
+        min-height: 34px;
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+      .law-doc summary { padding: 12px 14px; }
+      .law-doc .section { padding: 12px 14px 14px; }
+      .law-doc table { font-size: 13px; }
+      .law-doc th, .law-doc td { padding: 7px 8px; }
     }
 
     @media (max-width: 390px) {
@@ -729,6 +960,7 @@
       .control-bar .segment { grid-column: auto; }
       .panel-head h2 { font-size: 16px; }
       .compare-head h3, .audit-head h3 { font-size: 14px; }
+      .law-modal-head h3 { font-size: 15px; }
     }
   </style>
 </head>
@@ -825,6 +1057,19 @@
       </div>
       <div id="linksRoot" class="links-wrap"></div>
     </section>
+
+    <dialog id="lawModal" class="law-modal">
+      <div class="law-modal-shell">
+        <div class="law-modal-head">
+          <div>
+            <h3 id="lawModalTitle">校內法規文字版</h3>
+            <p id="lawModalMeta">整合於首頁內閱讀</p>
+          </div>
+          <button id="lawModalClose" class="law-close" type="button" aria-label="關閉法規">×</button>
+        </div>
+        <div id="lawModalBody" class="law-modal-body"></div>
+      </div>
+    </dialog>
 
     <p class="footnote">資料查核：2026-06-11。辦理個案前，仍應核對最新公文、年度簡章與校內公告。</p>
   </div>
@@ -1031,8 +1276,69 @@
     }
     tasks.forEach(task => task.c = classifyTask(task));
 
+    const lawTextPages = {
+      "觀音高中高中部導師輪聘實施辦法.html": {
+        title: "桃園市立觀音高級中等學校高中部導師輪聘實施辦法",
+        meta: "114年1月20日校務會議修訂通過",
+        content: `
+          <article class="law-doc">
+            <h1>桃園市立觀音高級中等學校高中部導師輪聘實施辦法</h1>
+            <div class="meta">114年1月20日校務會議修訂通過</div>
+            <div class="meta">歷次修訂：104年1月27日、105年1月20日、110年1月20日、114年1月20日</div>
+            <div class="notice"><strong>法源更新提醒：</strong>原辦法依據仍記載舊《教師法》第17條。現行教師擔任導師義務的直接法源為《教師法》第32條第1項第9款；同條第2項規定擔任導師辦法由各校校務會議定之。以下條文依PDF原文照錄。</div>
+            <details open><summary>壹、依據</summary><div class="section"><ol><li>教育部101年9月5日部授教中(二)字第1010516111號函頒布「高級中等學校訂定教師擔任導師辦法及聘任導師注意事項」。</li><li>依教師法第十七條第一項第一款：「教師有遵守聘約規定、維護校譽之義務。」</li><li>本校教師服務規約第四條條文：「教師有擔任導師之義務。」</li></ol></div></details>
+            <details><summary>貳、目的</summary><div class="section"><ol><li>以學生權益為中心，力求選聘制度完善，以遴選出適合之教師擔任導師。</li><li>在維持班級學生學習品質之前提下，建立人性化與制度化的聘任原則，讓全體教師參與導師工作，並加強導師功能。</li><li>以公正、公平、公開之原則，保障教師之權利與規範教師之義務，促進和諧的教學氣氛與學校文化。</li><li>明定導師之組織成員、輪聘與遴選、導師聘任優先順序、導師遴聘決議與其他等原則。</li></ol></div></details>
+            <details><summary>參、組織</summary><div class="section"><ol><li>成立高中部導師遴選委員會（以下簡稱委員會），負責導師輪聘制度相關業務之執行。委員會任期自每年九月一日起至次年八月三十一日止，為期一年。</li><li>本委員會成員由學務主任擔任委員兼召集人，其成員為教務主任、輔導主任、教學組長、訓育組長、實習輔導組長、化工科科主任、多媒體動畫科科主任、各學科召集人、各年級級導師、高中部教師會代表二人及家長會代表各一人，合計共二十一人。</li><li>小組成員對於議案有利益衝突者，應即自行迴避。</li></ol></div></details>
+            <details><summary>肆、輪聘與遴選原則</summary><div class="section"><p><strong>一、導師之任期</strong></p><p>導師帶班以三年一任為原則（因科目或年級限制而無法帶滿三年者，不受此限制）。中途接班擔任導師職務者，以帶該班直至畢業為原則，但轉任行政職務或因故離開學校者不受此限。</p><p><strong>二、導師積分計算方式</strong></p><ol><li>擔任本校主任每滿一學期者，得積分1.5分；每滿一學年者，得積分3分。</li><li>擔任教學組長、註冊組長等指定職務者，每滿一學期者，得積分1.25分；每滿一學年者，得積分2.5分；其餘組長（含科主任）每學期1分、每學年2分。</li><li>擔任本校導師每滿一學期者，得積分0.5分；每滿一學年者，得積分1分。</li><li>擔任本校專任教師每滿一學期者，得積分0.15分；每滿一學年者，得積分0.3分。</li><li>擔任年級導師、科召與協助行政職務每滿一學期者，得積分0.15分；每滿一學年者，得積分0.3分。</li><li>同一假別連續代理超過40個工作天者，每次得積分0.25分。</li><li>擔任社團指導老師每滿一學期者，得積分0.1分；每滿一學年者，得積分0.2分。</li><li>擔任經委員會認可之全國性等級比賽職務，每滿一學期者得積分0.5分；每滿一學年者，得積分1分。</li></ol><p>上述積分因業務屬性不同，故可合併計算。</p><p><strong>三、免擔任導師條件</strong></p><ol><li>年齡屆滿五十五歲之資深教師可免擔任導師，但依其意願優先考量。唯擔任導師人數不足時，無法豁免之。</li><li>懷有身孕且生產期在即者，可排除於該學年導師名單之外，但依其意願優先考量。唯擔任導師人數不足時，無法豁免之。</li><li>應輪聘導師因身體不適或健康狀況不良，有公立醫院證明且不適任導師工作者可經委員會討論審議後免輪聘。</li><li>應輪聘導師因家庭因素或不可抗拒之外力，可檢附報告書簽陳校長核可後得免輪聘。</li><li>任滿三學年導師者可優先免聘任導師一學年，唯導師人數不足時仍依相關規定聘任。</li></ol><p><strong>四、</strong>導師因介聘或離職等因素，致使該班導師工作出缺，將併入新學年之導師遴選委員會審議之，以自願者為優先。若無法產生，以積分低者選定之。</p><p><strong>五、</strong>新學年之導師遴選委員會決議後，若有導師因故離開學校，得由教務處與學務處研議聘任代理教師擔任導師工作。</p></div></details>
+            <details><summary>伍至玖、聘任、決議與施行</summary><div class="section"><p><strong>伍、導師聘任方式</strong></p><p>依教務處排配課計畫提出各科擔任導師需求人數之課務安排考量，以自願擔任導師經委員會討論通過者得優先聘任。如不足額時，得以積分相對較低者選定之；如遇超額時，得以積分相對較高者選定之。</p><p><strong>陸、導師遴聘決議原則</strong></p><ol><li>委員會決議事項，應經委員會委員三分之二以上出席，出席委員二分之一以上決議通過後始得定案。</li><li>委員會決議之導師名單，簽陳校長頒發聘書。</li></ol><p><strong>柒、導師職責概要</strong></p><p>依據導師聘約之導師職責辦理。</p><p><strong>捌、其他</strong></p><ol><li>普通科經由適性分組選擇類群後，導師工作由該學年度普通科四位導師協調產生之。</li><li>化工科、多媒體動畫科導師工作應由專業類科教師與共同類科教師分別協助之。</li><li>體育班導師工作應由體育專項教師擔任；若無體育專項教師，則以體育科專任教師優先聘任。</li><li>專任教師以擔任三年為限（五十五歲以上及兼任輔導教師除外）。</li></ol><p><strong>玖、施行</strong></p><p>本辦法經校務會議通過後，陳校長核定後實施，修正時亦同。</p></div></details>
+            <div class="source">文字版依「桃園市立觀音高級中等學校高中部導師輪聘實施辦法（114年1月20日校務會議修訂通過）」PDF製作；如文字版與核定PDF有差異，以核定PDF為準。</div>
+          </article>`
+      },
+      "觀音高中科技雙語實驗班計畫與甄選資訊.html": {
+        title: "觀音高中科技雙語實驗班計畫與甄選資訊",
+        meta: "整合觀音高中實驗班專區、甄選簡章與說明會資料",
+        content: `
+          <article class="law-doc">
+            <h1>觀音高中科技雙語實驗班計畫與甄選資訊</h1>
+            <div class="meta">依觀音高中科技雙語實驗班專區、甄選簡章、說明會資料整理</div>
+            <div class="meta">適用重點：114學年度科技雙語實驗班，並作為115學年度國教署擴增雙語實驗班銜接參考</div>
+            <div class="notice">本頁為校內查詢用文字版整理，內容依觀音高中官網頁面與 PDF 原始資料製作；如與學校後續公告或核定計畫不一致，以學校正式公告、核定計畫及簡章為準。</div>
+            <nav class="chips" aria-label="頁內導覽"><a class="chip" href="#law-tech-goal">辦班目的</a><a class="chip" href="#law-tech-outcome">學生發展目標</a><a class="chip" href="#law-tech-admission">114甄選方式</a><a class="chip" href="#law-tech-activity">特色活動</a><a class="chip" href="#law-tech-news">最新消息</a><a class="chip" href="#law-tech-source">原始來源</a></nav>
+            <details id="law-tech-goal" open><summary>辦班目的</summary><div class="section"><p>本校「科技雙語實驗班」透過招收對於高級中學雙語學習及科技課程具高度興趣的學生，規劃科技雙語實驗課程，以達成下列目的：</p><ol><li>規劃科技雙語實驗課程，落實本校建立「數位校園」，以發展「科學」、「資訊」及「技術」的學校特色。</li><li>透過數位教學，加強學生英語能力及科技專長，以符應本校成為「小規模、精緻化、特色化」的社區高中目標。</li><li>培養學生具備雙語能力、文化理解及國際觀，落實雙語國家之教育政策。</li><li>增強學生英語文應用能力，將實驗班經驗及課程擴散至普通班級，營造全校雙語環境。</li><li>運用線上國際文化交流、辦理國際教育交流等活動，提升學生英語學習興趣及能力。</li><li>攜手大學師資及資源，開設半導體、AI等相關課程，培育全球化科技人才。</li></ol></div></details>
+            <details id="law-tech-outcome"><summary>學生發展目標</summary><div class="section"><ol><li>各學期能以小組或個人形式，發表科技雙語課程1篇成果。</li><li>每位學生皆參加與美國高中國際視訊或應用各種資訊工具進行交流，每學期3次，並進行1次實體國際教育課程交流。</li><li>每位學生至少參加1項校內外英文比賽、小論文或科學競賽。</li><li>雙語專題成果展：高二以小組形式產出，高三畢業前辦理個人成果特展。</li></ol></div></details>
+            <details id="law-tech-admission" open><summary>114學年度甄選方式</summary><div class="section"><p><strong>報名資格：</strong>114學年度入學本校高一學生。</p><p><strong>招生人數：</strong>35人，男女兼收。本班高二時為自然組，無社會組。</p><p><strong>甄選辦法：</strong>國中教育會考單科成績等級對應點數，按照採計科目的加權倍率點數總和，由高至低依序擇優錄取。</p><ul><li>英語文 × 2.0</li><li>數學 × 2.0</li><li>自然 × 1.5</li></ul><p><strong>同點數總和參酌比序：</strong>1. 英語文單科點數　2. 國語文單科點數。</p><p><strong>甄選報名日期：</strong>114年7月10日（四）09:00起至7月16日（三）12:00截止。</p><p><strong>甄選報名方式：</strong></p><ol><li>填妥線上報名表單並上傳指定附件。</li><li>填妥紙本報名表及備齊指定附件，送交本校教務處實研組。</li></ol><p><strong>指定附件：</strong></p><ol><li>會考成績單影本或掃描檔，需包含准考證號碼及姓名。</li><li>實驗班甄選家長同意書。</li></ol><p><strong>實驗班說明會：</strong>114年7月10日（四）11:00至12:00，地點為本校博學講堂。</p><p><strong>甄選放榜：</strong>114年8月1日（五），與高一新生編班一起公告。</p><p><strong>後續調整：</strong>實驗班將於高一升高二期間，參考學生高一階段之學習表現調整班級成員。</p></div></details>
+            <details id="law-tech-activity"><summary>特色活動與課程方向</summary><div class="section"><ol><li><strong>放眼國際：</strong>國際學友計畫、與美國高中生視訊交流計畫、日本實體國際交流。</li><li><strong>聚焦科技：</strong>科展培訓課程、部分大學實驗室課程、參觀大學理工醫系所、參訪半導體產業企業。</li><li><strong>提升實力：</strong>英文多益檢定加強課程、寒暑假營隊課程。</li></ol><p>課程地圖原始頁面另載有課程地圖、課程學分及實驗課程圖示，實際課程安排仍以學校當學年度課程計畫及開課公告為準。</p></div></details>
+            <details id="law-tech-news"><summary>專區最新消息重點</summary><div class="section"><ol><li>有關本校科技雙語實驗班甄選事宜，請洽教務主任，分機210。</li><li>科技雙語實驗班甄選家長說明會，學校另於專區公告相關時程與說明。</li></ol><p>114年6月公告資料另包含「114學年度科技雙語實驗班說明會」及「114學年度科技雙語實驗班甄選簡章及報名表」。</p></div></details>
+            <div id="law-tech-source" class="source">文字版依下列觀音高中官方來源整理；如需回查原始頁面或 PDF，可直接開啟：<ul><li><a href="https://www.gish.tyc.edu.tw/p/404-1000-11002.php" target="_blank" rel="noopener noreferrer">科技雙語實驗班專區</a></li><li><a href="https://www.gish.tyc.edu.tw/p/404-1000-11565.php" target="_blank" rel="noopener noreferrer">關於實驗班</a></li><li><a href="https://www.gish.tyc.edu.tw/p/404-1000-11557.php" target="_blank" rel="noopener noreferrer">甄選方式</a></li><li><a href="https://www.gish.tyc.edu.tw/p/404-1000-11569.php" target="_blank" rel="noopener noreferrer">課程地圖</a></li><li><a href="https://www.gish.tyc.edu.tw/p/404-1000-11566.php" target="_blank" rel="noopener noreferrer">特色活動</a></li><li><a href="https://www.gish.tyc.edu.tw/p/406-1000-11572,r191.php?Lang=zh-tw" target="_blank" rel="noopener noreferrer">本校科技雙語實驗班最新消息</a></li><li><a href="https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/342508011.pdf" target="_blank" rel="noopener noreferrer">114學年度科技雙語實驗班甄選簡章及報名表</a></li><li><a href="https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/358015045.pdf" target="_blank" rel="noopener noreferrer">114學年度科技雙語實驗班說明會</a></li></ul></div>
+          </article>`
+      },
+      "觀音高中114學年度高中部學生手冊_教務與獎懲節錄.html": {
+        title: "觀音高中114學年度高中部學生手冊教務與獎懲節錄",
+        meta: "整合於首頁內，供教務處快速查閱",
+        content: `
+          <article class="law-doc">
+            <h1>觀音高中114學年度高中部學生手冊教務與獎懲節錄</h1>
+            <div class="meta">整理自觀音高中「學生手冊與其他規範」頁面之114學年度高中部學生手冊</div>
+            <div class="meta">節錄範圍：教務處常用規範、學生獎懲與受教權直接相關條文</div>
+            <div class="notice">本頁為校內查詢用節錄版，不是200頁完整手冊全文。若文字版與原始手冊 PDF 或學校最新公告不一致，以學校正式公告及原始手冊為準。</div>
+            <nav class="chips" aria-label="頁內導覽"><a class="chip" href="#law-book-toc">本頁內容</a><a class="chip" href="#law-book-leave">請假規則</a><a class="chip" href="#law-book-discipline">學生獎懲</a><a class="chip" href="#law-book-exam">考試規則</a><a class="chip" href="#law-book-grading">成績評量</a><a class="chip" href="#law-book-transfer">轉科組</a><a class="chip" href="#law-book-warning">學分預警</a><a class="chip" href="#law-book-credit">學分抵免</a><a class="chip" href="#law-book-portfolio">學習歷程</a><a class="chip" href="#law-book-source">原始來源</a></nav>
+            <details id="law-book-toc" open><summary>本頁節錄內容</summary><div class="section"><table><thead><tr><th>項目</th><th>手冊頁碼</th><th>本頁用途</th></tr></thead><tbody><tr><td>學生請假規則</td><td>17</td><td>定期評量請假、重大活動、補考條件</td></tr><tr><td>學生獎懲實施要點</td><td>22</td><td>學生權益、違規處理、獎懲程序</td></tr><tr><td>高中部學生考試規則</td><td>102</td><td>定期評量、補考、試場秩序</td></tr><tr><td>高中部學生成績評量辦法補充規定</td><td>106</td><td>成績計算、補考、重補修、畢業條件</td></tr><tr><td>高中部校內學生轉科(組)實施要點</td><td>112</td><td>轉科、轉組申請與審查</td></tr><tr><td>高中部學生學分取得預警作業實施要點</td><td>118</td><td>學分預警與通知門檻</td></tr><tr><td>高中部學生學分抵免實施辦法</td><td>120</td><td>轉學生、轉科生、復學生、國外學歷抵免</td></tr><tr><td>建置學生學習歷程檔案作業補充規定</td><td>122</td><td>工作小組、上傳、勾選與權責</td></tr></tbody></table></div></details>
+            <details id="law-book-leave"><summary>學生請假規則（節錄教務相關）</summary><div class="section"><p><strong>修訂：</strong>104.01.27、106.01.18、109.07.14、110.07.02、113.08.29、114.08.29校務會議修訂。</p><p class="subhead">與教務最相關的條文</p><ol><li>學生在學期間因事或病不能到校上課或出席各種學校集會，均應依規定辦理請假手續。</li><li>高中部學生每學期得請身心調適假3日，每次以半日或1日為單位；定期學業成績評量及學期補考期間，不適用身心調適假。</li><li>高中三年級學生因升學需要，辦理或參加相關考試、報到活動時，得申請公假，以不影響全勤紀錄。</li><li>重大活動如返校日、開學日、校慶運動會、結業式、園遊會、畢業典禮請假，需另填重大活動請假申請表。</li></ol><p class="subhead">定期評量期間特別規定</p><ol><li>事假：需於考前一天上課日放學前完成請假手續並親自通知教務處試務組。</li><li>病假：須檢具公私立醫院診所診斷證明或就醫證明；連續3日以上病假須檢具公立醫院或地區醫院等級以上私立醫院診斷證明。</li><li>緊急特殊事故：請假當日應先口頭或通訊請假並獲導師同意，且導師應立即通知教務處試務組。</li><li>除完成請假程序外，學生仍應持請假卡向試務組辦理登記，以便事後補考；未辦理者，該次考試成績以零分計算。</li><li>請假補考分數依本校「高中部學生成績評量辦法補充規定」辦理。</li></ol></div></details>
+            <details id="law-book-discipline" open><summary>學生獎懲實施要點</summary><div class="section"><p><strong>修訂：</strong>104.01.27、104.06.30、105.06.30、106.06.30、108.01.18、108.08.29、109.01.16、110.01.20、110.07.02、111.06.30、111.09.14、112.06.30通過。</p><p class="subhead">依據、目的與原則</p><ol><li>依教育部「高級中等學校訂定學生獎懲規定注意事項」訂定。</li><li>原則包括尊重學生人格尊嚴、多獎勵少懲罰、兼顧學生受教權益、懲處前給予學生陳述意見機會。</li><li>懲處時應審酌動機、手段、危害程度、學生身心與家庭狀況、平時表現及行為後態度。</li></ol><p class="subhead">獎勵與懲處級別</p><ul><li>獎勵：嘉獎、小功、大功、特別獎勵。</li><li>懲處：警告、小過、大過。</li></ul><p class="subhead">與教務常見事項直接相關條文</p><ul><li>違反請假規則，情節輕微者，得記警告。</li><li>未依規定完成請假程序，經勸導後仍未改正者，得記警告。</li><li>違反考試規範事宜，情節輕微者，得記警告。</li><li>違反考場規則，情節尚非重大者，得記小過。</li><li>考試舞弊者，得記大過。</li><li>違反學校明文公告規定之相關辦法要點，依情節可記警告、小過或大過。</li></ul><p class="subhead">程序條文</p><ol><li>嘉獎、警告、小功、小過，由學務處核定並知會導師加強輔導。</li><li>大功、大過以上或有爭議之獎懲，應召開學生獎懲委員會審議後，報請校長核定。</li><li>懲處應以書面記載事實、理由及依據，並附記救濟方法、期間及受理機關。</li><li>學生或學生自治組織提起申訴者，應於收受或知悉原措施次日起30日內，以書面向學校為之。</li></ol></div></details>
+            <details id="law-book-exam" open><summary>高中部學生考試規則</summary><div class="section"><p><strong>修訂：</strong>111.01.19、113.01.19校務會議通過。</p><ol><li>考試開始10分鐘後不得入場；學期補考開始25分鐘內，未經監試人員許可不得離場。</li><li>定期考缺考者完成請假手續後依學校表訂時間補考；模擬考、學期補考缺考者不再補考。</li><li>應試時只得使用規定文具；計算機未經允許不得使用。</li><li>抽屜及椅下需清空，非考試物品應放教室後方或走廊；違者警告一支。</li><li>考試舞弊、交換答案、夾帶、抄襲、手機作弊、冒名頂替等，得記大過一支，該科零分。</li><li>電子設備、電子穿戴裝置及通訊器材不得攜至座位，須關機後放教室前後或走廊；違者沒收並扣分、記警告。</li><li>答案卡卷未寫班級、姓名、座號者，扣該科5分。</li><li>鐘響後仍作答者，依情節扣2分、5分或扣減全部成績。</li><li>定期評量期間自習課不得使用手機，違者警告一次。</li></ol></div></details>
+            <details id="law-book-grading" open><summary>高中部學生成績評量辦法補充規定</summary><div class="section"><p><strong>修訂：</strong>101.08.29、103.08.29、105.06.30、107.06.29、108.08.29、110.01.20、113.01.19校務會議修訂。</p><p class="subhead">學期成績計算</p><table><thead><tr><th>方式</th><th>適用</th><th>日常評量</th><th>定期評量</th></tr></thead><tbody><tr><td>方式1</td><td>3次定期評量科目</td><td>40%</td><td>20% / 20% / 20%</td></tr><tr><td>方式2</td><td>2次定期評量科目</td><td>40%</td><td>30% / 30%</td></tr><tr><td>方式3</td><td>1次定期評量科目</td><td>40%</td><td>60%</td></tr></tbody></table><p class="subhead">定期評量缺考與補考</p><ol><li>因公假、重病住院、娩假、陪產假、流產假、直系血親尊親屬喪亡或不可抗力偶發事件准予補考者，補考成績按實得分數計算。</li><li>一般事假須提前一天完成請假並親自通知試務組，補考成績以實得分數打八折，最高60分。</li><li>病假、產前假、生理假補考者，須檢附相關證明；成績按實得分數計算，不超過60分。</li><li>補考原則上於定期評量結束後3個上班日內辦理。</li><li>請假期間若無法完成定期評量，得依規定免試或學期補考。</li></ol><p class="subhead">重修、補修與畢業</p><ol><li>學年成績不及格者，得申請重修，原則於寒暑假辦理。</li><li>高三修畢三年級課程後仍有不及格科目者，得重修；重修及格者授予學分並依規定發給畢業或修業證書。</li><li>學生收到成績單後，如有異議，可在一週內向學校申請複查或說明。</li><li>學生除公假外，全學期缺課節數達教學總節數二分之一，或曠課累積達42節者，應經學生事務相關會議後依規定輔導與處置。</li></ol><p class="subhead">108學年度後入學高中部畢業條件</p><ul><li>普通科：應修182學分，畢業最低150學分及格；其中部定與校訂必修至少102學分及格，選修至少40學分及格。</li><li>職業類科：應修188學分，畢業至少160學分及格，並符合部定、專業與實習學分比率要求。</li><li>體育班：應修182學分，畢業最低150學分及格，並符合一般科目、體育專業科目與選修及格比例要求。</li></ul></div></details>
+            <details id="law-book-transfer"><summary>高中部校內學生轉科(組)實施要點</summary><div class="section"><p><strong>通過：</strong>102.01.07多元入學招生委員會會議修正通過。</p><ol><li>申請對象：高中部普通科、高職部化工科、多媒體動畫科學生。</li><li>申請時間：符合條件者應於該學期結業式前提出，第一學期及第六學期不得提出。</li><li>審查委員會由教務主任擔任召集人，成員含校長、相關主任、科主任、教學組長、註冊組長、輔導教師、級導師等。</li><li>學生須對原科組興趣不合且造成學習生活重大影響；轉入普通科、化工科、多媒體動畫科者，均須通過相應審查或測驗。</li><li>缺額以不超過該科當屆核定實招班數為原則，且轉出班級人數不得低於30人。</li><li>申請流程：向註冊組申請、接受導師與輔導教師輔導、轉科生與擬轉入科主任面談、參加測驗、經審查委員會決定、依規定報到。</li><li>在學期間轉科組機會以1次為限；經核准後不得以任何理由要求二次轉科組或返回原科組。</li></ol></div></details>
+            <details id="law-book-warning"><summary>高中部學生學分取得預警作業實施要點</summary><div class="section"><p><strong>修訂：</strong>104.03.03、107.06.29、110.07.02、113.08.29。</p><ol><li>目的：依十二年國教總綱，以宣導、通知、輔導方式，協助學生在修業年限內順利取得學分。</li><li>通知時機：每學年第2學期開學後。</li><li>一年級：宣導重補修機制及畢業條件。</li><li>二、三年級：達預警門檻者，發放不及格科目個人成績表，一份交家長，一份供導師輔導使用。</li></ol><p class="subhead">預警門檻</p><ul><li>普通高中：截至上學期必修科目累計學分數通過百分比未達85%。</li><li>職業類科：截至上學期部定科目累計學分數通過百分比未達85%。</li><li>體育班：部定必修一般科目未達80%，或部定必修專業科目未達85%。</li></ul></div></details>
+            <details id="law-book-credit"><summary>高中部學生學分抵免實施辦法</summary><div class="section"><p><strong>通過：</strong>107.06.29校務會議通過。</p><ol><li>適用對象：轉學生、轉科生、復學生，以及取得國外學歷申請採認者。</li><li>申請時須填具學生學分抵免申請表，並檢附原校歷年學業成績證明或國外學歷成績證明正本。</li><li>課程名稱、內容與學分數均相同者，經審查通過後准予抵免。</li><li>名稱與內容相同但學分數不同者，以較多學分抵免較少學分，抵免後以較少學分登記。</li><li>抵免科目原則以高中職已修習且成績及格科目為限。</li><li>不符合年段課程之科目，以補修或自學輔導補救。</li><li>本校由校長、教務主任、科主任、教學組長、註冊組長及各學科教學研究會召集人組成學生成績考查辦法審議委員會，審議學分認定相關事宜。</li></ol></div></details>
+            <details id="law-book-portfolio"><summary>建置學生學習歷程檔案作業補充規定</summary><div class="section"><p><strong>修訂：</strong>107.03.12、107.03.16、107.08.29、108.08.29、110.01.20、111.01.19、112.06.30。</p><ol><li>學校設置「建置學生學習歷程檔案資料工作小組」，校長為召集人，教務主任為執行秘書。</li><li>工作小組每學期至少召開1次會議，議決作業期程、分工權責、平台管理、學生訓練、教師研習、親師說明與成效評核等事項。</li><li>各項作業期程由教務主任規劃，並公告於學校網站，含起迄時間與自我檢核時間。</li><li>學校平台由教務處註冊組負責建置與管理，含帳號管理、訊息公告及障礙排除。</li><li>課程學習成果由學生上傳並經任課教師認證，每學期上傳件數至多6件。</li><li>多元表現由學生上傳，每學年上傳件數至多20件。</li><li>學生勾選提交時，課程學習成果每學年至多6件，多元表現每學年至多10件。</li></ol></div></details>
+            <div id="law-book-source" class="source">本頁主要依下列觀音高中官方來源整理：<ul><li><a href="https://www.gish.tyc.edu.tw/p/412-1000-328.php" target="_blank" rel="noopener noreferrer">學生手冊與其他規範</a></li><li><a href="https://drive.google.com/file/d/1aWyr8EJZa3BGNWcG28Kshvv0mQn4Bchx/view?usp=drive_link" target="_blank" rel="noopener noreferrer">114學年度高中部學生手冊原始檔</a></li><li><a href="https://www.gish.tyc.edu.tw/var/file/0/1000/img/18/604061952.pdf" target="_blank" rel="noopener noreferrer">學生獎懲委員會設置及運作要點</a></li></ul></div>
+          </article>`
+      }
+    };
+
     const laws = [
-      {g:"教學組",topic:"教務治理與學生受教權",status:"桃園未另訂",national:["高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],related:[["教育基本法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008468"]],local:["桃園市教育局高級中等教育科依中央法規監督，未查得同名地方版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["教務處工作分配與校務章則","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央規定權利義務及制度；桃園負責主管監督、函示與年度執行；觀高須將程序落實到校內章則。"},
+      {g:"教學組",topic:"教務治理與學生受教權",status:"桃園未另訂",national:["高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],related:[["教育基本法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008468"]],local:["桃園市教育局高級中等教育科依中央法規監督，未查得同名地方版本","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀音高中114學年度高中部學生手冊教務與獎懲節錄","觀音高中114學年度高中部學生手冊_教務與獎懲節錄.html","text"],schoolRelated:[["桃園市立觀音高級中等學校114學年度【高中部】學生手冊","https://drive.google.com/file/d/1aWyr8EJZa3BGNWcG28Kshvv0mQn4Bchx/view?usp=drive_link"],["桃園巿立觀音高級中等高中部學生獎懲委員會設置及運作要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/18/604061952.pdf"]],diff:"中央規定受教權、程序與制度；桃園負責主管監督、函示與年度執行；觀高須將學生請假、獎懲、考試、成績評量、轉科組、學分預警、學分抵免與學習歷程等程序落實到校內章則。校內最新114學年度高中部學生手冊已納入查詢頁。"},
+      {g:"教學組",topic:"教師權利義務與擔任導師",status:"桃園未另訂",national:["教師法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL008447"],local:["桃園市立高中直接適用教師法；桃園市得以函示督導，未查得另訂可取代教師法的統一導師辦法","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀音高中高中部導師輪聘實施辦法（114年1月20日校務會議修訂通過）","觀音高中高中部導師輪聘實施辦法.html","text"],diff:"教師依法有擔任導師的義務；觀高已依校務會議決議訂定輪聘辦法，內容包含委員會組成、積分、免兼、出缺處理、聘任及表決程序。校內辦法依據仍引用舊教師法第17條，建議下次修法更新為現行第32條第1項第9款及同條第2項。"},
       {g:"教學組",topic:"課程計畫、選課與課程諮詢",status:"桃園年度作業",national:["高級中等學校課程規劃及實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001729"],local:["桃園市依年度函示辦理課程計畫審查與備查，未查得另訂統一法規","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高課程計畫、課程地圖與選課輔導手冊","https://www.gish.tyc.edu.tw/p/404-1000-2832.php"],diff:"中央定課程結構與程序；桃園管審查期程及備查；觀高決定實際開課、選課與團體課程諮詢。"},
       {g:"教學組",topic:"課程評鑑",status:"桃園未另訂",national:["高級中等學校課程評鑑實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001894&media=print"],local:["桃園市未查得另訂統一版本，依中央要點及主管機關函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高應訂課程評鑑計畫並留存結果","https://www.gish.tyc.edu.tw/p/404-1000-2832.php"],diff:"中央要求定期評鑑與回饋；桃園沒有替代版本；學校須自行建立評鑑週期、工具與改善紀錄。"},
       {g:"教學組",topic:"第8節與寒暑假學藝活動",status:"桃園另訂",national:["高級中等學校向學生收取費用辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=FL030724"],related:[["高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"]],local:["桃園市市立高級中等學校課業輔導及寒暑假學藝活動實施要點","https://www.gish.tyc.edu.tw/var/file/0/1000/img/5/199018468.pdf"],school:["觀高教務處依校曆、調查及課表執行","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"桃園版進一步規範學生自由參加、授課內容、時數、收費與行政程序，是辦理課輔時的直接操作依據。"},
@@ -1049,7 +1355,7 @@
       {g:"試務組",topic:"模擬考、升學考試與語文競賽",status:"桃園年度作業",national:["大考中心年度考試簡章入口（非固定法規）","https://www.ceec.edu.tw/"],local:["桃園市及各主辦單位每年公告競賽與共同模考規則（請由教育局查詢）","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高試務組依校曆辦理","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"此類多屬年度簡章而非固定法規；每年日期、資格、報名方式均可能改變，必須以當年度公告為準。"},
       {g:"設備組",topic:"教科書選用、採購與領用",status:"桃園年度作業",national:["高級中等學校教科用書審定辦法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001238"],related:[["高級中等學校教科用書採購應行注意事項","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL000279"]],local:["桃園市依年度教科書及採購函示辦理","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高設備組辦理選用、採購及領用","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定合法版本與採購原則；桃園轉知年度作業；觀高應留存選用會議、採購及發放紀錄。"},
       {g:"設備組",topic:"實驗室、專科教室與教學設備安全",status:"桃園未另訂",national:["職業安全衛生法及學校安全相關規定","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001"],local:["桃園市未查得高中教務設備專用統一版本，依中央及市府安全函示","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高設備組負責設備維護、專科教室及實驗室管理","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"中央定安全責任；觀高須自行排定巡檢、危害告知、維護與紀錄週期。"},
-      {g:"實驗研究組",topic:"科技雙語實驗班與國教署擴增雙語實驗班",status:"桃園年度作業",national:["高級中等教育法第12條：主管機關得核准部分班級辦理實驗教育","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],related:[["高級中等學校課程規劃及實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001729"]],local:["114學年度由桃園市核定科技雙語實驗班；115學年度依國教署擴增雙語實驗班年度計畫申請並由教育局轉報","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高科技雙語實驗班實驗計畫暨備查課程計畫；新學年銜接國教署擴增雙語實驗班計畫","https://www.gish.tyc.edu.tw/p/404-1000-2832.php"],diff:"實驗班不是僅辦活動。學校須逐年完成實驗計畫與課程計畫、招生說明、師資排配、課程與講座、學生學習成果、經費及成效報告；115學年度另須依國教署年度計畫與核定條件執行。"},
+      {g:"實驗研究組",topic:"科技雙語實驗班與國教署擴增雙語實驗班",status:"桃園年度作業",national:["高級中等教育法第12條：主管機關得核准部分班級辦理實驗教育","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],related:[["高級中等學校課程規劃及實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001729"]],local:["114學年度由桃園市核定科技雙語實驗班；115學年度依國教署擴增雙語實驗班年度計畫申請並由教育局轉報","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀音高中科技雙語實驗班計畫與甄選資訊","觀音高中科技雙語實驗班計畫與甄選資訊.html","text"],schoolRelated:[["科技雙語實驗班專區","https://www.gish.tyc.edu.tw/p/404-1000-11002.php"],["114學年度科技雙語實驗班甄選簡章及報名表","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/342508011.pdf"],["114學年度科技雙語實驗班說明會","https://www.gish.tyc.edu.tw/var/file/0/1000/img/19/358015045.pdf"]],diff:"實驗班不是僅辦活動。學校須逐年完成實驗計畫與課程計畫、招生說明、師資排配、課程與講座、學生學習成果、經費及成效報告；觀高現已將科技雙語實驗班辦班目的、甄選方式、特色活動與官方公告整理為校內查詢頁，115學年度另須依國教署年度計畫與核定條件執行。"},
       {g:"實驗研究組",topic:"高中優質化輔助方案",status:"桃園年度作業",national:["國教署高中優質化輔助方案年度計畫（非固定法規）","https://www.k12ea.gov.tw/"],related:[["高級中等教育法","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],["高級中等學校課程評鑑實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001894"]],local:["桃園市依國教署及教育局年度期程辦理申請、審查、經費修正與管考","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高高中優質化計畫：子計畫申請、預算協調、期中與期末會議、成果報告及核銷","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"優質化以年度核定計畫與經費規定為直接依據，不是固定法規；主任應掌握子計畫目標、課程發展、執行率、成果證據與經費核銷。"},
       {g:"實驗研究組",topic:"桃園市亮點躍升計畫",status:"桃園年度作業",national:["高級中等教育法：促進學校優質化與特色發展","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001143"],related:[["高級中等學校課程規劃及實施要點","https://edu.law.moe.gov.tw/LawContent.aspx?id=GL001729"]],local:["桃園市亮點躍升年度計畫、審查結果及經費核定為直接執行依據","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高亮點躍升計畫：申請、審查、子計畫執行、獎學金、成果及核銷","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"亮點躍升是桃園市年度專案；須依當年度核定內容執行。校內已用於教師增能、特色課程、跨校參訪與獎學金等，應逐項留下成果及經費證據。"},
       {g:"註冊組",topic:"臻鼎教育基金會優良學生獎助學金",status:"桃園年度作業",national:["個人資料保護法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0050021"],related:[["行政程序法","https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=A0030055"]],local:["依財團法人臻鼎教育基金會及桃園市教育局每年度獎助學金計畫辦理","https://www.tyc.edu.tw/cl.aspx?n=5176"],school:["觀高承辦年度工作會議、公告收件、資格初核、初複審、頒獎典禮及經費核結","https://www.gish.tyc.edu.tw/p/404-1000-460.php"],diff:"本案屬年度獎助學金計畫而非固定教育法規。承辦時應依當年度簡章與審查基準，並落實申請資料個資保護、審查紀錄、名冊正確性及經費核結。"},
@@ -1064,6 +1370,7 @@
       {g:"教學組",status:"已涵蓋",title:"次學年度課程計畫撰寫、校內審議、送審與修正",basis:"十二年國教課綱、課程規劃及實施要點、桃園年度函示",when:"依桃園市每學年審查期程",note:"已依校內會議資料補入課程計畫修訂、審議、送審、修正及備查追蹤。"},
       {g:"教學組",status:"部分涵蓋",title:"課程會議提案、法定組成、決議追蹤與紀錄核定",basis:"課程規劃及實施要點、校內課發會組織規程",when:"每次課發會及教學研究會前後",note:"校曆已列會議日期，仍應補入會前提案與會後決議追蹤、紀錄核定。"},
       {g:"教學組",status:"已涵蓋",title:"教師需求、甄選、配課與授課節數查核",basis:"教師法、教評會設置辦法、授課節數基準",when:"每年4月至8月及每學期前",note:"已補入員額與各科需求試算、正式缺與代理缺確認、教評會、甄選、配課、排課及課表定案。"},
+      {g:"教學組",status:"已涵蓋",title:"導師輪聘、免兼、代理與遴選委員會",basis:"教師法第32條第1項第9款及同條第2項、觀高高中部導師輪聘實施辦法",when:"每學年導師遴聘前及出缺事件發生時",note:"已取得114年1月20日校務會議修訂版本；主任應依各科排配課提出導師需求，並注意委員會組成、利益迴避、積分、免兼及表決門檻。"},
       {g:"教學組",status:"已涵蓋",title:"選課、課發會、課程諮詢及第8節／暑輔",basis:"課程規劃及實施要點、桃園市課輔要點",when:"依校曆",note:"校曆已有多輪選課、課發會、團體課程諮詢及課輔事項。"},
       {g:"教學組",status:"已涵蓋",title:"高中學生學習扶助方案完整週期",basis:"國教署高級中等學校學生學習扶助方案年度計畫",when:"每年申請，學期中開課並追蹤執行率",note:"已補入開課需求彙整、年度申請、師資與課程執行、成果及經費執行率檢核。"},
       {g:"教學組",status:"已涵蓋",title:"本土語文、臺灣手語與新生華語文課程",basis:"十二年國教課綱、年度開課與補助規定",when:"每學期排課前至期末核結",note:"已補入師資確認、排課、開課、新增鐘點費、開課經費及學習扶助課程。"},
@@ -1215,42 +1522,39 @@
         (!lawTypeFilter.value || x.status === lawTypeFilter.value) &&
         matches(`${x.g} ${x.topic} ${x.status} ${x.national[0]} ${(x.related || []).map(y => y[0]).join(" ")} ${x.local[0]} ${x.school[0]} ${x.diff}`)
       );
-      const action = (kind, item) => {
-        const [label, url] = item;
-        if (kind === "national") {
-          if (url.includes("ceec.edu.tw")) return "開啟年度簡章入口";
-          if (url.includes("k12ea.gov.tw") || label.includes("年度計畫")) return "開啟官方計畫入口";
-          return "開啟法規全文";
-        }
-        if (kind === "local") {
-          return "開啟桃園辦法原文";
-        }
-        return "開啟校內辦法原文";
-      };
-      const isDirect = (kind, url) => {
+      const stripPrefix = text => text
+        .replace(/^相關法規[:：]\s*/, "")
+        .replace(/^相關桃園辦法[:：]\s*/, "")
+        .replace(/^相關校內辦法[:：]\s*/, "")
+        .trim();
+      const isDirectSource = (kind, item) => {
+        const [, url, sourceType] = item;
         if (!url) return false;
+        if (sourceType === "text") return true;
         if (kind === "national") return true;
-        if (kind === "local") return url.toLowerCase().endsWith(".pdf") || url.includes("Action=downloadfile");
-        return url.toLowerCase().endsWith(".pdf") || url.includes("Action=downloadfile");
+        const lower = url.toLowerCase();
+        if (kind === "local") return lower.endsWith(".pdf") || lower.endsWith(".html") || lower.includes("action=downloadfile");
+        if (kind === "school") return lower.endsWith(".pdf") || lower.endsWith(".html") || lower.includes("action=downloadfile");
+        return false;
       };
-      const directLink = (kind, item) => isDirect(kind, item[1])
-        ? `<a class="link-btn" href="${item[1]}" target="_blank" rel="noopener noreferrer">${action(kind, item)}</a>`
-        : `<span class="no-source">${kind === "local" ? "桃園未另訂或未取得直接原文" : "未取得校內辦法直接原文"}</span>`;
-      const relatedLinks = x => (x.related || []).map(y =>
-        `<a class="link-btn" href="${y[1]}" target="_blank" rel="noopener noreferrer">相關法規：${y[0]}</a>`
-      ).join("");
-      const localRelatedLinks = x => (x.localRelated || []).map(y =>
-        `<a class="link-btn" href="${y[1]}" target="_blank" rel="noopener noreferrer">相關桃園辦法：${y[0]}</a>`
-      ).join("");
-      const schoolRelatedLinks = x => (x.schoolRelated || []).map(y =>
-        `<a class="link-btn" href="${y[1]}" target="_blank" rel="noopener noreferrer">相關校內辦法：${y[0]}</a>`
-      ).join("");
+      const escapeAttr = text => String(text).replace(/"/g, "&quot;");
+      const toLink = item => item[2] === "text"
+        ? `<button class="link-btn" type="button" data-law-doc="${escapeAttr(item[1])}">${stripPrefix(item[0])}</button>`
+        : `<a class="link-btn" href="${item[1]}" target="_blank" rel="noopener noreferrer">${stripPrefix(item[0])}</a>`;
+      const layerLinks = (kind, mainItem, relatedItems = []) => {
+        const links = [];
+        if (isDirectSource(kind, mainItem)) links.push(toLink(mainItem));
+        (relatedItems || []).forEach(item => {
+          if (item[1]) links.push(toLink(item));
+        });
+        return links.length ? links.join("") : `<span class="no-source">沒有相關法規</span>`;
+      };
       root.innerHTML = data.length ? `<div class="compare-grid">${data.map(x => `<article class="compare-card">
         <div class="compare-head"><h3>${x.topic}</h3><div><span class="group-chip">${x.g}</span> <span class="status-chip ${x.status === "桃園另訂" ? "covered" : x.status === "桃園年度作業" ? "partial" : "missing"}">${x.status}</span></div></div>
         <div class="compare-layers">
-          <div class="layer"><strong>全國規範</strong><p>${x.national[0]}</p><div class="law-links">${directLink("national", x.national)}${relatedLinks(x)}</div></div>
-          <div class="layer"><strong>桃園市層級</strong><p>${x.local[0]}</p><div class="law-links">${directLink("local", x.local)}${localRelatedLinks(x)}</div></div>
-          <div class="layer"><strong>觀高校內執行</strong><p>${x.school[0]}</p><div class="law-links">${directLink("school", x.school)}${schoolRelatedLinks(x)}</div></div>
+          <div class="layer"><strong>全國規範</strong><div class="law-links">${layerLinks("national", x.national, x.related)}</div></div>
+          <div class="layer"><strong>桃園市層級</strong><div class="law-links">${layerLinks("local", x.local, x.localRelated)}</div></div>
+          <div class="layer"><strong>觀高校內執行</strong><div class="law-links">${layerLinks("school", x.school, x.schoolRelated)}</div></div>
         </div>
         <div class="difference"><strong>主要差別：</strong>${x.diff}</div>
       </article>`).join("")}</div>` : `<div class="empty">沒有符合條件的法規對照。</div>`;
@@ -1310,6 +1614,21 @@
       </article>`).join("")}</div>` : `<div class="empty">沒有符合條件的工作入口。</div>`;
     }
 
+    const lawModal = document.getElementById("lawModal");
+    const lawModalTitle = document.getElementById("lawModalTitle");
+    const lawModalMeta = document.getElementById("lawModalMeta");
+    const lawModalBody = document.getElementById("lawModalBody");
+    const lawModalClose = document.getElementById("lawModalClose");
+
+    function openLawDoc(docId) {
+      const doc = lawTextPages[docId];
+      if (!doc) return;
+      lawModalTitle.textContent = doc.title;
+      lawModalMeta.textContent = doc.meta || "整合於首頁內閱讀";
+      lawModalBody.innerHTML = doc.content;
+      lawModal.showModal();
+    }
+
     function renderAll() {
       renderSchedule();
       renderLaws();
@@ -1333,6 +1652,16 @@
 
     [globalSearch, groupFilter, monthFilter, categoryFilter, lawGroupFilter, lawTypeFilter, auditGroupFilter, auditStatusFilter].forEach(el => {
       el.addEventListener(el.tagName === "INPUT" ? "input" : "change", renderAll);
+    });
+
+    lawModalClose.addEventListener("click", () => lawModal.close());
+    lawModal.addEventListener("click", event => {
+      if (event.target === lawModal) lawModal.close();
+    });
+    document.getElementById("lawRoot").addEventListener("click", event => {
+      const btn = event.target.closest("[data-law-doc]");
+      if (!btn) return;
+      openLawDoc(btn.dataset.lawDoc);
     });
 
     renderAll();
