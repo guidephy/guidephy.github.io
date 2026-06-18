@@ -195,15 +195,15 @@
     }
     .summary-line-formula {
       color: #1d4ed8;
-      font-weight: 800;
+      font-weight: 700;
       margin-top: 2px;
     }
     .summary-accent-number {
       color: #1d4ed8;
-      font-weight: 800;
+      font-weight: 900;
     }
     .summary-strong {
-      font-weight: 800;
+      font-weight: 900;
     }
     .summary-line-muted {
       color: #475569;
@@ -240,6 +240,26 @@
     }
     tbody tr:hover { background: #f8fbfc; }
     .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .overload-value {
+      display: inline-flex;
+      min-width: 28px;
+      justify-content: center;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: inherit;
+      line-height: 1;
+      font-weight: 800;
+      color: #475569;
+      background: #f1f5f9;
+    }
+    .overload-mid {
+      color: #075985;
+      background: #e0f2fe;
+    }
+    .overload-high {
+      color: #991b1b;
+      background: #fee2e2;
+    }
     .teacher-name { font-weight: 800; font-size: 14px; }
     .chips { display: flex; flex-wrap: wrap; gap: 5px; }
     .chip {
@@ -260,11 +280,48 @@
     .lines { white-space: pre-line; min-width: 230px; }
     .course-list { min-width: 330px; }
     .special { color: #7c2d12; }
+    .course-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 18px;
+      padding: 1px 5px;
+      margin-right: 6px;
+      border-radius: 999px;
+      background: #fed7aa;
+      color: #7c2d12;
+      font-size: 11px;
+      font-weight: 800;
+      vertical-align: 1px;
+      white-space: nowrap;
+    }
     .cards { display: none; padding: 12px; gap: 10px; }
     .diff-list {
       display: grid;
       gap: 12px;
       padding: 12px;
+    }
+    .insight-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 12px;
+      background: #fbfcfe;
+      border-bottom: 1px solid var(--line);
+    }
+    .insight {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      padding: 10px 12px;
+    }
+    .insight span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .insight strong {
+      font-size: 20px;
     }
     .diff-subject-card {
       border: 1px solid var(--line);
@@ -676,6 +733,10 @@
       }
       .card-grid div { padding: 7px 4px; text-align: center; }
       .card-grid strong { font-size: 17px; }
+      .card-grid .overload-value {
+        font-size: inherit;
+        line-height: inherit;
+      }
       .course-section {
         display: block;
         border-top: 1px solid #eef2f6;
@@ -723,6 +784,15 @@
       .diff-course-groups {
         grid-template-columns: 1fr;
         display: grid;
+      }
+      .insight-strip {
+        grid-template-columns: 1fr;
+        padding: 0 0 10px;
+        background: transparent;
+        border-bottom: 0;
+      }
+      .insight {
+        padding: 10px;
       }
       .teacher-diff-stats {
         text-align: left;
@@ -833,7 +903,8 @@
     const lineHtml = value => esc(value).replace(/\n/g, "<br>");
     const sum = (rows, field) => rows.reduce((acc, row) => acc + n(row[field]), 0);
     const isDiffMode = () => state.semester === "diff";
-    const current = () => isDiffMode() ? null : DATA[state.semester];
+    const isDataMode = () => !isDiffMode();
+    const current = () => isDataMode() ? DATA[state.semester] : null;
     const isDiffAllMode = () => isDiffMode() && state.subject === "全部";
 
     function renderButtons(container, options, selected, onClick) {
@@ -844,7 +915,7 @@
     }
 
     function filteredTeachers() {
-      if (isDiffMode()) return [];
+      if (!isDataMode()) return [];
       const q = state.query.trim().toLowerCase();
       return current().teachers.filter(row => {
         if (state.subject !== "全部" && row.subject !== state.subject) return false;
@@ -933,8 +1004,14 @@
       if (!lines || !lines.length) return `<div class="count-note">未列課程</div>`;
       return `<div class="course-lines">${lines.map(line => {
         const isSpecial = specialCourseNames.includes(courseNameFromLine(line));
-        return `<div class="course-line ${isSpecial ? "special-line" : ""}">${esc(line)}</div>`;
+        return `<div class="course-line ${isSpecial ? "special-line" : ""}">${isSpecial ? `<span class="course-tag">其它</span>` : ""}${esc(line)}</div>`;
       }).join("")}</div>`;
+    }
+
+    function overloadHtml(value) {
+      const amount = n(value);
+      const level = amount >= 6 ? "overload-high" : amount >= 4 ? "overload-mid" : "";
+      return `<span class="overload-value ${level}">${esc(value || "0")}</span>`;
     }
 
     function basicDisplayHtml(row) {
@@ -977,7 +1054,9 @@
     }
 
     function renderSubjects() {
-      const sourceSubjects = isDiffMode() ? DATA.diff.subjects.map(item => ({ subject: item.subject })) : current().subjects;
+      const sourceSubjects = isDiffMode()
+        ? DATA.diff.subjects.map(item => ({ subject: item.subject }))
+        : current().subjects;
       const counts = isDiffMode()
         ? DATA.diff.subjects.reduce((acc, row) => { acc[row.subject] = row.teachers.length; return acc; }, {})
         : current().teachers.reduce((acc, row) => { acc[row.subject] = (acc[row.subject] || 0) + 1; return acc; }, {});
@@ -1031,14 +1110,14 @@
         <div class="mini"><span>教師</span><strong>${rows.length}</strong></div>
         <div class="mini"><span>總節</span><strong>${sum(rows, "total")}</strong></div>
         <div class="mini"><span>本科</span><strong>${sum(rows, "regular")}</strong></div>
-        <div class="mini"><span>平均兼課節數</span><strong>${averageOverload(rows)}</strong></div>`;
+        <div class="mini"><span>平均兼課</span><strong>${averageOverload(rows)}</strong></div>`;
         return;
       }
       subjectSummary.innerHTML = `<div class="summary-lines">${summaryLinesHtml(subject.summaryLines)}</div>
         <div class="mini"><span>教師</span><strong>${rows.length}</strong></div>
         <div class="mini"><span>總節</span><strong>${subject.total}</strong></div>
         <div class="mini"><span>本科</span><strong>${subject.regular}</strong></div>
-        <div class="mini"><span>平均兼課節數</span><strong>${averageOverload(rows)}</strong></div>`;
+        <div class="mini"><span>平均兼課</span><strong>${averageOverload(rows)}</strong></div>`;
     }
 
     function rowHtml(row) {
@@ -1051,7 +1130,7 @@
         <td>${basicDisplayHtml(row)}</td>
         <td class="num"><strong>${esc(row.total || "")}</strong></td>
         <td class="num">${esc(row.regular || "")}</td>
-        <td class="num">${esc(row.overload || "")}</td>
+        <td class="num">${overloadHtml(row.overload)}</td>
         <td class="num special">${esc(row.specialHours || "")}</td>
         <td class="lines course-list">${renderCourseList(row.courseLines || [], row.specialCourseNames || [])}</td>
       </tr>`;
@@ -1071,7 +1150,7 @@
         <div class="card-grid">
           <div><span>總節</span><strong>${esc(row.total || "0")}</strong></div>
           <div><span>本科</span><strong>${esc(row.regular || "0")}</strong></div>
-          <div><span>兼課節數</span><strong>${esc(row.overload || "0")}</strong></div>
+          <div><span>兼課</span><strong>${overloadHtml(row.overload)}</strong></div>
           <div class="special-metric"><span>其它</span><strong>${esc(row.specialHours || "0")}</strong></div>
         </div>
         <section class="course-section">
@@ -1136,7 +1215,14 @@
         diffList.innerHTML = `<div class="empty">沒有符合條件的差異資料</div>`;
         return;
       }
-      diffList.innerHTML = subjects.map(subject => `<section class="diff-subject-card">
+      const totalDelta = subjects.reduce((acc, subject) => acc + n(subject.total2) - n(subject.total1), 0);
+      const regularDelta = subjects.reduce((acc, subject) => acc + n(subject.regular2) - n(subject.regular1), 0);
+      const courseDeltaCount = subjects.reduce((acc, subject) => acc + subject.teachers.reduce((inner, teacher) => inner + teacher.addedCourses.length + teacher.removedCourses.length, 0), 0);
+      diffList.innerHTML = `<section class="insight-strip">
+        <div class="insight"><span>總節差</span><strong>${totalDelta > 0 ? `+${totalDelta}` : totalDelta}</strong></div>
+        <div class="insight"><span>本科差</span><strong>${regularDelta > 0 ? `+${regularDelta}` : regularDelta}</strong></div>
+        <div class="insight"><span>課程異動</span><strong>${courseDeltaCount}</strong></div>
+      </section>` + subjects.map(subject => `<section class="diff-subject-card">
         <div class="diff-subject-head">
           <div class="diff-subject-title">${esc(subject.subject)}</div>
           <div class="diff-stats">
@@ -1211,8 +1297,10 @@
       });
       renderSubjects();
       const rows = filteredTeachers();
-      mainTitle.textContent = isDiffMode() ? (state.subject === "全部" ? "學期差異" : `${state.subject} 差異`) : (state.subject === "全部" ? "總表" : state.subject);
-      diffInfoButton.classList.toggle("is-hidden", !isDiffMode());
+      mainTitle.textContent = isDiffMode()
+        ? (state.subject === "全部" ? "學期差異" : `${state.subject} 差異`)
+        : (state.subject === "全部" ? "總表" : state.subject);
+      diffInfoButton.classList.toggle("is-hidden", !isDiffAllMode());
       countNote.textContent = isDiffMode()
         ? `114-1 vs 114-2 · ${filteredDiffSubjects().reduce((acc, subject) => acc + subject.teachers.length, 0)} 位教師`
         : `${state.semester} · ${rows.length} 位教師`;
