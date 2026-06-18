@@ -36,7 +36,7 @@
     h1 { margin: 0; font-size: 28px; line-height: 1.2; font-weight: 800; }
     .title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .mobile-search-toggle { display: none; }
-    .source { margin-top: 8px; color: var(--muted); font-size: 14px; }
+    .source { display: none; }
     .toolbar {
       display: flex;
       align-items: center;
@@ -81,7 +81,6 @@
       gap: 10px;
       margin-bottom: 14px;
     }
-    .search,
     .metrics {
       display: none;
     }
@@ -180,7 +179,7 @@
     }
     .subject-summary {
       display: grid;
-      grid-template-columns: minmax(230px, 1fr) repeat(3, minmax(110px, auto));
+      grid-template-columns: minmax(230px, 1fr) repeat(4, minmax(110px, auto));
       gap: 8px;
       padding: 12px 16px;
       background: #fbfcfe;
@@ -210,7 +209,7 @@
       margin-top: 2px;
     }
     .mini { text-align: right; }
-    .mini span { display: block; color: var(--muted); font-size: 11px; }
+    .mini span { display: block; color: var(--muted); font-size: 11px; white-space: nowrap; }
     .mini strong { font-size: 16px; }
     .mini.special-mini {
       background: #fff7ed;
@@ -218,7 +217,7 @@
       padding: 6px 8px;
     }
     .table-wrap { overflow: auto; max-height: calc(100vh - 250px); }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1200px; }
+    table { width: 100%; min-width: 1100px; border-collapse: separate; border-spacing: 0; table-layout: auto; }
     thead th {
       position: sticky;
       top: 0;
@@ -277,8 +276,18 @@
     .status-代理 { background: #eef2ff; color: #3730a3; }
     .status-兼課 { background: #fff7ed; color: #9a3412; }
     .status-外聘 { background: #fef2f2; color: #991b1b; }
-    .lines { white-space: pre-line; min-width: 230px; }
-    .course-list { min-width: 330px; }
+    .lines { white-space: pre-line; min-width: 0; overflow-wrap: break-word; }
+    .course-list { min-width: 280px; }
+    .col-subject { width: 84px; }
+    .col-status { width: 88px; }
+    .col-name { width: 132px; }
+    .col-title { width: 150px; }
+    .col-basic,
+    .col-total,
+    .col-regular,
+    .col-overload,
+    .col-other { width: 78px; }
+    .col-course { width: 34%; }
     .special { color: #7c2d12; }
     .course-tag {
       display: inline-flex;
@@ -554,8 +563,75 @@
       .toolbar { justify-content: flex-start; }
       .metrics { grid-template-columns: repeat(3, 1fr); }
       .layout { grid-template-columns: 1fr; }
-      aside { position: static; }
-      .subject-list { max-height: 220px; }
+      aside {
+        position: static;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+      }
+      .side-title { display: none; }
+      .subject-list {
+        display: flex;
+        gap: 8px;
+        max-height: none;
+        overflow-x: auto;
+        padding: 0 0 2px;
+      }
+      .subject-item {
+        width: auto;
+        min-width: max-content;
+        grid-template-columns: auto auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        padding: 8px 10px;
+        min-height: 36px;
+      }
+      .subject-item.active { background: var(--accent); color: white; border-color: var(--accent); }
+      .subject-item.active .count { color: rgba(255,255,255,.82); }
+      .table-wrap { display: none; }
+      .cards { display: grid; padding: 12px; gap: 10px; }
+      .teacher-card {
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 3px 14px rgba(15, 23, 42, .06);
+      }
+      .card-top { align-items: center; }
+      .mobile-subject {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .mobile-title {
+        display: block;
+        margin-top: 8px;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: pre-line;
+      }
+      .mobile-basic {
+        display: block;
+        margin-top: 8px;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      .card-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        margin: 10px 0;
+      }
+      .card-grid div { padding: 7px 4px; text-align: center; }
+      .card-grid strong { font-size: 16px; }
+      .course-section {
+        display: block;
+        border-top: 1px solid #eef2f6;
+        padding-top: 10px;
+        margin-top: 8px;
+      }
     }
     @media (max-width: 760px) {
       body { background: #f3f5f7; }
@@ -587,14 +663,19 @@
         font-weight: 800;
         box-shadow: 0 2px 8px rgba(15, 23, 42, .05);
       }
+      .mobile-search-toggle svg {
+        width: 22px;
+        height: 22px;
+        stroke-width: 2.7;
+      }
       body.search-open .mobile-search-toggle { background: var(--accent); color: white; border-color: var(--accent); }
-      .source { display: none; }
       .toolbar {
         position: static;
         background: transparent;
         padding: 0;
         gap: 8px;
       }
+      .search { display: none; }
       body.search-open .search { display: inline-flex; order: 2; }
       .segmented, .search { width: 100%; border-radius: 8px; box-shadow: none; }
       .segmented button { flex: 1; min-height: 40px; font-size: 15px; }
@@ -694,7 +775,7 @@
         border-bottom: 1px solid #eef2f6;
       }
       .mini { text-align: center; background: #f8fafc; border-radius: 6px; padding: 6px 3px; }
-      .mini span { font-size: 10px; }
+      .mini span { font-size: 10px; white-space: nowrap; }
       .mini strong { font-size: 16px; }
       .table-wrap { display: none; }
       .cards, .diff-list { display: grid; padding: 0; gap: 10px; }
@@ -831,7 +912,12 @@
       <div>
         <div class="title-row">
           <h1>114學年各科教師授課節數</h1>
-          <button class="mobile-search-toggle" id="mobileSearchToggle" type="button" aria-label="搜尋">⌕</button>
+          <button class="mobile-search-toggle" id="mobileSearchToggle" type="button" aria-label="搜尋">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <circle cx="11" cy="11" r="6"></circle>
+              <path d="m16 16 4 4"></path>
+            </svg>
+          </button>
         </div>
         <div class="source">資料來源：0618/114學年各科教師授課節數.xlsx</div>
       </div>
@@ -859,7 +945,7 @@
           <table>
             <thead>
               <tr>
-                <th>科別</th><th>身分</th><th>教師</th><th>職稱</th><th class="num">基本</th><th class="num">總節</th><th class="num">本科</th><th class="num">兼課</th><th class="num">其它</th><th>授課課程</th>
+                <th class="col-subject">科別</th><th class="col-status">身分</th><th class="col-name">教師</th><th class="col-title">職稱</th><th class="num col-basic">基本</th><th class="num col-total">總節</th><th class="num col-regular">本科</th><th class="num col-overload">兼課</th><th class="num col-other">其它</th><th class="col-course">授課課程</th>
               </tr>
             </thead>
             <tbody id="teacherRows"></tbody>
@@ -1123,16 +1209,16 @@
     function rowHtml(row) {
       const statusClass = `status-${row.status || ""}`;
       return `<tr>
-        <td>${esc(row.subject)}</td>
-        <td><span class="chip ${statusClass}">${esc(row.status || "")}</span></td>
-        <td><div class="teacher-name">${esc(row.name)}</div><div class="count-note">${esc(row.code || "")}</div></td>
-        <td class="lines">${lineHtml(row.title || "")}</td>
-        <td>${basicDisplayHtml(row)}</td>
-        <td class="num"><strong>${esc(row.total || "")}</strong></td>
-        <td class="num">${esc(row.regular || "")}</td>
-        <td class="num">${overloadHtml(row.overload)}</td>
-        <td class="num special">${esc(row.specialHours || "")}</td>
-        <td class="lines course-list">${renderCourseList(row.courseLines || [], row.specialCourseNames || [])}</td>
+        <td class="col-subject">${esc(row.subject)}</td>
+        <td class="col-status"><span class="chip ${statusClass}">${esc(row.status || "")}</span></td>
+        <td class="col-name"><div class="teacher-name">${esc(row.name)}</div><div class="count-note">${esc(row.code || "")}</div></td>
+        <td class="lines col-title">${lineHtml(row.title || "")}</td>
+        <td class="col-basic">${basicDisplayHtml(row)}</td>
+        <td class="num col-total"><strong>${esc(row.total || "")}</strong></td>
+        <td class="num col-regular">${esc(row.regular || "")}</td>
+        <td class="num col-overload">${overloadHtml(row.overload)}</td>
+        <td class="num special col-other">${esc(row.specialHours || "")}</td>
+        <td class="lines course-list col-course">${renderCourseList(row.courseLines || [], row.specialCourseNames || [])}</td>
       </tr>`;
     }
 
