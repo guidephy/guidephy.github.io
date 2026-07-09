@@ -4,24 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>遠端搖控鐵捲門</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --paper: #f2ede2;
-      --paper-deep: #ffffff;
-      --ink: #33302a;
-      --ink-soft: #7a7266;
-      --moss: #57694a;
-      --moss-deep: #445238;
-      --moss-bg: #eef1e8;
-      --clay: #8f4a37;
-      --clay-deep: #74392a;
-      --clay-bg: #f6e9e3;
-      --seal: #9a3b34;
-      --line: #e2d9c8;
-      --gold: #b8935a;
+      --bg: #17191c;
+      --card: #202327;
+      --card-edge: #2c3034;
+      --text-main: #e8e6e1;
+      --text-dim: #8b9096;
+      --green: #4a9d6f;
+      --red: #a34a42;
+      --amber: #d4a24c;
     }
 
     * { box-sizing: border-box; }
@@ -29,104 +21,95 @@
     html, body { height: 100%; }
 
     body {
-      font-family: "Noto Serif TC", serif;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Segoe UI", sans-serif;
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: var(--bg);
+      color: var(--text-main);
       min-height: 100svh;
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
       padding-top: max(20px, env(safe-area-inset-top));
       padding-bottom: max(20px, env(safe-area-inset-bottom));
-      color: var(--ink);
-      background: var(--paper);
     }
 
-    .card {
+    .page {
       width: 100%;
-      max-width: 420px;
-    }
-
-    .header-row {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 18px;
-      padding: 0 4px;
+      max-width: 460px;
     }
 
     h1 {
-      font-size: 24px;
+      font-size: clamp(22px, 6vw, 28px);
       font-weight: 700;
-      letter-spacing: 0.03em;
-      margin: 0;
-      color: var(--ink);
+      margin: 4px 0 18px;
+      letter-spacing: 0.01em;
     }
 
-    /* 印章式狀態指示：一眼就能判斷連線狀態 */
-    .status-pill {
+    .status-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: var(--paper-deep);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 7px 14px 7px 10px;
-      font-size: 14px;
-      color: var(--ink-soft);
+      gap: 10px;
+      font-size: 15px;
+      color: var(--text-dim);
+      background: var(--card);
+      border: 1px solid var(--card-edge);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
     }
 
-    .stamp {
-      width: 12px;
-      height: 12px;
+    .led {
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
-      background: var(--ink-soft);
+      background: var(--text-dim);
       flex-shrink: 0;
       transition: background 0.3s;
     }
-    .stamp.connecting {
-      background: var(--gold);
-      animation: breathe 1.2s ease-in-out infinite;
+    .led.connecting {
+      background: var(--amber);
+      animation: pulse 1.1s ease-in-out infinite;
     }
-    .stamp.connected { background: var(--moss-deep); }
-    .stamp.offline { background: var(--seal); }
+    .led.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .led.offline { background: var(--red); box-shadow: 0 0 8px var(--red); }
 
-    @keyframes breathe {
+    @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.35; }
     }
 
-    .button-stack {
+    .button-row {
       display: flex;
-      flex-direction: column;
       gap: 16px;
     }
 
     .ctrl-btn {
+      flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 18px;
-      padding: 26px 28px;
-      background: var(--paper-deep);
-      border: 1.5px solid var(--line);
-      border-radius: 18px;
+      justify-content: center;
+      gap: 14px;
+      aspect-ratio: 1 / 0.92;
+      background: var(--card);
+      border: 1px solid var(--card-edge);
+      border-radius: 22px;
       cursor: pointer;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
       transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.2s;
-      box-shadow: 0 2px 0 rgba(51,48,42,0.04);
-      min-height: 88px;
     }
 
     .ctrl-btn:active,
     .ctrl-btn.pressed {
-      transform: scale(0.97);
-      box-shadow: inset 0 2px 6px rgba(51,48,42,0.12);
+      transform: scale(0.96);
+      box-shadow: inset 0 3px 10px rgba(0,0,0,0.4);
     }
 
     .ctrl-btn:focus-visible {
-      outline: 2px solid var(--gold);
+      outline: 2px solid var(--amber);
       outline-offset: 3px;
     }
 
@@ -136,104 +119,72 @@
       pointer-events: none;
     }
 
-    .icon-wrap {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+    .arrow {
+      width: 0;
+      height: 0;
+      border-left: clamp(24px, 8vw, 32px) solid transparent;
+      border-right: clamp(24px, 8vw, 32px) solid transparent;
     }
-
-    .ctrl-btn.open .icon-wrap { background: var(--moss-bg); }
-    .ctrl-btn.close .icon-wrap { background: var(--clay-bg); }
-
-    .ctrl-btn svg {
-      width: 26px;
-      height: 26px;
-    }
-    .ctrl-btn.open svg { stroke: var(--moss-deep); }
-    .ctrl-btn.close svg { stroke: var(--clay-deep); }
-
-    .btn-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      text-align: left;
-    }
+    .arrow-up { border-bottom: clamp(38px, 13vw, 52px) solid var(--green); }
+    .arrow-down { border-top: clamp(38px, 13vw, 52px) solid var(--red); }
 
     .btn-label {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--ink);
+      font-size: clamp(17px, 5vw, 20px);
+      font-weight: 600;
+      color: var(--text-main);
     }
 
     .btn-sub {
-      font-size: 13px;
-      letter-spacing: 0.08em;
-      color: var(--ink-soft);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      margin-top: -6px;
     }
 
     .log-row {
-      margin-top: 18px;
-      font-size: 14px;
-      color: var(--ink-soft);
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-dim);
       text-align: center;
-      min-height: 20px;
+      min-height: 18px;
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .stamp.connecting { animation: none; }
+      .led.connecting { animation: none; }
       .ctrl-btn { transition: none; }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="header-row">
-      <h1>遠端搖控鐵捲門</h1>
-      <div class="status-pill">
-        <span class="stamp" id="status-led"></span>
-        <span id="status-text">連線中…</span>
-      </div>
+  <div class="page">
+    <h1>遠端搖控鐵捲門</h1>
+
+    <div class="status-row">
+      <span class="led" id="status-led"></span>
+      <span id="status-text">連線中…</span>
     </div>
 
-    <div class="button-stack">
+    <div class="button-row">
       <div id="demo-area-05-btn1"
-           class="ctrl-btn open disabled"
+           class="ctrl-btn disabled"
            role="button"
            tabindex="0"
            aria-label="開門"
            aria-disabled="true">
-        <span class="icon-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 19V5"></path>
-            <path d="M5 12l7-7 7 7"></path>
-          </svg>
-        </span>
-        <span class="btn-text">
-          <span class="btn-label">開門</span>
-          <span class="btn-sub">輕點送出開門訊號</span>
-        </span>
+        <span class="arrow arrow-up"></span>
+        <span class="btn-label">開門</span>
+        <span class="btn-sub">OPEN</span>
       </div>
       <div id="demo-area-05-btn2"
-           class="ctrl-btn close disabled"
+           class="ctrl-btn disabled"
            role="button"
            tabindex="0"
            aria-label="關門"
            aria-disabled="true">
-        <span class="icon-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 5v14"></path>
-            <path d="M5 12l7 7 7-7"></path>
-          </svg>
-        </span>
-        <span class="btn-text">
-          <span class="btn-label">關門</span>
-          <span class="btn-sub">輕點送出關門訊號</span>
-        </span>
+        <span class="arrow arrow-down"></span>
+        <span class="btn-label">關門</span>
+        <span class="btn-sub">CLOSE</span>
       </div>
     </div>
 
