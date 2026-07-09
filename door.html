@@ -1,112 +1,394 @@
-
 <!doctype html>
-<html>
-
+<html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>遠端搖控鐵捲門</title>
   <style>
+    :root {
+      --panel-bg: #1b1e22;
+      --panel-face: #24282d;
+      --panel-edge: #33383e;
+      --text-main: #e9e6df;
+      --text-dim: #8b9096;
+      --amber: #f2a91a;
+      --green: #4fae7a;
+      --red: #d9564a;
+      --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #e0e0e0, #ffffff);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: radial-gradient(ellipse at top, #2a2e33 0%, #101214 70%);
       margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      padding: 24px;
+      color: var(--text-main);
     }
 
-    .container {
-      text-align: center;
-      background-color: #ffffff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-      max-width: 90%;
+    .panel {
+      width: 100%;
+      max-width: 380px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-edge);
+      border-radius: 20px;
+      padding: 28px 28px 24px;
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      position: relative;
     }
 
-    h4 {
-      margin-bottom: 30px;
-      color: #333333;
-      font-size: 32px;
-      font-weight: bold;
+    /* screw-like corner details for a control-panel feel */
+    .panel::before, .panel::after {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #3a3f45;
+      box-shadow: inset 0 1px 1px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05);
+      top: 14px;
     }
+    .panel::before { left: 14px; }
+    .panel::after { right: 14px; }
 
-    .button-container {
+    .header-row {
       display: flex;
-      justify-content: space-around;
-      gap: 40px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
     }
 
-    .arrow-up, .arrow-down {
-      display: inline-block;
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 4px 0 22px;
+      letter-spacing: 0.01em;
+    }
+
+    /* status indicator, styled like a real device LED */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      background: #16181b;
+      border: 1px solid var(--panel-edge);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 26px;
+    }
+
+    .led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+
+    .led.connecting {
+      background: var(--amber);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    .led.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .led.offline { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    .button-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .ctrl-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 22px 0 16px;
+      background: linear-gradient(180deg, var(--panel-face) 0%, #1e2226 100%);
+      border: 1px solid var(--panel-edge);
+      border-radius: 14px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.2s;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .ctrl-btn:hover { border-color: #454b52; }
+
+    .ctrl-btn:active,
+    .ctrl-btn.pressed {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    .ctrl-btn:focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 2px;
+    }
+
+    .ctrl-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .arrow {
       width: 0;
       height: 0;
-      border-left: 40px solid transparent;
-      border-right: 40px solid transparent;
-      cursor: pointer;
-      transition: transform 0.3s;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      transition: border-color 0.2s;
     }
 
-    .arrow-up {
-      border-bottom: 70px solid #007bff;
+    .arrow-up { border-bottom: 26px solid var(--green); }
+    .arrow-down { border-top: 26px solid var(--red); }
+
+    .btn-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text-main);
     }
 
-    .arrow-down {
-      border-top: 70px solid #007bff;
+    .btn-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
     }
 
-    .arrow-up:hover, .arrow-down:hover {
-      transform: scale(1.15);
+    .log-row {
+      margin-top: 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: center;
+      min-height: 16px;
     }
 
-    .arrow-up:active, .arrow-down:active {
-      transform: scale(0.9);
+    @media (prefers-reduced-motion: reduce) {
+      .led.connecting { animation: none; }
+      .ctrl-btn { transition: none; }
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <h4>遠端搖控鐵捲門</h4>
-    <div class="button-container">
-      <div id="demo-area-05-btn1" class="arrow-up"></div>
-      <div id="demo-area-05-btn2" class="arrow-down"></div>
+  <div class="panel">
+    <div class="header-row">
+      <span class="eyebrow">Webduino · Smart</span>
     </div>
+    <h1>遠端搖控鐵捲門</h1>
+
+    <div class="status-row" id="status-row">
+      <span class="led" id="status-led"></span>
+      <span id="status-text">連線中…</span>
+    </div>
+
+    <div class="button-row">
+      <div id="demo-area-05-btn1"
+           class="ctrl-btn disabled"
+           role="button"
+           tabindex="0"
+           aria-label="開門"
+           aria-disabled="true">
+        <span class="arrow arrow-up"></span>
+        <span class="btn-label">開門</span>
+        <span class="btn-sub">OPEN</span>
+      </div>
+      <div id="demo-area-05-btn2"
+           class="ctrl-btn disabled"
+           role="button"
+           tabindex="0"
+           aria-label="關門"
+           aria-disabled="true">
+        <span class="arrow arrow-down"></span>
+        <span class="btn-label">關門</span>
+        <span class="btn-sub">CLOSE</span>
+      </div>
+    </div>
+
+    <div class="log-row" id="log-row" aria-live="polite"></div>
   </div>
 
-  <script src="https://blocklypro.webduino.io/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e914718e0290410e85366fe9"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
-  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=b1ada5fdae699e60af615c060e786d60"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
-  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
-
+  <script>window.__scriptStatus = {};</script>
+  <script src="https://cloud.webduino.io/blockly/node_modules/jquery/dist/jquery.min.js?rev=2f6b11a7e9"
+    onload="window.__scriptStatus['jquery']='ok'"
+    onerror="window.__scriptStatus['jquery']='FAILED'"></script>
+  <script src="https://cloud.webduino.io/blockly/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00"
+    onload="window.__scriptStatus['webduino-all']='ok'"
+    onerror="window.__scriptStatus['webduino-all']='FAILED'"></script>
+  <script src="https://cloud.webduino.io/blockly/dist/webduino-blockly.min.js?rev=4c208955d8"
+    onload="window.__scriptStatus['webduino-blockly']='ok'"
+    onerror="window.__scriptStatus['webduino-blockly']='FAILED'"></script>
+  <script src="https://cloud.webduino.io/blockly/dist/lib/firebase.min.js?rev=c0bfd493ef"
+    onload="window.__scriptStatus['firebase']='ok'"
+    onerror="window.__scriptStatus['firebase']='FAILED'"></script>
+  <script src="https://cloud.webduino.io/blockly/dist/lib/runtime.min.js?rev=683a695034"
+    onload="window.__scriptStatus['runtime']='ok'"
+    onerror="window.__scriptStatus['runtime']='FAILED'"></script>
   <script>
-    (async function () {
-      var openDoor;
-      var closeDoor;
+    (function () {
+      var PULSE_SECONDS = 0.5; // 觸發脈衝長度，如硬體需要更長時間才能觸發，可調整此值
 
-      boardReady({ board: 'Smart', device: '10drnmad', transport: 'mqtt' }, async function (board) {
-        board.samplingInterval = 100;
-        openDoor = getRelay(board, 14);
-        closeDoor = getRelay(board, 16);
+      var openDoor, closeDoor;
+      var isBusy = false; // 互鎖旗標：同一時間只允許一個開/關動作執行
 
-        openDoor.off();
-        closeDoor.off();
-        document.getElementById('demo-area-05-btn1').addEventListener('click', async function () {
-          openDoor.on();
-          await delay(0.5);
-          openDoor.off();
+      var btnOpen = document.getElementById('demo-area-05-btn1');
+      var btnClose = document.getElementById('demo-area-05-btn2');
+      var statusLed = document.getElementById('status-led');
+      var statusText = document.getElementById('status-text');
+      var logRow = document.getElementById('log-row');
+
+      function setStatus(state, text) {
+        statusLed.className = 'led ' + state;
+        statusText.textContent = text;
+      }
+
+      function setButtonsEnabled(enabled) {
+        [btnOpen, btnClose].forEach(function (btn) {
+          if (enabled) {
+            btn.classList.remove('disabled');
+            btn.setAttribute('aria-disabled', 'false');
+          } else {
+            btn.classList.add('disabled');
+            btn.setAttribute('aria-disabled', 'true');
+          }
         });
-        document.getElementById('demo-area-05-btn2').addEventListener('click', async function () {
-          closeDoor.on();
-          await delay(0.5);
-          closeDoor.off();
+      }
+
+      function log(msg) {
+        logRow.textContent = msg;
+      }
+
+      async function pulseRelay(activeRelay, otherRelay, label, btnEl) {
+        if (isBusy) return; // 防止連點：動作進行中不接受新指令
+        isBusy = true;
+        setButtonsEnabled(false);
+        btnEl.classList.add('pressed');
+        log(label + '中…');
+
+        try {
+          otherRelay.off(); // 互鎖保險：先確保相反方向的繼電器是關閉的
+          activeRelay.on();
+          await delay(PULSE_SECONDS);
+          activeRelay.off();
+          log(label + '指令已送出');
+        } catch (err) {
+          log('指令送出失敗，請檢查連線');
+        } finally {
+          btnEl.classList.remove('pressed');
+          setButtonsEnabled(true);
+          isBusy = false;
+        }
+      }
+
+      function bindActivation(el, handler) {
+        el.addEventListener('click', handler);
+        el.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handler();
+          }
         });
-      });
+      }
+
+      setStatus('connecting', '連線中…');
+
+      // 開發除錯用：先確認 webduino 相關函式庫是否有成功載入
+      if (typeof boardReady === 'undefined') {
+        var failed = Object.keys(window.__scriptStatus || {}).filter(function (k) {
+          return window.__scriptStatus[k] === 'FAILED';
+        });
+        var detail = failed.length
+          ? '載入失敗的檔案：' + failed.join(', ')
+          : '所有 script 標籤都回報成功，但 boardReady 仍未定義（可能是檔案內容有誤或被攔截後回傳了非 JS 內容）';
+        setStatus('offline', 'webduino 腳本載入失敗');
+        log(detail);
+        console.error('[鐵捲門] boardReady is undefined。' + detail);
+        console.log('[鐵捲門] 各 script 載入狀態：', window.__scriptStatus);
+      } else {
+        console.log('[鐵捲門] 開始連線裝置：', { board: 'Smart', device: '10drnmad', transport: 'mqtt', multi: true });
+
+        try {
+          boardReady({ board: 'Smart', device: '10drnmad', transport: 'mqtt', multi: true }, function (board) {
+            console.log('[鐵捲門] boardReady callback 已觸發，board =', board);
+
+            board.samplingInterval = 100;
+            openDoor = getRelay(board, 14);
+            closeDoor = getRelay(board, 16);
+            openDoor.off();
+            closeDoor.off();
+
+            setStatus('connected', '已連線');
+            setButtonsEnabled(true);
+
+            bindActivation(btnOpen, function () {
+              pulseRelay(openDoor, closeDoor, '開門', btnOpen);
+            });
+            bindActivation(btnClose, function () {
+              pulseRelay(closeDoor, openDoor, '關門', btnClose);
+            });
+
+            // 若連線中斷，即時反映狀態並停用按鈕，避免使用者按下卻沒有作用
+            if (board.on) {
+              board.on('disconnect', function () {
+                console.warn('[鐵捲門] 裝置連線中斷');
+                setStatus('offline', '連線中斷');
+                setButtonsEnabled(false);
+              });
+              board.on('reconnect', function () {
+                console.log('[鐵捲門] 裝置重新連線');
+                setStatus('connected', '已連線');
+                setButtonsEnabled(true);
+              });
+              board.on('error', function (err) {
+                console.error('[鐵捲門] board error:', err);
+                setStatus('offline', '裝置連線錯誤，詳見 console');
+              });
+            }
+          });
+        } catch (err) {
+          console.error('[鐵捲門] boardReady 呼叫時發生例外：', err);
+          setStatus('offline', 'boardReady 呼叫失敗，詳見 console');
+        }
+      }
+
+      // 保險：若長時間連不上，提示使用者裝置可能離線，並在 console 留下時間戳方便對照
+      setTimeout(function () {
+        if (statusText.textContent === '連線中…') {
+          console.warn('[鐵捲門] 15 秒內未觸發 boardReady callback，' +
+            '請確認 device 代號 (10drnmad) 是否與後台登記的裝置一致，' +
+            '確認裝置是否真的在線，並確認網路（防火牆/公司網路）是否會擋 MQTT 連線。');
+          setStatus('offline', '連線逾時，請確認裝置代號是否正確');
+        }
+      }, 15000);
     }());
   </script>
 </body>
-
 </html>
